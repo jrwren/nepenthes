@@ -113,7 +113,7 @@ bool CSendDownloadHandler::download(Download *down)
 	int32_t Port = down->getDownloadUrl()->getPort();
 	uint32_t Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
-	Socket *socket = m_Nepenthes->getSocketMgr()->connectTCPHost(INADDR_ANY,Host,Port,m_ConnectTimeout);
+	Socket *socket = m_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),Host,Port,m_ConnectTimeout);
 
 	Dialogue *dia = createDialogue(socket);
     ((CSendDialogue*)dia)->setDownload(down);

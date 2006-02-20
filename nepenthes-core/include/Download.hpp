@@ -37,52 +37,72 @@ using namespace std;
 
 
 
-#define DF_TYPE_BINARY	0x0000001
+#define DF_TYPE_BINARY			0x0000001
+#define DF_INTERNAL_DOWNLOAD 	0x0000002
 
 namespace nepenthes
 {
 	class DownloadUrl;
 	class DownloadBuffer;
+	class DownloadCallback;
 
+	/**
+	 * whenever we download something, we have to store the information where to download,
+	 * and have to store the stuff we downloaded.
+	 * 
+	 * the downloads address is saved in DownloadUrl
+	 * the downloads result is stored in DownloadBuffer
+	 */
 	class Download //: public EvCID
 	{
 	public:
-		Download(char *pszUri, uint32_t ulAddress, char *triggerline);
+		Download(uint32_t localhost, char *pszUri, uint32_t ulAddress, char *triggerline, DownloadCallback *callback=NULL, void *obj=NULL);
 		virtual ~Download();
-		virtual void setUrl(string *url);
-		virtual string getUrl();
-		virtual string getTriggerLine();
+		virtual void 			setUrl(string *url);
+		virtual string 			getUrl();
+		virtual string 			getTriggerLine();
 
-		virtual void   setMD5Sum(string *s);
-		virtual string getMD5Sum();
+		virtual void   			setMD5Sum(string *s);
+		virtual string 			getMD5Sum();
 
-		virtual void setSHA512(unsigned char *hash);
-		virtual unsigned char *getSHA512();
-		virtual string getSHA512Sum();
+		virtual void 			setSHA512(unsigned char *hash);
+		virtual unsigned char 	*getSHA512();
+		virtual string 			getSHA512Sum();
 
-		virtual uint32_t getAddress();
-		virtual DownloadUrl *getDownloadUrl();
-		virtual DownloadBuffer *getDownloadBuffer();
-		virtual void setFileType(char *type);
-		virtual string getFileType();
+		virtual uint32_t 		getRemoteHost();
+		virtual uint32_t 		getLocalHost();
 
-		uint8_t	getDownloadFlags();
-		void	addDownloadFlags(uint8_t flags);
+		virtual DownloadUrl 	*getDownloadUrl();
+		virtual DownloadBuffer 	*getDownloadBuffer();
+		virtual void 			setFileType(char *type);
+		virtual string 			getFileType();
+
+		uint8_t					getDownloadFlags();
+		void					addDownloadFlags(uint8_t flags);
+
+		virtual DownloadCallback *getCallback();
+		virtual void 			*getObject();
 
 	protected:
-		string  m_Url;
-		string  m_TriggerLine;
-		string  m_MD5Sum;
+		string  			m_Url;
+		string  			m_TriggerLine;
 
-		unsigned char m_SHA512Sum[64];
-		string m_FileType;
 
-		uint32_t m_Address;
-		DownloadUrl *m_DownloadUrl;
-		DownloadBuffer  *m_DownloadBuffer;
+		string  			m_MD5Sum;
+		unsigned char 		m_SHA512Sum[64];
 
-		uint8_t	m_DownloadFlags;
+		string 				m_FileType;
 
+		uint32_t 			m_RemoteHost;
+		uint32_t 			m_LocalHost;
+
+		DownloadUrl 		*m_DownloadUrl;
+		DownloadBuffer  	*m_DownloadBuffer;
+
+		uint8_t				m_DownloadFlags;
+
+		DownloadCallback 	*m_DownloadCallback;
+		void 				*m_Object;
 	};
 }
 

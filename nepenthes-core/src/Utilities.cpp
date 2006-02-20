@@ -36,6 +36,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <inttypes.h>
+#include <ctype.h>
 
 #include "Utilities.hpp"
 #include "LogManager.hpp"
@@ -1567,6 +1568,39 @@ string Utilities::sha512sum(unsigned char *msg, uint32_t len)
 }
 
 // ENDOF SHA512
+
+string Utilities::escapeXMLString(char *str)
+{
+	string s = "";
+	if (str == NULL )
+	{
+		return s;
+	}
+
+	uint32_t i;
+	uint32_t len = strlen(str);
+
+	for ( i = 0; i < len; i++ )
+	{
+		if ( str[i] == '<' )
+		{
+			s+="&lt;";
+		}else 
+		if ( str[i] == '>' )
+		{
+			s+="&gt;";
+		}else 
+		if ( str[i] == '&' )
+		{
+			s+="&amp;";
+		}else
+		{
+			s+= str[i];
+		}
+	}
+
+	return s;
+}
 
 
 

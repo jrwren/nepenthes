@@ -105,7 +105,7 @@ void  TCPSocket::setStatus(socket_state i)
  * @param accepttimeout
  *                  the timeout intervall for all sockets getting acepted by this bind socket
  */
-TCPSocket::TCPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes, uint32_t localhost, uint16_t port, time_t bindtimeout, time_t accepttimeout)
 {
 	setLocalHost(localhost);
 	setLocalPort(port);
@@ -139,7 +139,7 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, tim
  * @param accepttimeout
  *                   the accept timeout fromt he bind socket who accepted this connection
  */
-TCPSocket::TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, int32_t localport, uint32_t  remotehost,int32_t remoteport, time_t accepttimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, uint16_t localport, uint32_t  remotehost,uint16_t remoteport, time_t accepttimeout)
 {
 	m_Nepenthes = nepenthes;
 	setSocket(socket);
@@ -177,7 +177,7 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, i
  * @param connectiontimeout
  *                   the timeout before we drop this try
  */
-TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, uint16_t remoteport, time_t connectiontimeout)
 {
 	m_Nepenthes = nepenthes;
 	setLocalPort(0);
@@ -343,7 +343,10 @@ bool TCPSocket::Exit()
 
 bool TCPSocket::connectHost()
 {
-	logDebug("Connecting %s:%i \n",inet_ntoa(* (in_addr *)&m_RemoteHost), m_RemotePort);
+	string localhost, remotehost;
+	localhost = inet_ntoa(* (in_addr *)&m_LocalHost);
+	remotehost = inet_ntoa(* (in_addr *)&m_RemoteHost);
+	logDebug("Connecting %s -> %s:%i \n",localhost.c_str(), remotehost.c_str(), m_RemotePort);
 	
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
 
@@ -489,9 +492,9 @@ int32_t TCPSocket::doSend()
 		int32_t onoff = 1;
 
 #ifdef HAVE_MSG_NOSIGNAL
-		int32_t sended = send(m_Socket,packet->getData(), packet->getLength(), MSG_NOSIGNAL);
+		int32_t sended = send(m_Socket,packet->getData(), packet->getSize(), MSG_NOSIGNAL);
 #else
-		int32_t sended = send(m_Socket,packet->getData(), packet->getLength(), 0);
+		int32_t sended = send(m_Socket,packet->getData(), packet->getSize(), 0);
 #endif
 		if(sended > 0)
 		{
@@ -517,11 +520,11 @@ int32_t TCPSocket::doSend()
 			m_CanSend = true;
 
 // check if we sended the full packet, cut the packet if we did not, else remove the packet from queue
-			logDebug("sended %i from %i bytes \n",sended,(int32_t)packet->getLength());
-			if(sended < (int32_t)packet->getLength())
+			logDebug("sended %i from %i bytes \n",sended,(int32_t)packet->getSize());
+			if(sended < (int32_t)packet->getSize())
 			{
                 packet->cut(sended);
-				logDebug("cutted packet has size %i\n",(int32_t)packet->getLength());
+				logDebug("cutted packet has size %i\n",(int32_t)packet->getSize());
 				sendon = false;
 			}else
 			{
@@ -642,6 +645,11 @@ int32_t TCPSocket::doRecv()
 		switch (cl)
 		{
 		case CL_ASSIGN_AND_DONE:
+
+			{
+				DialogueEvent de(this, *dia, EV_DIALOGUE_ASSIGN_AND_DONE);
+				g_Nepenthes->getEventMgr()->handleEvent(&de);
+			}
 
 			for(dib = m_Dialogues.begin(); dib != m_Dialogues.end(); dib++)
 			{

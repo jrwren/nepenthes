@@ -38,6 +38,11 @@ namespace nepenthes
 	class Socket;
 	class Dialogue;
 
+	/**
+	 * whenever we bind a Socket, we have to assign a DialogueFactory.
+	 * the dialogueFactory will create Dialogues for accepted() connections
+	 * and assign this fresh Dialogue to the new Socket
+	 */
 	class DialogueFactory
     {
     public:

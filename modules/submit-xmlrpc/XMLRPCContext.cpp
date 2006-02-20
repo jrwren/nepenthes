@@ -31,6 +31,7 @@
 #include "XMLRPCContext.hpp"
 #include "Nepenthes.hpp"
 #include "Utilities.hpp"
+#include "GeoLocationResult.hpp"
 
 using namespace std;
 
@@ -64,10 +65,85 @@ void XMLRPCContext::setState(rpcctx_state state)
 	m_State = state;
 }
 
-string XMLRPCContext::getRequest(bool pipeline)
+string XMLRPCContext::getRequest()
 {
+	
 	string req = "";
 	string content = "";
+
+
+#ifdef HAVE_GEOLOCATION
+	char *location;// ="";
+	
+	string city, shortcountry, longcountry;
+
+	city 			= g_Nepenthes->getUtilities()->escapeXMLString((char *)m_AttackerCity.c_str());
+	shortcountry 	= g_Nepenthes->getUtilities()->escapeXMLString((char *)m_AttackerCountryShort.c_str());
+	longcountry 	= g_Nepenthes->getUtilities()->escapeXMLString((char *)m_AttackerCountryLong.c_str());
+
+
+	asprintf(&location,
+	
+		"<member>"
+			"<name>"
+				"AttackerLongitude"
+			"</name>"
+			"<value>"
+				"<double>"
+					"%f"
+				"</double>"
+			"</value>"
+		"</member>"
+		"<member>"
+			"<name>"
+				"AttackerLatitude"
+			"</name>"
+			"<value>"
+				"<double>"
+					"%f"
+				"</double>"
+			"</value>"
+		"</member>"
+		 "<member>"
+			 "<name>"
+				 "AttackerCountry"
+			 "</name>"
+			 "<value>"
+				 "<string>"
+					 "%s"
+				 "</string>"
+			 "</value>"
+		 "</member>"
+		 "<member>"
+			 "<name>"
+				 "AttackerCountryShort"
+			 "</name>"
+			 "<value>"
+				 "<string>"
+					 "%s"
+				 "</string>"
+			 "</value>"
+		 "</member>"
+		 "<member>"
+			 "<name>"
+				 "AttackerCity"
+			 "</name>"
+			 "<value>"
+				 "<string>"
+					 "%s"
+				 "</string>"
+			 "</value>"
+		 "</member>"
+
+			 ,
+    		 m_AttackerLongitude,
+			 m_AttackerLatitude,
+			 longcountry.c_str(),
+			 shortcountry.c_str(),
+			 city.c_str());
+#endif
+
+
 	switch ( m_State )
 	{
 	
@@ -148,7 +224,33 @@ string XMLRPCContext::getRequest(bool pipeline)
 				"<param>"
 					"<value>"
 						"<struct>"
-							// empty for now
+
+
+							"<member>"
+								"<name>"
+									"AttackerIP"
+								"</name>"
+								"<value>"
+									"<string>";
+				content += 				inet_ntoa(*(in_addr *)&m_AttackerIP);		// attacker ip
+				content +=			"</string>"
+								"</value>"
+							"</member>";
+#ifdef HAVE_GEOLOCATION
+				content += location;
+#endif
+
+				content +=	"<member>"
+								"<name>"
+									"Url"
+								"</name>"
+								"<value>"
+									"<string>";
+				content += 				g_Nepenthes->getUtilities()->escapeXMLString((char *)m_DownloadURL.c_str());
+				content +=			"</string>"
+								"</value>"
+							"</member>"
+
 						"</struct>"
 					"</value>"
 				"</param>"
@@ -188,120 +290,45 @@ string XMLRPCContext::getRequest(bool pipeline)
 				"<param>"
 					"<value>"
 						"<struct>"
-							// so far empty
-						"</struct>"
-					"</value>"
-				"</param>"
-			"</params>"
-		"</methodCall>";
-		break;
-		
-	// call when writing to logged_submissions
-	case CS_LOG_DOWNLOAD_SUCCESS:
-		break;
 
-	// call when writing to logged_downloads
-	case CS_LOG_DOWNLOAD_ATTEMPT:
-		content = 
-		"<methodCall>"
-			"<methodName>"
-				"offer_malware"
-			"</methodName>"
-			"<params>"
-				"<param>"
-					"<value>"
-						"<string>";
-		content += 				m_SessionID;			// sessionid
-		content += 		"</string>"
-					"</value>"
-				"</param>"
-				"<param>"
-					"<value>"
-						"<dateTime.iso8601>"
-							"20050816T05:22:17"			// now()
-						"</dateTime.iso8601>"
-					"</value>"
-				"</param>"
-				"<param>"
-					"<value>"
-						"<string>";
-		content += 				"url://blabla";			// download url
-		content += 		"</string>"
-					"</value>"
-				"</param>"
-				"<param>"
-					"<value>"
-						"<dateTime.iso8601>";
-		content += 			"20050816T05:22:17";		// now()
-		content += 		"</dateTime.iso8601>"
-					"</value>"
-				"</param>"
-				"<param>"
-					"<value>"
-						"<struct>"
 							"<member>"
 								"<name>"
 									"AttackerIP"
 								"</name>"
 								"<value>"
 									"<string>";
-		content += 						inet_ntoa(*(in_addr *)&m_AttackerIP);		// attacker ip
-		content +=					"</string>"
+				content += 				inet_ntoa(*(in_addr *)&m_AttackerIP);		// attacker ip
+				content +=			"</string>"
 								"</value>"
-							"</member>"
-							"<member>"
+							"</member>";
+#ifdef HAVE_GEOLOCATION
+				content += location;
+#endif
+				content +=	"<member>"
 								"<name>"
-									"TargetIP"
+									"Url"
 								"</name>"
 								"<value>"
 									"<string>";
-		content += 						inet_ntoa(*(in_addr *)&m_AttackerIP);		// FIXME
-		content +=					"</string>"
+				content += 				g_Nepenthes->getUtilities()->escapeXMLString((char *)m_DownloadURL.c_str());
+				content +=			"</string>"
 								"</value>"
 							"</member>"
-							// other stuff to log: module triggered, ports, exploit used, shellcode used -md
-							// this information is already lost at this point of time, no way to revert it -common
-							
+
+
 						"</struct>"
 					"</value>"
 				"</param>"
 			"</params>"
 		"</methodCall>";
 		break;
-
 	}
 
-	req = "POST /";
-	req += g_SubmitXMLRPC->getXMLRPCPath();
-	req += " HTTP/1.1\r\n";
-	req += "Accept: */*\r\n";
-	req += "Accept-Encoding: deflate\r\n";
-	req += "User-Agent: Nepenthes SubmitXMLRPC \r\n";
-	req += "Host: ";
-	req += g_SubmitXMLRPC->getXMLRPCHost();
-	req += "\r\n";
+#ifdef HAVE_GEOLOCATION
+	free(location);
+#endif
 
-	req += "Content-Type: text/xml\r\n";
-
-	if ( pipeline == true )
-	{
-		req += "Connection: Keep-Alive\r\n";
-	}
-
-
-
-	char contentlen[9];
-	memset(contentlen,0,9);
-	snprintf(contentlen,8,"%u",(uint32_t)content.size());
-	req += "Content-Length: ";
-	req += contentlen;
-	req += "\r\n";
-
-	req += "\r\n";
-	req += content;
-
-//	printf("%s\n",req.c_str());
-	return req;
+	return content;
 }
 
 void XMLRPCContext::setSessionID(char *sessionid)
@@ -309,4 +336,24 @@ void XMLRPCContext::setSessionID(char *sessionid)
 	m_SessionID = sessionid;
 }
 
+#ifdef HAVE_GEOLOCATION
+void XMLRPCContext::setLocation(GeoLocationResult *result)
+{
 
+	if (result != NULL)
+	{
+    	m_AttackerLatitude 	= result->getLatitude();
+		m_AttackerLongitude = result->getLongitude();
+		m_AttackerCity 		= result->getCity();
+		m_AttackerCountryLong 	= result->getCountry();
+		m_AttackerCountryShort 	= result->getCountryShort();
+	}else
+	{
+		m_AttackerLatitude 	= 0.0;
+		m_AttackerLongitude = 0.0;
+		m_AttackerCity 		= "";
+		m_AttackerCountryLong 	= "";
+		m_AttackerCountryShort 	= "";
+	}
+}
+#endif

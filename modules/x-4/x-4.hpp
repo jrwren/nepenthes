@@ -39,6 +39,11 @@ using namespace std;
 namespace nepenthes
 {
 
+	/**
+	 * X4
+	 * eXample SubmitHandler
+	 * will hexdump the submission to stdout
+	 */
 	class X4 : public Module , public SubmitHandler
 	{
 	public:

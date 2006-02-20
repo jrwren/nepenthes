@@ -113,9 +113,9 @@ bool MandragoreBind::Exit()
 sch_result MandragoreBind::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t piOutput[10 * 3];
 	int32_t iResult; 
@@ -128,7 +128,7 @@ sch_result MandragoreBind::handleShellcode(Message **msg)
         uint16_t port = *(uint16_t *)pCode;
 		port^=0xdede;
 		port = ntohs(port);
-		logInfo("Mandragore Bind %i  %i\n",port,(*msg)->getMsgLen());
+		logInfo("Mandragore Bind %i  %i\n",port,(*msg)->getSize());
 
 		Socket *sock;
 

@@ -90,7 +90,7 @@ SMBDialogue::~SMBDialogue()
 ConsumeLevel SMBDialogue::incomingData(Message *msg)
 {
 	logPF();
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());	
+	m_Buffer->add(msg->getMsg(),msg->getSize());	
 	switch ( m_State )
 	{
 	case SMB_NEGOTIATE:
@@ -99,7 +99,7 @@ ConsumeLevel SMBDialogue::incomingData(Message *msg)
 			 memcmp(smb_request1, m_Buffer->getData(), 30 ) == 0 &&
 			 memcmp(smb_request1+32, (char *)m_Buffer->getData()+32, 137-32) == 0 )
 		{
-			logDebug("Got ASN1 SMB exploit Stage #1(%i)\n",msg->getMsgLen());
+			logDebug("Got ASN1 SMB exploit Stage #1(%i)\n",msg->getSize());
 			m_Buffer->cut(sizeof(smb_request1));
 			m_State = SMB_SESSION_SETUP;
 			return CL_UNSURE;	// same as lsass bindstr

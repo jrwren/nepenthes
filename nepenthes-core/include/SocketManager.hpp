@@ -45,23 +45,28 @@ namespace nepenthes
 	class DialogueFactory;
 	class Dialogue;
 
+	/**
+	 * the SocketManager keeps his Socket 's working.
+	 * he cares about them like a mum, if they are dead, he removes them, if they establish, he polls them
+	 * if you want a new connection, the SocketManager will set one up
+	 */
 	class SocketManager : public Manager
 	{
 	public:
 		SocketManager(Nepenthes *pNepethes);
 		virtual ~SocketManager();
-		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout);
-		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
-		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint16_t Port,time_t bindtimeout,time_t accepttimeout);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint16_t Port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint16_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname);
 
-		virtual Socket *bindUDPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
+		virtual Socket *bindUDPSocket(uint32_t localhost, uint16_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
 
 		virtual Socket *openFILESocket(char *filepath, int32_t flags);
-		virtual Socket *connectUDPHost(uint32_t localHost, uint32_t remotehost, uint32_t Port,time_t connecttimeout);
-		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint32_t Port,time_t connecttimeout);
+		virtual Socket *connectUDPHost(uint32_t localHost, uint32_t remotehost, uint16_t Port,time_t connecttimeout);
+		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t Port,time_t connecttimeout);
 
-		virtual Socket *createRAWSocketUDP(uint32_t localport, uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
-		virtual Socket *createRAWSocketTCP(uint32_t localport, uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
+		virtual Socket *createRAWSocketUDP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
+		virtual Socket *createRAWSocketTCP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
 
 		virtual Socket *addPOLLSocket(POLLSocket *sock);
 
@@ -72,8 +77,9 @@ namespace nepenthes
 		void doList();
 
 	private:
-		list<Socket *> m_Sockets;
-        bool m_UseRawSockets;
+		list<Socket *> 	m_Sockets;
+        bool 			m_UseRawSockets;
+		uint32_t 		m_BindAddress;
 	};
 
 }

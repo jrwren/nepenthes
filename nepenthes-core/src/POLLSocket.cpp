@@ -31,7 +31,7 @@
 
 using namespace nepenthes;
 
-POLLSocket::POLLSocket(Nepenthes *nepenthes)
+POLLSocket::POLLSocket()
 {
 	m_Type = ST_POLL|ST_CONNECT|ST_NODEL;
 	m_Status = SS_CONNECTED;

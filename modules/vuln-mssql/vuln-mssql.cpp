@@ -113,7 +113,7 @@ bool MSSQLVuln::Init()
 		return false;
 	}
 
-	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,0,timeout,this);
+	m_Nepenthes->getSocketMgr()->bindUDPSocket(0,port,0,timeout,this);
 	return true;
 }
 

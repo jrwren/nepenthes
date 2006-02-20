@@ -34,7 +34,7 @@
 #include "Nepenthes.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 
 using namespace std;
 
@@ -43,6 +43,7 @@ namespace nepenthes
 
 	typedef enum 
 	{
+		FTP_CONNECTED,
 		FTP_USER,
 		FTP_PASS,
 		FTP_TYPE,

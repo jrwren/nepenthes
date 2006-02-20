@@ -97,8 +97,8 @@ ConsumeLevel FILEDialogue::incomingData(Message *msg)
 		return CL_DROP;
 	}
 
-//	logSpam("Got %i bytes data\n",msg->getMsgLen());
-	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+//	logSpam("Got %i bytes data\n",msg->getSize());
+	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
 	return CL_ASSIGN;
 }
 

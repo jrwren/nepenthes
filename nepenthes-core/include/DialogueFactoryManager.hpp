@@ -43,6 +43,14 @@ namespace nepenthes
 	class DialogueFactory;
 	class Nepenthes;
 
+	/**
+	 * Some DialogueFactories are independent, for example 
+	 * the "WintNTShell"
+	 * if you want to register a independent DialogueFactory so you can use it in a 
+	 * different module, register it here.
+	 * then ask the DialogueFactoryManager for the registerd DialogueFactory 
+	 * in the other module, and your done.
+	 */
 	class DialogueFactoryManager : public Manager
 	{
 	public:

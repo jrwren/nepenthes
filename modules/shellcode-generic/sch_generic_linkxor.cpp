@@ -39,6 +39,9 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#ifndef min
+#define min(a,b) ((a) > (b) ? (b) : (a))
+#endif
 
 using namespace nepenthes;
 
@@ -94,11 +97,11 @@ bool LinkXOR::Exit()
 sch_result LinkXOR::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t offvec[10 * 3];
 	int32_t result;
@@ -108,6 +111,7 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 		const char *substring;
 
 		uint32_t a, b, payloadLen;
+		uint32_t realLen;
 		byte key;
 		byte *payload;
 
@@ -127,7 +131,12 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 
 		logInfo("Found linkbot XOR decoder, key 0x%02x, payload is 0x%04x bytes long.\n", key, payloadLen);
 
-		pcre_get_substring((char *)shellcode, offvec, result, 4, &substring);
+		if ( (realLen = pcre_get_substring((char *)shellcode, offvec, result, 4, &substring)) < payloadLen)
+		{
+			logWarn("linkbot XOR decoder expected len %i actual len %i\n",payloadLen,realLen);
+			payloadLen = realLen;
+		}
+
 		payload = (byte *)malloc(payloadLen);
 		memcpy(payload, substring, payloadLen);
 		pcre_free_substring(substring);

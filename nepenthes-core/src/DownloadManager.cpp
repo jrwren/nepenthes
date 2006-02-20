@@ -54,11 +54,19 @@ using namespace nepenthes;
 #endif
 
 
+/**
+ * cosntructor
+ * 
+ * @param nepenthes the nepenthes pointer
+ */
 DownloadManager::DownloadManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
 }
 
+/**
+ * destructor
+ */
 DownloadManager::~DownloadManager()
 {
 	logPF();
@@ -68,6 +76,13 @@ DownloadManager::~DownloadManager()
 	}
 }
 
+/**
+ * bool Manager::Init()
+ * 
+ * reads specific config vals, returns true if everything was fine
+ * 
+ * @return true on success, else false
+ */
 bool  DownloadManager::Init()
 {
 	logPF();
@@ -83,6 +98,13 @@ bool  DownloadManager::Init()
 	return true;
 }
 
+/**
+ * bool Manager::Exit()
+ * 
+ * unload all DownloadHandlers
+ * 
+ * @return return true on success, else false
+ */
 bool  DownloadManager::Exit()
 {
     return true;
@@ -218,6 +240,11 @@ ip_range_t DownloadManager::m_irLocalRanges[] =
 };
 
 
+/**
+ * void Manager::doList()
+ * 
+ * list all registerd handlers
+ */
 void DownloadManager::doList()
 {
 	list <DownloadHandlerTuple>::iterator dhandler;
@@ -241,6 +268,13 @@ void DownloadManager::doList()
 }
 
 
+/**
+ * check if a fiven ipv4 address is a local address
+ * 
+ * @param ulAddress the ip to check
+ * 
+ * @return true if it is a local address, else false.
+ */
 bool DownloadManager::isLocalAddress(uint32_t ulAddress)
 {
 	if ( !ulAddress || ulAddress == 0xFFFFFFFF )
@@ -315,7 +349,7 @@ bool DownloadManager::downloadUrl(Download *down)
 */	
 			string sUrl =	down->getDownloadUrl()->getProtocol();
 			sUrl += "://";
-			uint32_t newaddr = down->getAddress();
+			uint32_t newaddr = down->getRemoteHost();
 			sUrl += inet_ntoa(*(in_addr *)&newaddr);
 			down->getDownloadUrl()->setHost(newaddr);
 
@@ -360,25 +394,45 @@ bool DownloadManager::downloadUrl(Download *down)
  * the provied information is wrapped to a class Download
  * and given to downloadUrl(Download *)
  * 
- * @param url     the url to the file
- * @param address the hosts address who provided the url so we can replace 0.0.0.0 urls with his address
+ * @param url      the url to the file
+ * @param address  the hosts address who provided the url so we can replace 0.0.0.0 urls with his address
  * @param triggerline
- *                the triggerline
+ *                 the triggerline
+ * @param downloadflags
+ *                 the download flags to use
+ * @param callback the DownloadCallback to attach to the Download
+ * @param obj      the additional data to attach to the Download
  * 
  * @return returns downloadUrl(Download *) return value
  */
-bool DownloadManager::downloadUrl(char *url, uint32_t address, char *triggerline, uint8_t downloadflags)
+bool DownloadManager::downloadUrl(uint32_t localhost, char *url, uint32_t address, char *triggerline, uint8_t downloadflags, DownloadCallback *callback, void *obj)
 {
-	Download *down = new Download(url,address,triggerline);
+	Download *down = new Download(localhost, url,address,triggerline, callback,obj);
 	down->addDownloadFlags(downloadflags);
-
 	return downloadUrl(down);
 }
 
 
 
 
-bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags)
+/**
+ * download a file from a given url
+ * 
+ * @param proto   protocoll
+ * @param user    the user to use
+ * @param pass    password to use
+ * @param host    hostname to connect
+ *                
+ * @param port    port to use
+ *                
+ * @param file    file to download
+ * @param address attackers ip
+ * @param downloadflags
+ *                downloadflags
+ * 
+ * @return true
+ */
+bool DownloadManager::downloadUrl(uint32_t localhost, char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags)
 {
 	string url = proto;
 	 url += "://";
@@ -392,7 +446,7 @@ bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *hos
 	 url += "/";
 	 url += file;
 
-	Download *down = new Download((char *)url.c_str(),address,(char *)url.c_str());
+	Download *down = new Download(localhost, (char *)url.c_str(),address,(char *)url.c_str());
 
 	down->getDownloadUrl()->setProtocol(proto);
 	down->getDownloadUrl()->setUser(user);

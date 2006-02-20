@@ -35,6 +35,9 @@
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
+/* Define wether we want to use GeoLocation */
+#undef HAVE_GEOLOCATION
+
 /* Define to 1 if you have the `gethostbyname' function. */
 #undef HAVE_GETHOSTBYNAME
 
@@ -68,11 +71,20 @@
 /* Define if you want to use libcurl */
 #undef HAVE_LIBCURL
 
+/* Define if you want to use MaxMind's GeoIP */
+#undef HAVE_LIBGEOIP
+
+/* Define if you want to use IP2Location */
+#undef HAVE_LIBIP2LOCATION
+
 /* Define if you want to use libmagic */
 #undef HAVE_LIBMAGIC
 
 /* Define if you want to use libpcre */
 #undef HAVE_LIBPCRE
+
+/* Define wether we have libssh */
+#undef HAVE_LIBSSH
 
 /* Define to 1 if you have the `localtime_r' function. */
 #undef HAVE_LOCALTIME_R
@@ -95,11 +107,17 @@
 /* Define to 1 if you have the `munmap' function. */
 #undef HAVE_MUNMAP
 
+/* Define if we have mysql client library */
+#undef HAVE_MYSQL
+
 /* Define to 1 if you have the <netdb.h> header file. */
 #undef HAVE_NETDB_H
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
+
+/* Define if we have postgre client library */
+#undef HAVE_POSTGRES
 
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT

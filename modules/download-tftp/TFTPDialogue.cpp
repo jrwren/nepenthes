@@ -103,9 +103,9 @@ char *TFTPDialogue::getRequest()
 
 ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 {
-/*	logDebug("read %i bytes from %s \n",msg->getMsgLen(), m_Download->getDownloadUrl()->getPath().c_str());
-	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
-	if(m_Download->getDownloadBuffer()->getLength() < m_Download->getDownloadUrl()->getPort())
+/*	logDebug("read %i bytes from %s \n",msg->getSize(), m_Download->getDownloadUrl()->getPath().c_str());
+	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+	if(m_Download->getDownloadBuffer()->getSize() < m_Download->getDownloadUrl()->getPort())
         return CL_ASSIGN;
 
 	msg->getSocket()->getNepenthes()->getSubmitMgr()->addSubmission(m_Download);
@@ -123,13 +123,13 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 		break;
 
 	case ERROR:
-        logInfo("Got Error \"%.*s\"  %s \n", msg->getMsgLen()-4, ptftphdr->th_msg , m_Download->getUrl().c_str());
+        logInfo("Got Error \"%.*s\"  %s \n", msg->getSize()-4, ptftphdr->th_msg , m_Download->getUrl().c_str());
 		m_Socket->setStatus(SS_CLOSED);
 		break;
 
 	case DATA:
 		{
-//			logInfo("got %i bytes \n",msg->getMsgLen());
+//			logInfo("got %i bytes \n",msg->getSize());
 			m_Retries=0;
 			uint32_t iBlockNum = ntohs(ptftphdr->th_block);
 			if (iBlockNum != m_Blocks + 1)
@@ -146,17 +146,17 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 			memcpy(m_LastSendPacket,&stftphdr,4);
 			m_Blocks++;
 
-			if (m_Download->getDownloadBuffer()->getLength() + msg->getMsgLen() - 4 > m_MaxFileSize )
+			if (m_Download->getDownloadBuffer()->getSize() + msg->getSize() - 4 > m_MaxFileSize )
 			{
 				logWarn("Discarded downloading file %s  due to filesizelimit \n", m_Download->getUrl().c_str());
 				m_Socket->setStatus(SS_CLOSED);
 				return CL_DROP;
 			}
 
-			m_Download->getDownloadBuffer()->addData(msg->getMsg()+4,msg->getMsgLen()-4);
-			if (msg->getMsgLen() < 512)
+			m_Download->getDownloadBuffer()->addData(msg->getMsg()+4,msg->getSize()-4);
+			if (msg->getSize() < 512)
 			{	// last packet   
-				logInfo("Downloaded file %s %i bytes\n", m_Download->getUrl().c_str(), m_Download->getDownloadBuffer()->getLength());
+				logInfo("Downloaded file %s %i bytes\n", m_Download->getUrl().c_str(), m_Download->getDownloadBuffer()->getSize());
 				msg->getSocket()->getNepenthes()->getSubmitMgr()->addSubmission(m_Download);
                 m_Socket->setStatus(SS_CLOSED);
 			}

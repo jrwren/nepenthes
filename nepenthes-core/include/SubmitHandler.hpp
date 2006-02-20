@@ -39,6 +39,13 @@ namespace nepenthes
 	class Download;
 	class SubmitManager;
 
+	/**
+	 * the SubmitHandler will get all the data a Download received, 
+	 * and can do whatever he wants with it.
+	 * store it, burn it ...
+	 * so, if you are interested in all the malware which gets downloaded, 
+	 * register as a SubmitHandler on the SubmitManager
+	 */
 	class SubmitHandler
     {
 //	FileSubmitHandler(FileSubmitManager *pParent);

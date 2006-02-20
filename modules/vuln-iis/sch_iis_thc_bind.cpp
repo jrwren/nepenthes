@@ -119,9 +119,9 @@ bool THCBind::Exit()
 sch_result THCBind::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t piOutput[10 * 3];
 	int32_t iResult; 
@@ -131,7 +131,7 @@ sch_result THCBind::handleShellcode(Message **msg)
         const char * pCode;
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pCode);
 
-		logInfo("THC Bind 31337  %i\n",(*msg)->getMsgLen());
+		logInfo("THC Bind 31337  %i\n",(*msg)->getSize());
 
 		
 		Socket *socket;

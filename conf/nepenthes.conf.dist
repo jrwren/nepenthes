@@ -9,14 +9,28 @@ nepenthes
     modules(
 //  module name (in moduledir)      config file (in moduleconfigdir)
 
+// dns handling modules, load only one
+    "dnsresolveadns.so"             ""                              ""
+    
+
+
+// geolocation resolver modules, load only one, disabled by default
+//    "geolocationhostip.so"          ""                              ""
+//    "geolocationgeoip.so"           ""                              ""
+
+
 // download handler for various protocols
     "downloadcsend.so",             "download-csend.conf",          ""
     "downloadcreceive.so",          "",                             ""
-    "downloadcurl.so",              "download-curl.conf",           ""
+//    "downloadcurl.so",              "download-curl.conf",           ""
     "downloadftp.so",               "",                             ""
+    "downloadhttp.so",               "",                             ""
     "downloadlink.so",              "download-link.conf",           ""
 //  "downloadnepenthes.so",         "download-nepenthes.conf",      ""  // get data from others via submit-nepenthes
     "downloadtftp.so",              "download-tftp.conf",           ""
+
+// upload handler for various? protocols
+    "uploadhttp.so",               "",                             ""
 
 // submission handler
     "submitfile.so",                "submit-file.conf",             ""  // save to disk
@@ -39,7 +53,6 @@ nepenthes
     "shellcodegeneric.so",          "shellcode-generic.conf",       ""
 
 // vulnerability modules
-    "vulnasn1.so",                  "vuln-asn1.conf",               ""
     "vulnbagle.so",                 "vuln-bagle.conf",              ""
     "vulndameware.so",              "vuln-dameware.conf",           ""    
     "vulndcom.so",                  "vuln-dcom.conf",               ""
@@ -58,6 +71,7 @@ nepenthes
     "vulnupnp.so",                  "vuln-upnp.conf",               ""
     "vulnveritas.so",               "vuln-veritas.conf",            ""
     "vulnwins.so",                  "vuln-wins.conf",               ""
+    "vulnasn1.so",                  "vuln-asn1.conf",               ""
 
 
 // eXample modules for testing - disabled by default
@@ -69,6 +83,13 @@ nepenthes
 //  "x6.so",                       "",                             "",
 //  "x7.so",                       "",                             "",
     );
+
+
+    logmanager
+    {
+	ring_logging_file		"var/log/nepenthes.%d.log";
+	file_logging_file		"var/log/nepenthes.log";
+    };
 
     modulemanager
     {
@@ -90,10 +111,16 @@ nepenthes
     socketmanager
     {
         use_rawsockets              "0"; // unstable feature
+	bind_address		    "0.0.0.0";
     };
     
     utilities
     {
 	hexdump_path                "var/hexdumps/";
+    };
+    
+    geolocationmanager
+    {
+	cache_path                   "var/cache/nepenthes/geolocation/";
     };
 };

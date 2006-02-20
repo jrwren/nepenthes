@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include "config.h"
+
 
 #ifndef HAVE_NEPENTHES_HPP
 #define HAVE_NEPENTHES_HPP
@@ -116,10 +118,15 @@ namespace nepenthes
 	class DialogueFactoryManager;
 	class DNSManager;
 	class Message;
+	class GeoLocationManager;
+	class UploadManager;
 
 
 /**
  * the Nepenthes main class (singleton).
+ * 
+ * all in all Nepenthes does nothing, he got plenty Managers to do something
+ * 
  */
 
     class Nepenthes
@@ -140,30 +147,47 @@ namespace nepenthes
 		virtual Utilities			*getUtilities();
 		virtual DialogueFactoryManager *getFactoryMgr();
 		virtual DNSManager 			*getDNSMgr();
+
+#ifdef HAVE_GEOLOCATION
+		virtual GeoLocationManager 	*getGeoMgr();
+#endif 
+
+		virtual UploadManager 		*getUploadMgr();
+
 		virtual bool 				doLoop();
 		virtual int32_t 				run(int32_t argc, char **argv);
 		virtual bool				stop();
 		virtual bool 				reloadConfig();
 
     private:
-		Config 				*m_Config;
-        DownloadManager 	*m_DownloadManager;
-        EventManager    	*m_EventManager;
-        LuaInterface    	*m_Lua;
-        LogManager      	*m_LogManager;
-        ModuleManager   	*m_ModuleManager;
-        ShellcodeManager 	*m_ShellcodeManager;
-        SubmitManager   	*m_SubmitManager;
-		SocketManager   	*m_SocketManager;
-		Utilities			*m_Utilities;
+		Config              *m_Config;
 		DialogueFactoryManager *m_DialogueFactoryManager;
-		DNSManager			*m_DNSManager;
+		DownloadManager     *m_DownloadManager;
+		DNSManager          *m_DNSManager;
+		EventManager        *m_EventManager;
+#ifdef HAVE_GEOLOCATION
+		GeoLocationManager  *m_GeoLocationManager;
+#endif
+		LuaInterface        *m_Lua;
+		LogManager          *m_LogManager;
+		ModuleManager       *m_ModuleManager;
+		ShellcodeManager    *m_ShellcodeManager;
+		SubmitManager       *m_SubmitManager;
+		SocketManager       *m_SocketManager;
+		UploadManager       *m_UploadManager;
+		Utilities           *m_Utilities;
+		
+		
+		
+		
+
 		bool				m_running;
 
 		uid_t				m_UID;
 		gid_t				m_GID;
 	protected:
-		bool fileCheck(char *filecheckarg,int32_t argc, int32_t opti, char **argv);
+		bool fileCheckMain(char *filecheckarg,int32_t argc, int32_t opti, char **argv);
+		uint8_t fileCheckPrinter(const char *filename, uint8_t options);
 		int32_t fileCheck(const char *filename, Message **Msg);
 
 		bool changeUser(char *user);

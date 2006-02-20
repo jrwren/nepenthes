@@ -26,6 +26,8 @@
 #include "VFS.hpp"
 #include "VFSNode.hpp"
 #include "VFSDir.hpp"
+#include "VFSFile.hpp"
+
 #include "VFSCommandDir.hpp"
 #include "VFSCommandECHO.hpp"
 #include "VFSCommandREDIR.hpp"
@@ -235,6 +237,15 @@ string VFS::execute(string *input)
 
 		commandstopp=i;
 		string command = line.substr(commandstart,commandstopp-commandstart);
+		i=0;
+		while (i<command.size())
+		{
+			if (command[i] == '\r' || command[i] == '\n')
+				command[i] = '\0';
+			i++;
+		}
+		command = command.c_str();
+
 		logDebug("Command (%i) is '%s'\n",command.size(),command.c_str());
 
 		/* beispiel fuer den block 'parameter finden'
@@ -296,13 +307,15 @@ string VFS::execute(string *input)
 		 *
 		 */
 
+		bool foundcommand = false;
+
 		list <VFSDir *>::iterator cdir;
 		list <VFSNode *>::iterator cfile;
-		for (cdir = m_CommandDirs.begin(); cdir != m_CommandDirs.end(); cdir++)
+		for (cdir = m_CommandDirs.begin(); cdir != m_CommandDirs.end() && foundcommand == false; cdir++)
 		{
 			logSpam("Checking dir %s for command %s \n",(*cdir)->getName().c_str(), command.c_str());
 			list <VFSNode *> dirlist = *(*cdir)->getList();
-			for (cfile = dirlist.begin(); cfile != dirlist.end(); cfile++)
+			for (cfile = dirlist.begin(); cfile != dirlist.end() && foundcommand == false; cfile++)
 			{
 
 				string altercommand = command + ".exe";
@@ -311,10 +324,34 @@ string VFS::execute(string *input)
 					logSpam("found command '%s' <-> '%s' \n",(*cfile)->getName().c_str(), command.c_str());
 					((VFSCommand *)(*cfile))->run(&paramlist);
                     logSpam("response buffer '%s' (%i) \n",m_StdOut.c_str(),m_StdOut.size());
+					foundcommand = true;
 				}
 			}
 		}
 
+		if ( foundcommand == false )
+		{
+
+			logSpam("look into current dir %s\n",m_CurrentDir->getName().c_str());
+			list <VFSNode *> dirlist = *m_CurrentDir->getList();
+			for ( cfile = dirlist.begin(); cfile != dirlist.end() && foundcommand == false; cfile++ )
+			{
+//			printf("FILE '%s' '%s' \n",command.c_str(), (*cfile)->getName().c_str());
+				string altercommand = command + ".bat";
+				if ( (*cfile)->getType() == VFS_FILE && ((*cfile)->getName() == command || (*cfile)->getName() == altercommand ) )
+				{
+					logSpam("found command '%s' <-> '%s' \n",(*cfile)->getName().c_str(), command.c_str());
+					printf("adding %.*s to stdin\n",((VFSFile *)(*cfile))->getSize(),((VFSFile *)(*cfile))->getData());
+					string addme(((VFSFile *)(*cfile))->getData(),((VFSFile *)(*cfile))->getSize());
+					m_StdIn += addme;
+					logSpam("response buffer '%s' (%i) \n",m_StdOut.c_str(),m_StdOut.size());
+
+					((VFSFile *)(*cfile))->truncateFile();
+					foundcommand = true;
+				}
+			}
+
+		}
 
 		/* m_Stderr auf m_Stdout adden
 		 * m_StdOut zurueckgeben

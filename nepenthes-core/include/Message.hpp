@@ -41,6 +41,11 @@ namespace nepenthes
 
 
 
+	/**
+	 * the Message is our encapsulation class for data we sent and receive.
+	 * the deal is, we always have the full context of the Message, 
+	 * the socket, and stuff like that
+	 */
     class Message
     {
 
@@ -53,7 +58,7 @@ namespace nepenthes
         virtual ~Message();
 
         virtual char            *getMsg();
-        virtual uint32_t    getMsgLen();
+        virtual uint32_t    getSize();
         virtual uint32_t   getLocalHost();
         virtual uint32_t    getLocalPort();
         virtual uint32_t   getRemoteHost();

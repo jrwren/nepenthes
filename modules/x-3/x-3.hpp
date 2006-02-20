@@ -42,6 +42,17 @@ namespace nepenthes
 {
 	class X3Download;
 
+	/**
+	 * X3
+	 * eXample DownloadHandler
+	 * 
+	 * download files from /dev/urandom
+	 * 
+	 * url is file://localhost:64000//dev/urandom
+	 * 
+	 * great to debug SubmitHandler
+	 * 
+	 */
 	class X3 : public Module , public DownloadHandler , DialogueFactory
 	{
 	public:
@@ -59,6 +70,11 @@ namespace nepenthes
 	};
 
 
+	/**
+	 * X3Dialogue
+	 * 
+	 * will use a FILESocket to read from /dev/urandom
+	 */
 	class X3Download : public Dialogue
 	{
 	public:

@@ -116,7 +116,7 @@ ConsumeLevel Kuang2Dialogue::incomingData(Message *msg)
 	case KUANG2_NONE:
 		{
 
-			m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
+			m_Buffer->add((char *)msg->getMsg(),msg->getSize());
 			Kuang2Message *kmsg = (Kuang2Message *)m_Buffer->getData();
 			if ( kmsg->command == K2_UPLOAD_FILE )
 			{
@@ -130,7 +130,7 @@ ConsumeLevel Kuang2Dialogue::incomingData(Message *msg)
 				m_FileName = kmsg->sdata;
 				logInfo("Kuang2 File upload requested %s %i\n",m_FileName.c_str(),m_FileSize);
 				m_State = KUANG2_FILETRANSFERR;
-				m_Download = new Download("kuang2://foo/bar",msg->getRemoteHost(),"some triggerline");
+				m_Download = new Download(msg->getRemoteHost(),"kuang2://foo/bar",msg->getRemoteHost(),"some triggerline");
 				m_Buffer->clear();
 
 			} else
@@ -159,8 +159,8 @@ ConsumeLevel Kuang2Dialogue::incomingData(Message *msg)
 
 	case KUANG2_FILETRANSFERR:
 		{
-			m_Download->getDownloadBuffer()->addData((char *)msg->getMsg(),msg->getMsgLen());
-			if ( m_Download->getDownloadBuffer()->getLength() == m_FileSize )
+			m_Download->getDownloadBuffer()->addData((char *)msg->getMsg(),msg->getSize());
+			if ( m_Download->getDownloadBuffer()->getSize() == m_FileSize )
 			{
 				// reply its drone
 				Kuang2Message kmsg;

@@ -27,48 +27,47 @@
 
 /* $Id$ */
 
-#ifdef WIN32
-
-#else
-#include <adns.h>
-#endif
+#ifndef HAVE_DNSQUERY_HPP
+#define HAVE_DNSQUERY_HPP
 
 
+#include <stdint.h>
 #include <string>
 
+#include "DNSCallback.hpp"
 
-#include "DNSHandler.hpp"
+#define DNS_QUERY_A		0x0001
+#define DNS_QUERY_TXT	0x0002
 
 
 namespace nepenthes
 {
 
+
+	/**
+	 * if we need to resolve a domains A or TXT record, the DNSManager will create a encapsulating 
+	 * class of the provided information
+	 * the DNSQuery class
+	 */
 	class DNSQuery
 	{
 	public:
-		DNSQuery(DNSHandler *handler, char *dns, void *obj);
-		~DNSQuery();
+		DNSQuery(DNSCallback *handler, char *dns, uint16_t querytype, void *obj);
+		virtual ~DNSQuery();
 
-		DNSHandler *getHandler();
-		string getDNS();
-#ifdef WIN32
+		virtual DNSCallback *getCallback();
+		virtual string getDNS();
+		virtual uint16_t getQueryType();
+		virtual void *getObject();
 
-#else
-		adns_query *getADNS();
-#endif 
-		void *getObject();
 	protected:
-		DNSHandler  *m_Handler;
+		DNSCallback  *m_Callback;
 		void 		*m_Object;
 
 		string      m_DNS;
-
-#ifdef WIN32
-
-#else
-		adns_query  m_ADNS_QUERY;
-#endif
-
+		uint16_t 	m_QueryType;
 	};
 
 }
+
+#endif

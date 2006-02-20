@@ -104,7 +104,7 @@ void FileSubmitHandler::Submit(Download *down)
 	int32_t retval;
 	if ((retval = stat(path.c_str(),&s)) == 0)
 	{
-		logInfo("Already knowing file %s %i \n",path.c_str(),down->getDownloadBuffer()->getLength());
+		logInfo("Already knowing file %s %i \n",path.c_str(),down->getDownloadBuffer()->getSize());
     	return;
 	}
 	switch (errno)
@@ -120,18 +120,18 @@ void FileSubmitHandler::Submit(Download *down)
 
 //			size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
 			size_t size;
-			if ((size = fwrite(down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getLength(),1,f)) != 1)
+			if ((size = fwrite(down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getSize(),1,f)) != 1)
 			{
-				logCrit("writing to file %s failed %i <-> %i\n",path.c_str(),size,down->getDownloadBuffer()->getLength());
+				logCrit("writing to file %s failed %i <-> %i\n",path.c_str(),size,down->getDownloadBuffer()->getSize());
 			}
-			logDebug("wrote file %s %i to disk \n",path.c_str(),down->getDownloadBuffer()->getLength());
+			logDebug("wrote file %s %i to disk \n",path.c_str(),down->getDownloadBuffer()->getSize());
 			fclose(f);
 			break;
 		}
 	default:
 		logDebug("stat error on file %s (%s) \n",path.c_str(),strerror(errno));
 	}
-//	m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getLength());
+//	m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getSize());
 }
 
 

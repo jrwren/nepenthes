@@ -28,6 +28,7 @@
 /* $Id$ */
 
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "Config.hpp"
 
@@ -67,7 +68,7 @@ Config::~Config()
 }
 
 
-// drone.identity.nick
+
 // char *strsep(char **stringp, const char *delim);
 ConfigItem *Config::findKey(const char *key)
 {

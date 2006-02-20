@@ -157,7 +157,26 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = Buffer.hpp LuaFunctions.hpp Compatibility.hpp LuaInterface.hpp Config.hpp Manager.hpp ConsoleLogger.hpp Message.hpp DNSHandler.hpp Module.hpp DNSManager.hpp ModuleManager.hpp DNSQuery.hpp Nepenthes.hpp DNSResult.hpp POLLSocket.hpp Dialogue.hpp Packet.hpp DialogueFactory.hpp RAWSocket.hpp DialogueFactoryManager.hpp Responder.hpp Download.hpp ShellcodeHandler.hpp DownloadBuffer.hpp ShellcodeManager.hpp DownloadHandler.hpp Socket.hpp DownloadManager.hpp DownloadUrl.hpp SocketEvent.hpp Event.hpp SocketManager.hpp EventHandler.hpp SubmitEvent.hpp EventManager.hpp SubmitHandler.hpp FILESocket.hpp SubmitManager.hpp FileLogger.hpp TCPSocket.hpp LogHandler.hpp UDPSocket.hpp LogHandlerEntry.hpp UDSSocket.hpp LogManager.hpp Utilities.hpp
+EXTRA_DIST = Buffer.hpp Compatibility.hpp Config.hpp Message.hpp \
+	DialogueFactory.hpp DialogueFactoryManager.hpp Dialogue.hpp \
+	DNSManager.hpp DNSHandler.hpp DNSQuery.hpp DNSCallback.hpp \
+	DNSResult.hpp DownloadManager.hpp DownloadHandler.hpp \
+	Download.hpp DownloadBuffer.hpp DownloadUrl.hpp \
+	DownloadCallback.hpp EventManager.hpp EventHandler.hpp \
+	Event.hpp SubmitEvent.hpp SocketEvent.hpp \
+	GeoLocationManager.hpp GeoLocationHandler.hpp \
+	GeoLocationCallback.hpp GeoLocationQuery.hpp \
+	GeoLocationResult.hpp GeoLocationResult.hpp LogManager.hpp \
+	LogHandler.hpp LogHandlerEntry.hpp FileLogger.hpp \
+	RingFileLogger.hpp ConsoleLogger.hpp LuaFunctions.hpp \
+	LuaInterface.hpp ModuleManager.hpp Module.hpp Manager.hpp \
+	Nepenthes.hpp SocketManager.hpp Socket.hpp TCPSocket.hpp \
+	UDPSocket.hpp POLLSocket.hpp RAWSocket.hpp Responder.hpp \
+	UDSSocket.hpp FILESocket.hpp ShellcodeManager.hpp \
+	ShellcodeHandler.hpp Packet.hpp SubmitManager.hpp \
+	SubmitHandler.hpp UploadManager.hpp UploadHandler.hpp \
+	UploadQuery.hpp UploadCallback.hpp UploadResult.hpp \
+	Utilities.hpp
 all: all-am
 
 .SUFFIXES:

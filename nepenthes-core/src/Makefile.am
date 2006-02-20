@@ -8,4 +8,25 @@ AM_CPPFLAGS = -I../include -I ../..
 
 bin_PROGRAMS = nepenthes
 
-nepenthes_SOURCES = Buffer.cpp Compatibility.cpp Config.cpp ConsoleLogger.cpp DNSHandler.cpp DNSManager.cpp DNSQuery.cpp DNSResult.cpp Dialogue.cpp DialogueFactory.cpp DialogueFactoryManager.cpp Download.cpp DownloadBuffer.cpp DownloadHandler.cpp DownloadManager.cpp DownloadUrl.cpp EventHandler.cpp EventManager.cpp FILESocket.cpp FileLogger.cpp LogHandler.cpp LogManager.cpp LuaFunctions.cpp LuaInterface.cpp Manager.cpp Message.cpp Module.cpp ModuleManager.cpp Nepenthes.cpp POLLSocket.cpp Packet.cpp RAWSocket.cpp Responder.cpp ShellcodeHandler.cpp ShellcodeManager.cpp Socket.cpp SocketManager.cpp SubmitHandler.cpp SubmitManager.cpp TCPSocket.cpp UDPSocket.cpp Utilities.cpp WindowsShell.cpp
+nepenthes_SOURCES = Buffer.cpp 
+nepenthes_SOURCES += Compatibility.cpp 
+nepenthes_SOURCES += Config.cpp 
+nepenthes_SOURCES += Dialogue.cpp DialogueFactory.cpp DialogueFactoryManager.cpp
+nepenthes_SOURCES += DNSManager.cpp DNSHandler.cpp DNSQuery.cpp DNSResult.cpp DNSCallback.cpp
+nepenthes_SOURCES += DownloadManager.cpp DownloadHandler.cpp DownloadBuffer.cpp Download.cpp DownloadUrl.cpp
+nepenthes_SOURCES += EventManager.cpp EventHandler.cpp 
+nepenthes_SOURCES += GeoLocationManager.cpp GeoLocationHandler.cpp GeoLocationQuery.cpp GeoLocationResult.cpp
+nepenthes_SOURCES += LogManager.cpp LogHandler.cpp ConsoleLogger.cpp FileLogger.cpp RingFileLogger.cpp
+nepenthes_SOURCES += LuaFunctions.cpp LuaInterface.cpp
+nepenthes_SOURCES += Message.cpp
+nepenthes_SOURCES += ModuleManager.cpp Module.cpp 
+nepenthes_SOURCES += Nepenthes.cpp Manager.cpp
+nepenthes_SOURCES += Packet.cpp
+nepenthes_SOURCES += SocketManager.cpp Socket.cpp TCPSocket.cpp UDPSocket.cpp POLLSocket.cpp RAWSocket.cpp FILESocket.cpp
+nepenthes_SOURCES += Responder.cpp
+nepenthes_SOURCES += ShellcodeManager.cpp ShellcodeHandler.cpp 
+nepenthes_SOURCES += SubmitManager.cpp SubmitHandler.cpp 
+nepenthes_SOURCES += UploadManager.cpp UploadQuery.cpp UploadResult.cpp
+nepenthes_SOURCES += Utilities.cpp
+
+

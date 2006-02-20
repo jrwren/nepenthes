@@ -31,6 +31,7 @@
 #define HAVE_EVENTMANAGER_HPP
 
 #include <list>
+#include <string>
 #include <stdint.h>
 
 #include "Manager.hpp"
@@ -46,13 +47,22 @@ namespace nepenthes
 	class Event;
 	class EventHandler;
 
+	struct EventRegistration
+	{
+		string 		m_EventName;
+		uint32_t 	m_EventNumber;
+	};
 
+	/**
+	 * if something throw a Event , the EventManager will pass 
+	 * it to all EventHandler who are interested in it
+	 */
     class EventManager: public Manager
     {
     public:
         EventManager(Nepenthes *nepenthes);
         virtual ~EventManager();
-        uint32_t handleEvent(Event *event);
+        virtual uint32_t handleEvent(Event *event);
         virtual void registerEventHandler(EventHandler *handler);
         virtual bool unregisterEventHandler(EventHandler *handler);
 
@@ -61,8 +71,17 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 
+		virtual uint16_t registerEvent(char *name);
+//		virtual int32_t	 getEventbyName(char *name);
     private:
+
+		bool registerInternalEvent(char *name, uint16_t number);
+
+
         list <EventHandler *> m_EventHandlers;
+
+		list <EventRegistration *> m_EventRegistrations;	// list sucks, as m_EventNumber has to be uniq, 
+														// but map sucks also, as EventName has to be uniq too.
     };
 
 }

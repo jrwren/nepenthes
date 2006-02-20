@@ -44,6 +44,10 @@ namespace nepenthes
 	class Nepenthes;
 	class Module;
 
+	/**
+	 * the ModuleManager takes care of loading all modules at runtime 
+	 * and providing the module config file.
+	 */
     class ModuleManager :public Manager
     {
     public:

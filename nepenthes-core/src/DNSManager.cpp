@@ -35,9 +35,10 @@
 
 #include <errno.h>
 #include "DNSManager.hpp"
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 #include "DNSResult.hpp"
 #include "DNSQuery.hpp"
+#include "DNSHandler.hpp"
 
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -46,33 +47,43 @@ using namespace nepenthes;
 
 extern int32_t errno;
 
+/**
+ * DNSManager constructor
+ * 
+ * @param nepenthes our nepenthes instance
+ */
 DNSManager::DNSManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
-	m_Queue = 0;
+	m_DNSHandler = NULL;
+
 }
 
+/**
+ * DNSManager destructor
+ */
 DNSManager::~DNSManager()
 {
-
+	logPF();
 }
 
+/**
+ * checks if a DNSHandler is registerd
+ * 
+ * @return returns true if a DNSHandler is registerd,
+ *         else false
+ */
 bool DNSManager::Init()
 {
-#ifdef WIN32
-	return true;
-#else
-	int32_t r;
-	r =adns_init(&m_aDNSState, adns_if_noautosys, 0);
-	if ( m_aDNSState == NULL )
+	if (m_DNSHandler == NULL)
 	{
-		logCrit("Error opening /etc/resolv.conf: %s; r = %d", strerror(errno), r);
+		logCrit("%s","NO DNSHandler loaded, hit the docs\n");
+		g_Nepenthes->stop();
 		return false;
+	}else
+	{
+		return true;
 	}
-
-	logDebug("%s","adns_init() Success\n");
-	return true;
-#endif
 	
 }
 
@@ -81,127 +92,117 @@ bool DNSManager::Exit()
 	return true;
 }
 
+/**
+ * lists the registerd DNSHandler
+ */
 void DNSManager::doList()
 {
+
+	logInfo("=--- %-69s ---=\n","DNSManager");
+	if (m_DNSHandler != NULL)
+	{
+    	logInfo("  # %s\n",m_DNSHandler->getDNSHandlerName().c_str());
+	}else
+	{
+		logCrit("%s","availible DNSHandler dnsresolve-adns\n");
+	}
+	logInfo("=--- %2s %-66s ---=\n","", "DNSHandler registerd");
+
 	return;
 }
 
 
-bool DNSManager::addDNS(DNSHandler *callback,char *dns, void *obj)
+/**
+ * ask the DNSManager to resolve the provided domains A Record
+ * 
+ * @param callback the issuers DNSCallback
+ * @param dns      the dns to resolve
+ * @param obj      additional context data
+ * 
+ * @return true
+ */
+bool DNSManager::addDNS(DNSCallback *callback,char *dns,void *obj)
 {
-#ifdef WIN32
+	logSpam("addDNS: Adding DNS %s for (%s)\n",dns,callback->getDNSCallbackName().c_str());
 
-	return true;
-#else
-	logSpam("addDNS: Adding DNS %s for (%s)\n",dns,callback->getDNSHandlerName().c_str());
 
-	if (strncasecmp(dns,"localhost",strlen("localhost")) == 0)
+	// the resolver libs lack support for /etc/hosts
+	// so we have to look the /etc/hosts up on our own
+	// for now we just resolve localhost
+	// FIXME parse /etc/hosts
+	
+	if ( strncasecmp(dns,"localhost",strlen("localhost")) == 0 )
 	{
 		logSpam("DNS is %s resolving to 127.0.0.1\n",dns);
-		uint32_t ip = inet_addr("127.0.0.1");
-		DNSResult result(ip,dns, obj);
+		unsigned long ip = inet_addr("127.0.0.1");
+		DNSResult result(ip,dns, (uint16_t)DNS_QUERY_A ,obj);
 		callback->dnsResolved(&result);
 		return true;
-	}else
-	if (  inet_addr(dns) != INADDR_NONE )
+	} else
+		if ( inet_addr(dns) != INADDR_NONE )
 	{
-		uint32_t ip = inet_addr(dns);
+		unsigned long ip = inet_addr(dns);
 		logSpam("DNS is ip %s \n",dns);
-		DNSResult result(ip,dns, obj);
+		DNSResult result(ip,dns, (uint16_t)DNS_QUERY_A ,obj);
 		callback->dnsResolved(&result);
 		return true;
 	}
 
 
-	DNSQuery *query = new DNSQuery(callback,dns, obj);
-
-//	adns_query *newadns = (adns_query *) malloc(sizeof (adns_query));
-    adns_submit (m_aDNSState, dns, adns_r_a, adns_qf_owner, query, query->getADNS());
-
-	logSpam("addDNS: query %8x for %s\n", query,callback->getDNSHandlerName().c_str());
-
-	m_Queue++;
-
-	return true;
-
-#endif
+	DNSQuery *query = new DNSQuery(callback,dns, DNS_QUERY_A, obj);
+	return m_DNSHandler->resolveDNS(query);
 }
 
-void DNSManager::pollDNS()
+
+
+
+/**
+ * ask the DNSManager to resolve the provided domains TXT Record
+ * 
+ * @param callback the issuers DNSCallback
+ * @param dns      the dns to resolve
+ * @param obj      additional context data
+ * 
+ * @return true
+ */
+
+bool DNSManager::addTXT(DNSCallback *callback,char *dns, void *obj)
 {
-#ifdef WIN32
-	return;
-#else
-	if (m_Queue == 0)
-		return;
-
-
-	struct pollfd pfd[100];
-    int32_t nfds = 100;
-    int32_t timeout = 0;
-	memset(pfd,0,100*sizeof(struct pollfd));
-
-	struct timeval currenttime;
-	struct timezone tz; 
-	memset(&tz,0,sizeof(struct timezone));
-	gettimeofday(&currenttime,&tz);
-
-    adns_beforepoll(m_aDNSState, pfd, &nfds, &timeout, &currenttime);
-    poll(pfd, nfds, timeout);
-    adns_afterpoll(m_aDNSState, pfd, nfds, &currenttime);
-    adns_processany(m_aDNSState);
-	callBack();
-	return;
-#endif
+	logSpam("addTXT: Adding DNS %s for (%s)\n", dns,callback->getDNSCallbackName().c_str());
+	DNSQuery *query = new DNSQuery(callback,dns, DNS_QUERY_TXT, obj);
+	
+	return m_DNSHandler->resolveTXT(query);
 }
 
-void DNSManager::callBack()
+/**
+ * register a DNSHandler
+ * 
+ * @param handler the handler to register
+ * 
+ * @return true if there was no DNSHandler registerd before
+ *         else false
+ */
+bool DNSManager::registerDNSHandler(DNSHandler *handler)
 {
-#ifdef WIN32
-
-#else
-	adns_query q, r;
-	adns_answer *answer;
-	DNSQuery *query;
-
-	logSpam("%i DNS Resolves in Queue\n", m_Queue);
-
-	adns_forallqueries_begin(m_aDNSState);
-	while ( (q = adns_forallqueries_next(m_aDNSState, (void **)&r)) != NULL )
+	logPF();
+	if (m_DNSHandler != NULL)
 	{
-
-		switch ( adns_check(m_aDNSState, &q, &answer, (void **)&query) )
-		{
-		case 0:
-			{
-				m_Queue--;
-				logDebug("resolved dns %s (%i left) \n", query->getDNS().c_str(),m_Queue);
-				DNSResult result(answer,(char *)query->getDNS().c_str(), query->getObject());
-				if (answer->nrrs == 0)
-				{
-					query->getHandler()->dnsFailure(&result);
-				}else
-				{
-                    query->getHandler()->dnsResolved(&result);
-				}
-			}
-			break;
-		case EAGAIN:
-			/* Go into the queue again */
-			break;
-		default:
-			m_Queue--;
-			logWarn("resolving %s failed (%i left) \n", answer->cname, m_Queue);
-			break;
-		}
+		logCrit("Already DNSHandler %s registerd\n",m_DNSHandler->getDNSHandlerName().c_str());
+		return false;
+	}else
+	{
+		m_DNSHandler = handler;
 	}
-	return;
-#endif
 }
 
-uint32_t DNSManager::getSize()
+/**
+ * unregisters DNSHandler
+ * 
+ * @param handler
+ * 
+ * @return 
+ */
+bool DNSManager::unregisterDNSHandler(DNSHandler *handler)
 {
-	return m_Queue;
+	m_DNSHandler = NULL;
 }
-
-

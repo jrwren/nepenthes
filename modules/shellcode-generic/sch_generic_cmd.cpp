@@ -86,16 +86,16 @@ bool GenericCMD::Exit()
 sch_result GenericCMD::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 	int32_t piOutput[10 * 3];
 	int32_t iResult=0;
 	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
-//		logDebug("GenricCMD (improve pcre debug) (%i bytes)\n",(*msg)->getMsgLen());
-//		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)(*msg)->getMsg(),(*msg)->getMsgLen());
+//		logDebug("GenricCMD (improve pcre debug) (%i bytes)\n",(*msg)->getSize());
+//		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)(*msg)->getMsg(),(*msg)->getSize());
  
 		const char * pRemoteCommand;
 

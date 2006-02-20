@@ -40,6 +40,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
+#include <dirent.h>
 
 #include "Nepenthes.hpp"
 #include "SocketManager.hpp"
@@ -48,6 +49,7 @@
 #include "LogManager.hpp"
 #include "ConsoleLogger.hpp"
 #include "FileLogger.hpp"
+#include "RingFileLogger.hpp"
 #include "ModuleManager.hpp"
 #include "ShellcodeManager.hpp"
 #include "SubmitManager.hpp"
@@ -55,6 +57,9 @@
 #include "Utilities.hpp"
 #include "DialogueFactoryManager.hpp"
 #include "DNSManager.hpp"
+#include "GeoLocationManager.hpp"
+#include "UploadManager.hpp"
+
 #include "Message.hpp"
 
 
@@ -78,33 +83,67 @@ Nepenthes::Nepenthes()
 	m_running = true;
 
 	m_Config = NULL;
+	m_DialogueFactoryManager    = NULL;
+	m_DNSManager = NULL;
+	m_DownloadManager   = NULL;
+	m_EventManager  = NULL;
+#ifdef HAVE_GEOLOCATION
+	m_GeoLocationManager = NULL;
+#endif
+	m_LogManager    = NULL;
+	m_ModuleManager = NULL;
+	m_ShellcodeManager  = NULL;
+	m_SocketManager = NULL;
+	m_SubmitManager = NULL;
+	m_Utilities = NULL;
 
-	m_SocketManager	= NULL;
-	m_DownloadManager	= NULL;
-	m_EventManager	= NULL;
-    m_SubmitManager	= NULL;
-	m_ModuleManager	= NULL;
-	m_ShellcodeManager	= NULL;
-	m_Utilities	= NULL;
-	m_LogManager	= NULL;
-	m_DialogueFactoryManager	= NULL;
-
+	m_UID = 0;
+	m_GID = 0;
 }
 
+/**
+ * Nepenthes destuctor
+ */
 Nepenthes::~Nepenthes()
 {
 	if ( m_SocketManager != NULL )
-	{
-		delete m_SocketManager;
+    	delete m_SocketManager;
+
+	if (m_DownloadManager != NULL )
 		delete m_DownloadManager;
+
+	if (m_EventManager != NULL)
 		delete m_EventManager;
-		delete m_SubmitManager;
-		delete m_ModuleManager;
-		delete m_ShellcodeManager;
-		delete m_Utilities;
-		delete m_LogManager;
-		delete m_DialogueFactoryManager;
+
+	if (m_SubmitManager != NULL)
+	{
+		m_SubmitManager->Exit();
+    	delete m_SubmitManager;
 	}
+
+	if (m_ModuleManager != NULL)
+		delete m_ModuleManager;
+
+	if (m_ShellcodeManager != NULL)
+		delete m_ShellcodeManager;
+
+	if (m_Utilities != NULL)
+		delete m_Utilities;
+
+	if (m_DialogueFactoryManager != NULL)
+		delete m_DialogueFactoryManager;
+
+#ifdef HAVE_GEOLOCATION
+	if (m_GeoLocationManager != NULL)
+		delete m_GeoLocationManager;
+#endif
+
+	if (m_DNSManager != NULL)
+		delete m_DNSManager;
+
+	if (m_LogManager != NULL)
+		delete m_LogManager;
+
 }
 
 /**
@@ -132,6 +171,12 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	char *chRoot = NULL;
 	const char *consoleTags = 0, *diskTags = 0;
 
+
+	string flpath;
+
+	string rlpath;	// ringlogger path, gets read from config
+	bool ringlog = false;
+
 #ifdef WIN32
 
 #else
@@ -151,7 +196,8 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ "log", 			1, 0, 'l' },	// FIXME
 			{ "logging-help",	0, 0, 'L' },	// FIXME
 			{ "no-color", 		0, 0, 'o' },	// FIXME
-			{ "chroot",			1, 0, 'r' },	
+			{ "chroot",			1, 0, 'r' }, 
+			{ "ringlog",		0, 0, 'R' }, 
 			{ "user",			1, 0, 'u' },	
 			{ "version", 		0, 0, 'V' },
 			{ "verbose", 		0, 0, 'v' },
@@ -159,7 +205,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:d:f:g:hHikl:Lor:u:vVw:", long_options, &option_index);
+		int32_t c = getopt_long(argc, argv, "c:d:f:g:hHikl:Lor:Ru:vVw:", long_options, &option_index);
 		if (c == -1)
 			break;
 
@@ -228,6 +274,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		case 'r':
 			chRoot = optarg;
 			printf("Change Root to %s \n",chRoot);
+			break;
+
+		case 'R':
+			ringlog = true;
+			printf("Using ringlogger instead of filelogger, rotating logfiles by myself\n");
 			break;
 
 		case 'u':
@@ -324,17 +375,6 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 				m_LogManager->addLogger(new ConsoleLogger(m_LogManager), l_all);
 		}
 
-		if ( run == true )
-		{
-			/* temp hack */
-			FileLogger *fl = new FileLogger(m_LogManager);
-			fl->setLogFile("var/log/nepenthes.log");
-
-			if( diskTags )
-				m_LogManager->addLogger(fl, m_LogManager->parseTagString(diskTags));
-			else
-				m_LogManager->addLogger(fl, l_all);
-		}
 
 		if ( run == true || filecheck == true)
 		{
@@ -343,6 +383,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			m_DownloadManager   = new DownloadManager(this);
 			m_EventManager      = new EventManager(this);
 
+#ifdef HAVE_GEOLOCATION
+			m_GeoLocationManager = new GeoLocationManager(this);
+#endif 
+
+			m_UploadManager		= new UploadManager(this);
 			//	m_Lua				= new Lua
 			m_ModuleManager     = new ModuleManager(this);
 			m_ShellcodeManager  = new ShellcodeManager(this);
@@ -374,31 +419,141 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		
 	}
 
+    if ( run == true )
+    {
+		if ( m_Config != NULL )
+		{
+			
+
+
+			if (ringlog == true)
+			{
+
+				try
+				{
+					rlpath = m_Config->getValString("nepenthes.logmanager.ring_logging_file");
+				} catch ( ... )
+				{
+					logCrit("%s","Could not find nepenthes.logmanager.ring_logging_file in Config\n");
+					run = false;
+				}
+
+
+				RingFileLogger *fl = new RingFileLogger(m_LogManager);
+
+				fl->setLogFileFormat((char *)rlpath.c_str());
+				fl->setMaxFiles(5);
+				fl->setMaxSize(1024 * 1024);
+
+				if ( diskTags )
+					m_LogManager->addLogger(fl, m_LogManager->parseTagString(diskTags));
+				else
+					m_LogManager->addLogger(fl, l_all);
+
+			}else
+			{
+				try
+				{
+					flpath = m_Config->getValString("nepenthes.logmanager.file_logging_file");
+				} catch ( ... )
+				{
+					logCrit("%s","Could not find nepenthes.logmanager.file_logging_file in Config\n");
+					run = false;
+				}
+
+				FileLogger *fl = new FileLogger(m_LogManager);
+				fl->setLogFile(flpath.c_str());
+				if ( diskTags )
+					m_LogManager->addLogger(fl, m_LogManager->parseTagString(diskTags));
+				else
+					m_LogManager->addLogger(fl, l_all);
+
+			}
+		}
+	}
+
+
 	if (run == true || filecheck == true)
 	{
-    
-		// socketManager will call WASStartup()
-		m_SocketManager->Init();
 
-		m_DNSManager->Init();
+		if (filecheck == true)
+		{
+			run = true; 
+		}
 
-		m_ModuleManager->Init();
-		m_ModuleManager->doList();
+        // socketManager will call WASStartup()
+		run = m_SocketManager->Init();
 
-		m_DownloadManager->Init();
-		m_DownloadManager->doList();
+		
 
-		m_EventManager->doList();
+		if (run == true )
+		{
+			run = m_ModuleManager->Init();
+			m_ModuleManager->doList();
+		}
 
-		m_ShellcodeManager->doList();
+		if (run == true )
+		{
+			run = m_DNSManager->Init();
+			m_DNSManager->doList();
+		}
 
-		m_SocketManager->doList();
+#ifdef HAVE_GEOLOCATION
+		if (run == true )
+		{
+			run = m_GeoLocationManager->Init();
+		}
+#endif
 
-		m_SubmitManager->Init();
-		m_SubmitManager->doList();
+		if (run == true )
+		{
+			run = m_DownloadManager->Init();
+			m_DownloadManager->doList();
+		}
 
-		m_DialogueFactoryManager->doList();
+		if (run == true )
+		{
+			run = m_UploadManager->Init();
+			m_UploadManager->doList();
+		}
 
+		if (run == true )
+		{
+			m_EventManager->doList();
+		}
+
+		if (run == true )
+		{
+			m_ShellcodeManager->doList();
+		}
+
+		if (run == true )
+		{
+            m_SocketManager->doList();
+		}
+
+		if (run == true )
+		{
+			run = m_SubmitManager->Init();
+			m_SubmitManager->doList();
+		}
+
+		if (run == true )
+		{
+			m_DialogueFactoryManager->doList();
+		}
+
+
+		if (filecheck == true )
+		{
+			if (run == true)
+			{
+				run = false; 
+			}else
+			{
+				filecheck = false;
+			}
+		}
 	}
 
 	if ( chRoot != NULL )
@@ -411,42 +566,112 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 
 
 	// if we drop priviliges, we have to take care of the logfiles user/group permission
+	// if we do not drop privs, make sure the files are ours
 	// --common
-    if (chUser != NULL || chGroup != NULL )
+	if ( run == true )
 	{
-		if (chUser != NULL && chGroup != NULL)
+		if ( ringlog == true )
 		{
-			if ( chown("var/log/nepenthes.log",m_UID, m_GID) != 0)
+
+			uint16_t numrot=0;
+			for ( numrot = 0;numrot < 5; numrot++ )
 			{
-				logCrit("Could not chown logfile '%s'\n",strerror(errno));
-				run=false;
-			}else
-			{
-				logInfo("Changed logfile owner to %i:%i (%s:%s)\n",m_UID,m_GID,chUser,chGroup);
+				char *lp=0;
+				asprintf(&lp,rlpath.c_str(),numrot);
+
+				struct stat st;
+				int32_t filestat = stat(lp, &st);
+
+				if ( filestat != 0 )
+				{
+					if ( errno == ENOENT )
+					{
+						logInfo("logfile %s does not exist yet\n",lp);
+						continue;
+					} else
+					{
+						logCrit("Could not access logfile %s '%s'\n",lp, strerror(errno));
+						run=false;
+					}
+				} else
+				{
+					if ( chown(lp,m_UID, m_GID) != 0 )
+					{
+						logCrit("Could not chown logfile %s '%s'\n",lp, strerror(errno));
+						run=false;
+					} else
+					{
+						char *curUser, *curGroup;
+						if ( chUser != NULL )
+						{
+							curUser = chUser;
+						} else
+						{
+							curUser = getpwuid(geteuid())->pw_name;
+						}
+
+						if ( chGroup != NULL )
+						{
+							curGroup = chGroup;
+						} else
+						{
+							curGroup = getgrgid(geteuid())->gr_name;
+						}
+
+						logInfo("Changed logfile %s owner to %i:%i (%s:%s)\n",lp, m_UID,m_GID,curUser,curGroup);
+					}
+				}
+				free(lp);
 			}
-		}
-		else
-		if (chUser == NULL && chGroup != NULL)
-        {
-			if ( chown("var/log/nepenthes.log",0, m_GID) != 0)
-			{
-				logCrit("Could not chown logfile '%s'\n",strerror(errno));
-				run=false;
-			}
+
 		}else
-		if (chUser != NULL && chGroup == NULL)
 		{
-        	if ( chown("var/log/nepenthes.log",m_UID, 0) != 0)
+			struct stat st;
+			int32_t filestat = stat(flpath.c_str(), &st);
+
+			if ( filestat != 0 )
 			{
-				logCrit("Could not chown logfile '%s'\n",strerror(errno));
-				run=false;
+				if ( errno == ENOENT )
+				{
+					logInfo("logfile %s does not exist yet\n",flpath.c_str());
+				} else
+				{
+					logCrit("Could not access logfile %s '%s'\n",flpath.c_str(), strerror(errno));
+					run=false;
+				}
+			} else
+			{
+				if ( chown(flpath.c_str(),m_UID, m_GID) != 0 )
+				{
+					logCrit("Could not chown logfile %s '%s'\n",flpath.c_str(), strerror(errno));
+					run=false;
+				} else
+				{
+					char *curUser, *curGroup;
+					if ( chUser != NULL )
+					{
+						curUser = chUser;
+					} else
+					{
+						curUser = getpwuid(geteuid())->pw_name;
+					}
+
+					if ( chGroup != NULL )
+					{
+						curGroup = chGroup;
+					} else
+					{
+						curGroup = getgrgid(geteuid())->gr_name;
+					}
+
+					logInfo("Changed logfile %s owner to %i:%i (%s:%s)\n",flpath.c_str(), m_UID,m_GID,curUser,curGroup);
+				}
 			}
 		}
 	}
-	
 
 	// change process group id
-	if ( chGroup != NULL )
+	if ( run == true && chGroup != NULL )
 	{
 
 		if ( changeGroup() == false )
@@ -456,7 +681,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	}
 
 	// change process user id
-	if ( chUser != NULL )
+	if ( run == true && chUser != NULL )
 	{
 		if ( changeUser() == false )
 		{
@@ -464,14 +689,14 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 	}
 
-	if(run)
+	if( run == true )
 	{
         doLoop();
 	}else
 	if (filecheck)
 	{
 		show_version();
-		fileCheck(filecheckarg,argc,optind,argv);
+		fileCheckMain(filecheckarg,argc,optind,argv);
 	}
 
 
@@ -484,6 +709,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 
 
 
+/**
+ * the Nepenthes mainloop
+ * 
+ * @return should never return ;)
+ */
 bool Nepenthes::doLoop()
 {
 
@@ -491,11 +721,158 @@ bool Nepenthes::doLoop()
 	{
     	getSocketMgr()->doLoop(500);
 		getEventMgr()->doTimeoutLoop();
-		getDNSMgr()->pollDNS();
+//		getDNSMgr()->pollDNS();
 	}
 	return true;
 }
 
+
+
+#define FC_DO_NONOP 0x001
+#define FC_RM_NONOP 0x002
+#define FC_RM_KNOWN 0x004
+
+#define FC_IS_KNOWN 0x008
+#define FC_IS_NONOP 0x010
+
+
+bool Nepenthes::fileCheckMain(char *optval, int32_t argc, int32_t opti, char **argv)
+{
+	if ( opti >= argc )
+	{
+		return true;
+	}
+
+
+	bool rmknown=false;
+	bool rmnonop=false;
+	bool dononop=false;
+
+	uint8_t options=0;
+	if (optval != NULL)
+	{
+		if (strstr(optval,"rmnonop") != NULL)
+		{
+			options |= FC_RM_NONOP;
+		}
+		if (strstr(optval,"rmknown") != NULL)
+		{
+			options |= FC_RM_KNOWN;
+		}
+		if (strstr(optval,"dononop") != NULL)
+		{
+			options |= FC_DO_NONOP;
+		}
+	}
+
+	printf ("Checking Files: \n");
+	for ( ; opti < argc && m_running == true; )
+	{
+
+		struct stat fileinfo;
+		if ( stat((const char*)argv[opti],&fileinfo) != 0 )
+		{
+			printf("failed\n");
+			return -1;
+		}
+
+		if ( S_ISREG(fileinfo.st_mode)  )
+		{
+			
+			uint8_t result = fileCheckPrinter(argv[opti],options);
+
+			if (
+				(options & FC_RM_KNOWN && result & FC_IS_KNOWN) ||
+				(options & FC_RM_NONOP && result & FC_IS_NONOP) 
+				)
+				
+			{
+				unlink(argv[opti]);
+			}
+
+		}else
+        if ( S_ISDIR(fileinfo.st_mode) )
+		{
+			DIR *bindir = opendir(argv[opti]);
+			struct dirent *dirnode;
+			string basepath = argv[opti];
+
+			while ( (dirnode = readdir(bindir)) != NULL && m_running == true )
+			{
+
+				if ( dirnode->d_type == 8 )
+				{
+					string filepath = basepath + "/" + dirnode->d_name;
+					uint8_t result = fileCheckPrinter(filepath.c_str(),options);
+
+					if (
+						(options & FC_RM_KNOWN && result & FC_IS_KNOWN) ||
+						(options & FC_RM_NONOP && result & FC_IS_NONOP) 
+						)
+						
+					{
+						unlink(filepath.c_str());
+					}
+				}
+			}
+			closedir(bindir);
+		}
+
+		opti++;
+	}
+}
+
+uint8_t Nepenthes::fileCheckPrinter(const char *filename, uint8_t options)
+{
+	uint8_t result=0;
+
+	Message *Msg=NULL;
+
+	printf("\t %s\t",filename);
+	switch ( fileCheck(filename,&Msg) )
+	{
+	case -1:
+		printf("could not open file");
+		break;
+
+	case 0:
+		if ( m_ShellcodeManager->fileCheck(&Msg) == SCH_DONE )
+		{
+			result |= FC_IS_KNOWN;
+			printf("\033[32;1mKNOWN\033[0m");
+		} else
+		{
+			printf("\033[31;1mFAILED\033[0m");
+		}
+		delete Msg;
+		break;
+
+	case 1:
+
+		result |= FC_IS_NONOP;
+
+		if ( options & FC_DO_NONOP )
+		{
+			if ( m_ShellcodeManager->fileCheck(&Msg) == SCH_DONE )
+			{
+				result |= FC_IS_KNOWN;
+				printf("\033[32;1mKNOWN\033[0m");
+			} else
+			{
+				printf("\033[31;1mFAILED\033[0m");
+			}
+		} else
+		{
+			printf("NONOP");
+		}
+		
+
+		delete Msg;
+		break;
+	}
+	printf("\n");
+	return result;
+}
 
 
 /**
@@ -519,149 +896,81 @@ int32_t Nepenthes::fileCheck(const char *filename, Message **Msg)
 	{
         return -1;
 	}
-	
-	filesize=fileinfo.st_size;
-	printf("%5i\t",filesize);
-	buffer = (unsigned char *)malloc(fileinfo.st_size);
 
-	FILE *f;
-	if ( (f = fopen((const char *)filename,"rb")) == NULL )
-	{
-        return -1;
-	} else
-	{
-		fread(buffer,1,filesize,f);
-		fclose(f);
+		filesize=fileinfo.st_size;
+		printf("%5i\t",filesize);
+		buffer = (unsigned char *)malloc(fileinfo.st_size);
 
-		uint32_t i;
-		bool nopslide=false;
-		for ( i=0;i<filesize;i++ )
+		FILE *f;
+		if ( (f = fopen((const char *)filename,"rb")) == NULL )
 		{
-			if ( buffer[i] == 0x90 )
+			return -1;
+		} else
+		{
+			fread(buffer,1,filesize,f);
+			fclose(f);
+
+			uint32_t i;
+			bool nopslide=false;
+			for ( i=0;i<filesize;i++ )
 			{
-				nopslide = true;
-				break;
+				if ( buffer[i] == 0x90 )
+				{
+					nopslide = true;
+					break;
+				}
+			}
+			if ( nopslide )
+			{
+				*Msg = new Message((char *)buffer, filesize, 0, 0, 0, 0, NULL, NULL);
+				retval = 0;
+			} else
+			{
+				*Msg = new Message((char *)buffer, filesize, 0, 0, 0, 0, NULL, NULL);
+				retval = 1;
 			}
 		}
-		if ( nopslide )
-		{
-			*Msg = new Message((char *)buffer, filesize, 0, 0, 0, 0, NULL, NULL);
-			retval = 0;
-		}else
-		{
-			*Msg = new Message((char *)buffer, filesize, 0, 0, 0, 0, NULL, NULL);
-			retval = 1;
-		}
-	}
-	free(buffer);
+		free(buffer);
 	return retval;
 }
 
-bool Nepenthes::fileCheck(char *optval, int32_t argc, int32_t opti, char **argv)
-{
-	if ( opti >= argc )
-	{
-		return true;
-	}
 
 
-	bool rmknown=false;
-	bool rmnonop=false;
-	bool dononop=false;
-	if (optval != NULL)
-	{
-		if (strstr(optval,"rmnonop") != NULL)
-		{
-			rmnonop = true;
-		}
-		if (strstr(optval,"rmknown") != NULL)
-		{
-			rmknown = true;
-		}
-		if (strstr(optval,"dononop") != NULL)
-		{
-			dononop = true;
-		}
-
-
-	}
-
-	printf ("Checking Files: \n");
-	for ( ; opti < argc && m_running == true; )
-	{
-		printf("  * %42s\t",argv[opti]);
-		Message *Msg=NULL;
-		switch ( fileCheck(argv[opti],&Msg) )
-		{
-		case -1:
-			printf("could not open file");
-			break;
-
-		case 0:
-			if ( m_ShellcodeManager->fileCheck(&Msg) == SCH_DONE )
-			{
-				printf("\033[32;1mKNOWN\033[0m");
-				if (rmknown == true)
-				{
-					unlink(argv[opti]);
-				}
-			} else
-			{
-				printf("\033[31;1mFAILED\033[0m");
-			}
-			delete Msg;
-			break;
-
-		case 1:
-			if (dononop)
-			{
-				if ( m_ShellcodeManager->fileCheck(&Msg) == SCH_DONE )
-				{
-					printf("\033[32;1mKNOWN\033[0m");
-					if (rmknown == true)
-					{
-						unlink(argv[opti]);
-					}
-				} else
-				{
-					printf("\033[31;1mFAILED\033[0m");
-				}
-			}else
-			{
-				printf("NONOP");
-			}
-
-			if (rmnonop == true)
-			{
-				unlink(argv[opti]);
-			}
-
-			delete Msg;
-			break;
-		}
-		printf("\n");
-		opti++;
-	}
-	return true;
-}
-
-
-
+/**
+ * get nepenthes Config
+ * 
+ * @return returns pointer to nepenthes Config
+ */
 Config *Nepenthes::getConfig()
 {
 	return m_Config;
 }
 
+/**
+ * get DownloadManager
+ * 
+ * @return returns pointer to the DownloadManager
+ */
 DownloadManager *Nepenthes::getDownloadMgr()
 {
 	return m_DownloadManager;
 }
 
+/**
+ * get EventManager
+ * 
+ * @return returns EventManager
+ */
 EventManager *Nepenthes::getEventMgr()
 {
 	return m_EventManager;
 }
 
+/**
+ * get LogManager
+ * 
+ * @return returns LogManager
+ */
 LogManager *Nepenthes::getLogMgr()
 {
 	return m_LogManager;
@@ -672,44 +981,107 @@ LuaInterface *Nepenthes::getLua()
 	return m_Lua;
 }
 
+/**
+ * get ModuleManager
+ * 
+ * @return returns ModuleManager
+ */
 ModuleManager *Nepenthes::getModuleMgr()
 {
 	return m_ModuleManager;
 }
 
 
+/**
+ * get ShellcodeManager
+ * 
+ * @return returns ShellcodeManager
+ */
 ShellcodeManager *Nepenthes::getShellcodeMgr()
 {
 	return m_ShellcodeManager;
 }
 
+/**
+ * get SocketManager
+ * 
+ * @return returns SocketManager
+ */
 SocketManager *Nepenthes::getSocketMgr()
 {
 	return m_SocketManager;
 }
 
 
+/**
+ * get SubmitManager
+ * 
+ * @return returns SubmitManager
+ */
 SubmitManager *Nepenthes::getSubmitMgr()
 {
 	return m_SubmitManager;
 }
 
+/**
+ * get the famous Utilities
+ * 
+ * @return returns the Utilities
+ */
 Utilities *Nepenthes::getUtilities()
 {
 	return m_Utilities;
 }
 
+/**
+ * get the DialogueFactoryManager
+ * 
+ * @return returns the DialogueFactoryManager
+ */
 DialogueFactoryManager *Nepenthes::getFactoryMgr()
 {
 	return m_DialogueFactoryManager;
 }
 
+/**
+ * get the DNSManager
+ * 
+ * @return returns the DNSManager
+ */
 DNSManager *Nepenthes::getDNSMgr()
 {
 	return m_DNSManager;
 }
 
 
+#ifdef HAVE_GEOLOCATION
+/**
+ * get the GeoLocationManager
+ * 
+ * @return returns the GeoLocationManager
+ */
+GeoLocationManager *Nepenthes::getGeoMgr()
+{
+	return m_GeoLocationManager;
+}
+
+#endif
+
+/**
+ * get the UploadManager
+ * 
+ * @return returns the UploadManager
+ */
+UploadManager *Nepenthes::getUploadMgr()
+{
+	return m_UploadManager;
+}
+
+/**
+ * stop the nepenthes
+ * 
+ * @return returns true if running, else false
+ */
 bool Nepenthes::stop()
 {
 	if(m_running)
@@ -720,6 +1092,14 @@ bool Nepenthes::stop()
 	return false;
 }
 
+/**
+ * reload the config
+ * 
+ * FIXME does not work
+ * exits nepenthes
+ * 
+ * @return returns false
+ */
 bool Nepenthes::reloadConfig()
 {
 	bool retval=true;
@@ -734,6 +1114,14 @@ bool Nepenthes::reloadConfig()
 }
 
 
+/**
+ * resolve a user to a uid_t
+ * 
+ * @param user   the username to resolve
+ * 
+ * @return returns true on success, 
+ *         else false
+ */
 bool Nepenthes::changeUser(char *user)
 {
 	passwd * pass;                                
@@ -811,13 +1199,20 @@ bool Nepenthes::changeUser()
 }
 
 
+/**
+ * resolve a groupnames gid_t
+ * 
+ * @param gruppe the group tp resolve
+ * 
+ * @return returns true on success, else false
+ */
 bool Nepenthes::changeGroup(char *gruppe)
 {
 	struct group *grp;
 
 	if ( (grp = getgrnam(gruppe)) == NULL )
 	{
-		printf("Could not get groupid for group '%s'\n%s\n",gruppe,strerror(errno));
+		printf("Could not get groupid for group '%s' (%s)\n",gruppe,strerror(errno));
 		return false;
 	}else
 	{
@@ -897,6 +1292,14 @@ bool Nepenthes::changeGroup()
 	return true;
 }
 
+/**
+ * change the process root
+ * 
+ * @param path   the path to chroot() to
+ * 
+ * @return return true on success,
+ *         else false
+ */
 bool Nepenthes::changeRoot(char *path)
 {
 	if ( chroot(path) < 0)
@@ -911,6 +1314,11 @@ bool Nepenthes::changeRoot(char *path)
 
 }
 
+/**
+ * the signalhandler
+ * 
+ * @param iSignal the signal we get
+ */
 void SignalHandler(int32_t iSignal)
 {
     printf("Got signal %i\n", iSignal);
@@ -951,8 +1359,19 @@ void SignalHandler(int32_t iSignal)
 	}
 }
 
+/**
+ * show the nepenthes logo
+ */
 void show_logo();
 
+/**
+ * the main
+ * 
+ * @param argc   argument count
+ * @param argv   argument vector
+ * 
+ * @return returns 0 on success
+ */
 int32_t main(int32_t argc, char **argv)
 {
 #ifdef WIN32
@@ -1081,6 +1500,11 @@ void show_logo()
 		 "#                                                                             #\n");
 }
 
+/**
+ * show cli flags help 
+ * 
+ * @param defaults include default values
+ */
 void show_help(bool defaults)
 {
 	typedef struct 
@@ -1101,9 +1525,10 @@ void show_help(bool defaults)
 		{"i",	"info",		   		"how to contact us",					""						},
 		{"k",	"check-config",		"check config for syntax errors",		""						},
 		{"l",	"log",				"console logging tags, see -L",			"(no filter)"			},
-		{"L",	"logging-help",		"display help for -d and -l",			"FIXME"					},
+		{"L",	"logging-help",		"display help for -d and -l",			""						},
 		{"o",	"no-color",			"log without colors",					"FIXME"					},
-        {"r",	"chroot",			"chroot to",							"default is not to chroot set"},
+        {"r",	"chroot",			"chroot to",							"default is not to set chroot"},
+		{"R",	"ringlog",			"use ringlogger instead of filelogger",	"default is filelogger"},
 		{"u",	"user",				"set user to switch to",				"default is not to switch"},
 		{"g",	"group",			"set group to switch to (use with -u)", "default is not to switch"},
 		{"v",	"version",			"show version",							""						},
@@ -1161,6 +1586,9 @@ void show_loghelp()
 	printf("which don't have one of these tags will be discarded.\n");
 }
 
+/**
+ * show version
+ */
 void show_version()
 {
 	printf("\n");
@@ -1169,6 +1597,9 @@ void show_version()
 	printf("\n");
 }
 
+/**
+ * show compiling info
+ */
 void show_info()
 {
 	show_version();

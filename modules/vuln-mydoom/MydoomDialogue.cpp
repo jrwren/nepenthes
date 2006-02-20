@@ -109,7 +109,7 @@ ConsumeLevel MydoomDialogue::incomingData(Message *msg)
 	switch (m_State)
 	{
 	case MYDOOM_TRAILOR:
-		m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
+		m_Buffer->add((char *)msg->getMsg(),msg->getSize());
 		if (m_Buffer->getSize() >= strlen(MydoomTrailor))
 		{
 			if (memcmp(m_Buffer->getData(),MydoomTrailor,strlen(MydoomTrailor)) == 0)
@@ -117,7 +117,7 @@ ConsumeLevel MydoomDialogue::incomingData(Message *msg)
 				m_State = MYDOOM_FILETRANSFERR;
 				m_Buffer->cut(strlen(MydoomTrailor));
 
-				m_Download = new Download("mydoom://foo/bar",msg->getRemoteHost(),"some triggerline");
+				m_Download = new Download(msg->getRemoteHost(),"mydoom://foo/bar",msg->getRemoteHost(),"some triggerline");
 				m_Download->getDownloadBuffer()->addData((char *)m_Buffer->getData(),m_Buffer->getSize());
 				m_Buffer->clear();
 				return CL_ASSIGN;
@@ -129,7 +129,7 @@ ConsumeLevel MydoomDialogue::incomingData(Message *msg)
 		break;
 	case MYDOOM_FILETRANSFERR:
 		{
-			m_Download->getDownloadBuffer()->addData((char *)msg->getMsg(),msg->getMsgLen());
+			m_Download->getDownloadBuffer()->addData((char *)msg->getMsg(),msg->getSize());
 		}
 		break;
 

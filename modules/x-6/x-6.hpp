@@ -35,13 +35,17 @@
 #include "Nepenthes.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 
 using namespace std;
 
 namespace nepenthes
 {
 
+	/**
+	 * X6 Module
+	 * DNSManager & DNSCallback eXample
+	 */
 	class X6 : public Module , public DialogueFactory
 	{
 	public:
@@ -52,7 +56,11 @@ namespace nepenthes
 		bool Exit();
 	};
 
-	class X6Dialogue : public Dialogue , public DNSHandler
+	/**
+	 * X6Dialogue
+	 * shows how to use the DNSCallback and DNSResult
+	 */
+	class X6Dialogue : public Dialogue , public DNSCallback
 	{
 	public:
 		X6Dialogue(Socket *socket);

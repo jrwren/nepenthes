@@ -41,20 +41,28 @@
 #include "Nepenthes.hpp"
 #include "SubmitHandler.hpp"
 
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 
 #include "DNSResult.hpp"
 
 
 
 #include "EventHandler.hpp"
+#include "GeoLocationCallback.hpp"
 #include "Utilities.hpp"
+
+#include "UploadCallback.hpp"
+
 
 using namespace std;
 
 namespace nepenthes
 {
-	class SubmitXMLRPC : public Module , public SubmitHandler, public DNSHandler , public EventHandler
+#ifdef HAVE_GEOLOCATION
+	class SubmitXMLRPC : public Module , public SubmitHandler, public GeoLocationCallback, public UploadCallback
+#else
+	class SubmitXMLRPC : public Module , public SubmitHandler, public UploadCallback
+#endif
 	{
 	public:
 		SubmitXMLRPC(Nepenthes *);
@@ -64,31 +72,20 @@ namespace nepenthes
 
 		void Submit(Download *down);
 		void Hit(Download *down);
-		
-		bool dnsResolved(DNSResult *result);
-		bool dnsFailure(DNSResult *result);
 
-		uint32_t handleEvent(Event *event);
+#ifdef HAVE_GEOLOCATION
+		void locationSuccess(GeoLocationResult *result);
+		void locationFailure(GeoLocationResult *result);
+#endif
 
-		string getXMLRPCHost();
-		string getXMLRPCPath();
+		void uploadSuccess(UploadResult *up);
+		void uploadFailure(UploadResult *up);
 
 	protected:
-        string m_XMLRPCServerAddress;
-		string m_XMLRPCServerPath;
-		uint16_t m_XMLRPCServerPort;
-		bool m_HTTPPipeline;
-		
+		string m_XMLRPCServer;
 	};
 }
 extern nepenthes::Nepenthes *g_Nepenthes;
 extern nepenthes::SubmitXMLRPC *g_SubmitXMLRPC;
-
-
-namespace nepenthes
-{
-}
-
-
 
 #endif

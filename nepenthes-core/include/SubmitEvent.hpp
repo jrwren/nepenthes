@@ -42,7 +42,7 @@ namespace nepenthes
 	class SubmitEvent : public Event
 	{
 	public:
-		SubmitEvent(event_type e, Download *down)
+		SubmitEvent(uint32_t e, Download *down)
 		{
 			m_EventType = e;
 			m_Download = down;

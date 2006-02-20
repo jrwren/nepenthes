@@ -161,7 +161,7 @@ void SubmitNorman::Submit(Download *down)
     	m_Events.set(EV_TIMEOUT);
 	CURL *curl;
 
-	NormanContext *norm = new NormanContext((char *)m_Email.c_str(),down->getDownloadUrl()->getFile(),down->getDownloadBuffer()->getLength(),
+	NormanContext *norm = new NormanContext((char *)m_Email.c_str(),down->getDownloadUrl()->getFile(),down->getDownloadBuffer()->getSize(),
 										   down->getDownloadBuffer()->getData(), (char *)down->getMD5Sum().c_str());
 	curl = curl_easy_init();
 	if ( curl )

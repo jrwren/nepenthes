@@ -38,11 +38,6 @@
 
 using namespace nepenthes;
 
-typedef struct portTable
-{
-    const char      *protocolName;
-    uint16_t           port;
-};
  
 portTable g_portTable[] = {
     { "ftp"		, 21 },
@@ -53,6 +48,13 @@ portTable g_portTable[] = {
 
 };
  
+/**
+ * DownloadUrl constructor
+ * 
+ * will split the url in its parts
+ * 
+ * @param psurl  the url
+ */
 DownloadUrl::DownloadUrl(char *psurl)
 {
     string      urlStr = psurl;
@@ -202,18 +204,31 @@ bool DownloadUrl::checkUrl()
 }
 
 
-// proto
+/**
+ * set used protocol
+ * 
+ * @param proto
+ */
 void DownloadUrl::setProtocol(char *proto)
 {
 	m_protocol = proto;
 }
 
+/**
+ * get used protocol
+ * 
+ * @return returns protocol as string
+ */
 string          DownloadUrl::getProtocol()
 {
 	return m_protocol;
 }
 
-// user
+/**
+ * set the user (to login somewhere)
+ * 
+ * @param user   the user
+ */
 void DownloadUrl::setUser(char *user)
 {
 	m_user = user;
@@ -225,24 +240,43 @@ string          DownloadUrl::getUser()
 }
 
 
-// pass
+/**
+ * set the password (to login somewhere)
+ * 
+ * @param pass   the password
+ */
 void DownloadUrl::setPass(char *pass)
 {
 	m_pass = pass;
 }
 
+/**
+ * get the password
+ * 
+ * @return returns the password as string
+ */
 string          DownloadUrl::getPass()
 {
 	return m_pass;
 }
 
 
-// auth
+/**
+ * set the auth
+ * ( auth is in  form USER:PASS for curl )
+ * 
+ * @param auth   the auth
+ */
 void DownloadUrl::setAuth(char *auth)
 {
 	m_auth = auth;
 }
 
+/**
+ * get the auth
+ * 
+ * @return returns the auth as string
+ */
 string          DownloadUrl::getAuth()
 {
 	return m_auth;
@@ -250,30 +284,53 @@ string          DownloadUrl::getAuth()
 
 
 
-// host
+/**
+ * set the remote's host
+ * 
+ * @param host   remotes ip address
+ */
 void 			DownloadUrl::setHost(uint32_t host)
 {
 	m_host = inet_ntoa(*(in_addr *)&host);
 }
 
+/**
+ * set the remotes host
+ * 
+ * @param host   remote host domain
+ */
 void 			DownloadUrl::setHost(char *host)
 {
 	m_host = host;
 }
 
 
+/**
+ * get the remotes host
+ * 
+ * @return returns remote host as string
+ */
 string          DownloadUrl::getHost()
 {
 	return m_host;
 }
 
 
-// port
+/**
+ * set the port to use
+ * 
+ * @param port   the port
+ */
 void DownloadUrl::setPort(uint32_t port)
 {
 	m_port = port;
 }
 
+/**
+ * get the port to use
+ * 
+ * @return returns the port to use
+ */
 uint32_t    DownloadUrl::getPort()
 {
 	return m_port;
@@ -281,12 +338,21 @@ uint32_t    DownloadUrl::getPort()
 
 
 
-// path 
+/**
+ * set the path to use
+ * 
+ * @param path   the path to use
+ */
 void DownloadUrl::setPath(char *path)
 {
 	m_path = path;
 }
 
+/**
+ * get the path to use
+ * 
+ * @return returns the path to use as string without leading /
+ */
 string          DownloadUrl::getPath()
 {
 	return m_path;
@@ -295,12 +361,21 @@ string          DownloadUrl::getPath()
 
 
 
-// file
+/**
+ * set the file to download
+ * 
+ * @param file   returns the file as string
+ */
 void DownloadUrl::setFile(char *file)
 {
 	m_file = file;
 }
 
+/**
+ * get the file to download
+ * 
+ * @return the file as string
+ */
 string          DownloadUrl::getFile()
 {
 	return m_file;
@@ -308,24 +383,42 @@ string          DownloadUrl::getFile()
 
 
 
-// dir
+/**
+ * set the dir to use
+ * 
+ * @param dir    the dir
+ */
 void DownloadUrl::setDir(char *dir)
 {
 	m_dir = dir;
 }
 
+/**
+ * get the dir to use
+ * 
+ * @return returns the dir to use as string
+ */
 string          DownloadUrl::getDir()
 {
 	return m_dir;
 }
 
 
-// anchor
+/**
+ * set the anchor to use
+ * 
+ * @param anchor the anchor
+ */
 void DownloadUrl::setAnchor(char *anchor)
 {
 	m_anchor = anchor;
 }
 
+/**
+ * get the anchor
+ * 
+ * @return returns the anchor as string
+ */
 string          DownloadUrl::getAnchor()
 {
 	return m_anchor;

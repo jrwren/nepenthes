@@ -38,6 +38,10 @@ using namespace std;
 namespace nepenthes
 {
 
+	/**
+	 * X5
+	 * eXample EventHandler
+     */
 	class X5 : public Module , public EventHandler
 	{
 	public:

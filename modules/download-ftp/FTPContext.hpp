@@ -28,7 +28,7 @@
  /* $Id$ */
 
 #include <stdint.h>
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 
 namespace nepenthes
 {
@@ -36,7 +36,7 @@ namespace nepenthes
 	class FILEDialogue;
 	class CTRLDialogue;
 
-	class FTPContext //: public DNSHandler
+	class FTPContext //: public DNSCallback
 	{
 
 	public:

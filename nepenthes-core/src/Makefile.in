@@ -54,23 +54,28 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_nepenthes_OBJECTS = Buffer.$(OBJEXT) Compatibility.$(OBJEXT) \
-	Config.$(OBJEXT) ConsoleLogger.$(OBJEXT) DNSHandler.$(OBJEXT) \
-	DNSManager.$(OBJEXT) DNSQuery.$(OBJEXT) DNSResult.$(OBJEXT) \
-	Dialogue.$(OBJEXT) DialogueFactory.$(OBJEXT) \
-	DialogueFactoryManager.$(OBJEXT) Download.$(OBJEXT) \
-	DownloadBuffer.$(OBJEXT) DownloadHandler.$(OBJEXT) \
-	DownloadManager.$(OBJEXT) DownloadUrl.$(OBJEXT) \
-	EventHandler.$(OBJEXT) EventManager.$(OBJEXT) \
-	FILESocket.$(OBJEXT) FileLogger.$(OBJEXT) LogHandler.$(OBJEXT) \
-	LogManager.$(OBJEXT) LuaFunctions.$(OBJEXT) \
-	LuaInterface.$(OBJEXT) Manager.$(OBJEXT) Message.$(OBJEXT) \
-	Module.$(OBJEXT) ModuleManager.$(OBJEXT) Nepenthes.$(OBJEXT) \
-	POLLSocket.$(OBJEXT) Packet.$(OBJEXT) RAWSocket.$(OBJEXT) \
-	Responder.$(OBJEXT) ShellcodeHandler.$(OBJEXT) \
-	ShellcodeManager.$(OBJEXT) Socket.$(OBJEXT) \
-	SocketManager.$(OBJEXT) SubmitHandler.$(OBJEXT) \
-	SubmitManager.$(OBJEXT) TCPSocket.$(OBJEXT) \
-	UDPSocket.$(OBJEXT) Utilities.$(OBJEXT) WindowsShell.$(OBJEXT)
+	Config.$(OBJEXT) Dialogue.$(OBJEXT) DialogueFactory.$(OBJEXT) \
+	DialogueFactoryManager.$(OBJEXT) DNSManager.$(OBJEXT) \
+	DNSHandler.$(OBJEXT) DNSQuery.$(OBJEXT) DNSResult.$(OBJEXT) \
+	DNSCallback.$(OBJEXT) DownloadManager.$(OBJEXT) \
+	DownloadHandler.$(OBJEXT) DownloadBuffer.$(OBJEXT) \
+	Download.$(OBJEXT) DownloadUrl.$(OBJEXT) \
+	EventManager.$(OBJEXT) EventHandler.$(OBJEXT) \
+	GeoLocationManager.$(OBJEXT) GeoLocationHandler.$(OBJEXT) \
+	GeoLocationQuery.$(OBJEXT) GeoLocationResult.$(OBJEXT) \
+	LogManager.$(OBJEXT) LogHandler.$(OBJEXT) \
+	ConsoleLogger.$(OBJEXT) FileLogger.$(OBJEXT) \
+	RingFileLogger.$(OBJEXT) LuaFunctions.$(OBJEXT) \
+	LuaInterface.$(OBJEXT) Message.$(OBJEXT) \
+	ModuleManager.$(OBJEXT) Module.$(OBJEXT) Nepenthes.$(OBJEXT) \
+	Manager.$(OBJEXT) Packet.$(OBJEXT) SocketManager.$(OBJEXT) \
+	Socket.$(OBJEXT) TCPSocket.$(OBJEXT) UDPSocket.$(OBJEXT) \
+	POLLSocket.$(OBJEXT) RAWSocket.$(OBJEXT) FILESocket.$(OBJEXT) \
+	Responder.$(OBJEXT) ShellcodeManager.$(OBJEXT) \
+	ShellcodeHandler.$(OBJEXT) SubmitManager.$(OBJEXT) \
+	SubmitHandler.$(OBJEXT) UploadManager.$(OBJEXT) \
+	UploadQuery.$(OBJEXT) UploadResult.$(OBJEXT) \
+	Utilities.$(OBJEXT)
 nepenthes_OBJECTS = $(am_nepenthes_OBJECTS)
 nepenthes_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -195,7 +200,22 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I../include -I ../..
-nepenthes_SOURCES = Buffer.cpp Compatibility.cpp Config.cpp ConsoleLogger.cpp DNSHandler.cpp DNSManager.cpp DNSQuery.cpp DNSResult.cpp Dialogue.cpp DialogueFactory.cpp DialogueFactoryManager.cpp Download.cpp DownloadBuffer.cpp DownloadHandler.cpp DownloadManager.cpp DownloadUrl.cpp EventHandler.cpp EventManager.cpp FILESocket.cpp FileLogger.cpp LogHandler.cpp LogManager.cpp LuaFunctions.cpp LuaInterface.cpp Manager.cpp Message.cpp Module.cpp ModuleManager.cpp Nepenthes.cpp POLLSocket.cpp Packet.cpp RAWSocket.cpp Responder.cpp ShellcodeHandler.cpp ShellcodeManager.cpp Socket.cpp SocketManager.cpp SubmitHandler.cpp SubmitManager.cpp TCPSocket.cpp UDPSocket.cpp Utilities.cpp WindowsShell.cpp
+nepenthes_SOURCES = Buffer.cpp Compatibility.cpp Config.cpp \
+	Dialogue.cpp DialogueFactory.cpp DialogueFactoryManager.cpp \
+	DNSManager.cpp DNSHandler.cpp DNSQuery.cpp DNSResult.cpp \
+	DNSCallback.cpp DownloadManager.cpp DownloadHandler.cpp \
+	DownloadBuffer.cpp Download.cpp DownloadUrl.cpp \
+	EventManager.cpp EventHandler.cpp GeoLocationManager.cpp \
+	GeoLocationHandler.cpp GeoLocationQuery.cpp \
+	GeoLocationResult.cpp LogManager.cpp LogHandler.cpp \
+	ConsoleLogger.cpp FileLogger.cpp RingFileLogger.cpp \
+	LuaFunctions.cpp LuaInterface.cpp Message.cpp \
+	ModuleManager.cpp Module.cpp Nepenthes.cpp Manager.cpp \
+	Packet.cpp SocketManager.cpp Socket.cpp TCPSocket.cpp \
+	UDPSocket.cpp POLLSocket.cpp RAWSocket.cpp FILESocket.cpp \
+	Responder.cpp ShellcodeManager.cpp ShellcodeHandler.cpp \
+	SubmitManager.cpp SubmitHandler.cpp UploadManager.cpp \
+	UploadQuery.cpp UploadResult.cpp Utilities.cpp
 all: all-am
 
 .SUFFIXES:
@@ -271,6 +291,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compatibility.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Config.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ConsoleLogger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNSCallback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNSHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNSManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DNSQuery.Po@am__quote@
@@ -287,6 +308,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EventManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FILESocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/FileLogger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeoLocationHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeoLocationManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeoLocationQuery.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeoLocationResult.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LogHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LogManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LuaFunctions.Po@am__quote@
@@ -300,6 +325,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Packet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RAWSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Responder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RingFileLogger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ShellcodeHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ShellcodeManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Socket.Po@am__quote@
@@ -308,8 +334,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SubmitManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TCPSocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UDPSocket.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UploadManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UploadQuery.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/UploadResult.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Utilities.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/WindowsShell.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

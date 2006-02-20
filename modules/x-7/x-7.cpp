@@ -58,26 +58,20 @@ Nepenthes *g_Nepenthes;
 /**
  * The Constructor
  * creates a new X7 Module, 
- * X7 is an example for binding a socket & setting up the Dialogue & DialogueFactory
+ * X7 is an example for using raw sockets
  * 
  * 
- * it can be used as a shell emu to allow trigger commands 
- * 
- * 
- * sets the following values:
- * - m_DialogueFactoryName
- * - m_DialogueFactoryDescription
  * 
  * @param nepenthes the pointer to our Nepenthes
  */
 X7::X7(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "x-2";
-	m_ModuleDescription = "eXample Module 2 -binding sockets & setting up a dialogue example-";
+	m_ModuleName        = "x-7";
+	m_ModuleDescription = "eXample Module 7 -raw socket usage-";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
-	m_DialogueFactoryName = "x-2 Factory";
+	m_DialogueFactoryName = "x-7 Factory";
 	m_DialogueFactoryDescription = "eXample Dialogue Factory";
 
 	g_Nepenthes = nepenthes;
@@ -173,9 +167,6 @@ void dns_decode_name(char *name, char **buf)
 /**
  * Dialogue::incomingData(Message *)
  * 
- * a small and ugly shell where we can use
- * "download protocol://localction:port/path/to/file
- * to trigger a download
  * 
  * @param msg the Message the Socker received.
  * 
@@ -186,11 +177,11 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 {
 	if(!(msg->getSocket()->getType() & ST_RAW_UDP))
 	{
-		logCrit("GOT NON UDP Packet %i \n",msg->getMsgLen());
+		logCrit("GOT NON UDP Packet %i \n",msg->getSize());
 		return CL_DROP;
 	}
 
-	logInfo("got dns foobar %i \n",msg->getMsgLen());
+	logInfo("got dns foobar %i \n",msg->getSize());
 
 	dns_header *dns = (dns_header *)msg->getMsg();
 
@@ -214,7 +205,7 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
                         rr +=12;
 			dns_rr_t *header = (dns_rr_t *)rr;
 
-			g_Nepenthes->getUtilities()->hexdump((byte *)rr,msg->getMsgLen()-12);
+			g_Nepenthes->getUtilities()->hexdump((byte *)rr,msg->getSize()-12);
 			char name[256];
 			for (uint32_t i=1;i<=ntohs(dns->number_questions);i++)
 			{
@@ -286,8 +277,6 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 
 /**
  * Dialogue::outgoingData(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
  * 
  * @param msg
  * 
@@ -300,8 +289,6 @@ ConsumeLevel X7Dialogue::outgoingData(Message *msg)
 
 /**
  * Dialogue::handleTimeout(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
  * 
  * @param msg
  * 
@@ -314,8 +301,6 @@ ConsumeLevel X7Dialogue::handleTimeout(Message *msg)
 
 /**
  * Dialogue::connectionLost(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
  * 
  * @param msg
  * 
@@ -328,8 +313,6 @@ ConsumeLevel X7Dialogue::connectionLost(Message *msg)
 
 /**
  * Dialogue::connectionShutdown(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
  * 
  * @param msg
  * 

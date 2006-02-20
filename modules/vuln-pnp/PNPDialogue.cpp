@@ -93,7 +93,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 {
 	logPF();
 
-	 m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	 m_Buffer->add(msg->getMsg(),msg->getSize());
 
  
 	 char reply[512];
@@ -201,7 +201,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
          	 msg->getResponder()->doRespond(reply,64);
 			 Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 						  msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
-//			  g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getMsgLen());
+//			  g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 			  sch_result result = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
 			  delete Msg;
 			  if (result == SCH_DONE )

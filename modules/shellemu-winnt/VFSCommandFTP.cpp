@@ -26,6 +26,8 @@
  *******************************************************************************/
 
 /* $Id$ */
+
+#include <ctype.h>
  
 #include "VFSCommandFTP.hpp"
 #include "VFSNode.hpp"
@@ -102,6 +104,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 { 
 
 	bool direktconnect = true;
+	bool anonymouslogin = false;
 
 	vector <string> slist = *paramlist;
 	vector <string>::iterator it;
@@ -224,11 +227,13 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 							else
 								port = "21";
 
-							if(direktconnect == true)
+							if(direktconnect == true && anonymouslogin == false)
 							{
 								state = NEXT_IS_USER;
+							}else
+							{
+								state = NEXT_IS_SOMETHING;
 							}
-
 
 							break;
 
@@ -298,7 +303,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
                         break;
 					}
 
-					if(direktconnect == true)
+					if(direktconnect == true && anonymouslogin == false )
 					{
 						state = NEXT_IS_USER;
 					}else
@@ -341,7 +346,9 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 			}
 		}else
         if (strncmp(&*it->c_str(),"-A",2) == 0)	// anonymous login
-			continue;
+		{
+			anonymouslogin = true;
+		}
 		else
 			host = *it;
 	}
@@ -350,20 +357,30 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 
 	string url = "ftp://" + user + ":" + pass + "@" + host+ ":" + port + "/" + getfile;
 	uint32_t remotehost = 0;
+	uint32_t localhost = 0;
+
 	if (m_VFS->getDialogue()->getSocket() != NULL)
 	{
+		logSpam("VFSCommandFTP Setting Hosts %i %i\n",remotehost,localhost);
 		remotehost = m_VFS->getDialogue()->getSocket()->getRemoteHost();
+		localhost  = m_VFS->getDialogue()->getSocket()->getLocalHost();
+
 	}
+
+	logSpam("VFSCommandFTP LocalHost %s\n",inet_ntoa(*(in_addr *)&localhost));
+	logSpam("VFSCommandFTP RemoteHost %s\n",inet_ntoa(*(in_addr *)&remotehost));
 
 	if (strstr(user.c_str(),"@") == NULL && strstr(pass.c_str(),"@") == NULL)
 	{
-		g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url.c_str(),
-												   remotehost,
-												   (char *)url.c_str(),
-												   downloadflags);
+		g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
+													(char *)url.c_str(),
+													remotehost,
+													(char *)url.c_str(),
+													downloadflags);
 	}else
 	{
-    	g_Nepenthes->getDownloadMgr()->downloadUrl("ftp",
+    	g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
+													"ftp",
 												   (char *)user.c_str(),
 												   (char *)pass.c_str(), 
 												   (char *)host.c_str(), 

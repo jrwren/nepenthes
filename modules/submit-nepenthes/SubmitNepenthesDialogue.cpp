@@ -84,7 +84,7 @@ ConsumeLevel SubmitNepenthesDialogue::incomingData(Message *msg)
 	switch (m_State)
 	{
 	case DOWN_N_MD5SUM:
-		if (msg->getMsgLen() == strlen("SENDFILE\r\n") && memcmp(msg->getMsg(),"SENDFILE\r\n",strlen("SENDFILE\r\n")) == 0)
+		if (msg->getSize() == strlen("SENDFILE\r\n") && memcmp(msg->getMsg(),"SENDFILE\r\n",strlen("SENDFILE\r\n")) == 0)
 		{
 			m_State = DOWN_N_FILE;
 			m_Socket->doRespond(m_File,m_FileSize);

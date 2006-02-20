@@ -36,7 +36,7 @@
 #include "Nepenthes.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 #include "LogHandler.hpp"
 
 using namespace std;
@@ -53,7 +53,7 @@ namespace nepenthes
 
 	class IrcDialogue;
 
-	class LogIrc : public Module , public DNSHandler , public LogHandler
+	class LogIrc : public Module , public DNSCallback , public LogHandler
 	{
 	public:
 		LogIrc(Nepenthes *);

@@ -60,6 +60,10 @@ WinNTShellDialogue::WinNTShellDialogue(Socket *socket)
 
 	m_File = NULL;
 	m_VFS.Init(this);
+	if (socket != NULL && socket->getType() & ST_ACCEPT)
+	{
+		m_Socket->doRespond(WIN32_HEADER,strlen(WIN32_HEADER));
+	}
 }
 
 WinNTShellDialogue::~WinNTShellDialogue()
@@ -91,7 +95,7 @@ ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 	}
 #endif
 */
-	string smsg(msg->getMsg(),msg->getMsgLen());
+	string smsg(msg->getMsg(),msg->getSize());
 	string foo = m_VFS.execute(&smsg);
 
 	if (foo.size() > 0 && m_Socket != NULL)
@@ -103,7 +107,7 @@ ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 #ifndef NDEBUG
 	if (m_File != NULL)
 	{
-    	fwrite((void *)msg->getMsg(),msg->getMsgLen(),1,m_File);
+    	fwrite((void *)msg->getMsg(),msg->getSize(),1,m_File);
 		fflush(m_File);
 	}
 #endif

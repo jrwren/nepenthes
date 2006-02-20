@@ -79,7 +79,6 @@ GenericXOR::GenericXOR(ShellcodeManager *shellcodemanager)
 
 GenericXOR::~GenericXOR()
 {
-
 }
 
 bool GenericXOR::Init()
@@ -93,7 +92,9 @@ bool GenericXOR::Init()
 		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80\\x73\\x0C(.)\\x43\\xE2\\xF9(.*)$",			// rbot 265 byte
 		"\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.(.*)$",																	// generic mwcollect
 		"\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF(.*)$",		// bielefeld
-		 "\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9(.*)$",	// halle	
+		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9(.*)$",		// halle	
+//        "\\xEB\\x19\\x5E\\x31\\xC9\\x81\\xE9(....)\\x81\\x36(....)\\x81\\xEE\\xFC\\xFF\\xFF\\xFF\\xE2\\xF2\\xEB\\x05\\xE8\\xE2\\xFF\\xFF\\xFF(.*)$", 			// adenau xor
+		 
 		NULL
 	};
 
@@ -119,7 +120,7 @@ bool GenericXOR::Exit()
 {
 	while(m_Pcres.size()>0)
 	{
-		free(m_Pcres.front());
+		pcre_free(m_Pcres.front());
 		m_Pcres.pop_front();
 	}
     	
@@ -130,10 +131,10 @@ bool GenericXOR::Exit()
 sch_result GenericXOR::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 	int32_t output[10 * 3];
 
 	list <pcre *>::iterator it;
@@ -143,27 +144,50 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 		int32_t result=0;
 		if((result = pcre_exec(*it, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0)
 		{
-/*			logSpam("PCRE %i %x matches %i \n",i,*it,result);
-			if (i== 3)
-			{
-				logInfo("Happy crashing %i\n",i);
-				g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)shellcode, len);
-			}
-*/
+//			logSpam("PCRE %i %x matches %i \n",i,*it,result);
+
 			const char *match;
-			byte key;
+			byte key=0;
+			uint32_t longkey=0;
+			uint32_t keysize;
 			uint32_t codesize = 0, codesizeLen, totalsize;
 
 			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 1, &match);
-			if( codesizeLen == 2 )
+			switch (codesizeLen )
+			{
+			case 4:
+				// this is a special case, for dword xor we have to invert the size
+				codesize = 0 - (uint32_t)*((uint32_t *)match);
+				break;
+
+			case 2:
 				codesize = (uint32_t)*((uint16_t *)match);
-			else
+                break;
+
+			case 1:
 				codesize = (uint32_t)*((byte *)match);
+                break;
+			}
 			pcre_free_substring(match);
 
 
-			pcre_get_substring((char *) shellcode, output, result, 2, &match);
-			key = *((byte *)match);
+
+
+			keysize = pcre_get_substring((char *) shellcode, output, result, 2, &match);
+
+			switch(keysize)
+			{
+
+			case 1:
+				key = *((byte *)match);
+				break;
+
+			case 4:
+				longkey = *((uint32_t *)match);
+				break;
+
+			}
+			
 			pcre_free_substring(match);
 
 			
@@ -176,13 +200,30 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 
 			logInfo("Detected generic XOR decoder #%i size length has %d bytes, size is %d, totalsize %d.\n",i, codesizeLen, codesize, totalsize);
 
-			if( codesize > totalsize )
-				logWarn("%s\n", "codesize > totalsize - broken shellcode?");
 
-			for( uint32_t j = 0; j < codesize && j < totalsize; j++ )
-				decodedMessage[j] ^= key;
+			switch(keysize)
+			{
+			case 1:
+				if( codesize > totalsize )
+					logWarn("%s\n", "codesize > totalsize - broken shellcode?");
 
-			//g_Nepenthes->getUtilities()->hexdump(l_crit, decodedMessage, totalsize);
+            	for( uint32_t j = 0; j < codesize && j < totalsize; j++ )
+					decodedMessage[j] ^= key;
+				break;
+
+			case 4:
+				if( codesize*4 > totalsize )
+					logWarn("%s\n", "codesize > totalsize - broken shellcode?");
+
+//				LogSpam("codesize %i totalsize %i", codesize, totalsize);
+
+				for( uint32_t j = 0; j < codesize && j*4 < totalsize; j++ )
+					*(uint32_t *)(decodedMessage+(j*4) ) ^= longkey;
+//				g_Nepenthes->getUtilities()->hexdump(l_crit, decodedMessage, totalsize);
+				break;
+			}
+
+			
 
 			Message *newMessage = new Message((char *)decodedMessage, totalsize, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
 				   (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());

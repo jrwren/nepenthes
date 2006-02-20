@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include "DownloadNepenthesDialogue.hpp"
 #include "download-nepenthes.hpp"
@@ -101,7 +102,7 @@ ConsumeLevel DownloadNepenthesDialogue::incomingData(Message *msg)
 	switch (m_State)
 	{
 	case DOWN_N_MD5SUM:
-		if (msg->getMsgLen() == 34)	// sizof md5sum +\r\n
+		if (msg->getSize() == 34)	// sizof md5sum +\r\n
 		{
 			//check if its a valid md5sum
 			int32_t i;
@@ -117,7 +118,7 @@ ConsumeLevel DownloadNepenthesDialogue::incomingData(Message *msg)
 			// check if we already got that file
 			// int32_t stat(const char *file_name, struct stat *buf);
 
-			string md5sum(msg->getMsg(),msg->getMsgLen());
+			string md5sum(msg->getMsg(),msg->getSize());
 			md5sum[32] = '\0';
 			m_MD5Sum = md5sum;
 			string filepath = m_DownloadNepenthes->getFilesPath() + "/" + md5sum;
@@ -129,7 +130,7 @@ ConsumeLevel DownloadNepenthesDialogue::incomingData(Message *msg)
 				logInfo("client wants to send us a new file (%.*s), going on\n",32,msg->getMsg());
 				m_Socket->doRespond("SENDFILE\r\n",strlen("SENDFILE\r\n"));
 				m_State = DOWN_N_FILE;
-				m_Download = new Download("nepenthes://",0,"nepenthes interfile transferr");
+				m_Download = new Download(0,"nepenthes://",0,"nepenthes interfile transferr");
 			}else
 			{
 				logInfo("we already know file %.*s, so we wont get it again\n",32,msg->getMsg());
@@ -141,7 +142,7 @@ ConsumeLevel DownloadNepenthesDialogue::incomingData(Message *msg)
 		}
 		break;
 	case DOWN_N_FILE:
-		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
 		break;
 	}
 	return CL_ASSIGN;
@@ -203,7 +204,7 @@ ConsumeLevel DownloadNepenthesDialogue::connectionShutdown(Message *msg)
 	// the download is done, check if the md5sum matches the md5sum we were given;
 	string md5sum = g_Nepenthes->getUtilities()->md5sum(
 		m_Download->getDownloadBuffer()->getData(),
-		m_Download->getDownloadBuffer()->getLength());
+		m_Download->getDownloadBuffer()->getSize());
 
 	if (strncmp(m_MD5Sum.c_str(),md5sum.c_str(),32) != 0)
 	{

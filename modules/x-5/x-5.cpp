@@ -33,6 +33,8 @@
 #include "SocketEvent.hpp"
 #include "Socket.hpp"
 
+#include "EventHandler.cpp"
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 
@@ -48,6 +50,7 @@ using namespace nepenthes;
  * we need this pointer for logInfo() etc
  */
 Nepenthes *g_Nepenthes;
+uint16_t myevent;
 
 /**
  * Constructor
@@ -103,6 +106,9 @@ bool X5::Init()
     m_Events.set(EV_SOCK_TCP_ACCEPT);
 	m_Events.set(EV_TIMEOUT);
 	REG_EVENT_HANDLER(this);
+	myevent = g_Nepenthes->getEventMgr()->registerEvent("EV_X5_TEST_EVENT");
+	m_Events.set(myevent);
+	logInfo("My personal Event is %i\n",myevent);
 	return true;
 }
 
@@ -139,6 +145,7 @@ uint32_t X5::handleEvent(Event *event)
 	case EV_TIMEOUT:
 		m_Timeout = time(NULL) + rand()%23;
 		logInfo("X5 EVENT Timeout %i\n",(int32_t)time(NULL));
+		g_Nepenthes->getEventMgr()->handleEvent(new SocketEvent(NULL,myevent));
 		break;
 
 	default:

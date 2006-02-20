@@ -68,12 +68,21 @@ using namespace std;
 #endif
 #define STDTAGS l_net | l_mgr
 
+/**
+ * SocketManager constructor
+ * 
+ * @param nepenthes the nepenthes
+ */
 SocketManager::SocketManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
     m_UseRawSockets = false;
+	m_BindAddress = INADDR_ANY;
 }
 
+/**
+ * SocketManager destructor
+ */
 SocketManager::~SocketManager()
 {
 	// FIXME CLOSE ALL SOCKETS
@@ -87,6 +96,12 @@ SocketManager::~SocketManager()
 
 #define PROC_NET_DEV "/proc/net/dev"
 
+/**
+ * check config values
+ * 
+ * @return true on success, 
+ *         else false
+ */
 bool  SocketManager::Init()
 {
     try {
@@ -99,6 +114,16 @@ bool  SocketManager::Init()
         logCrit("%s","Could not find nepenthes.socketmanager.use_rawsockets in config file, assuming no\n");
     }
 
+
+	try {
+		m_BindAddress = inet_addr(m_Nepenthes->getConfig()->getValString("nepenthes.socketmanager.bind_address"));
+		if (m_BindAddress != INADDR_ANY)
+		{
+			logInfo("Using %s as bind_address for all connections\n", inet_ntoa(*(struct in_addr *)&m_BindAddress));
+		}
+	} catch ( ... ) {
+		logCrit("%s","Could not find nepenthes.socketmanager.bind_address in config file, assuming no\n");
+	}
 
 
 #ifdef WIN32
@@ -326,6 +351,9 @@ bool  SocketManager::Exit()
 	return true;
 }
 
+/**
+ * list all used Socket 's
+ */
 void SocketManager::doList()
 {
 	list <Socket *>::iterator socket;
@@ -554,6 +582,14 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 }
 #else
 
+/**
+ * poll the sockets
+ * 
+ * @param polltimeout
+ *               the polltimeout
+ * 
+ * @return returns true
+ */
 bool SocketManager::doLoop(uint32_t polltimeout)
 {// FIXME ..
 
@@ -655,7 +691,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		}
 	}
 
-	int32_t iPollRet = poll(polls,i, 1500);
+	int32_t iPollRet = poll(polls,i,50);
 
 	if (iPollRet != 0)
 	{
@@ -765,8 +801,8 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 /**
  * bind a given port to a given local ip address
  * 
- * @param localHost the localhost ipv4 address we want to bint the port
- * @param Port      the port we want to bind
+ * @param localhost the local ip address to bind to
+ * @param port      the port to bind
  * @param bindtimeout
  *                  the timeout for the bind socket in seconds
  * @param accepttimeout
@@ -774,8 +810,14 @@ bool SocketManager::doLoop(uint32_t polltimeout)
  * 
  * @return returns the bound Socket if binding was successfull, else NULL
  */
-Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout)
+Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint16_t port,time_t bindtimeout,time_t accepttimeout)
 {
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
 	logSpam("bindTCPSocket %li %i %li %li\n",localhost,port,bindtimeout,accepttimeout);
 	TCPSocket *sock = NULL;
 
@@ -792,7 +834,7 @@ Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bi
 	{
 		// This can bee seen as ambiguous - at least on FreeBSD. We want this:
 		// TCPSocket(Nepenthes *nepenthes, uint32_t localaddress, int32_t port, time_t bindtimeout, time_t accepttimeout)
-		if ((sock = new TCPSocket(getNepenthes(), localhost, (int32_t) port, (time_t) bindtimeout, (time_t) accepttimeout)) == NULL )
+		if ((sock = new TCPSocket(getNepenthes(), (uint32_t)localhost, (uint16_t)port, (time_t) bindtimeout, (time_t) accepttimeout)) == NULL )
 		{
 			logCrit("ERROR Binding %s:%i failed\n","",port);
 			return NULL;
@@ -814,8 +856,15 @@ Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bi
 }
 
 
-Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint16_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
+
 	logSpam("bindTCPSocket %li %i %li %li %lx\n",localhost,port,bindtimeout,accepttimeout, dialoguefactory);
 	TCPSocket *sock = NULL;
 
@@ -855,8 +904,15 @@ Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bi
 }
 
 
-Socket *SocketManager::bindUDPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::bindUDPSocket(uint32_t localhost, uint16_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
+
 	logSpam("bindUDPSocket %li %i %li %li\n",localhost,port,bindtimeout,accepttimeout);
 	UDPSocket *sock = NULL;
 
@@ -896,7 +952,7 @@ Socket *SocketManager::bindUDPSocket(uint32_t localhost, uint32_t port,time_t bi
 
 
 
-Socket *SocketManager::bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname)
+Socket *SocketManager::bindTCPSocket(uint32_t localHost, uint16_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname)
 {
 	return NULL;
 }
@@ -914,18 +970,30 @@ Socket *SocketManager::openFILESocket(char *filepath, int32_t flags)
 #endif
 }
 
-Socket *SocketManager::connectUDPHost(uint32_t localhost, uint32_t remotehost, uint32_t port,time_t connecttimeout)
+Socket *SocketManager::connectUDPHost(uint32_t localhost, uint32_t remotehost, uint16_t port,time_t connecttimeout)
 {
 	logPF();
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
 	UDPSocket *sock = new UDPSocket(getNepenthes(),localhost,remotehost,port,connecttimeout);
 	sock->Init();
 	m_Sockets.push_back(sock);
 	return sock;
 }
 
-Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint32_t port,time_t connecttimeout)
+Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint16_t port,time_t connecttimeout)
 {
 	logPF();
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
 	TCPSocket *sock = new TCPSocket(getNepenthes(),localhost,remotehost,port,connecttimeout);
 	sock->Init();
 	m_Sockets.push_back(sock);
@@ -938,7 +1006,7 @@ Socket *SocketManager::addPOLLSocket(POLLSocket *sock)
 	return sock;
 }
 
-Socket *SocketManager::createRAWSocketUDP(uint32_t localport, uint32_t remoteport, time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::createRAWSocketUDP(uint16_t localport, uint16_t remoteport, time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("createRAWPSocketUDP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
 	//RAWSocketListener *sock = NULL;
@@ -955,7 +1023,17 @@ Socket *SocketManager::createRAWSocketUDP(uint32_t localport, uint32_t remotepor
 	return NULL;
 }
 
-Socket *SocketManager::createRAWSocketTCP(uint32_t localport,uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+/**
+ * 
+ * @param localport
+ * @param remoteport
+ * @param bindtimeout
+ * @param accepttimeout
+ * @param dialoguefactory
+ * 
+ * @return 
+ */
+Socket *SocketManager::createRAWSocketTCP(uint16_t localport,uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("createRAWPSocketTCP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
 	//RAWSocketListener *sock = NULL;

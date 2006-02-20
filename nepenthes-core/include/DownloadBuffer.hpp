@@ -36,6 +36,9 @@ using namespace std;
 
 namespace nepenthes
 {
+	/**
+	 * if we download something, we use this buffer class to store the result
+	 */
 	class DownloadBuffer
 	{
 	public:
@@ -44,7 +47,7 @@ namespace nepenthes
 		virtual ~DownloadBuffer();
 		virtual bool addData(char *pszData, uint32_t iDataLen);
 		virtual char *getData();
-		virtual uint32_t getLength();
+		virtual uint32_t getSize();
 		virtual bool cutFront(uint32_t len);
 	private:
 		char 		*m_Buffer;

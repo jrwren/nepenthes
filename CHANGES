@@ -1,3 +1,210 @@
+Version 0.1.3
+=============
+Bugfix release/minor features.
+FIXME
+
+* fixed some g++ 3.2 include issues
+
+
+* Autoconf
+	* improved configure.ac
+		* added --enable-* to configure
+			* geolocation is optional
+		* dump ./configure configuration to stdout
+
+
+
+* Nepenthes core
+
+			
+
+	* DownloadManager & Download & DownloadCallback
+		* changed structure so we can specify a DownloadCallback for internal downloads
+			* intrested in a downloads result, ask the downloadmanager to download it, provide a DownloadCallback
+			  the DownloadManager will pass the information encapsulated in a Download to its DownloadHandler
+			  the DownloadHandler will try to download it and pass the Download as result to the DownloadCallback
+			  
+			  
+
+
+
+	* DNSManager DNSQuery DNSHandler DNSResult DNSCallback
+		* made DNSResolver Service modular, only module so far availible is dnsresolve-adns
+		* now modules providing resolver capabilties are now called 'DNSHandler'
+		  anything which is intrested in its dns resolution result is a DNSCallback now
+		  (before there was no DNSCallback, no modularity, and we called classes intrested in DNS DNSHandler)
+			* intrested in resolving some domain, ask the DNSManager and provide a DNSCallback
+			  the DNSManager will form a DNSQuery from the request, pass it to its DNSHandler
+			  the DNSHandler will try to resolve the domain and pass result as a  DNSResult to the 
+			  DNSCallback
+		  
+	* Event 
+		* use uint8_t as Eventid instead of event_type
+		* added ShellcodeEvent & DialogueEvent 
+
+
+	* EventManager
+		* allow internal Event registration
+
+
+	* GeoLocationManager GeoLocationQuery GeoLocationHandler GeoLocationResult GeoLocationCallback 
+        	* created
+			* GeoLocationHandler register with the GeoLocationManager
+			* intrested in GeoLocation lookups, ask the GeoLocationManager and provide a GeoLocationCallback
+			  the GeoLocationManager will form a GeoLocationQuery from the request, pass it to its GeoLocationHandler
+			  the GeoLocationHandler will try to resolve it and pass the GeoLocationResult to the GeoLocationCallback
+		* added caching of results
+		
+
+
+	* LogManager
+		* filelogger is the default logger again, so logrotate can do its job
+		* force ringbuffer logger usage with -R
+		
+
+	* log-ringbuffer
+		* added
+		  stop wasting diskspace with logs
+		* sets correct permissions on destination files
+		* uses path to log to from nepenthes.logmanager.ring_logger_file
+		
+
+	* log-file
+		* uses path to log to from nepenthes.logmanager.file_logger_file
+
+
+	* Nepenthes
+		* improved the init, better errorhandling
+		* -f can do dirs
+
+
+	* ShellcodeManager
+		* hooks a ShellcodeEvent on success
+		
+
+	
+	* SocketManager TCPSocket UDPSocket RAWSocketListener
+		* decreased poll timeout
+		* moved ports to uint16_t
+		* use nepenthes.socketmanager.bind_address instead of binding INADDR_ANY for bind & connect
+			(suggested by Michael H. Warfield)
+			
+
+	* TCPSocket
+		* hooks a DialogueEvent on success
+
+		
+		
+	* UploadManager UploadQuery UploadHandler UploadResult UploadCallback 
+		* created
+			* intrested in uploading something to somewhere, ask the UploadManager and provide a UploadCallback
+			  the UploadManager will form a UploadQuery from the request, pass it to its UploadHandler
+			  the UploadHandler will try to upload the data it and pass reply to the UploadResult to the 
+			  UploadCallback
+
+
+	
+	* Utilities
+		* added escapeXMLString(char *)
+		
+	
+
+* Modules
+	FIXES and ADDITIONS
+	-----
+	* shellemu-winnt 
+		* fixed sending shell header on accept shells
+		* VFSCommandFTP handle -A flag for anonymous logins
+		* fixed crash with -f flag for checking dumps
+		* batch file handling 
+		
+	
+	* vuln-mssql 
+		* fixed tcp socket instead of udp
+	
+	
+	* download-ftp
+		* fixed quiting loop
+
+	* dnsmanager, dnsquery, dnsresult
+		* TXT record added
+	
+
+	* x-2 
+		* fix memleak
+
+	* x-5
+		* now registers its own event to show hiw this works
+		
+
+	* x-6 
+		* 'txt <domain>' will resolve the txt record now
+		
+
+	* submit-xmlrpc
+		* can use geolocation services now
+		* fixes some xml parsing
+		
+
+	* download-ftp 
+		* send LOGIN after 220 Welcome
+		
+
+	* download-curl
+		* add internal download capabilities
+		
+
+	* shellcode-generic
+		* sch_generic_link_xor
+			* improve bad length handling
+		* added adenau xor
+		* added adenau connectback
+		* added unicode decoder
+		* sch_generic_url 
+			* added - to allowed chars 
+			
+
+	NEW
+	---
+
+	* dnsresolve-adns
+		* made it a module
+		* fixes some memoryleaks we saw before
+	
+	* download-http
+		* written as download-curl replacement
+		
+	* geolocation-hostip
+		* resolve geolocations via hostip.info
+		
+	* geolocation-geoip
+		* resolve geolocations via maxminds geoip library
+		
+	* geolocation-ip2location
+		* resolve geolocations via maxminds geoip library
+
+	* log-surfnet
+		* log to surfnet ids database
+		  http://ids.surfnet.nl
+		  
+
+	* vuln-ssh 
+		* created, 
+		* works for ssh logins, fails for ssh worms :\
+
+	* x-8 
+		* added example how to use geolocation services
+
+
+* Other
+	* phpxmlrpc_server
+		* added
+		
+	* doxygen docu
+		* added
+		
+
+
 Version 0.1.2
 =============
 Bugfix release/minor features.

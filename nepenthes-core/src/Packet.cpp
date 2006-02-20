@@ -49,7 +49,7 @@ char *Packet::getData()
 {
 	return m_Data;
 }
-uint32_t Packet::getLength()
+uint32_t Packet::getSize()
 {
 	return m_Length;
 }

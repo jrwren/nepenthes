@@ -146,9 +146,9 @@ bool ASN1SMBBind::Exit()
 sch_result ASN1SMBBind::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t piOutput[10 * 3];
 	int32_t iResult; 
@@ -175,7 +175,7 @@ sch_result ASN1SMBBind::handleShellcode(Message **msg)
 			
 		asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port);
 		logInfo("URL IS %s \n",url);
-		g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url,(*msg)->getRemoteHost(),"asn1 smb bind",0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)url,(*msg)->getRemoteHost(),"asn1 smb bind",0);
 		
 		free(url);
 		return SCH_DONE;

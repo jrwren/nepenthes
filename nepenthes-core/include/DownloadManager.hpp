@@ -54,6 +54,7 @@ namespace nepenthes
 	class DownloadHandler;
 	class Nepenthes;
 	class Download;
+	class DownloadCallback;
 
 	typedef struct
     {
@@ -68,6 +69,12 @@ namespace nepenthes
     };
 
 
+	
+	/**
+	 * DownloadManager
+	 * if you want to download something, ask for his assistance
+	 * if you want the downloads result, provide a downloadcallback
+	 */
     class DownloadManager : public Manager
     {
     public:
@@ -75,8 +82,8 @@ namespace nepenthes
         virtual ~DownloadManager();
 		bool isLocalAddress(uint32_t ulAddress);
         virtual bool downloadUrl(Download *down);  
-        virtual bool downloadUrl(char *url, uint32_t address, char *triggerline, uint8_t downloadflags);
-		virtual bool downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags);
+        virtual bool downloadUrl(uint32_t localhost, char *url, uint32_t address, char *triggerline, uint8_t downloadflags, DownloadCallback *callback=NULL, void *obj=NULL);
+		virtual bool downloadUrl(uint32_t localhost, char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags);
 
         virtual bool registerDownloadHandler(DownloadHandler * handler, const char * protocol);
         virtual void unregisterDownloadHandler(const char * protocol);

@@ -75,10 +75,12 @@ int32_t VFSCommandTFTP::run(vector<string> *paramlist)
 	logDebug("vfs command %s \n",url.c_str());
 
 	uint32_t remotehost=0;
+	uint32_t localhost=0;
 	if (m_VFS->getDialogue()->getSocket() != NULL)
 	{
 		remotehost = m_VFS->getDialogue()->getSocket()->getRemoteHost();
+		localhost = m_VFS->getDialogue()->getSocket()->getLocalHost();
 	}
-	g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url.c_str(),remotehost,(char *)url.c_str(),0);
+	g_Nepenthes->getDownloadMgr()->downloadUrl(localhost,(char *)url.c_str(),remotehost,(char *)url.c_str(),0);
     return 0;
 }

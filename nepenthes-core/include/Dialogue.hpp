@@ -42,6 +42,8 @@ namespace nepenthes
     class Nepenthes;
     class Message;
 
+	/**
+	 */
 	typedef enum
 	{
 		CL_DROP,
@@ -52,6 +54,12 @@ namespace nepenthes
 	} ConsumeLevel;
 
 
+
+	/**
+	 * whenever we want to interact with a Socket, we assign a Dialogue.
+	 * the Dialogue implements the protocol the socket speaks
+	 * multiple Dialogues can be assigned to a Socket
+	 */
     class Dialogue
     {
     public:

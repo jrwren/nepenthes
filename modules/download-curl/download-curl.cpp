@@ -37,6 +37,8 @@
 
 #include "Download.hpp"
 #include "DownloadUrl.hpp"
+#include "DownloadCallback.hpp"
+
 #include "Config.hpp"
 
 
@@ -151,12 +153,23 @@ uint32_t CurlDownloadHandler::handleEvent(Event *event)
 				if ( pMessage->data.result )
 				{
                     logWarn("Download error %s on getting file %s \n", curl_easy_strerror(pMessage->data.result), pDown->getUrl().c_str());
+					if (pDown->getCallback() != NULL)
+					{
+						pDown->getCallback()->downloadFailure(pDown);
+					}
 				} else
 				{
 					curl_easy_getinfo(pMessage->easy_handle, CURLINFO_EFFECTIVE_URL, &szUrl);
 					logInfo("Downloading of %s (%s) %i Bytes successful.\n", pDown->getUrl().c_str(), 
-							szUrl, pDown->getDownloadBuffer()->getLength());
-					m_Nepenthes->getSubmitMgr()->addSubmission(pDown);
+							szUrl, pDown->getDownloadBuffer()->getSize());
+
+					if (pDown->getCallback() != NULL)
+					{
+						pDown->getCallback()->downloadSuccess(pDown);
+					}else
+					{
+                    	m_Nepenthes->getSubmitMgr()->addSubmission(pDown);
+					}
 				}
 				CURL *curl = pMessage->easy_handle;
 

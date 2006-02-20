@@ -38,8 +38,8 @@ namespace nepenthes
 	class UDPSocket : public Socket
 	{
 public:
-		UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout);
-		UDPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout);
+		UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, uint16_t remoteport, time_t connectiontimeout);
+		UDPSocket(Nepenthes *nepenthes, uint32_t localhost, uint16_t port, time_t bindtimeout, time_t accepttimeout);
 		~UDPSocket();
 
 		bool bindPort();

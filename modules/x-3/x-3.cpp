@@ -213,9 +213,9 @@ void X3Download::setDownload(Download *down)
  */
 ConsumeLevel X3Download::incomingData(Message *msg)
 {
-	logInfo("read %i bytes from %s \n",msg->getMsgLen(), m_Download->getDownloadUrl()->getPath().c_str());
-	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
-	if(m_Download->getDownloadBuffer()->getLength() < m_Download->getDownloadUrl()->getPort())
+	logInfo("read %i bytes from %s \n",msg->getSize(), m_Download->getDownloadUrl()->getPath().c_str());
+	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+	if(m_Download->getDownloadBuffer()->getSize() < m_Download->getDownloadUrl()->getPort())
         return CL_ASSIGN;
 
 	msg->getSocket()->getNepenthes()->getSubmitMgr()->addSubmission(m_Download);

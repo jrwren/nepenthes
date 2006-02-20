@@ -1,4 +1,3 @@
-
 /********************************************************************************
  *                              Nepenthes
  *                        - finest collection -
@@ -41,6 +40,10 @@ using namespace std;
 namespace nepenthes
 {
 
+	/**
+	 * X7 Module
+	 * RAWSocketListener eXample
+	 */
 	class X7 : public Module , public DialogueFactory
 	{
 	public:
@@ -51,6 +54,11 @@ namespace nepenthes
 		bool Exit();
 	};
 
+	/**
+	 * X7Dialogue
+	 * a Dialogue eating a raw stream from udp port 53, dumping dns requests and replies
+	 * the Dialogue does not know he gets raw socket data
+	 */
 	class X7Dialogue : public Dialogue
 	{
 	public:

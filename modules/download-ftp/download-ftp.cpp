@@ -173,7 +173,7 @@ bool FTPDownloadHandler::download(Download *down)
 	}else
 	{
 		logInfo("url has %s ip, we will download it now\n",down->getUrl().c_str());
-		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,down->getDownloadUrl()->getPort(),30);
+		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
 		CTRLDialogue *dia = new CTRLDialogue(socket,down);
 		socket->addDialogue(dia);
 		FTPContext *context = new FTPContext(down,dia);
@@ -191,7 +191,7 @@ bool FTPDownloadHandler::dnsResolved(DNSResult *result)
 	logInfo("url %s resolved \n",result->getDNS().c_str());
 	uint32_t host = result->getIP4List().front();
 	Download *down = (Download *) result->getObject();
-	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,down->getDownloadUrl()->getPort(),30);
+	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
 	CTRLDialogue *dia = new CTRLDialogue(socket,down);
 	socket->addDialogue(dia);
 	FTPContext *context = new FTPContext(down,dia);

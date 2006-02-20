@@ -84,7 +84,7 @@ LogIrc::LogIrc(Nepenthes *nepenthes)// : LogHandler(nepenthes->getLogMgr())
 
 	g_Nepenthes = nepenthes;
 
-	m_DNSHandlerName	= "log-irc DNSHandler";
+	m_DNSCallbackName	= "log-irc DNSCallback";
 
 	m_State = LIRC_INIT;
 

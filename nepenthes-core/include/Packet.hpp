@@ -35,13 +35,20 @@
 namespace nepenthes
 {
 
+	/**
+	 * Packet
+	 * as we are using nonblocking io, and cant rely on sending all data in a single chunk, we have 'packets'
+	 * if you send something, it will get put in a Packet.
+	 * if the socket is ready to send, he will send your packet,
+	 * if he cant send the whole packet, he will shrink it by the size he already sended.
+	 */
 	class Packet
 	{
 	public:
 		Packet(char *pszData,uint32_t iLen);
 		~Packet();
 		char *getData();
-		uint32_t getLength();
+		uint32_t getSize();
 		bool cut(uint32_t offset);
 
 	protected:
@@ -49,6 +56,9 @@ namespace nepenthes
 		uint32_t m_Length;
 	};
 
+	/**
+	 * UDPPackets even store the destinations ip address and port, so we can run them nonblocking too.
+	 */
 	class UDPPacket : public Packet
 	{
 	public:

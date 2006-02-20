@@ -132,9 +132,9 @@ bool LinkBindTrans::Exit()
 sch_result LinkBindTrans::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t ovec[10 * 3];
 	int32_t matchCount; 
@@ -163,7 +163,7 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 
 		uint32_t remoteHost = (*msg)->getRemoteHost();
 		asprintf(&url,"blink://%s:%i/%s",inet_ntoa(*(in_addr *)&remoteHost),port,base64Key);
-		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url,0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
 		free(url);
 		free(base64Key);
 

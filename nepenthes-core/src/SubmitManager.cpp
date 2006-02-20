@@ -55,25 +55,45 @@ using namespace nepenthes;
 #endif
 #define STDTAGS l_sub | l_mgr
 
+/**
+ * SubmitManager constructor
+ * 
+ * @param nepenthes the nepenthes
+ */
 SubmitManager::SubmitManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
+
+	m_MagicCookie = NULL;
 }
 
+/**
+ * SubmitManager destructor
+ */
 SubmitManager::~SubmitManager()
 {
 }
 
+/**
+ * Init the SubmitManager
+ * 
+ * load the libmagic magic cookie
+ * 
+ * @return return true on success, 
+ *         else false
+ */
 bool SubmitManager::Init()
 {
 #ifdef WIN32
-#else	
+#else
+	logDebug("%s\n","Creating Magic Cookie");
 	m_MagicCookie = magic_open(MAGIC_CONTINUE|MAGIC_PRESERVE_ATIME);
 	magic_load(m_MagicCookie,NULL);
 #endif
 
 	string FilesDir;
-	
+
+	logDebug("%s\n","Loading Config");
 	try
 	{
 		if ( m_Nepenthes->getConfig()->getValInt("nepenthes.submitmanager.strictfiletype")==1 )
@@ -90,6 +110,7 @@ bool SubmitManager::Init()
 #ifdef WIN32
 
 #else
+	logDebug("%s\n","Adding known files");
 	DIR *dirfiles = opendir(FilesDir.c_str());
 	if (dirfiles == NULL)
 	{
@@ -117,20 +138,27 @@ bool SubmitManager::Init()
     return true;
 }
 
+/**
+ * free the libmagic magic cookie
+ * 
+ * @return true
+ */
 bool SubmitManager::Exit()
 {
-
+	logPF();
 #ifdef WIN32
 #else
-	magic_close(m_MagicCookie);
+	if (m_MagicCookie != NULL)
+	{
+    	magic_close(m_MagicCookie);
+	}
 #endif
 
 	return true;
 }
 
 /**
- * gives a Download to add known SubmitHandlers
- * deletes the Download after that? FIXMEFIXME
+ * gives a Download to add known SubmitHandler 's
  * 
  * @param down   the Download we want to sumbit
  */
@@ -138,24 +166,33 @@ void SubmitManager::addSubmission(Download *down)
 {
 //	logPF();
 
-	if (down->getDownloadBuffer() == NULL || down->getDownloadBuffer()->getLength() == 0)
+	if (down->getDownloadBuffer() == NULL || down->getDownloadBuffer()->getSize() == 0)
 	{
 		logWarn("download %s has 0 bytes size \n",down->getUrl().c_str());
 		return;
 	}
 
 	string md5sum = m_Nepenthes->getUtilities()->md5sum(down->getDownloadBuffer()->getData(),
-														down->getDownloadBuffer()->getLength());
+														down->getDownloadBuffer()->getSize());
 	down->setMD5Sum(&md5sum);
 //	logInfo("Submission has md5sum %s (%i bytes)\n",down->getMD5Sum().c_str(),
-//													down->getDownloadBuffer()->getLength());
+//													down->getDownloadBuffer()->getSize());
 
 
 	unsigned char sha512[64];
 	g_Nepenthes->getUtilities()->sha512((unsigned char *)down->getDownloadBuffer()->getData(),
-										down->getDownloadBuffer()->getLength(),
+										down->getDownloadBuffer()->getSize(),
 										sha512);
 	down->setSHA512(sha512);
+
+
+	logSpam("Download has flags %i\n",down->getDownloadFlags());
+/*	if (down->getDownloadFlags() & DF_INTERNAL_DOWNLOAD)
+	{
+		down->getSubmitHandler()->Submit(down);
+		return;
+	}
+*/	
 
 // check file type
 #ifdef WIN32
@@ -163,7 +200,7 @@ void SubmitManager::addSubmission(Download *down)
 #else
 	const char *filetype = magic_buffer(m_MagicCookie,
 										down->getDownloadBuffer()->getData(),
-										down->getDownloadBuffer()->getLength());
+										down->getDownloadBuffer()->getSize());
 
 	down->setFileType((char *)filetype);
 
@@ -234,6 +271,9 @@ bool SubmitManager::registerSubmitter(SubmitHandler *handler)
 	return true;
 }
 
+/**
+ * list the registerd SubmitHandler 's
+ */
 void SubmitManager::doList()
 {
 	list <SubmitHandler *>::iterator submitter;

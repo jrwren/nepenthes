@@ -36,6 +36,9 @@
 using namespace nepenthes;
 
 
+/**
+ * DownloadBuffer constructor
+ */
 DownloadBuffer::DownloadBuffer()
 {
 
@@ -44,12 +47,26 @@ DownloadBuffer::DownloadBuffer()
 	m_BufferSize = 0;
 }
 
+
+/**
+ * DownloadBuffer destructor
+ */
+
 DownloadBuffer::~DownloadBuffer()
 {
 	logPF();
 	free(m_Buffer);
 }
 
+
+/**
+ * Init the DownloadBuffer
+ * set the initial Buffers size
+ * 
+ * @param i      the initial size in bytes
+ * 
+ * @return true on success, else false
+ */
 bool DownloadBuffer::Init(uint32_t i)
 {
 	if(i <= 0 )
@@ -70,6 +87,15 @@ bool DownloadBuffer::Init(uint32_t i)
 }
 
 
+/**
+ * add data to the DownloadBuffer
+ * will resize the buffer if buffersize is to small
+ * 
+ * @param pszData  the new data
+ * @param iDataLen the new datas size
+ * 
+ * @return true on success
+ */
 bool DownloadBuffer::addData(char *pszData, uint32_t iDataLen)
 {
 	if(m_BufferSize == 0 && Init(65536) == false )
@@ -106,6 +132,14 @@ bool DownloadBuffer::addData(char *pszData, uint32_t iDataLen)
 	return true;
 }
 
+/**
+ * cur some bytes from DownloadBuffer 's front
+ * 
+ * @param len    the size  of bytes to cut
+ * 
+ * @return true on success, 
+ *         else false
+ */
 bool DownloadBuffer::cutFront(uint32_t len)
 {
 	if (len > m_BufferOffset)
@@ -121,12 +155,22 @@ bool DownloadBuffer::cutFront(uint32_t len)
 
 }
 
+/**
+ * get the DownloadBuffer 's Buffer
+ * 
+ * @return returns pointer to the internal Buffer
+ */
 char *DownloadBuffer::getData()
 {
 	return m_Buffer;
 }
 
-uint32_t DownloadBuffer::getLength()
+/**
+ * get the internal buffers size
+ * 
+ * @return returns Buffers size
+ */
+uint32_t DownloadBuffer::getSize()
 {
 	return m_BufferOffset;
 }

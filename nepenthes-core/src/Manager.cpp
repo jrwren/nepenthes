@@ -31,6 +31,12 @@
 
 using namespace nepenthes;
 
+
+/**
+ * get the Nepenthes
+ * 
+ * @return returns pointer to the nepenthes
+ */
 Nepenthes *Manager::getNepenthes()
 {
 	return m_Nepenthes;

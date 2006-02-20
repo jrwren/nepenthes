@@ -123,7 +123,7 @@ ConsumeLevel LinkDialogue::incomingData(Message *msg)
 	{
 	case LINK_NULL:
 		{
-			m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+			m_Buffer->add(msg->getMsg(),msg->getSize());
 //			g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 			msg->getResponder()->doRespond((char *)&m_Challenge,4);
 
@@ -132,7 +132,7 @@ ConsumeLevel LinkDialogue::incomingData(Message *msg)
 		break;
 
 	case LINK_FILE:
-		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
 		break;
 	}
 
@@ -181,7 +181,7 @@ ConsumeLevel LinkDialogue::handleTimeout(Message *msg)
  */
 ConsumeLevel LinkDialogue::connectionLost(Message *msg)
 {
-	logWarn("Download via linkbot filetransferr failed (connection lost) ! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getLength(),m_Buffer->getSize());
+	logWarn("Download via linkbot filetransferr failed (connection lost) ! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getSize(),m_Buffer->getSize());
 	return CL_DROP;
 }
 
@@ -199,13 +199,13 @@ ConsumeLevel LinkDialogue::connectionShutdown(Message *msg)
 	switch (m_State)
 	{
 	case LINK_FILE:
-		if (m_Download->getDownloadBuffer()->getLength() > 0)
+		if (m_Download->getDownloadBuffer()->getSize() > 0)
 		{
-			logInfo("Download via linkbot filetransferr done! ( download is %i bytes)\n",m_Download->getDownloadBuffer()->getLength());
+			logInfo("Download via linkbot filetransferr done! ( download is %i bytes)\n",m_Download->getDownloadBuffer()->getSize());
         	g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
 		}else
 		{
-			logDebug("Download via linkbot filetransferr failed! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getLength(),m_Buffer->getSize());
+			logDebug("Download via linkbot filetransferr failed! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getSize(),m_Buffer->getSize());
 		}
 		break;
 	case LINK_NULL:

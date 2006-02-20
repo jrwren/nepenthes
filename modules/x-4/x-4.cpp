@@ -118,7 +118,7 @@ bool X4::Exit()
  */
 void X4::Submit(Download *down)
 {
-	m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getLength());
+	m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getSize());
 }
 
 /**

@@ -147,7 +147,7 @@ void SubmitNepenthes::Submit(Download *down)
 
 	socket->addDialogue(new SubmitNepenthesDialogue(socket,
 													down->getDownloadBuffer()->getData(),
-													down->getDownloadBuffer()->getLength(),
+													down->getDownloadBuffer()->getSize(),
 													(char *)down->getMD5Sum().c_str()
 													)
 						);

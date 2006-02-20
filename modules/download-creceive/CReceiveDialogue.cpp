@@ -81,7 +81,7 @@ CReceiveDialogue::CReceiveDialogue(Socket *socket)//, Download *down)
 	uint32_t host = socket->getRemoteHost();
 	uint16_t port = socket->getRemotePort();
 	asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port);
-    m_Download = new Download(url,socket->getRemoteHost(),url);
+    m_Download = new Download(host,url,socket->getRemoteHost(),url);
 	free(url);
 }
 
@@ -103,8 +103,8 @@ CReceiveDialogue::~CReceiveDialogue()
  */
 ConsumeLevel CReceiveDialogue::incomingData(Message *msg)
 {
-	logSpam("... DATA ... FIXME %i bytes \n",msg->getMsgLen());
-	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+	logSpam("... DATA ... FIXME %i bytes \n",msg->getSize());
+	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
 	return CL_ASSIGN;
 }
 

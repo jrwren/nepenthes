@@ -116,6 +116,10 @@ namespace nepenthes
 	typedef sha256_ctx sha224_ctx;
 
 
+	/**
+	 * the utilities provide stuff nobody else has
+	 * md5 hashing, sha1 hashing, hexdumping, base64 de/encoding ...
+	 */
 	class Utilities
 	{
 	public:
@@ -163,6 +167,7 @@ namespace nepenthes
 		virtual void sha512_transf(sha512_ctx *ctx, unsigned char *message, uint32_t block_nb);
 		virtual string sha512sum(unsigned char *msg, uint32_t len);
 
+		virtual string escapeXMLString(char *str);
 	private:
 		void MD5Transform(md5_uint32 buf[4], const unsigned char in[64]);
 

@@ -35,6 +35,10 @@ namespace nepenthes
 
 	class Nepenthes;
 
+	/**
+	 * a Manager wont do something in general, 
+	 * a Manager will have Handlers working for him.
+	 */
 	class Manager
 	{
 	public:

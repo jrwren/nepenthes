@@ -34,6 +34,18 @@
 using namespace nepenthes;
 
 
+/**
+ * Message constructor
+ * 
+ * @param msg        the data
+ * @param len        the datas size
+ * @param localport  the local port used
+ * @param remoteport the remote port used
+ * @param localhost  the local address used
+ * @param remotehost the remote address used
+ * @param responder  the responder to respond to the message	
+ * @param socket     the socket used to receive the message
+ */
 Message::Message(char *msg, uint32_t len, uint32_t localport, uint32_t remoteport, 
 				 uint32_t localhost, uint32_t remotehost, Responder *responder, Socket *socket)
 {
@@ -61,6 +73,17 @@ Message::Message(char *msg, uint32_t len, uint32_t localport, uint32_t remotepor
 
 }
 
+
+/**
+ * Message constructor for timeout messages
+ * 
+ * @param localport  the local port used
+ * @param remoteport the remote port used
+ * @param localhost  the local address used
+ * @param remotehost the remote address used
+ * @param responder  the responder to respond to the message	
+ * @param socket     the socket used to receive the message
+ */
 Message::Message(uint32_t localport, uint32_t remoteport, uint32_t localhost, 
 				 uint32_t remotehost, Responder *responder, Socket *socket)
 {
@@ -75,6 +98,10 @@ Message::Message(uint32_t localport, uint32_t remoteport, uint32_t localhost,
 	m_Socket = socket;
 }
 
+
+/**
+ * Message destructor
+ */
 Message::~Message()
 {
 	if(m_Msg != NULL)
@@ -83,46 +110,91 @@ Message::~Message()
 	}
 }
 
+/**
+ * get the data
+ * 
+ * @return returns pointer to the data
+ */
 char *Message::getMsg()
 {
 	return m_Msg;
 }
 
-uint32_t Message::getMsgLen()
+/**
+ * get the datas size
+ * 
+ * @return returns datas size
+ */
+uint32_t Message::getSize()
 {
 	return m_MsgLen;
 }
 
+/**
+ * get local address
+ * 
+ * @return returns local address
+ */
 uint32_t Message::getLocalHost()
 {
 	return m_LocalHost;
 }
 
+/**
+ * get local port
+ * 
+ * @return returns local port
+ */
 uint32_t Message::getLocalPort()
 {
 	return m_LocalPort;
 }
 
+/**
+ * get remote host
+ * 
+ * @return returns remote address
+ */
 uint32_t Message::getRemoteHost()
 {
 	return m_RemoteHost;
 }
 
+/**
+ * get remote port
+ * 
+ * @return returns remote port
+ */
 uint32_t Message::getRemotePort()
 {
 	return m_RemotePort;
 }
 
+/**
+ * get receive time
+ * 
+ * @return returns receive time
+ */
 time_t Message::getReceiveTime()
 {
 	return m_ReceiveTime;
 }
 
+/**
+ * get the socket 
+ * 
+ * @return returns the socket
+ */
 Socket *Message::getSocket()
 {
 	return m_Socket;
 }
 
+/**
+ * get the responder
+ * 
+ * @return returns the responder
+ */
 Responder *Message::getResponder()
 {
 	return m_Reply;

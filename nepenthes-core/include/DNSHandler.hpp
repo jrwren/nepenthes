@@ -36,14 +36,33 @@ using namespace std;
 
 namespace nepenthes
 {
-	class DNSResult;
+	class DNSQuery;
 
+
+	/**
+	 * somebody who registers to the dnsmanager as a dnsresolver is a DNSHandler
+	 * he acceppts DNSQuery 's, tries to resolve them, and calls the DNSCallback if he is done 
+	 */
 	class DNSHandler
 	{
 		public:
 		virtual ~DNSHandler(){};
-        virtual bool dnsResolved(DNSResult *result)=0;
-		virtual bool dnsFailure(DNSResult *result)=0;
+		/**
+		 * resolve a domains A record
+		 * 
+		 * @param query
+		 * 
+		 * @return 
+		 */
+        virtual bool resolveDNS(DNSQuery *query)=0;
+		/**
+		 * resolve a domains TXT record
+		 * 
+		 * @param query
+		 * 
+		 * @return 
+		 */
+		virtual bool resolveTXT(DNSQuery *query)=0;
 
 		virtual string getDNSHandlerName()
 		{

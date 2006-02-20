@@ -55,6 +55,9 @@ namespace nepenthes
 	class EventManager;
 	class Event;	
 
+	/**
+	 * if you are interested in Events, you should get an EventHandler, register to the EventManager ,and set flags for the Events you are interested in.
+	 */
     class EventHandler
     {
     public:

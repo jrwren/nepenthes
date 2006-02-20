@@ -115,7 +115,7 @@ ConsumeLevel OPTIXDownloadDialogue::incomingData(Message *msg)
 	{
 	case OPTIX_DL_FILEINFO:
 		{
-			m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
+			m_Buffer->add((char *)msg->getMsg(),msg->getSize());
 			int32_t piOutput[10 * 3];
 			int32_t iResult; 
 			if ((iResult = pcre_exec(m_pcre, 0, (char *) m_Buffer->getData(), m_Buffer->getSize(), 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
@@ -133,14 +133,14 @@ ConsumeLevel OPTIXDownloadDialogue::incomingData(Message *msg)
 
 				msg->getResponder()->doRespond("+OK REDY",strlen("+OK REDY"));
 				m_State = OPTIX_DL_FILETRANSFERR;
-				m_Download = new Download("optix://foo/bar",msg->getRemoteHost(),"some triggerline");
+				m_Download = new Download(msg->getRemoteHost(),"optix://foo/bar",msg->getRemoteHost(),"some triggerline");
 			}
 			break;
 		}
 	case OPTIX_DL_FILETRANSFERR:
 		{
-			m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
-			if (m_Download->getDownloadBuffer()->getLength() == m_FileSize)
+			m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+			if (m_Download->getDownloadBuffer()->getSize() == m_FileSize)
 			{
 				msg->getResponder()->doRespond("+OK RECVD",strlen("+OK RECVD"));
 				g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);

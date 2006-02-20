@@ -88,12 +88,12 @@ void CSendDialogue::setMaxFileSize(uint32_t ul)
 ConsumeLevel CSendDialogue::incomingData(Message *msg)
 {
 
-	logInfo("got %i bytes data\n",msg->getMsgLen());
-	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+	logInfo("got %i bytes data\n",msg->getSize());
+	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
     if (m_CuttedOffset == false)
 	{
 		uint32_t len =  atoi(m_Download->getDownloadUrl()->getPath().c_str());
-		if (m_Download->getDownloadBuffer()->getLength() >= len )
+		if (m_Download->getDownloadBuffer()->getSize() >= len )
 		{
 			if (len == 4 )
 			{
@@ -134,9 +134,9 @@ ConsumeLevel CSendDialogue::connectionShutdown(Message *msg)
 	logPF();
 	if (m_ExpectedFileSize > 0)
 	{
-		if (m_Download->getDownloadBuffer()->getLength() != m_ExpectedFileSize)
+		if (m_Download->getDownloadBuffer()->getSize() != m_ExpectedFileSize)
 		{
-			logInfo("CSend Filetransferr failed, expected %i bytes, got %i bytes\n",m_ExpectedFileSize,m_Download->getDownloadBuffer()->getLength());
+			logInfo("CSend Filetransferr failed, expected %i bytes, got %i bytes\n",m_ExpectedFileSize,m_Download->getDownloadBuffer()->getSize());
 			return CL_DROP;
 		}
 	}

@@ -27,6 +27,9 @@
 
 /* $Id$ */
 
+#ifndef HAVE_DNSRESULT_HPP
+#define HAVE_DNSRESULT_HPP
+
 #ifdef WIN32
 
 #else
@@ -42,6 +45,7 @@ using namespace std;
 
 namespace nepenthes
 {
+
 	class DNSResult
 	{
 	public:
@@ -49,18 +53,24 @@ namespace nepenthes
 #ifdef WIN32
 
 #else
-		DNSResult(adns_answer *answer, char *dns, void *obj);
+		DNSResult(adns_answer *answer, char *dns, uint16_t querytype, void *obj);
 #endif
-		DNSResult(uint32_t ip , char *dns, void *obj);
+		DNSResult(uint32_t ip , char *dns, uint16_t querytype, void *obj);
 
 		virtual ~DNSResult();
 		virtual list <uint32_t> getIP4List();
 		virtual string getDNS();
 		virtual void *getObject();
+		virtual uint16_t getQueryType();
+		virtual string getTXT();
 
 	protected:
         list <uint32_t> m_ResolvedIPv4;
 		string m_DNS;
 		void 	*m_Object;
+		uint16_t 	m_QueryType;
+		string m_TXT;
 	};
 }
+
+#endif

@@ -1,0 +1,131 @@
+.TH NEPENTHES "8" "2005-11-18" "nepenthes 0.1.3"
+.SH NAME
+nepenthes - finest collection - 
+.SH SYNOPSIS
+\fBnepenthes\fR [\fIOPTIONS\fR]
+.TP
+\fBnepenthes\fR [\fIOPTIONS\fR] [\fIPATH\fR]
+.SH DESCRIPTION
+By emulating widespread vulnerabilities Nepenthes is able to catch and store worms using these vulnerabilities. 
+Furthermore you are able to determine the malware activity on a network by deploying a nepenthes sensor. 
+The programm emulates different well known vulnerabilities waiting for malicious connections trying to exploit these.
+If a connection tries to exploit something, nepenthes tries to \fIguess\fR which exploit is going to be used.
+There are several different ways a exploitation can happen, the attacker can ask nepenthes to
+
+.TS
+l l.
+* connect a provided ip & port offering a shell there (connectback)
+* bind a shell on a port (bindshell)
+* direct execute a shellcommand
+* provide a url from where to download a file and execute the file
+* use specific filetransferr mechanisms to transferr the file (link, blink, mydoom ...)
+.TE
+
+If a shell is expected, bindshell or connectback shell, nepenthes will offer this shell to the attacker and fullfill the requested actions.
+In most cases there are two ways worms try to spread themselves using a shell, 
+
+.TS
+l l.
+tftp - trivial filetransfer protocoll using tftp.exe in Microsoft Windows.
+ftp - filetransfer protocoll using ftp.exe in Microsoft Windows.
+.TE
+
+
+Nepenthes will parse the shell instructions and try to download the file, upon success the file will be stored.
+
+
+
+
+.SH OPTIONS
+.TP
+.B \fB-c\fR \fIPATH\fR,   \fB--config\fR=\fIPATH\fR
+\fIPATH\fR to \fInepenthes.conf\fR       
+.TP
+.B \fB-d\fR \fIPATTERN\fR,   \fB--disk-log\fR=\fIPATTERN\fR     
+apply filter to console logging. \fIPATTERN\fR can consist of crit, warn, info, debug and spam, combine tags using , .
+.TP
+.B \fB-f\fR\ \fIOPTIONS\ PATH\fR,   \fB--file-check\fR=\fIOPTIONS PATH\fR   
+Use Nepenthes to check if a file or a directory of files in \fIPATH\fR contain known shellcodes.
+PATH can be a directory or multiple files. OPTIONS can be rmknown,rmnonop,nothing.
+.TP
+.B \fB-h\fR,   \fB--help\fR         
+show help
+.TP
+.B \fB-H\fR,   \fB--large-help\fR   
+show help with default values
+.TP
+.B \fB-i\fR,   \fB--info\fR         
+how to contact us
+.TP
+.B \fB-k\fR,   \fB--check-config\fR 
+check \fInepenthes.conf\fR config for syntax errors
+.TP
+.B \fB-l\fR \fIPATTERN\fR,   \fB--log\fR=\fIPATTERN\fR
+apply filter to console logging. \fIPATTERN\fR can consist of crit, warn, info, debug and spam, combine tags using , .
+.TP
+.B \fB-L\fR,   \fB--logging-help\fR 
+display help for -d and -l
+.TP
+.B \fB-o\fR,   \fB--no-color\fR     
+log without colors to console (does not work yet). 
+.TP
+.B \fB-r\fR \fIPATH\fR,   \fB--chroot\fR=\fIPATH\fR       
+chroot to \fIPATH\fR
+.TP
+.B \fB-R\fR,   \fB--ringlog\fR      
+use ringlogger instead of filelogger
+.TP
+.B \fB-u\fR \fIUSER\fR,   \fB--user\fR=\fIUSER\fR         
+switch the user the process runs as
+\fIUSER\fR must be a users name.
+.TP
+.B \fB-g\fR \fIGROUP\fR,   \fB--group\fR=\fIGROUP\fR        
+switch process group
+\fIGROUP\fR must be a groups name.
+.TP
+.B \fB-v\fR,   \fB--version\fR      
+show version
+.TP
+.B \fB-w\fR,   \fB--workingdir\fR   
+where shall the process live
+
+
+.SH EXAMPLES
+.TP \w'nepenthes\ 'u
+.BI nepenthes\ -d\ crit,warn,info
+start nepenthes and log only messaged with loglevel critical, warning and info to disk
+.TP
+.BI nepenthes\ -u\ marshall\ -g\ mother
+start nepenthes and change to user marshall and group mother.
+.TP
+.BI nepenthes\ -r\ /opt/nepenthes
+start nepenthes and chroot to /opt/nepenthes
+.TP
+.BI nepenthes\ -u\ marshall\ -g\ mother\ -r\ /opt/nepenthes
+start nepenthes and change to user marshall and group mother and  chroot to /opt/nepenthes
+.TP
+.BI nepenthes\ -f\ rmknown,rmnonop,dononp\ /opt/nepenthes/var/hexdumps/
+check the directory /opt/nepenthes/var/hexdumps for known shellcodes, remove known shellcodes, remove shellcodes without nop slide, check shellcodes without nopslide.
+.TP
+.BI nepenthes\ -f\ nothing\ /tmp/*.bin\ /tmp/unknown_shellcodes/
+check the files in the directory /opt/nepenthes/var/hexdumps and the files in /tmp/*.bin  for known shellcodes, do nothing.
+.SH FILES
+.TP
+.I etc/nepenthes/nepenthes.conf
+nepenthes configuration file
+.TP
+.I lib/nepenthes/
+nepenthes modules
+.TP
+.I etc/nepenthes/
+nepenthes modules configuration files
+
+.SH BUGS
+.TP
+this manual is a pain
+
+
+.SH SEE ALSO
+.BR nepenthes.conf (5)
+
+

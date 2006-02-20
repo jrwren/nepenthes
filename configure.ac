@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.2], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.2])
+AC_INIT([nepenthes], [0.1.3], [dornseif@informatik.rwth-aachen.de])
+AM_INIT_AUTOMAKE([nepenthes], [0.1.3])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
@@ -79,19 +79,6 @@ AC_STRUCT_TM
 AC_TYPE_SIZE_T
 AC_TYPE_SIGNAL
 
-AC_MSG_CHECKING(for Large File System support)
-AC_ARG_ENABLE(lfs,
- AC_HELP_STRING([--enable-lfs],[Turn on Large File System (default)]),
- [case "$host" in
- *-*-linux*)
- case "${enableval}" in
-    yes) CPPFLAGS="${CPPFLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES" ;;
-     no) ;;
-      *) AC_MSG_ERROR(bad value ${enableval} for --enable-lfs) ;;
-   esac
-   ;;
- esac],[CPPFLAGS="${CPPFLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES"])
-AC_MSG_RESULT($enableval)
 
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(off_t)
@@ -173,13 +160,12 @@ AC_FUNC_ERROR_AT_LINE
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([strndup alarm bzero gethostbyname gethostname gettimeofday inet_ntoa localtime_r memmove memset munmap select socket strcasecmp strdup strerror strncasecmp strstr strtoul setresgid setresuid])
 
-# Checks for libraries.
-AC_CHECK_LIB([adns], [adns_init],
-             [AC_DEFINE(HAVE_LIBADNS, 1,
-                        [Define if you want to use adns])
-              LIBS="-ladns $LIBS"],
-             [AC_MSG_ERROR([libadns is missing - install it please])
-             ])
+# Checks for generic libraries.
+
+dnl **************************************************
+dnl * libcurl Support                                *
+dnl **************************************************
+
 
 AC_CHECK_LIB([curl], [curl_version],
              [AC_DEFINE(HAVE_LIBCURL, 1,
@@ -188,6 +174,10 @@ AC_CHECK_LIB([curl], [curl_version],
              [AC_MSG_ERROR([libcurl is missing - install it please])
              ])
 
+dnl **************************************************
+dnl * libpcre Support                                *
+dnl **************************************************
+
 AC_CHECK_LIB([pcre], [pcre_compile],
              [AC_DEFINE(HAVE_LIBPCRE, 1,
                         [Define if you want to use libpcre])
@@ -195,6 +185,9 @@ AC_CHECK_LIB([pcre], [pcre_compile],
              [AC_MSG_ERROR([libpcre is missing - install it please])
              ])
 
+dnl **************************************************
+dnl * libmagic Support                               *
+dnl **************************************************
 AC_CHECK_LIB([magic], [magic_open],
              [AC_DEFINE(HAVE_LIBMAGIC, 1,
                        [Define if you want to use libmagic])
@@ -202,6 +195,412 @@ AC_CHECK_LIB([magic], [magic_open],
              [AC_MSG_ERROR([libmagic is missing - install it please])
              ])
 AC_CHECK_HEADERS(magic.h)
+
+
+
+dnl **************************************************
+dnl * libssh Support                                 *
+dnl **************************************************
+
+AC_MSG_CHECKING(for libssh)
+
+AC_ARG_ENABLE(libssh, [  --enable-ssh	Enable Support for ssh[default=auto]], 
+		    enable_ssh="$enableval", enable_ssh="yes")
+
+AC_ARG_WITH(ssh-lib,
+    [  --with-ssh-lib=PATH	specify path to ssh client library],
+    [ssh_lib=$withval],
+    [ssh_lib=no])
+AC_ARG_WITH(ssh-include,
+    [  --with-ssh-include=PATH	specify path to ssh include files],
+    [ssh_inc=$withval],
+    [ssh_inc=no])
+
+
+if test x$enable_ssh = xyes; then
+  dnl **************************************************
+  dnl * ssh headers                                  *
+  dnl **************************************************
+
+  orig_cppflags=$CPPFLAGS
+  
+  if test "x$ssh_inc" != xno; then
+    CPPFLAGS="-I$ssh_inc $CPPFLAGS"
+  fi
+    
+  AC_CHECK_HEADER(libssh.h, [found=yes], [found=no])
+  
+
+  if test "x$found" != "xno"; then
+
+    dnl **************************************************
+    dnl * ssh lib                                      *
+    dnl **************************************************
+	
+    orig_ldflags=$LDFLAGS
+    if test "x$ssh_lib" != "xno"; then
+        LDFLAGS="-L$ssh_lib $LDFLAGS"
+    fi
+    AC_CHECK_LIB([ssh], [ssh_bind_new],[found=yes], [found=no])
+    
+    if test "x$found" != "xyes"; then
+        LDFLAGS=$orig_ldflags
+    fi
+  else    
+     CPPFLAGS=$orig_cppflags
+
+  fi
+
+  if test "x$found" != "xyes"; then
+    enable_ssh=no
+  else
+    AC_DEFINE(HAVE_LIBSSH,1,[Define wether we have libssh])
+    LIBS="-lssh $LIBS"
+  fi
+  
+fi  
+
+
+dnl **************************************************
+dnl * mysql Support                                  *
+dnl **************************************************
+
+AC_ARG_WITH(mysql-lib,
+    [  --with-mysql-lib=PATH	specify path to MySQL client library],
+    [mysql_lib=$withval],
+    [mysql_lib=no])
+AC_ARG_WITH(mysql-include,
+    [  --with-mysql-include=PATH	specify path to MySQL include files],
+    [mysql_inc=$withval],
+    [mysql_inc=no])
+
+AC_ARG_ENABLE(mysql, [  --enable-mysql	Enable Support [default=auto]], 
+		    enable_mysql="$enableval", enable_mysql="no")
+
+
+if test x$enable_mysql = xyes; then
+
+  AC_MSG_CHECKING(for mysql client library)
+
+
+
+  dnl **************************************************
+  dnl * mysql headers                                  *
+  dnl **************************************************
+
+  orig_cppflags=$CPPFLAGS
+  
+  if test "x$mysql_inc" != xno; then
+    CPPFLAGS="-I$mysql_inc $CPPFLAGS"
+  fi
+  
+  AC_CHECK_HEADER(mysql.h, [found=yes], [found=no])
+
+  if test "x$found" != "xno"; then
+
+
+    dnl **************************************************
+    dnl * mysql lib                                      *
+    dnl **************************************************
+	
+    orig_ldflags=$LDFLAGS
+    if test "x$mysql_lib" != "xno"; then
+        LDFLAGS="-L$mysql_lib $LDFLAGS"
+    fi
+    AC_CHECK_LIB(mysqlclient, mysql_real_connect, [found=yes], [found=no])
+    
+    if test "x$found" != "xyes"; then
+        LDFLAGS=$orig_ldflags
+    fi
+  else    
+     CPPFLAGS=$orig_cppflags
+
+  fi
+
+  if test "x$found" != "xyes"; then
+    enable_mysql=no
+  else
+    AC_DEFINE(HAVE_MYSQL, 1 , [Define if we have mysql client library])
+    LIBS="-lmysqlclient $LIBS"
+  fi
+
+  AC_MSG_RESULT($enable_mysql)  
+fi  
+
+
+
+
+dnl **************************************************
+dnl * postgre Support                                  *
+dnl **************************************************
+
+AC_ARG_WITH(postgre-lib,
+    [  --with-postgre-lib=PATH	specify path to MySQL client library],
+    [postgre_lib=$withval],
+    [postgre_lib=no])
+AC_ARG_WITH(postgre-include,
+    [  --with-postgre-include=PATH	specify path to MySQL include files],
+    [postgre_inc=$withval],
+    [postgre_inc=no])
+
+AC_ARG_ENABLE(postgre, [  --enable-postgre	Enable Support [default=auto]], 
+		    enable_postgre="$enableval", enable_postgre="no")
+
+
+if test x$enable_postgre = xyes; then
+
+  AC_MSG_CHECKING(for postgre client library)
+
+
+
+  dnl **************************************************
+  dnl * postgre headers                                  *
+  dnl **************************************************
+
+  orig_cppflags=$CPPFLAGS
+  
+  if test "x$postgre_inc" != xno; then
+    CPPFLAGS="-I$postgre_inc $CPPFLAGS"
+  fi
+  
+  AC_CHECK_HEADER(libpq-fe.h, [found=yes], [found=no])
+
+  if test "x$found" != "xno"; then
+
+
+    dnl **************************************************
+    dnl * postgre lib                                      *
+    dnl **************************************************
+	
+    orig_ldflags=$LDFLAGS
+    if test "x$postgre_lib" != "xno"; then
+        LDFLAGS="-L$postgre_lib $LDFLAGS"
+    fi
+    AC_CHECK_LIB(pq, PQsetdbLogin, [found=yes], [found=no])
+    
+    if test "x$found" != "xyes"; then
+        LDFLAGS=$orig_ldflags
+    fi
+  else    
+     CPPFLAGS=$orig_cppflags
+
+  fi
+
+  if test "x$found" != "xyes"; then
+    enable_postgre=no
+  else
+    AC_DEFINE(HAVE_POSTGRES, 1 , [Define if we have postgre client library])
+    LIBS="-lpq $LIBS"
+  fi
+
+  AC_MSG_RESULT($enable_postgre)  
+fi  
+
+
+
+
+
+dnl **************************************************
+dnl * large filesystem Support                       *
+dnl **************************************************
+
+AC_MSG_CHECKING(for Large File System support)
+AC_ARG_ENABLE(lfs,
+ AC_HELP_STRING([--enable-lfs],[Turn on Large File System (default)]),
+ [case "$host" in
+ *-*-linux*)
+ case "${enableval}" in
+    yes) CPPFLAGS="${CPPFLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES" ;;
+     no) ;;
+      *) AC_MSG_ERROR(bad value ${enableval} for --enable-lfs) ;;
+   esac
+   ;;
+ esac],[
+ CPPFLAGS="${CPPFLAGS} -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGE_FILES"
+ enable_lfs=yes]
+ ,enable_lfs=no,)
+AC_MSG_RESULT($enableval)
+
+
+
+dnl **************************************************
+dnl * GeoLocation Support                            *
+dnl **************************************************
+
+AC_ARG_ENABLE(geolocation, [  --enable-geolocation	Enable GeoLocation [default=no]], 
+		    enable_geolocation="$enableval", enable_geolocation="no")
+
+AC_ARG_ENABLE(geolocation_hostip, [  --enable-geolocation-hostip	Enable GeoIP [default=auto]], 
+		    enable_geolocation_hostip="$enableval", enable_geolocation_hostip="yes")
+
+AC_ARG_ENABLE(geolocation_ip2location, [  --enable-geolocation-ip2location	Enable IP2Location [default=auto]], 
+		    enable_geolocation_ip2location="$enableval", enable_geolocation_ip2location="yes")
+		    
+AC_ARG_ENABLE(geolocation_geoip, [  --enable-geolocation-geoip	Enable GeoIP [default=auto]], 
+		    enable_geolocation_geoip="$enableval", enable_geolocation_geoip="yes")
+
+
+if test x$enable_geolocation = xyes; then
+
+
+  AC_DEFINE_UNQUOTED(HAVE_GEOLOCATION, 1, [Define wether we want to use GeoLocation])
+  
+
+  AC_ARG_WITH(geoip-include,
+    [  --with-geoip-include=PATH	specify path to GeoIP include files],
+    [geoip_inc=$withval],
+    [geoip_inc=no])
+
+  AC_ARG_WITH(geoip-lib,
+    [  --with-geoip-lib=PATH	specify path to GeoIP client library],
+    [geoip_lib=$withval],
+    [geoip_lib=no])
+
+
+  AC_ARG_WITH(ip2location-include,
+    [  --with-ip2location-include=PATH	specify path to IP2Location include files],
+    [ip2location_inc=$withval],
+    [ip2location_inc=no])
+
+  AC_ARG_WITH(ip2location-lib,
+    [  --with-ip2location-lib=PATH	specify path to IP2Location client library],
+    [ip2location_lib=$withval],
+    [ip2location_lib=no])
+
+
+  dnl **************************************************
+  dnl * GeoIP Support                                  *
+  dnl **************************************************
+
+  if test x$enable_geolocation_geoip = xyes; then
+
+    dnl **************************************************
+    dnl * GeoIP headers                                  *
+    dnl **************************************************
+
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$geoip_inc" != xno; then
+      CPPFLAGS="-I$geoip_inc $CPPFLAGS"
+    fi
+  
+    AC_CHECK_HEADER(GeoIP.h, [found=yes], [found=no])
+
+    if test "x$found" != "xno"; then
+      dnl **************************************************
+      dnl * GeoIP lib                                      *
+      dnl **************************************************
+	
+      orig_ldflags=$LDFLAGS
+      if test "x$geoip_lib" != "xno"; then
+          LDFLAGS="-L$geoip_lib $LDFLAGS"
+      fi
+      AC_CHECK_LIB([GeoIP], [GeoIP_open], [found=yes], [found=no])
+    
+      if test "x$found" != "xyes"; then
+          LDFLAGS=$orig_ldflags
+      fi
+    else    
+       CPPFLAGS=$orig_cppflags
+    fi
+
+    if test "x$found" != "xyes"; then
+      enable_geolocation_geoip=no
+    else
+      AC_DEFINE(HAVE_LIBGEOIP, 1,[Define if you want to use MaxMind's GeoIP])
+      LIBS="-lGeoIP $LIBS"
+    fi
+    
+  fi  
+
+    
+  
+
+
+
+  dnl **************************************************
+  dnl * IP2Location Support                            *
+  dnl **************************************************
+
+  if test x$enable_geolocation_ip2location = xyes; then
+
+    dnl **************************************************
+    dnl * IP2location headers                            *
+    dnl **************************************************
+
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$ip2location_inc" != xno; then
+      CPPFLAGS="-I$ip2location_inc $CPPFLAGS"
+    fi
+  
+    AC_CHECK_HEADER(IP2Location.h, [found=yes], [found=no])
+
+    if test "x$found" != "xno"; then
+      dnl **************************************************
+      dnl * IP2Location lib                                *
+      dnl **************************************************
+	
+      orig_ldflags=$LDFLAGS
+
+      if test "x$ip2location_lib" != "xno"; then
+          LDFLAGS="-L$ip2location_lib -lIP2Location $LDFLAGS"
+      fi
+      
+      AC_CHECK_LIB([IP2Location], [IP2Location_open], [found=yes], [found=no])
+    
+      if test "x$found" != "xyes"; then
+          LDFLAGS=$orig_ldflags
+      fi
+    else    
+       CPPFLAGS=$orig_cppflags
+    fi
+
+    if test "x$found" != "xyes"; then
+      enable_geolocation_ip2location=no
+    else
+      AC_DEFINE(HAVE_LIBIP2LOCATION, 1,[Define if you want to use IP2Location])
+      LIBS="-lIP2Location $LIBS"
+    fi
+  
+  fi  
+  
+else   
+  enable_geolocation_hostip=no
+  enable_geolocation_geoip=no
+  enable_geolocation_ip2location=no
+
+fi
+
+
+
+
+dnl **************************************************
+dnl * dnsresolve Support                             *
+dnl **************************************************
+
+
+
+AC_ARG_ENABLE(dnsresolve_adns, [  --enable-dnsresolve-adns	Enable adns [default=yes]], 
+		    enable_dnsresolve_adns="$enableval", enable_dnsresolve_adns="yes")
+
+dnl **************************************************
+dnl * libadns Support                                *
+dnl **************************************************
+if test x$enable_dnsresolve_adns = xyes; then
+  AC_CHECK_LIB([adns], [adns_init],
+           [AC_DEFINE(HAVE_LIBADNS, 1,
+                      [Define if you want to use adns])
+            LIBS="-ladns $LIBS"],
+     enable_dnsresolve_adns=no
+   )
+fi
+
+if test x$enable_dnsresolve_adns = xno; then
+  AC_MSG_ERROR([at least one dnsresolver has to work])
+fi
+
+
 
 AC_DEFUN([AC_DEFINE_DIR], [
   prefix_NONE=
@@ -227,9 +626,6 @@ AC_CONFIG_FILES([Makefile
                  nepenthes-core/Makefile
                  nepenthes-core/include/Makefile
                  nepenthes-core/src/Makefile
-                 tools/Makefile
-                 tools/bdiffm/Makefile
-                 tools/mkcarray/Makefile
                  modules/Makefile
                  modules/download-creceive/Makefile
                  modules/download-csend/Makefile
@@ -266,14 +662,43 @@ AC_CONFIG_FILES([Makefile
                  modules/vuln-veritas/Makefile
                  modules/vuln-wins/Makefile
                  modules/vuln-dameware/Makefile
+		 modules/vuln-ssh/Makefile
                  modules/x-1/Makefile
                  modules/x-2/Makefile
                  modules/x-3/Makefile
                  modules/x-4/Makefile
                  modules/x-5/Makefile                 
                  modules/x-6/Makefile
-                 modules/x-7/Makefile])
-#                modules/module-drone/Makefile
+                 modules/x-7/Makefile
+                 modules/x-8/Makefile
+		 modules/geolocation-hostip/Makefile
+		 modules/geolocation-geoip/Makefile
+                 modules/download-http/Makefile
+		 modules/upload-http/Makefile
+		 modules/dnsresolve-adns/Makefile
+		 modules/geolocation-ip2location/Makefile
+		 modules/log-surfnet/Makefile		 
+		 ])
+#                modules/module-drone/Makefile		 
+#		 modules/log-surfnet/Makefile])
 #                modules/vuln-netbios/Makefile
                  
 AC_OUTPUT
+
+echo
+echo "*** Dumping Nepenthes Configuration ***"
+echo "- DNS Resolve                 "
+echo "  - Support adns              : $enable_dnsresolve_adns"
+echo ""
+echo "- Support GeoLocation         : $enable_geolocation"
+echo "  - Support hostip            : $enable_geolocation_hostip"
+echo "  - Support GeoIP             : $enable_geolocation_geoip"
+echo "  - Support IP2Location       : $enable_geolocation_ip2location"
+echo "" 
+echo "- Support Large Filesystem    : $enable_lfs"
+echo "" 
+echo "- Support MySQL               : $enable_mysql"
+echo "" 
+echo "- Support PostgreSQL          : $enable_postgre"
+echo "" 
+echo "- Support ssh                 : $enable_ssh"

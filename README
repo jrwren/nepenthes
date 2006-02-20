@@ -1,4 +1,903 @@
+		Nepenthes 
+	- the finest collection -
+
+
 Our documentation and installation instructions is available online at
 
-	http://nepenthes.sourceforge.net
+        http://nepenthes.sourceforge.net/documentation:readme
+
+
+
+( if you are offline and need a README file scroll down, there is a paste of the online version )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		Nepenthes 
+	- the finest collection -
+
+
+IMPORTANT NOTE 
+the same README in a better readable format can be found on
+http://nepenthes.sourceforge.net/documentation:readme
+not to mention the online doc is updatet more often.
+
+
+
+
+
+Table of Contents
+	
+# 1. What is Nepenthes?
+# 2. How does Nepenthes work?
+
+    * 2.1 Why would one want to run Nepenthes?
+
+# 3. Installing Nepenthes
+
+    * resolving depencies
+          o Debian
+          o SuSE
+    * compiling the source
+    * run it
+
+# 4. Current Status
+
+    * 4.1 Nepenthes core
+          o 4.1.1 Config File
+          o 4.1.2 SocketManager
+          o 4.1.3 ShellcodeManager
+          o 4.1.4 SubmitManager
+          o 4.1.5 EventManager
+          o 4.1.6 LuaInterface
+          o 4.1.7 ModuleManager
+          o 4.1.8 DNSManager
+          o 4.1.9 GeoLocationManager
+    * 4.2 Nepenthes Modules
+          o 4.2.1 download handler
+          o 4.2.2 submit Handler
+          o 4.2.3 shellcode handler
+          o 4.2.4 vulnerability modules
+          o 4.2.5 ShellEmulation modules
+          o 4.2.6 eXample modules
+          o 4.2.7 GeoLocationHandler
+          o 4.2.8 DNSHandler
+
+# 5. Modules Interface
+# 6. Contribute to Nepenthes
+# 7: Trouble Shooting
+# 8. FAQ
+
+
+
+
+1. What is Nepenthes?
+
+Nepenthes is a low interaction honeypot like honeyd or mwcollect. Low Interaction Honeypots emulate _known_ vulnerabilities to collect information about potential attacks. Nepenthes is designed to emulate vulnerabilties worms use to spread, and to capture these worms. As there are many possible ways for worms to spread, Nepenthes is modular. There are module interface to
+
+    * resolve dns asynchronous
+    * emulate vulnerabilities
+    * download files
+    * submit the downloaded files
+    * trigger events (sounds abstract and it is abstract but is still quite useful)
+    * shellcode handler
+
+Refer to FIXME for more information about the Module Interface.
+
+
+2. How does Nepenthes work?
+
+Nepenthes vulnerability modules require knowledge about weaknesses so one can draft a Dialogue how the virus will exploit the weakness, gain the needed information to download the file and send the attacker just enough information he does not notice he gets fooled.
+On the other hand Nepenthes is quite usefull to capture new exploits for old vulnerabilities.
+As Nepenthes does not know these exploits, they will appear in the logfiles.
+By running these captures against a real vulnerable machine one can gain new information about the exploit and start writing an Nepenthes Dialogue.
+2.1 Why would one want to run Nepenthes?
+
+The first argument is, its free. The software is free, the viruses you can capture are free. You can collect this annoying stuff like stamps without paying a diam. The rest of the arguments are security related an discussable. Setting up a host running Nepenthes can improve network security drastically, as you can see who scans for which known vulnerabilities.
+
+
+3. Installing Nepenthes
+
+Nepenthes will use automake to verify your system satisfies the needed depencies.
+
+    * g++ (use 3.3.* do not use g++ 4.0.* it wont work properly))
+    * libcurl
+    * libmagic
+    * libpcre
+    * libadns
+
+resolving depencies
+Debian
+
+On debian just do
+
+apt-get install libcurl3-dev
+apt-get install libmagic-dev
+apt-get install libpcre3-dev
+apt-get install libadns1-dev
+
+or ( paste it in one line )
+
+apt-get install  libcurl3-dev libmagic-dev libpcre3-dev libadns1-dev
+
+SuSE
+
+SuSE needs you to
+
+apt-get install libadns 
+apt-get install libadns-devel  
+apt-get install file-devel
+
+FIXME i dont know suse\u2019s name for libpcre3-dev.
+compiling the source
+
+Unpack your source tarball.
+
+ 
+tar vxjf nepenthes-VERSION.tar.bz2
+./configure --prefix=/opt/nepenthes
+make
+make install
+
+cd /opt/nepenthes
+
+less etc/nepenthes/nepenthes.conf
+
+less etc/nepenthes/submit-norman.conf
+
+less etc/nepenthes/log-irc.conf
+
+\u2019less\u2019 means you should have a look in the config file, and edit it using an editor of your choice.
+
+If something fails, check the Trouble Shooting section. Compiling nepenthes can take some time, here it takes 1:20 minutes on an amd64 3500 cpu with one gb ram.
+run it
+
+If everything went fine, run nepenthes.
+
+bin/nepenthes
+
+
+4. Current Status
+
+All in all Nepenthes is stable code,
+but some things are ... lets say a little raw
+Current status is everything which is marked \u201cwork\u201ding runs fine.
+4.1 Nepenthes core
+
+
+4.1.1 Config File
+
+actually we have no configfile format fitting our needs yet, so we just use a dummy config file storing the needed data.
+this will change
+
+
+4.1.2 SocketManager
+
+TCPSockets are considered stable.
+UDPSockets work, they serve in a vuln module
+FILESockets just an attempt to write a Socket listening on /dev/urandom, useless in the wild, useful for debugging
+RAWSockets are on the roadmap, even though i consider them useless, i like raw sockets
+
+
+4.1.3 ShellcodeManager
+
+register & unregister shellcodehandler works
+handling shellcodes works
+
+
+4.1.4 SubmitManager
+
+register & unregister submithandler works
+submitting files works
+
+
+4.1.5 EventManager
+
+Haven\u2019t used that much till now, but this works fine.
+have to setup events for errors and other stuff, so this actually gets used.
+
+
+4.1.6 LuaInterface
+
+no problems yet, as there is no code.
+
+
+4.1.7 ModuleManager
+
+loading & unloading modules works
+at the moment there is no option like loading and unloading modules at runtime,
+as this has many problems.
+time will tell if we need it, time will tell if we support it
+
+
+4.1.8 DNSManager
+
+resolving dns asynchron works
+currently libadns is used, but we are just waiting for udns hitting debian package management.
+
+
+4.1.9 GeoLocationManager
+
+I guess i got to explain what this thing does. In all, it does nothing by itself, as it is a \u2018Manager\u2019. In order to provide usefull information to visualize the collected data, we have to resolve attacking ip addresses to their location. Thats this buddies job, we give him a simple ip, and get
+
+* country * city * longitude/latitude
+
+But he does not resolve his own, he\u2019s got GetLocationHandlers for this job, he just manages the attached handler.
+
+Why such complex solution for such easy task?
+
+There is are really less ip to location resolving services/libraries around there.
+
+    * GeoBytes commercial, no usefull api doc around
+    * MaxMind GeoIP commercial, great api doc, accurate
+    * ip2location commercial, no usefull api doc around
+    * hostip free, but less accurate than the commercial brothers.
+
+As we did not want to rely on commercial software, we choosed hostip as service, but as we wanted to offer the possibilty to use MaxMinds GeoIP as well, we wrote this modular.
+
+We could have installed the hostip database on our server as well, and do the whole thing serverside, but as you might have noticed we are hosted on sourceforge.net and the hostip.info database is 300mb in size.
+
+We could have bought MaxMind\u2019s GeoIP and run the stuff serverside, but a license is quite expensive (370$) and so long we did not make any money with this project.
+
+So we decided to run the geolocation lookup clientside, offering a free service (hostip), and the best service availible(geoip).
+
+
+4.2 Nepenthes Modules
+
+
+4.2.1 download handler
+
+
+4.2.1.1 download-csend
+
+status: works
+
+    * registers:
+          o downloadhandler:
+                + csend protocoll
+
+description: downloads files csend. csend is streaming a file on a port like netcat can do
+
+link: download_csend
+
+
+4.2.1.2 download-curl
+
+status: works
+
+    * registers:
+          o downloadhandler:
+                + ftp protocoll
+                + http protocoll
+
+description: downloads files via http or ftp
+
+link: download_curl
+
+
+4.2.1.3 download-tftp
+
+status: works
+
+    * registers
+          o downloadhandler
+                + tftp protocoll
+
+description: downloads files via the tftp protocoll.
+
+link: download_tftp
+
+
+4.2.1.3 download-nepenthes
+
+status: works
+
+description: receive virus files from other nepenthes nodes
+
+link: download_nepenthes
+
+
+4.2.1.4 download-ftp
+
+status: works
+
+    * registers
+          o downloadhandler
+                + ftp protocoll
+
+description: downloads files via the ftp protocoll.
+
+link: download_ftp
+
+
+4.2.2 submit Handler
+
+
+4.2.2.1 submit-file
+
+status: works
+
+    * registers:
+          o submithandler:
+          o submit-file
+
+description:
+writes captured viri to /tmp/ with their md5 hash as name
+
+link: submit_file
+
+
+4.2.2.2 submit-norman
+
+status: works
+
+    * registers:
+          o submithandler:
+                + submit-norman
+
+description:
+commit files to sandbox.norman.no and get a analysis report via mail
+
+link: submit_norman
+
+
+4.2.2.2 submit-nepenthes
+
+status: works
+
+    * registers:
+          o submithandler:
+                + submit-nepenthes
+
+description:
+commits files to our global nepenthes server to create a greate malware archieve.
+
+link: submit_nepenthes
+
+
+4.2.2.3 submit-postgres
+
+status: works
+
+    * registers:
+          o submithandler:
+                + submit-postgres
+
+description:
+sends the file to a postgres database, so you can see how often a file comes in
+
+link: submit_postgres
+
+
+4.2.3 shellcode handler
+
+
+4.2.3.1 shellcode-generic
+
+status: works
+
+    * registers:
+          o shellcodehandler:
+                + sch_generic_createprocess
+                + sch_generic_url
+                + sch_generic_xor
+                + sch_generic_linkxor
+                + sch_generic_stuttgart
+                + sch_generic_link_trans
+                + sch_generic_link_bind_trans
+
+description: provides some more or less generic shellcodehandlers
+
+
+4.2.4 vulnerability modules
+
+
+4.2.4.1 vuln-bagle
+
+status: should work/untested
+port: 2745
+
+description:
+emulates the bagle backdoor
+
+link: vuln_bagle
+
+
+4.2.4.2 vuln-dcom
+
+status: works
+port: 135,445,1025
+default: unsure
+
+    * registers:
+          o shellcodehandler:
+                + sch_dcom_oc192 (oc192 dcom exploit as used by msblaster)
+                + sch_dcom_sol2k (sol2k dcom exploit)
+
+description:
+emulates the dcom vulnerabilty.
+
+link: vuln_dcom
+
+
+4.2.4.3 vuln-kuang2
+
+status: unknown/untested
+
+description:
+we need a virus scanning for kuang2 or a kuang2 client&server to verfiy the code
+
+link: vuln_kuang2
+
+
+4.2.4.4 vuln-mydoom
+
+status: works
+port: 3127
+default: assigns
+
+description:
+this module emulates the mydoom backdoor, after receiving an special key the file is streamed on the same socket the module receives the file, and if the transferr was successfull the files gets submitted.
+
+
+4.2.4.5 vuln-optix
+
+status: unknown/untested
+
+description:
+we need a virus scanning for optix or a optix client&server to verfiy the code
+
+link: vuln_optix
+
+
+4.2.4.6 vuln-sub7
+
+status: unknown/untested
+
+description:
+we need a virus scanning for sub7 or a sub7 client&server to verfiy the code
+
+link: vuln_sub7
+
+
+4.2.4.7 vuln-wins
+
+status: works
+port: 42
+default: assigns
+
+    * registers:
+          o shellcodehandler:
+                + sch_wins_hs (hatsquad wins exploit)
+                + sch_wins_zuc (zuc wins exploit)
+
+description:
+emulates the wins vulnerabiltiy
+
+link: vuln_wins
+
+
+4.2.4.7 vuln-lsass
+
+status: works
+port: 445
+default: assigns
+
+    * registers:
+          o shellcodehandler:
+                + sch_lsass_hod (house of dabus lsass explois)
+
+description:
+emulates the lsass vulnerabiltiy
+
+link: vuln_lsass
+
+
+4.2.4.8 vuln-asn1
+
+status: works partially
+port: 80 & 445
+default: assigns
+
+    * registers:
+          o shellcodehandler:
+                + sch_asn1_smb
+                + sch_asn1_iis
+
+description:
+weak asn1 emulation for smb & iis, there are no shellcodehandlers as ... the exploit i looked up was static
+
+link: vuln_asn1
+
+
+4.2.4.9 vuln-mssql
+
+status: works partially
+port: 1434 udp
+default: assigns
+
+    * registers:
+          o shellcodehandler:
+                + none
+
+description:
+for now i only saw sql slammer on this this module coming in :\
+
+link: vuln_mssql
+
+
+4.2.4.10 vuln-netdde
+
+status: untested, should work
+port: -
+default: assigns
+
+    * registers:
+          o shellcodehandler:
+                + sch_netdde_hod
+
+description:
+FIXME
+
+link: vuln_netdde
+
+
+4.2.4.11 vuln-netbiosname
+
+status: works partially
+port: tcp/139
+default: assigns
+
+description:
+replies netbiosnames on valid requests
+
+link: vuln_netbiosname
+
+
+4.2.4.12 vuln-upnp
+
+status: untested, should work
+port: tcp/5000
+default: assigns
+
+description:
+as we have the generic shellcode handlers, this dialogue should work
+
+link: vuln_upnp
+
+
+4.2.4.13 vuln-msmq
+
+status: untested, should work
+port: tcp/?
+default: assigns
+
+    * registers
+          o shellcodehandler
+                + sch_msmq_hod
+
+description:
+handles the MSMQ bug found in 2005
+
+link: vuln_msmq
+
+
+4.2.4.14 vuln-iis
+
+status: untested, should work
+port: tcp/80,443
+default: assigns
+
+    * registers
+          o shellcodehandler
+                + sch_iis_thc
+
+description:
+handles some different bugs in m$ iis5
+
+link: vuln_iis
+
+
+4.2.4.15 vuln-sasserftpd
+
+status: untested, should work
+port: tcp/5554,1023
+default: assigns
+
+    * registers
+          o shellcodehandler
+                + sch_sasserftpd_mandragore
+
+description:
+handles bug in sasserftp
+
+link: vuln_sasserftpd
+
+
+4.2.5 ShellEmulation modules
+
+
+4.2.5.1 shellemu-winnt
+
+status: works
+
+description:
+provides a windows nt shell supporting all commands one needs to download a file.
+
+
+4.2.6 eXample modules
+
+
+4.2.6.1 x-1
+
+status: works
+
+link: eXample 1
+
+
+4.2.6.2 x-2
+
+status: works
+
+link: eXample 2
+
+
+4.2.6.3 x-3
+
+status: works
+
+link: eXample 3
+
+
+4.2.6.4 x-4
+
+status: works
+
+link: eXample 4
+
+
+4.2.6.5 x-5
+
+status: works
+
+link: eXample 5
+
+
+4.2.6.6 x-6
+
+status: works
+
+link: eXample 6
+
+
+4.2.6.7 x-7
+
+status: work in progess
+
+link: eXample 7
+
+
+4.2.7 GeoLocationHandler
+
+
+4.2.7.1 geolocation-hostip
+
+status: works Uses http://www.hostip.info to resolve an ip address to a location. link: geolocation-hostip
+
+
+4.2.7.2 geolocation-geoip
+
+status: should work Uses http://www.maxmind.com GeoIP to an ip address to a location. link: geolocation-geoip
+
+
+4.2.8 DNSHandler
+
+
+4.2.8.1 dnsresolve-adns
+
+status: works Uses adns to resolve an domain to the ip(s).
+link: dnsresolve_adns
+
+
+5. Modules Interface
+
+Refer to the online doxygen documentation of the eXample modules on FIXME.
+
+
+6. Contribute to Nepenthes
+
+Post suggestions, bugs, patches, new modules to nepenthes.sf.net or mail them to nepenthesdev@gmail.com
+If you want to donate hardware, ipranges, whatever, mail us.
+
+
+7: Trouble Shooting
+
+
+7.1
+
+P: It does not work!
+S: find out why it does not work
+
+7.2
+
+P: the makefiles suck
+S: send us a patch using the auto(conf|make) foobar we are unable to use.
+
+7.3
+
+P: compiling fails
+S: google for it, if this does not help out, file a bugreport and mention your
+    - operating system version
+    - g++ version
+    - libcurl version
+    - libpcre version
+    - libmagic version
+   and paste the compilererror too.
+
+7.4
+
+P: nepenthes leaks memory
+S: first verify it _is_ a memoryleak
+   currently all files downloaded are kept in memory until they are downloaded and submittet.
+   then
+   run nepenthes with      
+   valgrind --num-callers=12 --tool=memcheck --leak-check=yes --leak-resolution=high --show-reachable=yes -v  --logfile=valg bin/nepenthes
+   and mail us the valgrind logfiles to nepenthesdev@gmail.com
+   or
+   fix the memleak and post the patch to http://sf.net/projects/nepenthes
+
+7.5
+
+P: i dont have any connection incoming!
+S: verify you are not firewalled.     
+
+8. FAQ
+8.0
+
+Q: Is this the official FAQ?
+A: Yes.
+
+8.1
+
+Q: Why choose Nepenthes as the name?
+A: read http://en.wikipedia.org/wiki/Nepenthes 
+
+8.2
+
+Q: What do you do with the samples committed to the nepenthes central server?
+A: We collect them.
+   All samples are committed to clamav.
+   Some samples get analysed.
+
+8.3
+
+Q: Can I get access to your malware database?
+A: In general No.
+   If you think you will be able to persuade us that you should have access as you are an AV product vendor, 
+   or do research in this field, mail us at nepenthesdev@users.sourceforge.net
+   Currently we _lack_ hardware and connection for a central server.
+
+8.4
+
+Q: I want to write my own modules, will you publish them?
+A: Depends. If the module adds new features 
+   - shellcodehandler
+   - downloadhandler
+   - submithandler
+   - vulnerability module
+   and you are willing to accept the gpl license, there is a really good chance that we will.
+   Of course, the feature also has to be useful.
+   Submitting files to /dev/null can't be considered a good feature.
+
+8.5
+
+Q: Why don't you write the whole documentation in english?
+A: Although we know our English is poor, we think it's more useful to write poor English 
+   than to write good Russian.
+   Send us patches fixing this issue.
+
+8.6
+
+Q: is autocommiting files to sandbox.norman.no not a bad idea?
+A: so far we have committed about 400 files and nobody has complained yet.
+   and we like getting the results via mail.
+
+8.7
+
+Q: how can i autocommit to clamav?
+A: clamav does not want to be the victim of autocommits
+   if you use the submit-nepenthes, our central server will commit the files for you.
+
+8.8
+
+Q: how can i see whether the file i submitted to your central server has got a clamav signature?
+A: wait some time and then scan the file using clamscan
+
+8.9
+
+Q: why should i run nepenthes?
+A: you improve security in various ways which we can discuss over a beer.
+
+8.10
+
+Q: there is nothing in the cvs repository on sourceforge.net
+A: we use svn as we don't like cvs 
+
+8.11
+
+Q: can i get access to the svn?
+A: so far no as the svn is 'hosted' on a dialup.
+
+8.12
+
+Q: i get 
+   Got signal 25
+   Exit 'cause of 25
+A: signal 25 is SIGFSZE, that means filesize exceeded, and mainly referrs to the logfiles 
+   located in log/, rm them, rotate them, just get rid of it, and it will work again, fixed in 0.1.1
+
+8.13
+
+Q: my avscanner complains about a virus in the nepenthes source package.
+   like:
+   clamscan nepenthes-0.1.1.tar.gz: Trojan.Downloader.FTP.Gen-4 FOUND
+A: actually this is not a false positive, but on the other hand it is a false positive ...
+   the tarball contains a file in doc/README.VFS containing wide used batchjobs viri use to download and execute themselves
+   on a remotehost once the gained a shell for documentation purposes.
+   so your virusscanner is cool if he recognizes the file as a virus, but this single file does not make nepenthes a virus.
+   as we dont want to sap av scanners we wont ask them to remove this signature.
+
+   in my opinion the signature is very good, using such av  signature on a snort_inline firewall can stopp attacks in the 
+   last state, after successfull exploitation, before infecting the host.
+
+8.14
+
+Q: whats the problem with g++ 4.0.1?
+A: it will compile, and maybe even start, but it will fail if you resolve dns async.
+   for some reason the destructor of list<unsigned long> segfaults the programm.
+   to me this is a g++ 4 bug.
+
+8.15
+
+Q: what about OS X, or _any_ other big endian architecture?
+A: we guess it will compile, but we never had a look on endianess in any shellcodehandler.
+   actually we can't say if it will work on big endian boxes, and as we do not own any big endian machine, we cant debug&fix it.
+   if you want to donate a osx box so we can support big endian, mail us for a delievery address.
+   
 

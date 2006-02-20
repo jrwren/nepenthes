@@ -107,7 +107,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 	switch (m_State)
 	{
 	case BAGLE_AUTH:
-		m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
+		m_Buffer->add((char *)msg->getMsg(),msg->getSize());
 		for (int32_t i=0;i<=1;i++)
 		{
 			if (m_Buffer->getSize() >= strlen(BagleAuths[i]))
@@ -131,13 +131,13 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 		break;
 	case BAGLE_REFERRER:
         {
-			if ( (msg->getMsgLen() > 4 && strncasecmp(msg->getMsg(),"http",4) == 0 ) ||
-			(msg->getMsgLen() > 3 && strncasecmp(msg->getMsg(),"ftp",3) == 0 ) )
+			if ( (msg->getSize() > 4 && strncasecmp(msg->getMsg(),"http",4) == 0 ) ||
+			(msg->getSize() > 3 && strncasecmp(msg->getMsg(),"ftp",3) == 0 ) )
 			{
 				// we simply hope the url does not get fragmented
-				char *url = (char *)malloc(msg->getMsgLen()+1);
-				memset(url,0,msg->getMsgLen()+1);
-				memcpy(url,msg->getMsg(),msg->getMsgLen());
+				char *url = (char *)malloc(msg->getSize()+1);
+				memset(url,0,msg->getSize()+1);
+				memcpy(url,msg->getMsg(),msg->getSize());
 
 				for (uint32_t i=0;i<=strlen(url);i++)
 				{
@@ -147,25 +147,25 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 					}
 				}
 				logInfo("Bagle URL %s \n",url);
-				g_Nepenthes->getDownloadMgr()->downloadUrl(url,msg->getRemoteHost(),url,0);
+				g_Nepenthes->getDownloadMgr()->downloadUrl(msg->getLocalHost(),url,msg->getRemoteHost(),url,0);
 				free(url);
 				return CL_DROP;
 				
 			}else
-			if ( msg->getMsgLen() >= 4 )
+			if ( msg->getSize() >= 4 )
 			{
 				m_FileSize = ntohs (*(uint32_t *)msg->getMsg());
 				logInfo("Unexpected but detected: Bagle Binary Stream (%i bytes)\n",m_FileSize);
 				m_State = BAGLE_BINARY;
-				m_Download = new Download("bagle://",m_Socket->getRemoteHost(),"bagle://foo/bar");
-				m_Download->getDownloadBuffer()->addData(msg->getMsg()+4,msg->getMsgLen()-4);
+				m_Download = new Download(m_Socket->getRemoteHost(),"bagle://",m_Socket->getRemoteHost(),"bagle://foo/bar");
+				m_Download->getDownloadBuffer()->addData(msg->getMsg()+4,msg->getSize()-4);
 			}
 		}
 		break;
 		
 	case BAGLE_BINARY:
 		// FIXME m_MaxFileSize
-		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
 		break;
 
 	}
@@ -230,7 +230,7 @@ ConsumeLevel BagleDialogue::connectionShutdown(Message *msg)
 {
 	if ( m_Download != NULL )
 	{
-		if ( m_Download->getDownloadBuffer()->getLength() == m_FileSize )
+		if ( m_Download->getDownloadBuffer()->getSize() == m_FileSize )
 		{
 			g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
 			// destructor will delete it

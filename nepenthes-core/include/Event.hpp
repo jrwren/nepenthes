@@ -30,73 +30,59 @@
 #ifndef HAVE_EVENT_HPP
 #define HAVE_EVENT_HPP
 
+#include <stdint.h>
+
 namespace nepenthes
 {
 
 	class Socket;
 
-	typedef enum
-	{
-// generic events		
-		EV_TIMEOUT=0,
+#define EV_TIMEOUT 				0
 
-//	tcp	events
-		EV_SOCK_TCP_BIND,
-		EV_SOCK_TCP_ACCEPT,
-		EV_SOCK_TCP_CONNECT,
-		EV_SOCK_TCP_CLOSE,
+#define EV_SOCK_TCP_BIND 		1
+#define EV_SOCK_TCP_ACCEPT 		2
+#define EV_SOCK_TCP_CONNECT 	3
+#define EV_SOCK_TCP_CLOSE 		4
+#define EV_SOCK_TCP_RX 			5
+#define EV_SOCK_TCP_TX 			6
 
-		EV_SOCK_TCP_RX,
-		EV_SOCK_TCP_TX,
+#define EV_SOCK_UDP_BIND 		7
+#define EV_SOCK_UDP_ACCEPT 		8
+#define EV_SOCK_UDP_CONNECT 	9
+#define EV_SOCK_UDP_CLOSE 		10
 
-//	udp	events
-		EV_SOCK_UDP_BIND,
-		EV_SOCK_UDP_ACCEPT,
-		EV_SOCK_UDP_CONNECT,
-		EV_SOCK_UDP_CLOSE,
+#define EV_SOCK_UDS_BIND 		11
+#define EV_SOCK_UDS_ACCEPT 		12
+#define EV_SOCK_UDS_CONNECT 	13
+#define EV_SOCK_UDS_CLOSE 		14
 
+#define EV_SOCK_RAW_BIND 		15
+#define EV_SOCK_RAW_ACCEPT 		16
+#define EV_SOCK_RAW_CONNECT 	17
+#define EV_SOCK_RAW_CLOSE 		18
 
-//	unix domain socket events
-		EV_SOCK_UDS_BIND,
-		EV_SOCK_UDS_ACCEPT,
-		EV_SOCK_UDS_CONNECT,
-		EV_SOCK_UDS_CLOSE,
+#define EV_DOWNLOAD 			19
 
-// 	raw socket events
-		EV_SOCK_RAW_BIND,
-		EV_SOCK_RAW_ACCEPT,
-		EV_SOCK_RAW_CONNECT,
-		EV_SOCK_RAW_CLOSE,
+#define EV_SUBMISSION 			20
+#define EV_SUBMISSION_UNIQ 		21
+#define EV_SUBMISSION_HIT 		22
 
-// 	download events
-		EV_DOWNLOAD,
+#define EV_DIALOGUE_ASSIGN_AND_DONE 23
 
-
-// 	submission events
-		EV_SUBMISSION,
-		EV_SUBMISSION_UNIQ,
-		EV_SUBMISSION_HIT,
-
-
-
-
-		EV_NULL
-	} event_type;
-
-	
+#define EV_SHELLCODE_DONE		24
 
 	class Event
     {
     public:
         virtual ~Event(){};
-		virtual event_type getType()
+		virtual uint32_t getType()
 		{
 			return m_EventType;
 		};
 
 
     protected:
-		event_type 	m_EventType;
+		uint32_t 	m_EventType;
     };
 }
 

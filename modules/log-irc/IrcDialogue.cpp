@@ -163,7 +163,7 @@ ConsumeLevel IrcDialogue::incomingData(Message *msg)
 		break;
 	case IRCDIA_CONNECTED:
 		{
-			m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+			m_Buffer->add(msg->getMsg(),msg->getSize());
 			processBuffer();
 		}
 		break;
@@ -250,7 +250,7 @@ void IrcDialogue::processLine(string *line)
 		m_Socket->doRespond((char *)reply.c_str(),reply.size());
 
 	}else
-	if (words[1] == "376" )
+	if ( words[1] == "376" || words[1] == "422" )
 	{
 		string reply = "JOIN ";
 		reply += m_LogIrc->getIrcChannel();

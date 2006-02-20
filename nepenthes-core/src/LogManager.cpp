@@ -86,7 +86,7 @@ void LogManager::registerTag(uint32_t bit, const char *tag)
 /**
  * add a new logger with a specified filter.
  * 
- * @param tl         the logger.
+ * @param lh         the LogHandler
  * @param filterMask filter mask, the logger will only receive messages with at least one of these tags.
  */
 void LogManager::addLogger(LogHandler *lh, uint32_t filterMask)

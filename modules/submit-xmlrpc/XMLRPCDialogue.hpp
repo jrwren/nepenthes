@@ -69,40 +69,6 @@ namespace nepenthes
 
 	};
 
-
-	class Buffer;
-	class XMLRPCContext;
-
-	typedef enum
-	{
-		XMLRPC_HEADER,
-		XMLRPC_CONTENT
-	} xmlrpc_state;
-
-	class XMLRPCDialogue : public Dialogue
-	{
-	public:
-		XMLRPCDialogue(Socket *socket, XMLRPCContext *ctx, bool pipeline);
-		~XMLRPCDialogue();
-		ConsumeLevel incomingData(Message *msg);
-		ConsumeLevel outgoingData(Message *msg);
-		ConsumeLevel handleTimeout(Message *msg);
-		ConsumeLevel connectionLost(Message *msg);
-		ConsumeLevel connectionShutdown(Message *msg);
-
-	protected:
-		Buffer *m_Buffer;
-
-		XMLRPCContext 	*m_XMLRPCContext;
-
-
-		xmlrpc_state m_State;
-
-		HTTPHeader *m_HTTPHeader;
-
-		bool m_HTTPPipeline;
-	};
-
 }
 
 

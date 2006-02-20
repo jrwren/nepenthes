@@ -313,6 +313,7 @@ Node *buildXMLTree(Token **list)
 				n->m_type = n_subnode;
 				n->m_subNode = buildXMLTree(list);
 
+				assert(*list); // premature end of data?
 				assert(matchTag(n->m_key, (*list)->m_token));
 
 				*list = (*list)->m_next;
@@ -421,6 +422,7 @@ const char *getXMLValue(const char *key, Node *tree)
 	static const char	*noval = "(not a value)";
 	char				*path = strdup(key);
 	const char			*k;
+	char				*oldPath = path;
 
 	while( path )
 	{
@@ -429,16 +431,27 @@ const char *getXMLValue(const char *key, Node *tree)
 		if( path )
 		{
 			if( !findKey(k, tree) )
+			{
+				free(oldPath);
 				return notfound;
+			}
+
 
 			tree = findKey(k, tree)->m_subNode;
 		}
 		else if( tree->m_type != n_value )
+		{
+			free(oldPath);
 			return noval;
+		}
 		else
+		{
+			free(oldPath);
 			return tree->m_value;
+		}
 	}
 
+	free(oldPath);
 	return notfound;
 }
 

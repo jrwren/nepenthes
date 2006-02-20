@@ -116,15 +116,22 @@ bool GenericConnectTrans::Init()
 
 bool GenericConnectTrans::Exit()
 {
+	logPF();
+	while(m_Pcres.size() > 0)
+	{
+		pcre_free(m_Pcres.front()->m_Pcre);
+		delete m_Pcres.front();
+		m_Pcres.pop_front();
+	}
 	return true;
 }
 
 sch_result GenericConnectTrans::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t output[10 * 3];
 
@@ -171,7 +178,7 @@ sch_result GenericConnectTrans::handleShellcode(Message **msg)
 
 			char *url;
 			asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, (*it)->m_Offset);
-			g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url,0);
+			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
 			free(url);
 
 			return SCH_DONE;

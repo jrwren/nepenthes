@@ -30,7 +30,7 @@
 #ifdef WIN32
 
 #else
-#include <adns.h>
+
 #endif
 
 #include "Manager.hpp"
@@ -38,30 +38,47 @@
 
 namespace nepenthes
 {
+	class DNSCallback;
 	class DNSHandler;
 
+	/**
+	 * if you want to resolve a domains A record or TXT record, ask the DNSManager
+	 */
 	class DNSManager : public Manager
 	{
 	public:
 		DNSManager(Nepenthes *nepenthes);
 		virtual ~DNSManager();
 
-		virtual bool addDNS(DNSHandler *callback,char *dns, void *obj);
-		void pollDNS();
-		void callBack();
-		uint32_t getSize();
+		/**
+		 * resolve a domains A record
+		 * 
+		 * @param callback the DNSCallback who needs the result
+		 * @param dns      the dns to resolve
+		 * @param obj      a context object you might need
+		 * 
+		 * @return 
+		 */
+		virtual bool addDNS(DNSCallback *callback,char *dns, void *obj);
+		/**
+		 * resolve a domains TXT record
+		 * 
+		 * @param callback the DNSCallback who needs the result
+		 * @param dns      the dns to resolve
+		 * @param obj      a context object you might need
+		 * 
+		 * @return 
+		 */
+		virtual bool addTXT(DNSCallback *callback,char *dns, void *obj);
 
 		void doList();
 		bool Init();
 		bool Exit();
 
+		virtual bool registerDNSHandler(DNSHandler *handler);
+		virtual bool unregisterDNSHandler(DNSHandler *handler);
 	protected:
-		uint32_t m_Queue;
-#ifdef WIN32
-
-#else
-		adns_state m_aDNSState;
-#endif
+		DNSHandler *m_DNSHandler;
 	};
 
 };

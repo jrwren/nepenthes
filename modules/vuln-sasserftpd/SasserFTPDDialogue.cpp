@@ -100,7 +100,7 @@ SasserFTPDDialogue::~SasserFTPDDialogue()
 ConsumeLevel SasserFTPDDialogue::incomingData(Message *msg)
 {
 
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 	switch (m_State)
 	{

@@ -80,6 +80,15 @@ namespace nepenthes
 	class Nepenthes;
 
 
+	/**
+	 * the Socket
+	 * 
+	 * if you want to connect, use a Socket.
+	 * 
+	 * this class can be derived to handle everything.
+	 * there are TCPSocket UDPSocket RAWSocket FILESocket
+	 * Sockets for everything.
+	 */
     class Socket : public Responder 
     {
     public:
@@ -129,10 +138,10 @@ namespace nepenthes
 
         virtual int32_t   getType();
 
-        virtual int32_t   getLocalPort();
-        virtual int32_t   getRemotePort();
-        virtual void  setLocalPort(int32_t i);
-        virtual void  setRemotePort(int32_t i);
+        virtual uint16_t   getLocalPort();
+        virtual uint16_t   getRemotePort();
+        virtual void  setLocalPort(uint16_t i);
+        virtual void  setRemotePort(uint16_t i);
 
 
         virtual void          setRemoteHost(uint32_t i);
@@ -167,11 +176,11 @@ namespace nepenthes
         socket_state 	m_Status;
 
         uint32_t    m_RemoteHost;
-        uint32_t    m_RemotePort;
+        uint16_t    m_RemotePort;
         string          m_RemoteHostString;
 
         uint32_t    m_LocalHost;
-        uint32_t    m_LocalPort;
+        uint16_t    m_LocalPort;
         string          m_LocalHostString;
 
         time_t 		m_TimeoutIntervall;        // intervall between time(NULL) and m_tLastSocketAction

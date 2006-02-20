@@ -204,7 +204,7 @@ X2Dialogue::~X2Dialogue()
 ConsumeLevel X2Dialogue::incomingData(Message *msg)
 {
 /*
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 			m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
@@ -217,9 +217,9 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 
 	return CL_ASSIGN;
 */
-	char *message = (char *)malloc(msg->getMsgLen()+1);
-	memset(message,0,msg->getMsgLen()+1);
-    memcpy(message,msg->getMsg(),msg->getMsgLen());
+	char *message = (char *)malloc(msg->getSize()+1);
+	memset(message,0,msg->getSize()+1);
+    memcpy(message,msg->getMsg(),msg->getSize());
 
 	for(uint32_t i=0;i < strlen(message);i++)
 	{
@@ -251,7 +251,7 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 #endif
 		logCrit("Downloading file from \"%s\"\n", url);
 
-        msg->getSocket()->getNepenthes()->getDownloadMgr()->downloadUrl(url, msg->getRemoteHost(), msg->getMsg(),downloadflags);
+        msg->getSocket()->getNepenthes()->getDownloadMgr()->downloadUrl(msg->getLocalHost(),url, msg->getRemoteHost(), msg->getMsg(),downloadflags);
 
 		string sDeineMutter("trying to download file\n");
 		msg->getResponder()->doRespond((char *)sDeineMutter.c_str(),sDeineMutter.size());

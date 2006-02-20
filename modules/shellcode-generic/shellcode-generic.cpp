@@ -54,6 +54,8 @@
 #include "sch_generic_konstanz_xor.hpp"
 #include "sch_generic_connect_trans.hpp"
 
+#include "sch_generic_unicode.hpp"
+
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -92,6 +94,7 @@ GenericShellcodeHandler::GenericShellcodeHandler(Nepenthes *nepenthes)
 	m_ShellcodeHandlers.push_back(new KonstanzXOR(m_Nepenthes->getShellcodeMgr()));
 	m_ShellcodeHandlers.push_back(new GenericConnectTrans(m_Nepenthes->getShellcodeMgr()));
 
+	m_ShellcodeHandlers.push_back(new GenericUniCode(m_Nepenthes->getShellcodeMgr()));
 	g_Nepenthes = nepenthes;
 	g_GenericShellcodeHandler = this;
 }

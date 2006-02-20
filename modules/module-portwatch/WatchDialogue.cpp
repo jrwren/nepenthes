@@ -92,7 +92,7 @@ WatchDialogue::~WatchDialogue()
  */
 ConsumeLevel WatchDialogue::incomingData(Message *msg)
 {
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 	return CL_ASSIGN;
 }
 

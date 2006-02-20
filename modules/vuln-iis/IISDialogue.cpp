@@ -107,8 +107,8 @@ IISDialogue::~IISDialogue()
  */
 ConsumeLevel IISDialogue::incomingData(Message *msg)
 {
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
-//	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
+//	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
 	ConsumeLevel cl = CL_ASSIGN;
 
@@ -121,7 +121,7 @@ ConsumeLevel IISDialogue::incomingData(Message *msg)
 			m_State = IIS_SSL;
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 						msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
-//			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getMsgLen());
+//			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
 			if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg)  == SCH_DONE )
 			{
@@ -136,7 +136,7 @@ ConsumeLevel IISDialogue::incomingData(Message *msg)
 		{
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
-//			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getMsgLen());
+//			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
     		if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg)  == SCH_DONE )
 			{

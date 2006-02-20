@@ -47,6 +47,9 @@ namespace nepenthes
 	class Nepenthes;
 
 
+	/**
+	 * quite everything in nepenthes is a module, are you?
+	 */
     class Module 
     {
     public:

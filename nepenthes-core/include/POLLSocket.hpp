@@ -41,7 +41,7 @@ namespace nepenthes
 	class POLLSocket : public Socket
 	{
 public:
-	POLLSocket(Nepenthes *nepenthes);
+	POLLSocket();
 
 	virtual ~POLLSocket() {};
 		bool bindPort();

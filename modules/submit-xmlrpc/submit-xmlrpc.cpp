@@ -31,6 +31,7 @@
 #include "submit-xmlrpc.hpp"
 #include "XMLRPCDialogue.hpp"
 #include "XMLRPCContext.hpp"
+#include "XMLRPCParser.hpp"
 
 #include "Download.hpp"
 #include "DownloadUrl.hpp"
@@ -47,9 +48,14 @@
 
 #include "DNSManager.hpp"
 
-#include "DNSHandler.cpp"
+#include "DNSCallback.cpp"
 #include "EventHandler.cpp"
 
+#include "GeoLocationManager.hpp"
+#include "GeoLocationResult.hpp"
+
+#include "UploadManager.hpp"
+#include "UploadResult.hpp"
 
 using namespace nepenthes;
 
@@ -84,15 +90,8 @@ SubmitXMLRPC::SubmitXMLRPC(Nepenthes *nepenthes)
 	m_SubmitterName = "submit-xmlrpc";
 	m_SubmitterDescription = "submit files to xmlrpc";
 
-	m_EventHandlerName = "submit-xmlrpc";
-	m_EventHandlerDescription = "timeout handler for submit-xmlrpc";
-
-
 	g_Nepenthes = nepenthes;
 	g_SubmitXMLRPC = this;
-
-	m_Timeout = time(NULL);
-	m_HTTPPipeline = false;
 
 }
 
@@ -124,14 +123,7 @@ bool SubmitXMLRPC::Init()
 
 	try
 	{
-//		m_HTTPPipeline = m_Config->getValString("submit-xmlrpc.pipeline")!=0;
-		string url = m_Config->getValString("submit-xmlrpc.server");
-
-		DownloadUrl durl((char *)url.c_str());
-
-		m_XMLRPCServerAddress 	= durl.getHost();
-		m_XMLRPCServerPath    	= durl.getPath();
-		m_XMLRPCServerPort 		= durl.getPort();
+		m_XMLRPCServer = m_Config->getValString("submit-xmlrpc.server");
     } catch ( ... )
 	{
 		logCrit("%s","Error setting needed vars, check your config\n");
@@ -144,7 +136,7 @@ bool SubmitXMLRPC::Init()
 	REG_SUBMIT_HANDLER(this);
 //	REG_EVENT_HANDLER(this);
 
-	m_Events.set(EV_TIMEOUT);
+//	m_Events.set(EV_TIMEOUT);
 	return true;
 }
 
@@ -178,11 +170,15 @@ void SubmitXMLRPC::Submit(Download *down)
 	ctx = new XMLRPCContext(down->getMD5Sum(), 
 							down->getUrl(), 
 							(unsigned char *)down->getDownloadBuffer()->getData(), 
-							down->getDownloadBuffer()->getLength(), 
-							down->getAddress(), 
+							down->getDownloadBuffer()->getSize(), 
+							down->getRemoteHost(), 
 							CS_INIT_SESSION);
-
-	g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_XMLRPCServerAddress.c_str(),ctx);
+#ifdef HAVE_GEOLOCATION
+	g_Nepenthes->getGeoMgr()->addGeoLocation(this,down->getLocalHost(),ctx);
+#else
+	string request = ctx->getRequest();
+	g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
+#endif	
 }
 
 
@@ -202,53 +198,95 @@ void SubmitXMLRPC::Hit(Download *down)
 }
 
 
-bool SubmitXMLRPC::dnsResolved(DNSResult *result)
+#ifdef HAVE_GEOLOCATION
+void SubmitXMLRPC::locationSuccess(GeoLocationResult *result)
 {
-	logDebug("url %s resolved %i for %x\n",result->getDNS().c_str(), result->getIP4List().size(), (uint32_t) result->getObject());
-
-	list <uint32_t> resolved = result->getIP4List();
-	uint32_t host = resolved.front();
 	XMLRPCContext *ctx = (XMLRPCContext *)result->getObject();
-
-	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,m_XMLRPCServerPort,30);
-	socket->addDialogue(new XMLRPCDialogue(socket,ctx, m_HTTPPipeline));
-	return true;
+	ctx->setLocation(result);
+	string request = ctx->getRequest();
+	g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
 }
 
-bool SubmitXMLRPC::dnsFailure(DNSResult *result)
+
+void SubmitXMLRPC::locationFailure(GeoLocationResult *result)
 {
-	// FIXME HARD
-	return true;
+	XMLRPCContext *ctx = (XMLRPCContext *)result->getObject();
+	ctx->setLocation(NULL);
+	string request = ctx->getRequest();
+	g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
 }
+#endif
 
 
-
-
-uint32_t SubmitXMLRPC::handleEvent(Event *event)
+void SubmitXMLRPC::uploadSuccess(UploadResult *up)
 {
 	logPF();
-	if ( event->getType() != EV_TIMEOUT )
+
+	XMLRPCContext *ctx  = (XMLRPCContext *)up->getObject();
+
+	switch ( ctx->getState() )
 	{
-		logCrit("Unwanted event %i\n",event->getType());
-		return 1;
+	case CS_INIT_SESSION:
+		logSpam("CS_INIT_SESSION (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		break;
+
+	case CS_OFFER_MALWARE:
+		logSpam("CS_OFFER_MALWARE (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		break;
+
+	case CS_SEND_MALWARE:
+		logSpam("CS_SEND_MALWARE (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		break;
 	}
 
 
-//  dasmit wir nicht dauernd was downloaden mussen, einfach jeden 10ten timeout nen event fahren
-	if ( rand()%100 > 20 )
-		Submit(NULL);
-	m_Timeout =time(NULL)+1;
-	return true;
+
+	string s(up->getData(),up->getSize());
+    XMLRPCParser p((char *)s.c_str());
+
+	string request;
+
+	const char *value;
+	switch ( ctx->getState() )
+	{
+	case CS_INIT_SESSION:
+//		logSpam("CS_INIT_SESSION (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		value = p.getValue("methodResponse.params.param.value.array.data.value.string");
+		ctx->setSessionID((char *)value);
+		ctx->setState(CS_OFFER_MALWARE);
+		request = ctx->getRequest();
+		g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
+		break;
+
+	case CS_OFFER_MALWARE:
+//		logSpam("CS_OFFER_MALWARE (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		
+		value = p.getValue("methodResponse.params.param.value.boolean");
+		if ( memcmp(value,"1",1) != 0 )
+		{
+			logInfo("Central server already knows file %s\n",value);
+			delete ctx;
+			return;
+		}
+		ctx->setState(CS_SEND_MALWARE);
+		request = ctx->getRequest();
+		g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
+		break;
+
+	case CS_SEND_MALWARE:
+//		logSpam("CS_SEND_MALWARE (%i bytes)\n%.*s\n",up->getSize(),up->getSize(),up->getData());
+		value = p.getValue("methodResponse.params.param.value.string");
+		logDebug("Submit-XMLRPC was %s\n",value);
+		delete ctx;
+		break;
+	}
 }
 
-string SubmitXMLRPC::getXMLRPCHost()
+void SubmitXMLRPC::uploadFailure(UploadResult *up)
 {
-	return m_XMLRPCServerAddress;
-}
-
-string SubmitXMLRPC::getXMLRPCPath()
-{
-	return m_XMLRPCServerPath;
+	logCrit("UPLOAD FAILED %x\n",(uint32_t )up);
+	XMLRPCContext *ctx  = (XMLRPCContext *)up->getObject();
+	delete ctx;
 }
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)

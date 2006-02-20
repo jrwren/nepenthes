@@ -47,17 +47,28 @@ using namespace std;
 #endif
 #define STDTAGS l_mod | l_mgr
 
+/**
+ * ModuleManager constructor
+ * 
+ * @param nepenthes the Nepenthes
+ */
 ModuleManager::ModuleManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
 }
 
+/**
+ * ModuleManager destructor
+ */
 ModuleManager::~ModuleManager()
 {
 	logPF();
 	Exit();
 }
 
+/**
+ * list all registerd modules
+ */
 void ModuleManager::doList()
 {
 	list <Module *>::iterator module;
@@ -130,6 +141,7 @@ bool ModuleManager::Init()
 				{
 					logCrit("ERROR LOADING MODULE %s: SHUTTING DOWN\n",sModulePath.c_str());
 					m_Nepenthes->stop();
+					return false;
 				}
 			}            
 		} catch ( ... )
@@ -147,6 +159,11 @@ bool ModuleManager::Init()
 	return true;
 }
 
+/**
+ * unload all modules
+ * 
+ * @return 
+ */
 bool ModuleManager::Exit()
 {
 /*	list<Module *>::iterator it;
@@ -285,7 +302,7 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
 
 	if ( newmodule->Init() == false )
 	{
-		logCrit("Loading Module %s failed, Module->Init() returned false\n", configpath->c_str());
+		logCrit("Loading Module %s failed, Module->Init() returned false\n", modulepath->c_str());
 		delete newmodule;
 #ifdef WIN32
 		
@@ -303,7 +320,7 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
 /**
  * deletes a module by module name
  * 
- * @param modulename the mdoules name
+ * @param modulename the modules name
  * 
  * @return returns true if the module was found and could be removed, else false
  */

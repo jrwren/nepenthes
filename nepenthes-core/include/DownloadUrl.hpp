@@ -38,6 +38,23 @@ using namespace std;
 
 namespace nepenthes
 {
+
+
+	/**
+	 * protocoll/port mapping for various protocols
+	 */
+	typedef struct portTable
+	{
+		const char      *protocolName;
+		uint16_t         port;
+	};
+
+
+	/**
+	 * the download url
+	 * splits up a url in its parts
+	 * you can query each part
+	 */
 	class DownloadUrl
 	{
 	public:

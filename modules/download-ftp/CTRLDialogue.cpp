@@ -77,11 +77,8 @@ CTRLDialogue::CTRLDialogue(Socket *socket, Download *down)
 
 	m_ConsumeLevel = CL_ASSIGN;
 
-
+	m_State = FTP_CONNECTED;
 	m_Download = down;
-
-	sendUser();
-	m_State = FTP_USER;
 
 	m_Buffer = new Buffer(128);
 }
@@ -112,14 +109,14 @@ CTRLDialogue::~CTRLDialogue()
  */
 ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 {
-//	logDebug("RX:\n%.*s\n",msg->getMsgLen(),msg->getMsg());
+//	logDebug("RX:\n%.*s\n",msg->getSize(),msg->getMsg());
 	if (m_Download == NULL && m_State < FTP_RETR)
 	{
 		logWarn("%s","broken ftp daemon \n");
 		return CL_DROP;
 	}
 
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 	uint32_t iStart=0;
 	uint32_t iStopp=0;
@@ -137,6 +134,13 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 
 			switch (m_State)
 			{
+			case FTP_CONNECTED:
+				if (strncmp((char *)m_Buffer->getData() + iStart,"220 ",4) == 0)
+				{
+					sendUser();
+					m_State = FTP_USER;
+				};
+
 			case FTP_USER:
 				if (parseUser((char *)m_Buffer->getData() + iStart) == true)
 				{
@@ -246,8 +250,16 @@ ConsumeLevel CTRLDialogue::outgoingData(Message *msg)
  */
 ConsumeLevel CTRLDialogue::handleTimeout(Message *msg)
 {
-	sendQuit();
-	return CL_ASSIGN;
+	if (m_State == FTP_RETR)
+	{
+    	sendQuit();
+		m_State = FTP_QUIT;
+		return CL_ASSIGN;
+	}else
+	{
+		return CL_DROP;
+	}
+	
 }
 
 /**

@@ -49,6 +49,10 @@ namespace nepenthes
 	class SubmitHandler;
 
 
+	/**
+	 * When Downloads are done, the DownloadHandler will get them to the SubmitManager.
+	 * the SubmitManager simply gets the download to all his SubmitHandlers.
+	 */
     class SubmitManager : public Manager
     {
     public: 

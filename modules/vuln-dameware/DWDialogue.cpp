@@ -105,7 +105,7 @@ DWDialogue::~DWDialogue()
  */
 ConsumeLevel DWDialogue::incomingData(Message *msg)
 {
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 //	g_Nepenthes->getUtilities()->hexdump(l_info,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 	switch ( m_State )
 	{

@@ -37,12 +37,25 @@ namespace nepenthes
 {
 	class Download;
 
+	/**
+	 * if you register to the DownloadManager 
+	 * and provide capabilities to download a specific protocoll, 
+	 * you are a DownloadHandler
+	 */
     class DownloadHandler
     {
     public:
         virtual ~DownloadHandler(){};
         virtual bool Init()=0;
         virtual bool Exit()=0;
+		/**
+		 * the DownloadManager will call this to ask you to download something
+		 * the information where to download is stored in the DownloadUrl in Download
+		 * 
+		 * @param down   the Download information
+		 * 
+		 * @return 
+		 */
         virtual bool download(Download *down)=0;
 
 

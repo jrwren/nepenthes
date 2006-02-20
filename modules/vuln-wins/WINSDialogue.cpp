@@ -70,7 +70,7 @@ WINSDialogue::~WINSDialogue()
 ConsumeLevel WINSDialogue::incomingData(Message *msg)
 {
 	logPF();
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 
 	switch (m_State)

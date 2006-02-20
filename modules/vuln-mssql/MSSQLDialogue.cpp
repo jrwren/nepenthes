@@ -84,10 +84,10 @@ MSSQLDialogue::~MSSQLDialogue()
  */
 ConsumeLevel MSSQLDialogue::incomingData(Message *msg)
 {
-//	logWarn(" UDP MSG '%.*s'\n",msg->getMsgLen(), msg->getMsg());
+//	logWarn(" UDP MSG '%.*s'\n",msg->getSize(), msg->getMsg());
 	uint32_t ip=msg->getRemoteHost();
 
-	if (msg->getMsgLen() >= sizeof(thc_badbuffer)-1 &&
+	if (msg->getSize() >= sizeof(thc_badbuffer)-1 &&
 		memcmp(msg->getMsg(),thc_badbuffer,sizeof(thc_badbuffer)-1) == 0
 		)
 	{
@@ -108,14 +108,14 @@ ConsumeLevel MSSQLDialogue::incomingData(Message *msg)
 
 		socket->addDialogueFactory(diaf);
 	}else
-	if ( msg->getMsgLen() >= sizeof(sql_slammer)-1 && memcmp(msg->getMsg(),sql_slammer,sizeof(sql_slammer)-1) == 0 )
+	if ( msg->getSize() >= sizeof(sql_slammer)-1 && memcmp(msg->getMsg(),sql_slammer,sizeof(sql_slammer)-1) == 0 )
 	{
 		
 		logInfo("%s:%i asked us to join his SQLSlammer Party \n",inet_ntoa(*(in_addr *)&ip),msg->getRemotePort());
 	}
 	else
 	{	// hexdump it
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte*)msg->getMsg(),msg->getMsgLen());
+		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte*)msg->getMsg(),msg->getSize());
 
 	}
 

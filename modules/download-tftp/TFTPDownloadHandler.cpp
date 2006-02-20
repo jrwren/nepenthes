@@ -120,7 +120,7 @@ bool TFTPDownloadHandler::download(Download *down)
 	int32_t Port = down->getDownloadUrl()->getPort();
 	uint32_t Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
-	Socket *socket = m_Nepenthes->getSocketMgr()->connectUDPHost(INADDR_ANY,Host,Port,7);
+	Socket *socket = m_Nepenthes->getSocketMgr()->connectUDPHost(down->getLocalHost(),Host,Port,7);
 
 	Dialogue *dia = createDialogue(socket);
     ((TFTPDialogue*)dia)->setDownload(down);

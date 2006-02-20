@@ -32,6 +32,8 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 #include "Message.hpp"
+#include "SocketEvent.hpp"
+#include "EventManager.hpp"
 
 using namespace nepenthes;
 
@@ -41,26 +43,47 @@ using namespace nepenthes;
 #define STDTAGS l_sc | l_mgr
 
 
+/**
+ * ShellcodeManager constructor
+ * 
+ * @param nepenthes
+ */
 ShellcodeManager::ShellcodeManager(Nepenthes *nepenthes)
 {
 	m_Nepenthes = nepenthes;
 }  
 
+/**
+ * ShellcodeManager destructor
+ */
 ShellcodeManager::~ShellcodeManager()
 {
 
 }  
 
+/**
+ * does nothing
+ * 
+ * @return true
+ */
 bool  ShellcodeManager::Init()
 {
 	return true;
 }
 
+/**
+ * does nothing
+ * 
+ * @return true
+ */
 bool  ShellcodeManager::Exit()
 {
 	return true;
 }
 
+/**
+ * lists registerd ShellcodeHandler 's
+ */
 void ShellcodeManager::doList()
 {
 	list <ShellcodeHandler *>::iterator shandler;
@@ -103,10 +126,18 @@ bool ShellcodeManager::unregisterShellcodeHandler(ShellcodeHandler *handler)
 }  
 
 
+/**
+ * check a file for known shellcodes
+ * 
+ * @param nmsg   the file as Message
+ * 
+ * @return true on success,
+ *         else false
+ */
 sch_result ShellcodeManager::fileCheck(Message **nmsg)
 {
 	list <ShellcodeHandler *>::iterator shandler;
-	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++)
+	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();)
 	{
 		sch_result res = (*shandler)->handleShellcode(nmsg);
 
@@ -117,6 +148,7 @@ sch_result ShellcodeManager::fileCheck(Message **nmsg)
 			return SCH_DONE;
 
 		case SCH_NOTHING:
+			shandler++;
 			break;
 
 		case SCH_REPROCESS:
@@ -139,11 +171,11 @@ sch_result ShellcodeManager::fileCheck(Message **nmsg)
 /**
  * gives the shellcode to the registerd shellcodehandlers
  * 
- * @param shellcode the shellcode we want to check
- * @param len       the shellcodes len
+ * @param msg the shellcode we want to check as Message
  * 
- * @return returns 0 if there was a shellcodehandler who could use the shellcode
- *         else -1
+ * @return returns SCH_DONE on success, else SCH_NOTHING
+ * 
+ * 
  */
 sch_result ShellcodeManager::handleShellcode(Message **msg)
 {
@@ -159,8 +191,9 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 	nmsg = msg;
 	nnmsg = *nmsg;
 
-	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++)
+	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();)
 	{
+
 /*		if (notme.size() > 0)
 		{
 			bool skip = false;
@@ -184,9 +217,14 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 		switch(res)
 		{
 		case SCH_DONE:
+			{
+				ShellcodeEvent se((*nmsg)->getSocket(), (*shandler), EV_SHELLCODE_DONE);
+				g_Nepenthes->getEventMgr()->handleEvent(&se);
+			}
 			return SCH_DONE;
 
 		case SCH_NOTHING:
+			shandler++;
 			break;
 
 		case SCH_REPROCESS:

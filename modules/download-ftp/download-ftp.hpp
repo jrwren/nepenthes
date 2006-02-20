@@ -39,7 +39,7 @@
 #include "Socket.hpp"
 
 #include "DownloadHandler.hpp"
-#include "DNSHandler.hpp"
+#include "DNSCallback.hpp"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ namespace nepenthes
 
 	class FTPContext;
 
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSHandler
+	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
 	{
 	public:
 		FTPDownloadHandler(Nepenthes *);

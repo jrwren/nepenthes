@@ -64,7 +64,7 @@ using namespace nepenthes;
 #define STDTAGS l_net | l_hlr
 
 
-UDPSocket::UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout)
+UDPSocket::UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, uint16_t remoteport, time_t connectiontimeout)
 {
 	m_Nepenthes = nepenthes;
 	setLocalPort(0);
@@ -95,7 +95,7 @@ UDPSocket::UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehos
  * @param accepttimeout
  *                  the timeout intervall for all sockets getting acepted by this bind socket
  */
-UDPSocket::UDPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout)
+UDPSocket::UDPSocket(Nepenthes *nepenthes, uint32_t localhost, uint16_t port, time_t bindtimeout, time_t accepttimeout)
 {
 	setLocalHost(localhost);
 	setLocalPort(port);
@@ -268,7 +268,7 @@ int32_t UDPSocket::doSend()
 
 
 		char *pszData = (char *)(*m_TxPackets.begin())->getData();
-		size_t len = (*m_TxPackets.begin())->getLength();
+		size_t len = (*m_TxPackets.begin())->getSize();
 //		logSpam("Sending %d %d bytes '%4x'\n",m_TxPackets.size(),len,(uint32_t)pszData);
 		if ( sendto(m_Socket,pszData,len,0, (struct sockaddr *)  &addrRemote, sizeof(addrRemote)) == -1 )
 		{

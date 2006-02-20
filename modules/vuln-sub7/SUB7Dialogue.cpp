@@ -112,7 +112,7 @@ ConsumeLevel SUB7Dialogue::incomingData(Message *msg)
 	switch(m_State)
 	{
 	case SUB7_PWD:
-		m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+		m_Buffer->add(msg->getMsg(),msg->getSize());
 		if (strncmp("PWD",(char *)m_Buffer->getData(),3) == 0)
 		{
 			m_State = SUB7_TID;
@@ -121,7 +121,7 @@ ConsumeLevel SUB7Dialogue::incomingData(Message *msg)
 		}
 		break;
 	case SUB7_TID:
-		m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+		m_Buffer->add(msg->getMsg(),msg->getSize());
 		if (strncmp("TID",(char *)m_Buffer->getData(),3) == 0)
 		{
 			m_State = SUB7_FILEINFO;
@@ -132,7 +132,7 @@ ConsumeLevel SUB7Dialogue::incomingData(Message *msg)
 
 	case SUB7_FILEINFO:
 
-		m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+		m_Buffer->add(msg->getMsg(),msg->getSize());
 		if (strncmp("SFT05",(char *)m_Buffer->getData(),5) == 0)
 		{
 			char *filesize = (char *)malloc(m_Buffer->getSize()-4);
@@ -143,23 +143,23 @@ ConsumeLevel SUB7Dialogue::incomingData(Message *msg)
 			m_FileSize = atoi(filesize);
 			m_State = SUB7_FILETRANSFERR;
 			m_Buffer->clear();
-			m_Download = new Download("sub7://foo/bar",msg->getRemoteHost(),"some triggerline");
+			m_Download = new Download(msg->getRemoteHost(),"sub7://foo/bar",msg->getRemoteHost(),"some triggerline");
 			free(filesize);
 		}
 		break;
 	case SUB7_FILETRANSFERR:
-		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
-		if (m_Download->getDownloadBuffer()->getLength() == m_FileSize)
+		m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+		if (m_Download->getDownloadBuffer()->getSize() == m_FileSize)
 		{
 			msg->getResponder()->doRespond("+OK RECVD",strlen("+OK RECVD"));
 			g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
 		}
-		logInfo("got %i bytes \n",msg->getMsgLen());
+		logInfo("got %i bytes \n",msg->getSize());
 		break;
 
 	}
 	
-	logInfo("got %i bytes data\n",msg->getMsgLen());
+	logInfo("got %i bytes data\n",msg->getSize());
 	return CL_ASSIGN;
 }
 

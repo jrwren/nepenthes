@@ -45,6 +45,7 @@
 #include "Message.hpp"
 #include "DownloadManager.hpp"
 #include "Nepenthes.hpp"
+#include "Utilities.hpp"
 
 
 #ifdef STDTAGS 
@@ -84,7 +85,7 @@ GenericUrl::~GenericUrl()
 
 bool GenericUrl::Init()
 {
-	const char *urlpcre = ".*((http|https|ftp):\\/\\/[@a-zA-Z0-9\\/\\\\\\.\\+:]+).*";
+	const char *urlpcre = ".*((http|https|ftp):\\/\\/[@a-zA-Z0-9\\-\\/\\\\\\.\\+:]+).*";
 //	".*((http|https|ftp):\\/\\/[a-zA-Z0-9\\/\\\\\\.\\+:]+).*\\xDF+.*$";
 	//"^.*\\xEB.((http|https|ftp):\\/\\/.*?)\\xDF+.*$";
 	const char * pcreEerror;
@@ -108,23 +109,24 @@ bool GenericUrl::Exit()
 sch_result GenericUrl::handleShellcode(Message **msg)
 {
 	logPF();
-	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
+	logSpam("Shellcode is %i bytes long \n",(*msg)->getSize());
 
 	bool bMatch=false;
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 	int32_t piOutput[10 * 3];
 	int32_t iResult=0;
 
 	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
+//		g_Nepenthes->getUtilities()->hexdump(STDTAGS,shellcode,len);
 		const char * pUrl;
 
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pUrl);
 
 		logInfo("Detected generic prepended unencoded URL Shellcode: \"%s\"\n", pUrl);
 		
-		m_ShellcodeManager->getNepenthes()->getDownloadMgr()->downloadUrl((char *)pUrl,(*msg)->getRemoteHost(),"generic url decoder",0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)pUrl,(*msg)->getRemoteHost(),"generic url decoder",0);
 		pcre_free_substring(pUrl);
 		bMatch = true;
 	}

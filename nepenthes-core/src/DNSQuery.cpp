@@ -32,36 +32,55 @@
 using namespace nepenthes;
 
 
-DNSQuery::DNSQuery(DNSHandler *handler, char *dns, void *obj)
+DNSQuery::DNSQuery(DNSCallback *callback, char *dns, uint16_t querytype, void *obj)
 {
-	m_Handler = handler;
+	m_Callback = callback;
 	m_DNS = dns;
 	m_Object = obj;
+	m_QueryType = querytype;
 }
 
 DNSQuery::~DNSQuery()
 {
 }
 
-DNSHandler *DNSQuery::getHandler()
+/**
+ * get the DNSCallback
+ * 
+ * @return returns the DNSCallback assigned to the DNSQuery
+ */
+DNSCallback *DNSQuery::getCallback()
 {
-	return m_Handler;
+	return m_Callback;
 }
 
+/**
+ * get the dns to resolve
+ * 
+ * @return the domain to resolve as string
+ */
 string DNSQuery::getDNS()
 {
 	return m_DNS;
 }
 
-#ifdef WIN32
-
-#else
-adns_query *DNSQuery::getADNS()
+/**
+ * check what type of result we got
+ * 
+ * @return returns the querytype
+ *         either DNS_QUERY_A or
+ *         DNS_QUERY_TXT
+ */
+uint16_t DNSQuery::getQueryType()
 {
-	return &m_ADNS_QUERY;
+	return m_QueryType;
 }
-#endif
 
+/**
+ * get the additional data assigned to the DNSQuery
+ * 
+ * @return returns the additional datas pointer
+ */
 void *DNSQuery::getObject()
 {
 	return m_Object;

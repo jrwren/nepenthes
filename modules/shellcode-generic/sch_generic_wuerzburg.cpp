@@ -121,7 +121,7 @@ sch_result Wuerzburg::handleShellcode(Message **msg)
 {
 	logPF();
 	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getSize();
 
 	int32_t ovec[10 * 3];
 	int32_t matchCount; 
@@ -149,7 +149,7 @@ sch_result Wuerzburg::handleShellcode(Message **msg)
 		char *url;
 
 		asprintf(&url,"csend://%s:%d",inet_ntoa(*(in_addr *)&address), port);
-		g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url,0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
 		free(url);
 
 //		Socket *sock = g_Nepenthes->getSocketMgr()->connectTCPHost(0,address,port,30);

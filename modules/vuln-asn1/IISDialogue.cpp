@@ -101,7 +101,7 @@ IISDialogue::~IISDialogue()
  */
 ConsumeLevel IISDialogue::incomingData(Message *msg)
 {
-	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+	m_Buffer->add(msg->getMsg(),msg->getSize());
 //	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 
 	// FIXME this can only recognize urldownloadtofile foobar

@@ -53,6 +53,13 @@ using namespace std;
 using namespace nepenthes;
 
 
+/**
+ * add a DialogueFactory to the Socket
+ * 
+ * @param diaf   the DialogueFactory to add
+ * 
+ * @return returns true
+ */
 bool Socket::addDialogueFactory(DialogueFactory *diaf)
 {
 	list <DialogueFactory *>::iterator diaff;
@@ -76,6 +83,13 @@ bool Socket::addDialogueFactory(DialogueFactory *diaf)
 }
 
 
+/**
+ * add a Dialogue to the Socket
+ * 
+ * @param dia    the Dialogue to add
+ * 
+ * @return returns true
+ */
 bool Socket::addDialogue(Dialogue *dia)
 {
 	m_Dialogues.push_back(dia);
@@ -197,7 +211,7 @@ int32_t   Socket::getType()
  * 
  * @return returns the sockets local port
  */
-int32_t   Socket::getLocalPort()
+uint16_t   Socket::getLocalPort()
 {
 	return m_LocalPort;
 }
@@ -208,7 +222,7 @@ int32_t   Socket::getLocalPort()
  * 
  * @return returns the sockets remote port
  */
-int32_t  Socket::getRemotePort()
+uint16_t  Socket::getRemotePort()
 {
 
 	return m_RemotePort;
@@ -220,7 +234,7 @@ int32_t  Socket::getRemotePort()
  * 
  * @param i      the new local port as int32_t in host byte order
  */
-void  Socket::setLocalPort(int32_t i)
+void  Socket::setLocalPort(uint16_t i)
 {
 	m_LocalPort = i;
 	return;
@@ -232,7 +246,7 @@ void  Socket::setLocalPort(int32_t i)
  * 
  * @param i      the new remote port as int32_t in host byte order
  */
-void  Socket::setRemotePort(int32_t i)
+void  Socket::setRemotePort(uint16_t i)
 {
 	m_RemotePort = i;
 	return;
@@ -383,6 +397,11 @@ bool Socket::isBind()
 
 
 
+/**
+ * get a description of the Socket
+ * 
+ * @return returns a description as string
+ */
 string Socket::getDescription()
 {
 	string sDesc ="Socket " ;
