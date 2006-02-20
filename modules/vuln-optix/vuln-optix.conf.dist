@@ -1,0 +1,5 @@
+vuln-optix
+{
+    ports   ("3140");
+    accepttimeout    "30";
+};

@@ -1,0 +1,33 @@
+log-irc
+{
+    use-tor     "1";
+    tor
+    {
+        server  "localhost";
+        port    "9050";
+    };
+
+    irc
+    {
+        server
+        {
+            name    "irc.freenode.org";
+            port    "6667";
+            pass    "";
+        };
+
+        user
+        {
+            nick        "nep-noname";
+            ident       "nepenthes";
+            userinfo    "http://nepenthes.sf.net";
+            usermodes   "+i";
+        };
+
+        channel
+        {
+            name    "#mwcollect-demo";
+            pass    "foo";
+        };
+    };
+};

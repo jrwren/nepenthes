@@ -1,0 +1,504 @@
+		Nepenthes 
+	- the finest collection -
+	
+
+	Table of Contents
+
+	1. What is Nepenthes?
+	2. How does Nepenthes work?
+		2.1 Why would one want to run Nepenthes?
+	3. Installing Nepenthes
+	4. Current Status
+		4.1 Nepenthes core
+			4.1.1 Config File
+			4.1.2 SocketManager
+			4.1.3 ShellcodeManager
+			4.1.4 SubmitManager:
+			4.1.5 EventManager:
+			4.1.6 LuaInterface:
+			4.1.7 ModuleManager:
+
+		4.2 Nepenthes Modules:
+			4.2.1 download handler
+				4.2.1.1 download-csend
+				4.2.1.2 download-curl
+				4.2.1.3 download-tftp
+				4.2.1.3 download-nepenthes
+				
+
+			4.2.2 submit Handler
+				4.2.2.1 submit-file
+				4.2.2.2 submit-norman
+				4.2.2.3 submit-nepenthes
+
+			4.2.3 shellcode handler
+				4.2.3.1 shellcode-generic
+ 
+			4.2.4 vulnerability modules
+				4.2.4.1 vuln-bagle
+				4.2.4.2 vuln-dcom
+				4.2.4.3 vuln-kuang2
+				4.2.4.4 vuln-mydoom
+				4.2.4.5 vuln-optix
+				4.2.4.6 vuln-sub7
+				4.2.4.7 vuln-wins
+				4.2.4.8 vuln-lsass
+	 
+			4.2.5 ShellEmulation modules
+				4.2.5.1 shellemu-winnt
+	 
+
+			4.2.6 eXample modules
+     
+				4.2.6.1 x-1
+				4.2.6.2 x-2
+				4.2.6.3 x-3
+				4.2.6.4 x-4
+				4.2.6.5 x-5
+	 
+		
+	5. Module Interface
+-------------------------------------------------------------------------------
+
+
+1. What is Nepenthes?
+---------------------
+ Nepenthes is a low interaction honeypot like honeyd or mwcollect.
+ Low Interaction Honeypots emulate _known_ vulnerabilties to collect 
+ information    about potential attacks.
+ Nepenthes is designed to emulate vulnerabilties worms use to spread, 
+ and capture these worms.
+ As there are many possibilities worms can spread, Nepenthes is modular.
+ There are module interface to
+  - emulate vulnerbilities
+  - download files
+  - submit the downloaded files
+  - trigger events (sounds abstract, is abstract but quite usefull)
+  - shellcode handler	
+
+   Refer to FIXME for more information about the Module Interface.
+
+ 
+2. How does Nepenthes work?
+---------------------------
+ Nepenthes vulnerability modules require knowledge about weaknesses so one 
+ can draft a Dialogue how the virus will exploit the weakness, gain the 
+ needed information to download the file and send the attacker just enough 
+ information he does not notice he gets fooled.
+ On the other hand Nepenthes is quite usefull to capture new exploits for old
+ vulnerabilities.
+ As Nepenthes does not know these exploits, they will appear in the logfiles.
+ By running these captures against a real vulnerable machine one can gain new 
+ information about the exploit and start writing an Nepenthes Dialogue.
+   
+ 2.1 Why would one want to run Nepenthes?
+ ----------------------------------------
+  The first argument is, its free.
+  The software is free, the viruses you can capture are free.
+  You can collect this annoying stuff like stamps without paying a diam.
+  The rest of the arguments are security related an discussable.
+  Setting up a host running Nepenthes can improve network security drastically,
+  as you can see who scans for which known vulnerabilities.
+ 
+
+3. Installing Nepenthes
+-----------------------
+ As we dont like automake, not to say we are unable to use it ...
+ You have to check yourself you got the following dependencies onboard before starting to compile nepenthes
+ 
+ - g++ (3.3.* higher)
+ - libcurl 
+ - libmagic
+ - libpcre
+ 
+ On debien just do
+  apt-get install libcurl3-dev
+  apt-get install libmagic-dev
+  apt-get install libpcre3-dev
+ 
+ Then type make and mail us your building error.
+ If no error occurs, checkout
+ conf/nepenthes.conf
+ 
+ if you use submit-norman you will want to checkout
+ modules/submit-norman/submit-norman.conf
+ to set a valid email address
+ 
+ 
+
+
+4. Current Status
+-----------------
+ All in all Nepenthes is stable code,
+ but some things are ... lets say a little raw
+ Current status is a quite stable technical demo.
+ 
+ 4.1 Nepenthes core:
+ -------------------
+  4.1.1 Config File:
+   actually we got no configfile format fitting our needs yet, so we just use a dummy config file
+   storing the needed data, this will change
+	 
+  4.1.2 SocketManager:
+   TCPSockets are considerd stable.
+   UDPSockets lacks some features and have some different behaviour as TCP for now, will be fixed soon
+   FILESockets just a try to write a Socket listening on /dev/urandom, useless in the wild, usefull for debugging
+
+  4.1.3 ShellcodeManager:
+   register & unregister shellcodehandler works
+   handling shellcodes works
+
+  4.1.4 SubmitManager:
+   register & unregister submithandler works
+   submitting files works
+	
+  4.1.5 EventManager:
+   Not used that much till now, but this works fine.
+   got to setup events for errors and other stuff, so this actually gets used.
+
+  4.1.6 LuaInterface:
+   no problems yet, as there is no code.
+
+  4.1.7 ModuleManager:
+   loading & unloading modules works
+   at the moment there is no option like loading and unloading modules at runtime, 
+   as this has many problems. 
+   time will tell if we need it, time will tell if we support it
+
+
+	 
+ 4.2 Nepenthes Modules:
+ ----------------------
+  4.2.1 download handler
+  ----------------------
+  
+   4.2.1.1 download-csend
+   ----------------------
+   status: 	works
+   registers:	
+    downloadhandler:
+     csend:// protocoll
+		  
+   description:		  
+    downloads files csend.
+    csend is streaming a file on a port like netcat can do		  
+	 
+   4.2.1.2 download-curl
+   ----------------------
+   status: 	works
+   registers:	
+    downloadhandler:
+     ftp:// protocoll
+     http:// protocoll
+   description:
+    downloads files via http or ftp
+	 
+   4.2.1.3 download-tftp
+   ----------------------
+   status: 	works
+   registers:	
+    downloadhandler:
+     tftp:// protocoll
+
+   description:
+    downloads files via the tftp protocoll.
+	 
+   4.2.1.3 download-nepenthes
+   ----------------------
+   status: 	works
+   description:
+    receive virus files from other nepenthes nodes
+        
+
+  4.2.2 submit Handler
+  --------------------
+  
+   4.2.2.1 submit-file
+   -------------------
+   status: 	works
+   registers:
+    submithandler:
+     submit-file
+		  
+   description:
+    writes captured viri to /tmp/ with their md5 hash as name
+	   
+
+
+   4.2.2.2 submit-norman
+   ---------------------
+   status: 	unknown/untested
+   registers:
+   submithandler:
+   submit-norman 
+		  
+   description:
+    commit files to sandbox.norman.no and get a analysis report via mail
+	  
+
+   4.2.2.2 submit-nepenthes
+   ------------------------
+   status:	works
+   registers:
+    submithandler:
+     submit-nepenthes
+		  
+   description:
+    commits files to our global nepenthes server to create a greate malware archieve.    
+    
+	 
+
+  4.2.3 shellcode handler
+  -----------------------
+  
+   4.2.3.1 shellcode-generic
+   -------------------------
+   status: 	works
+   registers:
+    shellcodehandler:
+     genericcreateprocess
+     genericurl
+     genericxor
+     linkxor
+		  
+   description:		  
+    provides some more or less generic shellcodehandlers
+	  
+	 
+ 
+  4.2.4 vulnerability modules
+  ---------------------------
+
+   4.2.4.1 vuln-bagle
+   ------------------
+   status: 	should work/untested
+   port:	2745
+   description:
+    emulates the bagle backdoor	  
+	  
+
+   4.2.4.2 vuln-dcom
+   -----------------
+   status: 	works
+   port:	135,445,1025
+   default:	unsure
+   registers:	
+   shellcodehandler:
+    sch-oc192-bind (oc192 dcom exploit as used by msblaster)
+    sch-sol2k-bind (sol2k dcom exploit)
+    sch-sol2k-connect (sol2k dcom exploit)
+     sch-link-trans (the dcom exploit LinkBot uses, this one does't not work yet) 
+		  
+   description:
+    emulates the dcom vulnerabilty.
+	  
+	  
+   4.2.4.3 vuln-kuang2
+   -------------------
+   status: 	unknown/untested
+	  
+   description:	  
+    we need a virus scanning for kuang2 or a kuang2 client&server to verfiy the code
+	 
+   4.2.4.4 vuln-mydoom
+   -------------------
+   status: 	works
+   port:	3127
+   default:	assigns
+	  
+    description:
+     this module emulates the mydoom backdoor, 
+     after receiving an special key the file is streamed on the same socket
+     the module receives the file, and if the transferr was successfull the files gets submitted.
+	  
+	 
+   4.2.4.5 vuln-optix
+   -------------------
+   status: 	unknown/untested
+	  
+   description:	  
+    we need a virus scanning for optix or a optix client&server to verfiy the code
+	  	 
+   4.2.4.6 vuln-sub7
+   -----------------
+    status: 	unknown/untested
+	  
+    description:
+     we need a virus scanning for sub7 or a sub7 client&server to verfiy the code
+	  
+	  
+   4.2.4.7 vuln-wins
+   -----------------
+    status: 	works
+    port:	42
+    default:	assigns
+    registers:	
+     shellcodehandler:
+      sch-hs (hatsquad wins exploit)
+      sch-zuc(zuc wins exploit)
+    description:
+     emulates the wins vulnerabiltiy
+	  		 
+
+   4.2.4.7 vuln-lsass
+   -----------------
+    status: 	works
+    port:	445
+    default:	assigns
+    registers:	
+     shellcodehandler:
+      sch-hod (house of dabus lsass explois)
+    description:
+     emulates the lsass vulnerabiltiy
+
+
+	 
+  4.2.5 ShellEmulation modules
+  ----------------------------
+  
+   4.2.5.1 shellemu-winnt
+   ----------------------
+   status: 	works
+	  
+   description:
+    provides a windows nt shell supporting all commands one needs to download a file.
+	  
+	 
+
+  4.2.6 eXample modules
+  ---------------------
+   
+   4.2.6.1 x-1
+   -----------
+   status: 	works
+	  
+   4.2.6.2 x-2
+   -----------
+   status: 	works	 
+	  
+   4.2.6.3 x-3
+   -----------
+   status: 	works	 
+	  
+   4.2.6.4 x-4
+   -----------
+   status: 	works	 
+	  
+   4.2.6.5 x-5
+   -----------
+   status: 	works	 
+	 
+5. Modules Interface
+--------------------
+ Refer to the online doxygen documentation of the eXample modules on FIXME.
+
+ 
+6. Contribute to Nepenthes
+--------------------------
+ Post suggestions, bugs, patches, new modules to nepenthes.sf.net
+ or mail them to nepenthesdev@users.sourceforge.net
+ If you want to donate hardware, ipranges, whatever, mail us.
+ 
+
+7: Trouble Shooting
+-------------------
+
+ 7.1
+  P: It does not work!
+  S: find out why it does not work
+
+ 7.2
+  P: the makefiles suck
+  S: send us a patch using the auto(conf|make) foobar we are unable to use.
+
+ 7.3
+  P: compiling fails
+  S: google for it, if this does not help out, file a bugreport and mention your
+      - operating system version
+      - g++ version
+      - libcurl version
+      - libpcre version
+      - libmagic version
+     and paste the compilererror too.
+     
+ 7.4 
+  P: nepenthes leaks memory
+  S: first verify it _is_ a memoryleak
+     currently all files downloaded are kept in memory until they are downloaded and submittet.
+     then
+     run nepenthes with      
+     valgrind --num-callers=12 --tool=memcheck --leak-check=yes --leak-resolution=high --show-reachable=yes -v  --logfile=valg bin/nepenthes
+     and mail us the valgrind logfiles to nepenthesdev@users.sourceforge.net
+     or
+     fix the memleak and post the patch to http://sf.net/projects/nepenthes
+     
+ 7.5
+  P: i dont have any connection incoming!
+  S: verify you are not firewalled.     
+   
+8. FAQ
+------
+ 8.1
+  Q: Why Nepenthes as name?
+  A: read http://en.wikipedia.org/wiki/Nepenthes 
+
+ 8.2
+  Q: What do you do with the samples commited to the nepenthes central server?
+  A: We collect them.
+     All samples are committed to clamav.
+     Some samples get analysed.
+
+ 8.3    
+  Q: Can I get access to you malware database?
+  A: In general No.
+     If you think you can persuade us you should have access as you are a AV product vendor, 
+     or do research in this field, mail us to nepenthesdev@users.sourceforge.net
+     
+ 8.4   
+  Q: I want to write own modules, will you publish them?
+  A: Depends, if the modules adds new features 
+     - shellcodehandler
+     - downloadhandler
+     - submithandler
+     - vulnerability module
+     and you are willing to accept the gpl license, there is a really good chance.
+     not to mention the feature has to be usefull.
+     submitting files to /dev/null cant be considerd a good feature.
+
+ 8.5
+  Q: why dont you write the whole documentation in english?
+  A: even we consider our own english as poor, we guess its more usefull to write poor english 
+     than writing good russian.
+     send us patches fixing this issue.
+     
+ 8.6
+  Q: is autocommiting files to sandbox.norman.no not a bad idea?
+  A: so far we committed about 400 files and nobody complained yet.
+     and we like it getting the results via mail.
+
+ 8.7
+  Q: how can i autocommit to clamav?
+  A: clamav does not want to get victim of autocommits
+     if you use the submit-nepenthes and our central server we will commit the files for you.
+     
+
+ 8.8
+  Q: how can i see if the file i submitted to your central server got a clamav signature?
+  A: wait some time and scan the file using clamscan
+
+ 8.9
+  Q: why should i run nepenthes?
+  A: you improve security in various ways we can discuss having a beer.
+  
+ 8.10
+  Q: there is nothing in the cvs repository on sourceforge.net
+  A: we use svn as we dont like cvs 
+  
+ 8.11
+  Q: can i get access to the svn?
+  A: so far no, as the svn is 'hosted' on a dialup,
+     if you want to sponsor a svn host, mail us.
+     
+
+  
+

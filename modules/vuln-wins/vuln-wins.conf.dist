@@ -1,0 +1,5 @@
+vuln-wins
+{
+    ports   ("42");
+    accepttimeout    "30";
+};

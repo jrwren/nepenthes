@@ -1,0 +1,7 @@
+vuln-asn1
+{
+    smbport "445";
+    iisport "80";
+
+    accepttimeout   "30";
+};

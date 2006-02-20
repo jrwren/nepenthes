@@ -1,0 +1,6 @@
+download-csend
+{
+    connect-timeout "30";
+    max-filesize    "4194304";  // 4mb
+};
+

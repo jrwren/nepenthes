@@ -1,0 +1,5 @@
+vuln-bagle
+{
+    ports   ("2745");
+    accepttimeout   "35";
+};

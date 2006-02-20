@@ -1,0 +1,5 @@
+submit-file
+{
+    path "/tmp/";
+};
+    

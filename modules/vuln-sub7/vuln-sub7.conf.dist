@@ -1,0 +1,5 @@
+vuln-sub7
+{
+    ports   ("27347");
+    accepttimeout    "30";
+};

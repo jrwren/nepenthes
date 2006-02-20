@@ -1,0 +1,5 @@
+vuln-kuang2
+{
+    ports           ("17300");
+    accepttimeout   "30";
+};

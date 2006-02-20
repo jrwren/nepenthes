@@ -1,0 +1,5 @@
+download-curl
+{
+    max-filesize    "4194304";  // 4mb
+    enable-ftp      "0";        // disabled by default
+};

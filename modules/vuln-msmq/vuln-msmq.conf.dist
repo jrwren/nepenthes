@@ -1,0 +1,5 @@
+vuln-msmq
+{
+    ports   ("2103","2105","2107");
+    accepttimeout    "30";
+};

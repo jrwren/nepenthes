@@ -1,0 +1,5 @@
+vuln-iis
+{
+    ports               ("443");
+    accepttimeout       "30";
+};

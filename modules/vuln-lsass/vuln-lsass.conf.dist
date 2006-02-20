@@ -1,0 +1,5 @@
+vuln-lsass
+{
+    ports   ("445");
+    accepttimeout    "30";
+};

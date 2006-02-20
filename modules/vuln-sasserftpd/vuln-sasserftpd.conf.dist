@@ -1,0 +1,5 @@
+vuln-sasserftpd
+{
+    ports           ("5554","1023");
+    accepttimeout   "30";
+};

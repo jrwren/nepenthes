@@ -1,0 +1,5 @@
+vuln-upnp
+{
+    port            "5000";
+    accepttimeout   "30";
+};

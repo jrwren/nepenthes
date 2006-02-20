@@ -1,0 +1,5 @@
+log-download
+{
+    downloadfile    "/tmp/logged_downloads";
+    submitfile    "/tmp/logged_submissions";
+};

@@ -1,0 +1,5 @@
+vuln-mssql
+{
+    port            "1434";
+    accepttimeout   "30";
+};

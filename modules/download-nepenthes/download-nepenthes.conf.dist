@@ -1,0 +1,7 @@
+download-nepenthes
+{
+    ports    ("45678");
+    accepttimeout "60";
+    filespath       "/share/hda3/opt/nepenthes";
+    
+};

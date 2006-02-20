@@ -1,0 +1,13 @@
+module-portwatch
+{
+    ports   ("21",  // FTP
+             "25",  // SMTP
+             "110", // POP3
+             "143", // IMAP            # Interim Mail Access P 2 and 4
+             "220", // IMAP            # Interactive Mail Access
+             "465"  // POP3 & SSL
+             "993", // IMAP & SSL      # IMAP over SSL
+             "995"  // POP3 & SSL
+             );
+    accepttimeout "30";
+};

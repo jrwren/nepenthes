@@ -1,0 +1,5 @@
+download-tftp
+{
+    max-filesize    "4194304";  // 4mb
+    max-resends     "7";        // 7
+};
