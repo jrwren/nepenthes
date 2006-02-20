@@ -171,12 +171,27 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 
 
 			case FTP_TYPE:
-				if (parseType((char *)m_Buffer->getData() + iStart)== true)
+				if ( parseType((char *)m_Buffer->getData() + iStart)== true )
+				{
+					if ( m_Download->getDownloadUrl()->getDir() != "" )
+					{
+						sendCWD();
+						m_State = FTP_CWD;
+					} else
+					{
+						sendPort();
+						m_State = FTP_PORT;
+					}
+				}
+				break;
+
+			case FTP_CWD:
+				if (parseCWD((char *)m_Buffer->getData() + iStart)== true)
 				{
 					sendPort();
 					m_State = FTP_PORT;
 				}
-				break;
+
 
 			case FTP_PORT:
 				if (parsePort((char *)m_Buffer->getData() + iStart) == true)
@@ -429,7 +444,7 @@ void CTRLDialogue::sendRetr()
 {
 	
 	char *nmsg;
-	asprintf(&nmsg,"RETR %s\n",m_Download->getDownloadUrl()->getPath().c_str());
+	asprintf(&nmsg,"RETR %s\r\n",m_Download->getDownloadUrl()->getFile().c_str());
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	free(nmsg);
@@ -462,6 +477,27 @@ bool CTRLDialogue::parseQuit(char *msg)
 	if (strncmp(msg,"221 ",4) == 0)
 	{
 		logDebug("%s","Quit accepted\n");
+		return true;
+	}else
+	{
+		return false;
+	}
+}
+
+void CTRLDialogue::sendCWD()
+{
+	char *nmsg;
+	asprintf(&nmsg,"CWD %s\r\n",m_Download->getDownloadUrl()->getDir().c_str());
+	logDebug("FTPSEND: '%s'\n",nmsg);
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+	free(nmsg);
+}
+
+bool CTRLDialogue::parseCWD(char *msg)
+{
+	if (strncmp(msg,"250 ",4) == 0)
+	{
+		logDebug("%s","CWD accepted\n");
 		return true;
 	}else
 	{

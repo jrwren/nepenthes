@@ -113,6 +113,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 	string user = "anonymous";
 	string pass = "guest";
 	string getfile = "nofileyet";
+	string path = "";
 	uint8_t	downloadflags=0;
 
 
@@ -277,13 +278,30 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 							break;
 						default:
                             getfile = paramlist[1];
-							logDebug("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
+//							logDebug("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
+							startDownload(host,port,user,pass,path,getfile,downloadflags);
 						}
 					}else
-					if ( strncasecmp((char *)&*jt->c_str(),"binary",6) == 0 )
+					if ( strncasecmp((char *)&*jt->c_str(),"binary",6) == 0 || 
+						 strncasecmp((char *)&*jt->c_str(),"bin",3) == 0)
 					{
 						downloadflags |= DF_TYPE_BINARY;
+					}else
+					if ( strncasecmp((char *)&*jt->c_str(),"cd",2) == 0 )
+					{
+						switch ( paramlist.size() )
+						{
+						case 1:
+							state = NEXT_IS_PATH;
+							break;
+
+						case 2:
+							path = paramlist[1];
+							break;
+						}
+							
 					}
+
 					break;
 
 
@@ -339,8 +357,15 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 
 				case NEXT_IS_FILE:
 					getfile = paramlist[0];
+					startDownload(host,port,user,pass,path,getfile,downloadflags);
 					state = NEXT_IS_SOMETHING;
                     break;
+
+				case NEXT_IS_PATH:
+					path = paramlist[0];
+					state = NEXT_IS_SOMETHING;
+					break;
+
 				}
 
 			}
@@ -352,10 +377,37 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 		else
 			host = *it;
 	}
+    return 0;
+}
 
+bool VFSCommandFTP::startDownload(string host, string port, string user, string pass, string path, string getfile, uint8_t downloadflags)
+{
+	logPF();
+	string url;
+	string file;
 
+	if (path == "")
+	{
+		url = "ftp://" + user + ":" + pass + "@" + host+ ":" + port + "/" + getfile;
+	}else
+	{
+		url = "ftp://" + user + ":" + pass + "@" + host+ ":" + port;
 
-	string url = "ftp://" + user + ":" + pass + "@" + host+ ":" + port + "/" + getfile;
+		int pathlen = path.size()-1;
+		if (path[0] != '/' )
+		{
+			url += "/" + path;
+			file += "/" + path;
+		}
+		if (path[pathlen] != '/')
+		{
+			url += "/";
+			file += "/";
+		}
+		url += getfile;
+		file += getfile;
+	}
+	 
 	uint32_t remotehost = 0;
 	uint32_t localhost = 0;
 
@@ -379,16 +431,15 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 													downloadflags);
 	}else
 	{
-    	g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
+		g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
 													"ftp",
 												   (char *)user.c_str(),
 												   (char *)pass.c_str(), 
 												   (char *)host.c_str(), 
 												   (char *)port.c_str(), 
-												   (char *)getfile.c_str(),
+												   (char *)file.c_str(),
 												   remotehost,
 												   downloadflags); 
 	}
-
-    return 0;
+	return true;
 }

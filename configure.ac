@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.4], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.4])
+AC_INIT([nepenthes], [0.1.5], [dornseif@informatik.rwth-aachen.de])
+AM_INIT_AUTOMAKE([nepenthes], [0.1.5])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
@@ -678,6 +678,7 @@ AC_CONFIG_FILES([Makefile
 		 modules/dnsresolve-adns/Makefile
 		 modules/geolocation-ip2location/Makefile
 		 modules/log-surfnet/Makefile		 
+		 modules/vuln-msdtc/Makefile
 		 ])
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])

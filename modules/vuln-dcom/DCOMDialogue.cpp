@@ -134,7 +134,11 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			return CL_DROP;
 		} else
 		{
-			logSpam("Unknown DCOM request, repling %i bytes crap\n",64);
+			logInfo("%s","Unknown DCOM request, dropping\n");
+			return CL_DROP;
+/*
+
+            logSpam("Unknown DCOM request, repling %i bytes crap\n",64);
 			reply[2] = DCE_PKT_BINDACK;
 			reply[8] = 64;
 			msg->getResponder()->doRespond(reply,64);
@@ -151,6 +155,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 				m_State = DCOM_DONE;
 				cl = CL_ASSIGN_AND_DONE;
 			}
+*/			
 		}
 
 		break;

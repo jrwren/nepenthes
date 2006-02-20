@@ -147,7 +147,7 @@ sch_result GenericBind::handleShellcode(Message **msg)
 
 			pcre_get_substring((char *) shellcode, output, result, 1, &match);
 
-			port = ntohs(*(uint32_t *) match);
+			port = ntohs(*(uint16_t *) match);
 			logInfo("Detected Generic listenshell shellcode #%s, :%u \n",(*it)->m_Name.c_str(), port);
 			pcre_free_substring(match);
 

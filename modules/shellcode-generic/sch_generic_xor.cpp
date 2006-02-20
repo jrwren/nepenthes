@@ -86,7 +86,7 @@ bool GenericXOR::Init()
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 
-	XORPcreHelper test[7]=
+	XORPcreHelper test[9]=
 	{
 		{
 			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(.)\\xFF\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$", 
@@ -119,6 +119,16 @@ bool GenericXOR::Init()
 			27
 		},
 		{
+			"(.*)(\\xEB\\x10\\x5A\\x4A\\x31\\xC9\\x66\\xB9\(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$",
+			"deggendorf xor",
+			27
+		},
+		{
+			"(.*)(\\xEB\\x0F\\x5B\\x33\\xC9\\x66\\xB9(..)\\x80\\x33(.)\\x43\\xE2\\xFA\\xEB\\x05\\xE8\\xEC\\xFF\\xFF\\xFF)(.*)$",
+			"langenfeld xor",
+			21
+		},
+		{
 			"(.*)(\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.)(.*)$",																	
 			"generic mwcollect",
 			20
@@ -126,7 +136,7 @@ bool GenericXOR::Init()
 		}
 	};
 
-	for( uint32_t i = 0; i <= 6; i++ )
+	for( uint32_t i = 0; i <= 8; i++ )
 	{
 		pcre *mypcre;
 		if((mypcre = pcre_compile(test[i].m_PCRE, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
@@ -263,7 +273,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 
 //				LogSpam("codesize %i totalsize %i", codesize, totalsize);
 
-				for( uint32_t j = 0; j < codesize && j*4 < totalsize; j++ )
+				for( uint32_t j = 0; j < codesize && (j+1)*4 < totalsize; j++ )
 					*(uint32_t *)(decodedMessage+(j*4) ) ^= longkey;
 //				g_Nepenthes->getUtilities()->hexdump(l_crit, decodedMessage, totalsize);
 				break;

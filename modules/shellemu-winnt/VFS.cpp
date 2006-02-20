@@ -35,6 +35,7 @@
 #include "VFSCommandTFTP.hpp"
 #include "VFSCommandFTP.hpp"
 #include "VFSCommandCMD.hpp"
+#include "VFSCommandSTART.hpp"
 
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -105,6 +106,9 @@ bool VFS::Init(Dialogue *dia)
 	VFSCommand *vccmd = new VFSCommandCMD(sdir, this);
 	sdir->createCommand(vccmd);
 
+	VFSCommand *vcstart = new VFSCommandSTART(sdir, this);
+	sdir->createCommand(vcstart);
+
 
 	return true;
 }
@@ -147,12 +151,19 @@ string VFS::execute(string *input)
 
 			if ( m_StdIn[i] == '>'  )
 			{
-				if ( haschar == true )
+				if (escaped == false)
 				{
-					break;
-				} else
+					if ( haschar == true )
+					{
+						logDebug("breaking here %i line %i \n",i,__LINE__);
+						break;
+					} else
+					{
+						hasredir = true;
+					}
+				}else
 				{
-					hasredir = true;
+					escaped = false;
 				}
 
 			}else
@@ -160,19 +171,32 @@ string VFS::execute(string *input)
 			{
 				
 				i++;
-				logDebug("breaking here %i \n",i);
+				logDebug("breaking here %i line %i \n",i,__LINE__);
 				break;
 			}
 			else
 			if ( ( m_StdIn[i] == ';' && hasredir == true ) || m_StdIn[i] == '&')
 			{
-				i++;
-				break;
+				if (escaped == false)
+				{
+                    i++;
+					logDebug("breaking here %i line %i \n",i,__LINE__);
+					break;
+				}else
+				{
+					escaped = false;
+				}
 			} 
 			else
 			if (m_StdIn[i] == '^')
 			{
-            	escaped = true;
+				if (escaped == false)
+				{
+                   	escaped = true;
+				}else
+				{
+					escaped = false;
+				}
 			}
 			else
 			{
@@ -192,7 +216,36 @@ string VFS::execute(string *input)
 		if (line[line.size()-1] == ';' || line[line.size()-1] == '&')
 			line[line.size()-1] = '\0';
 
+		string newline;
+		escaped = false;
+
+		i=0;
+		int j=0;
+		while (i<line.size())
+		{
+			if ( escaped == true)
+			{
+				escaped = false;
+                newline += line[i];
+				j++;
+			}else
+			{
+				if (line[i] == '^')
+				{
+					escaped = true;
+				}else
+				{
+					newline += line[i];
+					escaped = false;
+				}
+			}
+			i++;
+		}
 			
+		logSpam("LINE %s\n",line.c_str());
+		logSpam("ESCL %s\n",newline.c_str());
+
+		line = newline;
 
 		/* beispiel fuer den block 'befehl suchen' 
 			line ist " echo dong"
@@ -319,7 +372,10 @@ string VFS::execute(string *input)
 			{
 
 				string altercommand = command + ".exe";
-				if ((*cfile)->getType() == VFS_EXE && ((*cfile)->getName() == command || (*cfile)->getName() == altercommand ) )
+				if ((*cfile)->getType() == VFS_EXE && 
+					( strcasecmp((*cfile)->getName().c_str(),command.c_str()) == 0 || 
+					  strcasecmp((*cfile)->getName().c_str(),altercommand.c_str()) == 0 )
+					)
 				{
 					logSpam("found command '%s' <-> '%s' \n",(*cfile)->getName().c_str(), command.c_str());
 					((VFSCommand *)(*cfile))->run(&paramlist);
@@ -336,9 +392,13 @@ string VFS::execute(string *input)
 			list <VFSNode *> dirlist = *m_CurrentDir->getList();
 			for ( cfile = dirlist.begin(); cfile != dirlist.end() && foundcommand == false; cfile++ )
 			{
-//			printf("FILE '%s' '%s' \n",command.c_str(), (*cfile)->getName().c_str());
+//				printf("FILE '%s' '%s' \n",command.c_str(), (*cfile)->getName().c_str());
 				string altercommand = command + ".bat";
-				if ( (*cfile)->getType() == VFS_FILE && ((*cfile)->getName() == command || (*cfile)->getName() == altercommand ) )
+				if  ( 
+					   (*cfile)->getType() == VFS_FILE && 
+					   ( strcasecmp((*cfile)->getName().c_str(),command.c_str()) == 0 || 
+						 strcasecmp((*cfile)->getName().c_str(),altercommand.c_str()) == 0 )
+					 )
 				{
 					logSpam("found command '%s' <-> '%s' \n",(*cfile)->getName().c_str(), command.c_str());
 					printf("adding %.*s to stdin\n",((VFSFile *)(*cfile))->getSize(),((VFSFile *)(*cfile))->getData());

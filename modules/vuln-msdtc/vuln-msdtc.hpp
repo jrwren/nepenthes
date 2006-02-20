@@ -27,31 +27,36 @@
 
  /* $Id$ */
 
-#include <stdint.h>
+ /* $Id$ */
 
-#include "VFSCommand.hpp"
+#include "DialogueFactory.hpp"
+#include "Module.hpp"
+#include "ModuleManager.hpp"
+#include "SocketManager.hpp"
+#include "Nepenthes.hpp"
+#include "Dialogue.hpp"
+#include "Socket.hpp"
 
+using namespace std;
 
 namespace nepenthes
 {
-	typedef enum 
-	{
-		NEXT_IS_SOMETHING,
-		NEXT_IS_HOST,
-		NEXT_IS_PORT,
-		NEXT_IS_USER,
-		NEXT_IS_PASS,
-		NEXT_IS_FILE,
-		NEXT_IS_PATH
-	} ftp_command_state;
 
-	class VFSCommandFTP : public VFSCommand
+	class ShellcodeHandler;
+
+	class MSDTCVuln : public Module , public DialogueFactory
 	{
 	public:
-		VFSCommandFTP(VFSNode *parent,VFS *vfs);
-		~VFSCommandFTP();
-    	int32_t run(vector<string> *paramlist);
-	private:
-		bool startDownload(string host, string port, string user, string pass, string path, string file, uint8_t);
+		MSDTCVuln(Nepenthes *);
+		~MSDTCVuln();
+		Dialogue *createDialogue(Socket *socket);
+		bool Init();
+		bool Exit();
+	protected:
+		list <ShellcodeHandler *> m_ShellcodeHandlers;
 	};
+
+
+
 }
+extern nepenthes::Nepenthes *g_Nepenthes;

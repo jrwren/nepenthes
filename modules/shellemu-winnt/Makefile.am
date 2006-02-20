@@ -10,6 +10,22 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = shellemuwinnt.la
 
-shellemuwinnt_la_SOURCES = VFS.hpp VFSCommand.hpp VFSCommandCMD.hpp VFSCommandDir.hpp VFSCommandECHO.hpp VFSCommandFTP.hpp VFSCommandREDIR.hpp VFSCommandRREDIR.hpp VFSCommandTFTP.hpp VFSDir.hpp VFSFile.hpp VFSNode.hpp WinNTShellDialogue.hpp shellemu-winnt.hpp VFS.cpp VFSCommandCMD.cpp VFSCommandDir.cpp VFSCommandECHO.cpp VFSCommandFTP.cpp VFSCommandREDIR.cpp VFSCommandRREDIR.cpp VFSCommandTFTP.cpp VFSDir.cpp VFSFile.cpp WinNTShellDialogue.cpp shellemu-winnt.cpp
+
+shellemuwinnt_la_SOURCES =  VFS.cpp VFS.hpp 
+shellemuwinnt_la_SOURCES += shellemu-winnt.cpp shellemu-winnt.hpp 
+shellemuwinnt_la_SOURCES += VFSCommand.hpp 
+shellemuwinnt_la_SOURCES += VFSNode.hpp 
+shellemuwinnt_la_SOURCES += VFSDir.cpp VFSDir.hpp 
+shellemuwinnt_la_SOURCES += VFSFile.cpp VFSFile.hpp 
+shellemuwinnt_la_SOURCES += WinNTShellDialogue.cpp WinNTShellDialogue.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandCMD.cpp VFSCommandCMD.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandDir.cpp VFSCommandDir.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandECHO.cpp VFSCommandECHO.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandFTP.cpp  VFSCommandFTP.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandREDIR.cpp VFSCommandREDIR.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandRREDIR.cpp VFSCommandRREDIR.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandTFTP.cpp  VFSCommandTFTP.hpp 
+shellemuwinnt_la_SOURCES += VFSCommandSTART.cpp VFSCommandSTART.hpp 
+
 
 shellemuwinnt_la_LDFLAGS = -module -no-undefined -avoid-version

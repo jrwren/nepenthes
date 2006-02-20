@@ -188,12 +188,25 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 	}
 	m_Download->getDownloadBuffer()->cutFront((uint32_t)(end-start)+2);
 
-	if (m_Download->getCallback() != NULL)
+	
+
+	if ( m_Download->getDownloadBuffer()->getSize() > 0 )
 	{
-		m_Download->getCallback()->downloadSuccess(m_Download);
-	}else
+
+		if ( m_Download->getCallback() != NULL )
+		{
+			m_Download->getCallback()->downloadSuccess(m_Download);
+		} else
+		{
+			g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
+		}
+	} else
 	{
-		g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
+		logWarn("Download has size %i\n",m_Download->getDownloadBuffer()->getSize());
+		if ( m_Download->getCallback() != NULL )
+		{
+			m_Download->getCallback()->downloadFailure(m_Download);
+		}
 	}
 	return CL_DROP;
 }

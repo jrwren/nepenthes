@@ -27,31 +27,58 @@
 
  /* $Id$ */
 
-#include <stdint.h>
+#ifndef HAVE_MSDTCDIALOGUE_HPP
+#define HAVE_MSDTCDIALOGUE_HPP
 
-#include "VFSCommand.hpp"
+#include "Dialogue.hpp"
 
+using namespace std;
+
+#define DCE_VERSION_MAJOR       0x05
+#define DCE_VERSION_MINOR       0x00
+#define DCE_PKT_BIND            0x0B
+#define DCE_PKT_BINDACK         0x0C
+#define DCE_PKT_BINDNACK        0x0D
+#define DCE_PKT_REQUEST         0x00
+#define DCE_PKT_FAULT           0x03
+#define DCE_PKT_RESPONSE        0x02
+#define DCE_PKT_ALTCONT         0x0E
+#define DCE_PKT_ALTCONTRESP     0x0F
+#define DCE_PKT_BINDRESP        0x10
 
 namespace nepenthes
 {
-	typedef enum 
-	{
-		NEXT_IS_SOMETHING,
-		NEXT_IS_HOST,
-		NEXT_IS_PORT,
-		NEXT_IS_USER,
-		NEXT_IS_PASS,
-		NEXT_IS_FILE,
-		NEXT_IS_PATH
-	} ftp_command_state;
+	typedef enum {
+		MSDTC_STATE_NULL=0,
+		MSDTC_STATE_REQUEST_1,
+		MSDTC_STATE_DONE
+	} msdtc_state;
 
-	class VFSCommandFTP : public VFSCommand
+	class Buffer;
+
+	class MSDTCDialogue : public Dialogue
 	{
 	public:
-		VFSCommandFTP(VFSNode *parent,VFS *vfs);
-		~VFSCommandFTP();
-    	int32_t run(vector<string> *paramlist);
-	private:
-		bool startDownload(string host, string port, string user, string pass, string path, string file, uint8_t);
+		MSDTCDialogue(Socket *socket);
+		~MSDTCDialogue();
+		ConsumeLevel incomingData(Message *msg);
+		ConsumeLevel outgoingData(Message *msg);
+		ConsumeLevel handleTimeout(Message *msg);
+		ConsumeLevel connectionLost(Message *msg);
+		ConsumeLevel connectionShutdown(Message *msg);
+		void dump();
+
+	protected:
+		msdtc_state	m_State;
+		string		m_Shellcode;
+		Buffer		*m_Buffer;
+
 	};
+
+
+
+
+
 }
+
+#endif

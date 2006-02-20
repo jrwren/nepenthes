@@ -1,0 +1,4 @@
+geolocation-ip2location
+{
+	path "/opt/nepenthes/var/cache/nepenthes/IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE.BIN";
+};

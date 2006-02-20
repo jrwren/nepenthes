@@ -60,6 +60,7 @@ nepenthes
     "vulnkuang2.so",                "vuln-kuang2.conf",             ""
     "vulnlsass.so",                 "vuln-lsass.conf",              ""
     "vulnmsmq.so",                  "vuln-msmq.conf",               ""
+    "vulnmsdtc.so",                 "vuln-msdtc.conf",              ""
     "vulnmssql.so",                 "vuln-mssql.conf",              ""
     "vulnmydoom.so",                "vuln-mydoom.conf",             ""
     "vulnnetbiosname.so",           "vuln-netbiosname.conf",        ""

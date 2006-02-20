@@ -59,10 +59,11 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 shellemuwinnt_la_LIBADD =
-am_shellemuwinnt_la_OBJECTS = VFS.lo VFSCommandCMD.lo VFSCommandDir.lo \
-	VFSCommandECHO.lo VFSCommandFTP.lo VFSCommandREDIR.lo \
-	VFSCommandRREDIR.lo VFSCommandTFTP.lo VFSDir.lo VFSFile.lo \
-	WinNTShellDialogue.lo shellemu-winnt.lo
+am_shellemuwinnt_la_OBJECTS = VFS.lo shellemu-winnt.lo VFSDir.lo \
+	VFSFile.lo WinNTShellDialogue.lo VFSCommandCMD.lo \
+	VFSCommandDir.lo VFSCommandECHO.lo VFSCommandFTP.lo \
+	VFSCommandREDIR.lo VFSCommandRREDIR.lo VFSCommandTFTP.lo \
+	VFSCommandSTART.lo
 shellemuwinnt_la_OBJECTS = $(am_shellemuwinnt_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -197,7 +198,15 @@ AM_CPPFLAGS = -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-c
 AM_CXXFLAGS = -Wall -Werror
 AM_LDFLAGS = -lpcre
 pkglib_LTLIBRARIES = shellemuwinnt.la
-shellemuwinnt_la_SOURCES = VFS.hpp VFSCommand.hpp VFSCommandCMD.hpp VFSCommandDir.hpp VFSCommandECHO.hpp VFSCommandFTP.hpp VFSCommandREDIR.hpp VFSCommandRREDIR.hpp VFSCommandTFTP.hpp VFSDir.hpp VFSFile.hpp VFSNode.hpp WinNTShellDialogue.hpp shellemu-winnt.hpp VFS.cpp VFSCommandCMD.cpp VFSCommandDir.cpp VFSCommandECHO.cpp VFSCommandFTP.cpp VFSCommandREDIR.cpp VFSCommandRREDIR.cpp VFSCommandTFTP.cpp VFSDir.cpp VFSFile.cpp WinNTShellDialogue.cpp shellemu-winnt.cpp
+shellemuwinnt_la_SOURCES = VFS.cpp VFS.hpp shellemu-winnt.cpp \
+	shellemu-winnt.hpp VFSCommand.hpp VFSNode.hpp VFSDir.cpp \
+	VFSDir.hpp VFSFile.cpp VFSFile.hpp WinNTShellDialogue.cpp \
+	WinNTShellDialogue.hpp VFSCommandCMD.cpp VFSCommandCMD.hpp \
+	VFSCommandDir.cpp VFSCommandDir.hpp VFSCommandECHO.cpp \
+	VFSCommandECHO.hpp VFSCommandFTP.cpp VFSCommandFTP.hpp \
+	VFSCommandREDIR.cpp VFSCommandREDIR.hpp VFSCommandRREDIR.cpp \
+	VFSCommandRREDIR.hpp VFSCommandTFTP.cpp VFSCommandTFTP.hpp \
+	VFSCommandSTART.cpp VFSCommandSTART.hpp
 shellemuwinnt_la_LDFLAGS = -module -no-undefined -avoid-version
 all: all-am
 
@@ -275,6 +284,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandFTP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandREDIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandRREDIR.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandSTART.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandTFTP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSDir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSFile.Plo@am__quote@

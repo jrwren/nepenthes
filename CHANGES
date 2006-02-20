@@ -1,3 +1,59 @@
+Version 0.1.5
+=============
+Bugfix release/minor features.
+
+
+Nepenthes
+	FIXES and ADDITIONS
+	-----
+	* none
+	
+	
+	
+
+Modules
+	FIXES and ADDITIONS
+	-----
+	* shellcode-generic
+		* sch_generic_cmd added \r\n as lineterminator
+		* shellcode-generic.conf.dist langenfeldConnect pcre added
+		* sch_generic_xor 
+			* deggendorf & langenfeld xor added, 
+			* removed possible off by n <=3 byte in the 4 byte xor
+
+	
+	* vuln-dcom
+		* made it less aggressive, if it does not look like dcom, dont handle it
+		
+
+	* shellemu-winnt
+		* VFSCommandSTART added
+		* VFSCommandTFTP proper var checks added
+		* added handling of the escape var ^ for the shell
+		* VFSCommandFTP can download >1 file per batch now 
+		* VFSCommandFTP can handle "cd" now
+		
+	* download-http
+		* handle downloads with 0 byte bodysize as broken
+		
+	* download-ftp 
+		* can send CWD now
+		* fixed missing \r on sending RETR
+		
+	* geolocation-hostip
+		* the address to look the address up changed, so we adjusted it
+		
+
+	* geolocation-ip2location
+		* tarball lacked config file
+
+
+	NEW
+	---
+	* vuln-msdtc
+		* emulation for the ms05-051 exploit by swan
+		
+
 Version 0.1.4
 =============
 Bugfix release/minor features.

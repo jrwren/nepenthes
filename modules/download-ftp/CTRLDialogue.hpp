@@ -47,6 +47,7 @@ namespace nepenthes
 		FTP_USER,
 		FTP_PASS,
 		FTP_TYPE,
+		FTP_CWD,
 		FTP_PORT,
 //		FTP_EPASV,
 		FTP_RETR,
@@ -80,6 +81,9 @@ namespace nepenthes
 
 		void  sendType();
 		bool parseType(char *msg);
+
+		void  sendCWD();
+		bool parseCWD(char *msg);
 
 		void  sendPort();
 		bool parsePort(char *msg);

@@ -10,6 +10,6 @@ AM_LDFLAGS = $IP2LOCATION_LIBS
 
 pkglib_LTLIBRARIES = geolocationip2location.la
 
-geolocationip2location_la_SOURCES = geolocation-ip2location.cpp geolocation-ip2location.hpp
+geolocationip2location_la_SOURCES = geolocation-ip2location.cpp geolocation-ip2location.hpp geolocation-ip2location.conf.dist
 
 geolocationip2location_la_LDFLAGS = -module -no-undefined -avoid-version

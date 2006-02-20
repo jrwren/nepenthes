@@ -134,8 +134,8 @@ bool GeoLocationHostIp::geoLocate(GeoLocationQuery *query)
 	uint32_t ip = query->getAddress();
 	logSpam("GeoLocationHostIp looking up info for %x %s %x\n",query->getCallback(),inet_ntoa(*(in_addr *)&ip),query->getObject());
 
-	string url = "http://www.hostip.info/api/get.html?ip=";
-	url += inet_ntoa(*(in_addr *)&ip);
+	string url = "http://api.hostip.info/get_html.php?ip=";
+    url += inet_ntoa(*(in_addr *)&ip);
 	url += "&position=true";
 
 	g_Nepenthes->getDownloadMgr()->downloadUrl(INADDR_ANY, (char *)url.c_str(),0,"internal usage",DF_INTERNAL_DOWNLOAD,this,query);
