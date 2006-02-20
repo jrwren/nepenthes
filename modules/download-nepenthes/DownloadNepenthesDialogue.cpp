@@ -201,18 +201,26 @@ ConsumeLevel DownloadNepenthesDialogue::connectionLost(Message *msg)
  */
 ConsumeLevel DownloadNepenthesDialogue::connectionShutdown(Message *msg)
 {
-	// the download is done, check if the md5sum matches the md5sum we were given;
-	string md5sum = g_Nepenthes->getUtilities()->md5sum(
-		m_Download->getDownloadBuffer()->getData(),
-		m_Download->getDownloadBuffer()->getSize());
-
-	if (strncmp(m_MD5Sum.c_str(),md5sum.c_str(),32) != 0)
+	if ( m_Download != NULL )
 	{
-		logInfo("file does not match its md5sum (%s <-> %s) \n",md5sum.c_str(),m_MD5Sum.c_str());
+
+		// the download is done, check if the md5sum matches the md5sum we were given;
+		string md5sum = g_Nepenthes->getUtilities()->md5sum(
+														   m_Download->getDownloadBuffer()->getData(),
+														   m_Download->getDownloadBuffer()->getSize());
+
+		if ( strncmp(m_MD5Sum.c_str(),md5sum.c_str(),32) != 0 )
+		{
+			logInfo("file does not match its md5sum (%s <-> %s) \n",md5sum.c_str(),m_MD5Sum.c_str());
+		} else
+		{
+			logInfo("new file %s is done\n",m_MD5Sum.c_str());
+			g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
+		}
 	}else
 	{
-		logInfo("new file %s is done\n",m_MD5Sum.c_str());
-		g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
+		uint32_t remotehost = msg->getRemoteHost();
+		logCrit(" %s tried to fool download-nepenthes (connected without sending data)\n",inet_ntoa(*(in_addr *)&remotehost));
 	}
 	return CL_DROP;
 }

@@ -110,7 +110,9 @@ bool DCOMVuln::Init()
 // removed as they were not seen during the last 2 month and need a new pcre
 //	m_ShellcodeHandlers.push_back( new SOL2KBind	(m_Nepenthes->getShellcodeMgr())); 
 //	m_ShellcodeHandlers.push_back( new SOL2KConnect	(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back( new OC192Bind	(m_Nepenthes->getShellcodeMgr()));
+
+// replaced by adenau xor & Parthenstein Bind
+//	m_ShellcodeHandlers.push_back( new OC192Bind	(m_Nepenthes->getShellcodeMgr()));
 
 
 	list <ShellcodeHandler *>::iterator handler;

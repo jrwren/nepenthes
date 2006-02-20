@@ -51,12 +51,18 @@ FileLogger::FileLogger(LogManager *lm) //: LogHandler(lm)
 
 FileLogger::~FileLogger()
 {
+	if( m_Filename != NULL)
+		free(m_Filename);
+	
 }
 
 
 void FileLogger::setLogFile(const char *filename)
 {
-	m_Filename = filename;
+	if( m_Filename != NULL)
+		free(m_Filename);
+
+	m_Filename = strdup(filename);
 }
 
 

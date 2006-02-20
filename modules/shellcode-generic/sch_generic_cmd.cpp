@@ -63,7 +63,7 @@ GenericCMD::~GenericCMD()
 
 bool GenericCMD::Init()
 {
-	const char *createprocesspcre = ".*(cmd.*/.*\\x00).*";
+	const char *createprocesspcre = ".*(cmd.* /.*\\x00).*";
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)

@@ -74,7 +74,7 @@ uint16_t myevent;
 LogSurfNET::LogSurfNET(Nepenthes *nepenthes)
 {
 	m_ModuleName        = "log-surfnet";
-	m_ModuleDescription = "log various malicious events to mysql";
+	m_ModuleDescription = "log various malicious events to postgresql";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 

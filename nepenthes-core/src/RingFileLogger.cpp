@@ -57,14 +57,31 @@ RingFileLogger::RingFileLogger(LogManager *lm) //: LogHandler(lm)
 
 RingFileLogger::~RingFileLogger()
 {
-	free(m_FirstFile);
+	if (m_FileFormat != NULL)
+	{
+		free(m_FileFormat);
+	}
+
+	if (m_FirstFile != NULL)
+	{
+    	free(m_FirstFile);
+	}
 }
 
 
 void RingFileLogger::setLogFileFormat(char *fmt)
 {
-	m_FileFormat = fmt;
-	free(m_FirstFile);
+	if (m_FileFormat != NULL)
+	{
+		free(m_FileFormat);
+	}
+	m_FileFormat = strdup(fmt);
+
+
+	if (m_FirstFile != NULL)
+	{
+		free(m_FirstFile);
+	}
 	asprintf(&m_FirstFile, m_FileFormat, 0);
 }
 

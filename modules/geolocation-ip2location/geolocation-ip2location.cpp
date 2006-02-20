@@ -112,7 +112,7 @@ GeoLocationIp2Location::~GeoLocationIp2Location()
  */
 bool GeoLocationIp2Location::Init()
 {
-//#ifdef HAVE_LIBIP2LOCATION_H
+#ifdef HAVE_LIBIP2LOCATION
 
 	if ( m_Config == NULL )
 	{
@@ -130,11 +130,11 @@ bool GeoLocationIp2Location::Init()
 		return false;
 	}
 
-	if ( (m_Ip2Location = ip2location_open((char *)path.c_str())) == NULL)
+	if ( (m_Ip2Location = IP2Location_open((char *)path.c_str())) == NULL)
 	{
 		logCrit("Could not open ip2Location Database in Path %s\n",path.c_str());
 	}
-	ip2location_initialize(m_Ip2Location);
+
 
 	if ( g_Nepenthes->getGeoMgr()->registerGeolocationHandler(this) == false)
 	{
@@ -142,11 +142,11 @@ bool GeoLocationIp2Location::Init()
 		return false;
 	}
 	return true;
-/*#else 
+#else 
 	logCrit("%s","Module compiled without libgeoip installed, wont work\n");
 	return false;
 #endif
-*/
+
 }
 
 bool GeoLocationIp2Location::Exit()
@@ -157,24 +157,24 @@ bool GeoLocationIp2Location::Exit()
 
 bool GeoLocationIp2Location::geoLocate(GeoLocationQuery *query)
 {
-//#ifdef HAVE_LIBIP2LOCATION
+#ifdef HAVE_LIBIP2LOCATION
 	uint32_t ip = query->getAddress();
 
 	char *host = inet_ntoa(*(in_addr *)&ip);
-	Ip2LocationRecord *record;
-	if ( (record = get_record(m_Ip2Location, (char *)host,ALL)) != NULL)
+	IP2LocationRecord *record;
+	if ( (record = IP2Location_get_record(m_Ip2Location, (char *)host,ALL)) != NULL)
 	{
 		GeoLocationResult *geo = new GeoLocationResult(ip,record->longitude,record->latitude,record->country_long,record->country_short,record->city,query->getObject());
 		query->getCallback()->locationSuccess(geo);
-		free_record(record);
+		IP2Location_free_record(record);
 		delete geo;
 	}
 
 	delete query;
 	return true;
-//#else
-//	return false;
-//#endif
+#else
+	return false;
+#endif
 }
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)

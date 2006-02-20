@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.3], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.3])
+AC_INIT([nepenthes], [0.1.4], [dornseif@informatik.rwth-aachen.de])
+AM_INIT_AUTOMAKE([nepenthes], [0.1.4])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
@@ -335,11 +335,11 @@ dnl * postgre Support                                  *
 dnl **************************************************
 
 AC_ARG_WITH(postgre-lib,
-    [  --with-postgre-lib=PATH	specify path to MySQL client library],
+    [  --with-postgre-lib=PATH	specify path to PostGRE client library],
     [postgre_lib=$withval],
     [postgre_lib=no])
 AC_ARG_WITH(postgre-include,
-    [  --with-postgre-include=PATH	specify path to MySQL include files],
+    [  --with-postgre-include=PATH	specify path to PostGRE include files],
     [postgre_inc=$withval],
     [postgre_inc=no])
 

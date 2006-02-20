@@ -30,12 +30,29 @@
 #ifndef HAVE_GENERICXOR_HPP
 #define HAVE_GENERICXOR_HPP
 
+#include <stdint.h>
 #include <pcre.h>
 #include "ShellcodeHandler.hpp"
 
 
 namespace nepenthes
 {
+	struct XORPcreHelper
+	{
+		char *m_PCRE;
+		char *m_Name;
+		uint16_t m_Options; // will use this later
+
+	};
+
+
+	struct XORPcreContext
+	{
+		pcre *m_Pcre;
+		string m_Name;
+		uint16_t m_Options; // 
+	};
+
 	class GenericXOR : public ShellcodeHandler
 	{
 	public:
@@ -45,7 +62,7 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 	protected:
-        list <pcre*> m_Pcres;
+        list <XORPcreContext *> m_Pcres;
 	};
 }
 

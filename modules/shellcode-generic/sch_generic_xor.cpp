@@ -86,29 +86,63 @@ bool GenericXOR::Init()
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 
-	const char *test[]=
+	XORPcreHelper test[7]=
 	{
-		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(.)\\xFF\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9(.*)$", // rbot 64k 
-		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80\\x73\\x0C(.)\\x43\\xE2\\xF9(.*)$",			// rbot 265 byte
-		"\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.(.*)$",																	// generic mwcollect
-		"\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF(.*)$",		// bielefeld
-		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9(.*)$",		// halle	
-//        "\\xEB\\x19\\x5E\\x31\\xC9\\x81\\xE9(....)\\x81\\x36(....)\\x81\\xEE\\xFC\\xFF\\xFF\\xFF\\xE2\\xF2\\xEB\\x05\\xE8\\xE2\\xFF\\xFF\\xFF(.*)$", 			// adenau xor
-		 
-		NULL
+		{
+			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(.)\\xFF\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$", 
+			"rbot 64k",
+			23
+		},
+		{
+			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80\\x73\\x0C(.)\\x43\\xE2\\xF9)(.*)$",			
+			"rbot 265 byte",
+			21
+		},
+		{
+			"(.*)(\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$",		
+			"bielefeld",
+			14
+		},
+		{
+			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$",		
+			"halle",
+			23
+		},
+		{
+			"(.*)(\\xEB\\x19\\x5E\\x31\\xC9\\x81\\xE9(....)\\x81\\x36(....)\\x81\\xEE\\xFC\\xFF\\xFF\\xFF\\xE2\\xF2\\xEB\\x05\\xE8\\xE2\\xFF\\xFF\\xFF)(.*)$", 			
+			"adenau xor"
+		},
+		
+		{
+			"(.*)(\\xEB\\x03\\x5D\\xEB\\x05\\xE8\\xF8\\xFF\\xFF\\xFF\\x8B\\xC5\\x83\\xC0\\x11\\x33\\xC9\\x66\\xB9(..)\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$",	
+			"kaltenborn xor",
+			27
+		},
+		{
+			"(.*)(\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.)(.*)$",																	
+			"generic mwcollect",
+			20
+
+		}
 	};
 
-	for( uint32_t i = 0; test[i]; i++ )
+	for( uint32_t i = 0; i <= 6; i++ )
 	{
 		pcre *mypcre;
-		if((mypcre = pcre_compile(test[i], PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+		if((mypcre = pcre_compile(test[i].m_PCRE, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 		{
 			logCrit("GenericXOR could not compile pattern %i\n\t\"%s\"\n\t Error:\"%s\" at Position %u", i,
 					test[i], pcreEerror, pcreErrorPos);
 			return false;
 		}else
 		{
-			m_Pcres.push_back(mypcre);
+			logDebug("Adding %s \n",test[i].m_Name);
+			XORPcreContext *ctx = new XORPcreContext;
+			ctx->m_Pcre = mypcre;
+			ctx->m_Name = test[i].m_Name;
+			ctx->m_Options = test[i].m_Options;
+			m_Pcres.push_back(ctx);
+
 			logSpam("PCRE %i compiled \n",i);
 		}
 	}
@@ -120,7 +154,9 @@ bool GenericXOR::Exit()
 {
 	while(m_Pcres.size()>0)
 	{
-		pcre_free(m_Pcres.front());
+
+		pcre_free(m_Pcres.front()->m_Pcre);
+		delete m_Pcres.front();
 		m_Pcres.pop_front();
 	}
     	
@@ -137,14 +173,23 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 	uint32_t len = (*msg)->getSize();
 	int32_t output[10 * 3];
 
-	list <pcre *>::iterator it;
+	list <XORPcreContext *>::iterator it;
 	uint32_t i;
 	for (it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++)
 	{
 		int32_t result=0;
-		if((result = pcre_exec(*it, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0)
+		if((result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0)
 		{
 //			logSpam("PCRE %i %x matches %i \n",i,*it,result);
+			const char *preload;
+			uint32_t preloadSize;
+			preloadSize = pcre_get_substring((char *) shellcode, output, result, 1, &preload);
+
+
+			const char *xordecoder;
+			uint32_t xordecoderSize;
+			xordecoderSize = pcre_get_substring((char *) shellcode, output, result, 2, &xordecoder);			
+
 
 			const char *match;
 			byte key=0;
@@ -152,7 +197,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			uint32_t keysize;
 			uint32_t codesize = 0, codesizeLen, totalsize;
 
-			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 1, &match);
+			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 3, &match);
 			switch (codesizeLen )
 			{
 			case 4:
@@ -173,7 +218,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 
 
 
-			keysize = pcre_get_substring((char *) shellcode, output, result, 2, &match);
+			keysize = pcre_get_substring((char *) shellcode, output, result, 4, &match);
 
 			switch(keysize)
 			{
@@ -193,13 +238,14 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			
 
 
-			totalsize = pcre_get_substring((char *) shellcode, output, result, 3, &match);
+			totalsize = pcre_get_substring((char *) shellcode, output, result, 5, &match);
 			byte *decodedMessage = (byte *)malloc(totalsize);
 			memcpy(decodedMessage, match, totalsize);
 			pcre_free_substring(match);
 
-			logInfo("Detected generic XOR decoder #%i size length has %d bytes, size is %d, totalsize %d.\n",i, codesizeLen, codesize, totalsize);
+			logInfo("Detected generic XOR decoder %s size length has %d bytes, size is %d, totalsize %d.\n",(*it)->m_Name.c_str(), codesizeLen, codesize, totalsize);
 
+				
 
 			switch(keysize)
 			{
@@ -223,9 +269,18 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 				break;
 			}
 
-			
+			char *newshellcode = (char *)malloc(len*sizeof(char));
+			memset(newshellcode,0x90,len);
+			memcpy(newshellcode,preload,preloadSize);
 
-			Message *newMessage = new Message((char *)decodedMessage, totalsize, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
+			memcpy(newshellcode+preloadSize+xordecoderSize,decodedMessage,totalsize);
+
+			pcre_free_substring(preload);
+			pcre_free_substring(xordecoder);
+
+//			g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)newshellcode, len);			
+
+			Message *newMessage = new Message((char *)newshellcode, len, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
 				   (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());
 
 			delete *msg;
@@ -233,6 +288,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			*msg = newMessage;
 
 			free(decodedMessage);
+			free(newshellcode);
 			return SCH_REPROCESS;
 		}
 

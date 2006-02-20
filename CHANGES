@@ -1,3 +1,39 @@
+Version 0.1.4
+=============
+Bugfix release/minor features.
+
+Nepenthes
+	FIXES and ADDITIONS
+	-----
+	* FileLogger logged to somewhere after config file was deleted as he lacked a valid path
+
+
+Modules
+	FIXES and ADDITIONS
+	-----
+	* download-nepenthes 
+		* NULL pointer bug fixed
+	  
+	* shellcode-generic 
+		* rewrapped xor code, 
+		* added some bindshell codes
+			* parthenstein
+			* wackerow
+			* kaltenborn
+	  
+	* geolocation-ip2location 
+		* now makes use of the real ip2location c api you can download on their homepage, 
+		  setting the lib up sucks, but it works
+	  
+	* log-surfnet
+		* moduledescription changed, as we log to postgres, not to mysql
+	   
+	* dnsresolve-adns 
+		* added modulename and description
+		
+
+
+
 Version 0.1.3
 =============
 Bugfix release/minor features.

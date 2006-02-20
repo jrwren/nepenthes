@@ -56,6 +56,10 @@ Nepenthes *g_Nepenthes;
 
 DNSResolverADNS::DNSResolverADNS(Nepenthes *nepenthes)
 {
+	m_ModuleName        = "dnsresolve-adns";
+	m_ModuleDescription = "resolve dns async";
+	m_ModuleRevision    = "$rev$";
+
 	m_DNSHandlerName = "DNSResolverADNS";
 	m_Queue = 0;
 

@@ -47,7 +47,7 @@ namespace nepenthes
 		virtual void	setLogFile(const char *filename);
 
 	private:
-		const char		*m_Filename;
+		char		*m_Filename;
 	};
 
 }
