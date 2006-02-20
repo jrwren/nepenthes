@@ -1331,12 +1331,12 @@ void SignalHandler(int32_t iSignal)
     switch(iSignal)
     {
 	case SIGHUP:
-		logCrit("Got SIGHUP\nRereading Config File!\n");
+		logCrit("%s\n", "Got SIGHUP\nRereading Config File!\n");
 		g_Nepenthes->reloadConfig();
 		break;
 
 	case SIGINT:
-		logCrit("Got SIGINT\nStopping NOW!\n");
+		logCrit("%s\n", "Got SIGINT\nStopping NOW!\n");
 		g_Nepenthes->stop();
 		break;
 
