@@ -92,7 +92,7 @@ bool HODConnect::Init()
 	"\\x40\\x90\\x6C\\x34\\x75\\x60\\x33\\xF9\\x7E\\xE0\\x5F\\xE0";
 
 
-	logInfo("pcre is %s \n",oc192bindpcre);
+//	logInfo("pcre is %s \n",oc192bindpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;

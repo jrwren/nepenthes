@@ -170,7 +170,7 @@ void SubmitManager::addSubmission(Download *down)
 	logInfo("File %s has type %s \n",down->getMD5Sum().c_str(),filetype);
 	if ( filetype != NULL )
 	{
-		if (strstr(filetype,"MS-DOS executable") == NULL && m_StrictFileType == true )
+		if (strstr(filetype,"executable") == NULL && m_StrictFileType == true )
 		{
 			logWarn("dropping file %s as it is not executable\n",down->getMD5Sum().c_str());
 			return;

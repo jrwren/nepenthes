@@ -62,16 +62,6 @@ DCOMDialogue::DCOMDialogue(Socket *socket)
 
 DCOMDialogue::~DCOMDialogue()
 {
-	switch (m_State)
-	{
-	case DCOM_DONE:
-		break;
-
-	default:
-		logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","DCOM",m_Buffer->getSize(),m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
-	}
-
 	delete m_Buffer;
 }
 
@@ -170,7 +160,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			if ( m_Buffer->getSize() >= sizeof(rpcfp_inqifids) -1  && 
 				 memcmp(sol2k_request, m_Buffer->getData(), sizeof(rpcfp_inqifids)-1 ) == 0 )
 			{
-				logInfo("%s","recognized OS version check\n");
+				logDebug("%s","recognized OS version check\n");
 				// we have to send a valid os response reply
 				reply[2] = DCE_PKT_RESPONSE;
 				memcpy(reply+47,w2kuuid_sig,sizeof(w2kuuid_sig));
@@ -230,7 +220,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 /*
 				else
 				{
-					logInfo("Unknown DCOM Shellcode (%i bytes)\n",msg->getMsgLen());
+					logDebug("Unknown DCOM Shellcode (%i bytes)\n",msg->getMsgLen());
 					g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 				}
 */
@@ -273,21 +263,8 @@ ConsumeLevel DCOMDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-void DCOMDialogue::syncState(ConsumeLevel cl)
+void DCOMDialogue::dump()
 {
-	logPF();
-	switch (cl)
-	{
-	case CL_ASSIGN_AND_DONE:
-	case CL_ASSIGN:
-		if (getConsumeLevel() != cl)
-		{
-			m_State = DCOM_DONE;
-		}
-		break;
-
-	default:
-		break;
-	}
-
+	logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","DCOM",m_Buffer->getSize(),m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 }

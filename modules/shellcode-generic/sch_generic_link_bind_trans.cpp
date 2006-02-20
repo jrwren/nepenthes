@@ -163,7 +163,7 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 
 		uint32_t remoteHost = (*msg)->getRemoteHost();
 		asprintf(&url,"blink://%s:%i/%s",inet_ntoa(*(in_addr *)&remoteHost),port,base64Key);
-		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url);
+		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url,0);
 		free(url);
 		free(base64Key);
 

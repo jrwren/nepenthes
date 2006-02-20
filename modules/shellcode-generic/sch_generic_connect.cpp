@@ -85,7 +85,7 @@ bool GenericConnect::Init()
 		i++;
 
 		const char *pattern = sList[i];
-		logInfo("pcre is %s \n",pattern);
+//		logInfo("pcre is %s \n",pattern);
 		const char * pcreEerror;
 		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
@@ -96,7 +96,7 @@ bool GenericConnect::Init()
 			return false;
 		}else
 		{
-			logInfo("Adding %s \n",name);
+			logDebug("Adding %s \n",name);
 			PcreContext *ctx = new PcreContext;
 			ctx->m_Name = name;
 			ctx->m_Pcre = mypcre;

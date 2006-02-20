@@ -367,17 +367,18 @@ bool DownloadManager::downloadUrl(Download *down)
  * 
  * @return returns downloadUrl(Download *) return value
  */
-bool DownloadManager::downloadUrl(char *url, uint32_t address, char *triggerline)
+bool DownloadManager::downloadUrl(char *url, uint32_t address, char *triggerline, uint8_t downloadflags)
 {
 	Download *down = new Download(url,address,triggerline);
-	
+	down->addDownloadFlags(downloadflags);
+
 	return downloadUrl(down);
 }
 
 
 
 
-bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address)
+bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags)
 {
 	string url = proto;
 	 url += "://";
@@ -401,6 +402,7 @@ bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *hos
 	down->getDownloadUrl()->setPath(file);
 	down->getDownloadUrl()->setFile(file);
 
+	down->addDownloadFlags(downloadflags);
 	return downloadUrl(down);
 }
 
@@ -421,7 +423,7 @@ bool DownloadManager::registerDownloadHandler(DownloadHandler * handler, const c
 	dht.m_Handler = handler;
 	dht.m_Protocol = protocol;
 	m_DownloadHandlers.push_back(dht);
-	logInfo("Registerd %s as handler for protocol %-9s (%i protocols supported)\n",handler->getDownloadHandlerName().c_str(),protocol, m_DownloadHandlers.size());
+	logDebug("Registerd %s as handler for protocol %-9s (%i protocols supported)\n",handler->getDownloadHandlerName().c_str(),protocol, m_DownloadHandlers.size());
 	return true;
 }
 

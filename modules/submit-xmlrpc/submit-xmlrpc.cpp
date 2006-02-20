@@ -204,7 +204,7 @@ void SubmitXMLRPC::Hit(Download *down)
 
 bool SubmitXMLRPC::dnsResolved(DNSResult *result)
 {
-	logInfo("url %s resolved %i for %x\n",result->getDNS().c_str(), result->getIP4List().size(), (uint32_t) result->getObject());
+	logDebug("url %s resolved %i for %x\n",result->getDNS().c_str(), result->getIP4List().size(), (uint32_t) result->getObject());
 
 	list <uint32_t> resolved = result->getIP4List();
 	uint32_t host = resolved.front();
@@ -217,7 +217,7 @@ bool SubmitXMLRPC::dnsResolved(DNSResult *result)
 
 bool SubmitXMLRPC::dnsFailure(DNSResult *result)
 {
-
+	// FIXME HARD
 	return true;
 }
 

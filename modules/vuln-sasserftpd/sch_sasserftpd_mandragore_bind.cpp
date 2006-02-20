@@ -87,7 +87,7 @@ bool MandragoreBind::Init()
 		"\\xC8\\x21\\x0E";
 
 
-	logInfo("pcre is %s \n",pcre);
+//	logInfo("pcre is %s \n",pcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
@@ -96,9 +96,6 @@ bool MandragoreBind::Init()
 		logCrit("MandragoreBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				pcre, pcreEerror, pcreErrorPos);
 		return false;
-	}else
-	{
-		logInfo("Compiled Pattern %s \n",__PRETTY_FUNCTION__);
 	}
 	return true;
 }

@@ -46,6 +46,9 @@
 
 #include "ShellcodeManager.hpp"
 
+#include "Config.hpp"
+
+#include "Download.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -107,9 +110,30 @@ X2::~X2()
  */
 bool X2::Init()
 {
-	m_ModuleManager = m_Nepenthes->getModuleMgr();
+	if ( m_Config == NULL )
+	{
+		logCrit("%s","I need a config\n");
+		return false;
+	}
 
-	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,10002,0,45,this);
+	StringList sList;
+	int32_t timeout;
+	try
+	{
+		sList = *m_Config->getValStringList("x-2.ports");
+		timeout = m_Config->getValInt("x-2.accepttimeout");
+	} catch ( ... )
+	{
+		logCrit("%s","Error setting needed vars, check your config\n");
+		return false;
+	}
+
+	uint32_t i = 0;
+	while (i < sList.size())
+	{
+		m_Nepenthes->getSocketMgr()->bindTCPSocket(0,atoi(sList[i]),0,timeout,this);
+		i++;
+	}
 	return true;
 }
 
@@ -211,8 +235,14 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 	char *cmd = strsep(&message, " ");
 #endif
 
-	if( !strcmp(cmd, "download") )
+	if( !strncmp(cmd, "download",8) )
 	{
+
+		uint8_t downloadflags=0;
+		if (strcmp(cmd,"downloadbinary") == 0)
+		{
+			downloadflags |= DF_TYPE_BINARY;
+		}
 
 #ifdef WIN32
 	char *url = "http://test.de/";
@@ -221,7 +251,7 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 #endif
 		logCrit("Downloading file from \"%s\"\n", url);
 
-        msg->getSocket()->getNepenthes()->getDownloadMgr()->downloadUrl(url, msg->getRemoteHost(), msg->getMsg());
+        msg->getSocket()->getNepenthes()->getDownloadMgr()->downloadUrl(url, msg->getRemoteHost(), msg->getMsg(),downloadflags);
 
 		string sDeineMutter("trying to download file\n");
 		msg->getResponder()->doRespond((char *)sDeineMutter.c_str(),sDeineMutter.size());

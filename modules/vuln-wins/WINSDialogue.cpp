@@ -64,16 +64,6 @@ WINSDialogue::WINSDialogue(Socket *socket)
 
 WINSDialogue::~WINSDialogue()
 {
-	switch (m_State)
-	{
-	case WINS_NULL:
-		logWarn("WINS unknown shellcode %i bytes State 0\n",m_Buffer->getSize());
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
-		break;
-	case WINS_DONE:
-		break;
-	}
-	
 	delete m_Buffer;
 }
 
@@ -81,6 +71,31 @@ ConsumeLevel WINSDialogue::incomingData(Message *msg)
 {
 	logPF();
 	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
+
+
+	switch (m_State)
+	{
+	case WINS_NULL:
+		{
+			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
+					m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
+			sch_result res = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			delete Msg;
+
+			if ( res == SCH_DONE )
+			{
+				m_State = WINS_DONE;
+				return CL_ASSIGN_AND_DONE;
+			}
+			
+
+		}
+		break;
+
+	case WINS_DONE:
+		break;
+
+	}
 	return CL_ASSIGN;
 }
 
@@ -91,36 +106,22 @@ ConsumeLevel WINSDialogue::outgoingData(Message *msg)
 
 ConsumeLevel WINSDialogue::handleTimeout(Message *msg)
 {
-	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
-			m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-	if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
-	{
-		m_State = WINS_DONE;
-	}
-	delete Msg;
 	return CL_DROP;
 }
 
 ConsumeLevel WINSDialogue::connectionLost(Message *msg)
 {
-	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
-			m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-	if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
-	{
-		m_State = WINS_DONE;
-	}
-	delete Msg;
 	return CL_DROP;
 }
 
 ConsumeLevel WINSDialogue::connectionShutdown(Message *msg)
 {
-	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
-			m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-	if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
-	{
-		m_State = WINS_DONE;
-	}
-	delete Msg;
 	return CL_DROP;
+}
+
+void WINSDialogue::dump()
+{
+
+	logWarn("WINS unknown shellcode %i bytes State 0\n",m_Buffer->getSize());
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 }

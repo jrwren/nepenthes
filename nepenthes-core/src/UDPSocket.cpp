@@ -78,7 +78,7 @@ UDPSocket::UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehos
 	m_Type = ST_UDP|ST_CONNECT;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
 }
 
@@ -110,7 +110,7 @@ UDPSocket::UDPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, tim
 	m_Type = ST_UDP | ST_BIND;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
 	m_Nepenthes = nepenthes;
 }

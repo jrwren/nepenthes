@@ -149,7 +149,7 @@ sch_result Wuerzburg::handleShellcode(Message **msg)
 		char *url;
 
 		asprintf(&url,"csend://%s:%d",inet_ntoa(*(in_addr *)&address), port);
-		g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url);
+		g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url,0);
 		free(url);
 
 //		Socket *sock = g_Nepenthes->getSocketMgr()->connectTCPHost(0,address,port,30);

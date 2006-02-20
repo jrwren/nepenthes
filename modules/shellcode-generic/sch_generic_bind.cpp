@@ -86,7 +86,7 @@ bool GenericBind::Init()
 
 
 		const char *pattern = sList[i];
-		logInfo("pcre is %s \n",pattern);
+//		logS("pcre is %s \n",pattern);
 		const char * pcreEerror;
 		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
@@ -97,7 +97,7 @@ bool GenericBind::Init()
 			return false;
 		}else
 		{
-			logInfo("Adding %s \n",name);
+			logSpam("Adding %s \n",name);
 			PcreContext *ctx = new PcreContext;
 			ctx->m_Name = name;
 			ctx->m_Pcre = mypcre;

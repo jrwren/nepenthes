@@ -25,7 +25,7 @@
  *
  *******************************************************************************/
 
-/* $Id */
+/* $Id$ */
  
 #include "VFSCommandCMD.hpp"
 #include "VFSNode.hpp"
@@ -37,6 +37,12 @@
 #include "DownloadManager.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
+
+
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_shell
 
 using namespace nepenthes;
 using namespace std;

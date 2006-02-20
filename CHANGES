@@ -1,3 +1,57 @@
+Version 0.1.2
+=============
+Bugfix release/minor features.
+
+* Utilities
+	* hexdump uses nepenthes.utilites.hexdump_path as pathinfo now
+	
+* shellemu-wint
+	* VFSCommandFTP uses new DownloadFlags
+
+* Download 
+	* added DownloadFlags so we can handle broken ftpds better
+	* added ::addFlag(uint8_t ) & ::getFlags()
+
+* DownloadManager 
+	* download() now takes uint8_t downloadflags as argument
+
+* download-ftp
+	* bind to port 0 to avoid collision
+	* rewrote quite everything to handle broken ftp daemons better, including the new DownloadFlags
+
+* Socket
+	* changed SS_NULL to SS_CONNECTED
+	* added SS_CONNECTING
+
+	
+* TCPSocket 
+	* set localip on accept() Sockets, so we can use this info further
+	* bind ConnectSockets before connecting, so we use the same ip for reverseconnect shells
+	* uses SS_CONNECTING for connect sockets
+	* overloads setState(), so if they are in state SS_CONNECTING and goto SS_CONNECTED they 
+		can call Dialogue::connectionEstablished() for their dialogues
+
+	* some changes in the TCPSockets internal Dialogue handling prevent nepenthes recognizing 
+		the same shellcode in more than one dialogue, resulting in more than one download per exploit
+		
+		
+* vuln-dameware
+	* created
+	
+* Dialogue
+	* added ::dump()
+	* added ::connectionEstablished()
+
+	
+* many vuln-* modules
+	* added CL_ASSIGN_AND_DONE handling
+
+
+* many shellcodehandlers using downloadhandler
+	* added valid downloadflag usage
+
+
+
 Version 0.1.1
 =============
 Bugfix release/minor features.
@@ -70,15 +124,30 @@ and such stuff for everything so far.
 
 * download-ftp
 	* bind to port 0 to avoid collision
+
+* Socket
+	* changed SS_NULL to SS_CONNECTED
+	* added SS_CONNECTING
 	
 * TCPSocket 
 	* set localip on accept() Sockets, so we can use this info further
 	* bind ConnectSockets before connecting, so we use the same ip for reverseconnect shells
-	
+	* uses SS_CONNECTING for connect sockets
+	* overloads setState(), so if they are in state SS_CONNECTING and goto SS_CONNECTED they 
+		can call Dialogue::connectionEstablished() for their dialogues
+		
 
 * submit-xmlrpc
 	* created
+	* depends on vuln-lsass 
 	
+* vuln-dameware
+	* created
+	
+* Dialogue
+	* added dump()
+	* added connectionEstablished
+
 
 Version 0.1.0
 =============

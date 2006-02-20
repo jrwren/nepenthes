@@ -103,7 +103,7 @@ char *TFTPDialogue::getRequest()
 
 ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 {
-/*	logInfo("read %i bytes from %s \n",msg->getMsgLen(), m_Download->getDownloadUrl()->getPath().c_str());
+/*	logDebug("read %i bytes from %s \n",msg->getMsgLen(), m_Download->getDownloadUrl()->getPath().c_str());
 	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
 	if(m_Download->getDownloadBuffer()->getLength() < m_Download->getDownloadUrl()->getPort())
         return CL_ASSIGN;
@@ -123,7 +123,7 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 		break;
 
 	case ERROR:
-        logInfo("Got Error \"%.*s\" \n", msg->getMsgLen()-4, ptftphdr->th_msg );
+        logInfo("Got Error \"%.*s\"  %s \n", msg->getMsgLen()-4, ptftphdr->th_msg , m_Download->getUrl().c_str());
 		m_Socket->setStatus(SS_CLOSED);
 		break;
 
@@ -134,7 +134,7 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 			uint32_t iBlockNum = ntohs(ptftphdr->th_block);
 			if (iBlockNum != m_Blocks + 1)
 			{
-				logSpam("Got block out of order %i <-> %i \n",m_Blocks, iBlockNum);
+				logDebug("Got block out of order %i <-> %i %s \n",m_Blocks, iBlockNum, m_Download->getUrl().c_str());
 				return CL_ASSIGN;
 			}
 
@@ -182,7 +182,7 @@ ConsumeLevel TFTPDialogue::handleTimeout(Message *msg)
 		return CL_ASSIGN;
 	}else
 	{
-		logSpam("Max Timeouts reached (%i) \n", m_MaxRetries );
+		logInfo("Max Timeouts reached (%i) %s \n", m_MaxRetries, m_Download->getUrl().c_str() );
 		return CL_DROP;
 	}
 }

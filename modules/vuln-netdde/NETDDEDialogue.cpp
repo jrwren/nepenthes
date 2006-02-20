@@ -82,19 +82,6 @@ NETDDEDialogue::NETDDEDialogue(Socket *socket)
 
 NETDDEDialogue::~NETDDEDialogue()
 {
-	switch (m_State)
-	{
-
-	case NETDDE_NULL:
-	case NETDDE_SHELLCODE:
-		logWarn("Unknown NETDDE exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
-		break;
-
-	case NETDDE_DONE:
-		break;
-	}
-
 	delete m_Buffer;
 }
 
@@ -130,12 +117,17 @@ ConsumeLevel NETDDEDialogue::incomingData(Message *msg)
 		{
         	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 									   m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-			if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
+
+			sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			delete Msg;
+
+			if ( sch == SCH_DONE )
 			{
 				m_Buffer->clear();
 				m_State = NETDDE_DONE;
+				return CL_ASSIGN_AND_DONE;
 			}
-			delete Msg;
+			
 
 		}
 		break;
@@ -206,4 +198,8 @@ ConsumeLevel NETDDEDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-
+void NETDDEDialogue::dump()
+{
+	logWarn("Unknown NETDDE exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+}

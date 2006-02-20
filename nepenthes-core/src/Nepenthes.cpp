@@ -57,6 +57,12 @@
 #include "DNSManager.hpp"
 #include "Message.hpp"
 
+
+#ifdef STDTAGS
+	#undef STDTAGS
+	#define STDTAGS l_mgr
+#endif	
+
 using namespace nepenthes;
 
 Nepenthes *g_Nepenthes;
@@ -118,7 +124,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	bool verbose=false;
 
 	char *filecheckarg =NULL;
-	char *confpath = SYSCONFDIR "/nepenthes.conf";
+	char *confpath = SYSCONFDIR "/nepenthes/nepenthes.conf";
 	char *basedir;
 	char *workingdir = PREFIX;
 	char *chUser = NULL;
@@ -1128,9 +1134,17 @@ void show_help(bool defaults)
 }
 
 #ifdef __GNUG__
-  #define MY_COMPILER "g++"
+	#define MY_COMPILER "g++"
+/*
+	#if ( __GNUC__ == 4 && __GNUC_MINOR__ == 0  ) // g++ 4 detection
+		#error "g++ 4 has bugs, dont use g++4 " 
+		#error "nepenthes would compile using g++4, "
+		#error "but the async dns would fail as there is a bug somewhere outside nepenthes" 
+		#error "refer to http://nepenthes.sourceforge.net/documentation:readme:faq:gcc_4 for more information"
+	#endif
+*/	
 #else
-  #define MY_COMPILER "unknown Compiler"
+	#define MY_COMPILER "unknown Compiler"
 #endif
 
 

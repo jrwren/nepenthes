@@ -87,7 +87,7 @@ bool HATSQUADConnect::Init()
 	"\\xC6\\x79\\xFF\\x75\\x04\\xFF\\xD6\\xFF\\x77\\xFC\\xFF\\xD0\\x68\\xEF\\xCE\\xE0"
 	"\\x60\\x53\\xFF\\xD6\\xFF\\xD0";
 
-	logInfo("pcre is %s \n",hatsquadbindpcre);
+//	logInfo("pcre is %s \n",hatsquadbindpcre);
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)

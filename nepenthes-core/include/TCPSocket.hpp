@@ -55,6 +55,8 @@ public:
 		bool checkTimeout();
 		bool handleTimeout();
 		bool doRespond(char *msg, uint32_t len);
+
+		void setStatus(socket_state i);
 	protected:
 		list <Packet *> m_TxPackets; 
 	};

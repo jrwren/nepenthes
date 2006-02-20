@@ -85,7 +85,7 @@ bool MandragoreConnect::Init()
 	"\\xDE\\x5D\\x19\\xE6\\x4D\\x75\\x75\\x75\\xBA\\xB9\\x7F\\xEE\\xDE\\x55\\x9E\\xD2"
 	"\\x55\\x9E\\xC2\\x55\\xDE\\x21\\xAE\\xD6\\x21\\xC8\\x21\\x0E";
 
-	logInfo("pcre is %s \n",thcconnectpcre);
+//	logInfo("pcre is %s \n",thcconnectpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
@@ -94,9 +94,6 @@ bool MandragoreConnect::Init()
 		logCrit("MandragoreConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				thcconnectpcre, pcreEerror, pcreErrorPos);
 		return false;
-	}else
-	{
-		logInfo("Compiled Pattern %s \n",__PRETTY_FUNCTION__);
 	}
 	return true;
 }

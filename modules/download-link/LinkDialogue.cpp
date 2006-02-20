@@ -79,7 +79,7 @@ LinkDialogue::LinkDialogue(Socket *socket, Download *down, uint32_t maxfilesize)
 
 	
 //	logInfo("LinkDialogue key #1 0x%02x%02x%02x%02x.\n",authKey[0], authKey[1], authKey[2], authKey[3]);
-	logInfo("LinkDialogue key #2 0x%02x%02x%02x%02x.\n",response[0], response[1], response[2], response[3]);
+	logDebug("LinkDialogue key #2 0x%02x%02x%02x%02x.\n",response[0], response[1], response[2], response[3]);
 	free(response);
 	m_Socket = socket;
     m_DialogueName = "LinkDialogue";
@@ -205,11 +205,11 @@ ConsumeLevel LinkDialogue::connectionShutdown(Message *msg)
         	g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
 		}else
 		{
-			logWarn("Download via linkbot filetransferr failed! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getLength(),m_Buffer->getSize());
+			logDebug("Download via linkbot filetransferr failed! ( download %i bytes, buffer is %i bytes)\n",m_Download->getDownloadBuffer()->getLength(),m_Buffer->getSize());
 		}
 		break;
 	case LINK_NULL:
-		logWarn("Download via linkbot filetransferr failed! ( buffer is %i bytes)\n",m_Buffer->getSize());
+		logDebug("Download via linkbot filetransferr failed! ( buffer is %i bytes)\n",m_Buffer->getSize());
 		break;
 
 	}

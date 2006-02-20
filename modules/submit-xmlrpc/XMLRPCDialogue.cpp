@@ -153,7 +153,7 @@ ConsumeLevel XMLRPCDialogue::incomingData(Message *msg)
 				printf("content-length '%s' \n",payloadsize);
                 if (m_Buffer->getSize() == (uint32_t)atoi(payloadsize) )
 				{
-                	logInfo("%s","received payload\n");
+                	logDebug("%s","received payload\n");
 					printf("%.*s",m_Buffer->getSize(),(char *)m_Buffer->getData());
                     string s((char *)m_Buffer->getData(),m_Buffer->getSize());
 					XMLRPCParser p((char *)s.c_str());
@@ -192,7 +192,7 @@ ConsumeLevel XMLRPCDialogue::incomingData(Message *msg)
 
 					case CS_SEND_MALWARE:
 						value = p.getValue("methodResponse.params.param.value.string");
-						logInfo("Submit-XMLRPC was %s\n",value);
+						logDebug("Submit-XMLRPC was %s\n",value);
 						break;
 
 					case CS_LOG_DOWNLOAD_SUCCESS:
@@ -213,7 +213,7 @@ ConsumeLevel XMLRPCDialogue::incomingData(Message *msg)
 
 					case CS_LOG_DOWNLOAD_ATTEMPT:
 						value = p.getValue("methodResponse.params.param.value.string");
-						logInfo("Submit-XMLRPC was %s\n",value);
+						logDebug("Submit-XMLRPC was %s\n",value);
 						break;
 
 					}

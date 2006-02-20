@@ -40,11 +40,11 @@ using namespace std;
 namespace nepenthes
 {
 
-	class MydoomVuln : public Module , public DialogueFactory
+	class Kuang2Vuln : public Module , public DialogueFactory
 	{
 	public:
-		MydoomVuln(Nepenthes *);
-		~MydoomVuln();
+		Kuang2Vuln(Nepenthes *);
+		~Kuang2Vuln();
 		Dialogue *createDialogue(Socket *socket);
 		bool Init();
 		bool Exit();

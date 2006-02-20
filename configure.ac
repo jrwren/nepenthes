@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.1], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.1])
+AC_INIT([nepenthes], [0.1.2], [dornseif@informatik.rwth-aachen.de])
+AM_INIT_AUTOMAKE([nepenthes], [0.1.2])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
@@ -265,13 +265,15 @@ AC_CONFIG_FILES([Makefile
                  modules/vuln-upnp/Makefile
                  modules/vuln-veritas/Makefile
                  modules/vuln-wins/Makefile
+                 modules/vuln-dameware/Makefile
                  modules/x-1/Makefile
                  modules/x-2/Makefile
                  modules/x-3/Makefile
                  modules/x-4/Makefile
-                modules/x-5/Makefile                 
+                 modules/x-5/Makefile                 
                  modules/x-6/Makefile
                  modules/x-7/Makefile])
+#                modules/module-drone/Makefile
 #                modules/vuln-netbios/Makefile
                  
 AC_OUTPUT

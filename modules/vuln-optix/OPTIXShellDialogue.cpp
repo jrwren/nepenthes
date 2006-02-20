@@ -116,7 +116,7 @@ ConsumeLevel OPTIXShellDialogue::incomingData(Message *msg)
 
 				// this will just open the optix downloadmanagers bind socket it its closed
 				
-				g_Nepenthes->getDownloadMgr()->downloadUrl("optix://localhost:500/file",msg->getRemoteHost(),"optix foobar");
+				g_Nepenthes->getDownloadMgr()->downloadUrl("optix://localhost:500/file",msg->getRemoteHost(),"optix foobar",0);
 			}
         }
 		break;

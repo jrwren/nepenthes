@@ -11,7 +11,7 @@ EXTRA_DIST = CHANGES doc/README doc/README.VFS doc/logo-shaded.svg conf/nepenthe
 docdir = $(prefix)/share/doc
 doc_DATA = doc/README doc/README.VFS doc/logo-shaded.svg
 
-sysconf_DATA = conf/nepenthes.conf.dist
+#sysconf_DATA = conf/nepenthes.conf.dist
 
 AM_CXXFLAGS = ''
 
@@ -23,18 +23,20 @@ AM_CXXFLAGS = ''
 #AM_CXXFLAGS += -pg
 #endifdef
 
-# $(INSTALL_DATA) $(srcdir)/conf/nepenthes.conf.dist $(DESTDIR)$(sysconfdir)/nepenthes.conf.dist
+# $(INSTALL_DATA) $(srcdir)/conf/nepenthes.conf.dist $(DESTDIR)$(sysconfdir)/nepenthes/nepenthes.conf.dist
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
-	if [ ! -e $(DESTDIR)$(sysconfdir)/nepenthes.conf ]; then \
-		$(INSTALL_DATA) $(srcdir)/conf/nepenthes.conf.dist $(DESTDIR)$(sysconfdir)/nepenthes.conf; \
+	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/nepenthes
+	$(INSTALL_DATA) $(srcdir)/conf/nepenthes.conf.dist $(DESTDIR)$(sysconfdir)/nepenthes/nepenthes.conf.dist; \
+	if [ ! -e $(DESTDIR)$(sysconfdir)/nepenthes/nepenthes.conf ]; then \
+		$(INSTALL_DATA) $(srcdir)/conf/nepenthes.conf.dist $(DESTDIR)$(sysconfdir)/nepenthes/nepenthes.conf; \
 	fi	
 	for src in `find modules -name '*.conf.dist'`; do \
-		$(INSTALL_DATA) "$$src" $(DESTDIR)$(sysconfdir) ; \
+		$(INSTALL_DATA) "$$src" $(DESTDIR)$(sysconfdir)/nepenthes ; \
 	done
 	for src in `find modules -name '*.conf.dist'`; do \
-		dst="$(DESTDIR)$(sysconfdir)/`basename "$$src" | perl -npe 's/\.dist$$//'`" ; \
+		dst="$(DESTDIR)$(sysconfdir)/nepenthes/`basename "$$src" | perl -npe 's/\.dist$$//'`" ; \
 		if [ ! -e "$$dst" ] ; then \
 		 	$(INSTALL_DATA) "$$src" "$$dst" ; \
 		fi ; \

@@ -51,11 +51,10 @@
 
 #include "DialogueFactoryManager.hpp"
 
-
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
-#define STDTAGS l_mod
+#define STDTAGS l_dl | l_hlr | l_mod
 
 using namespace nepenthes;
 

@@ -65,6 +65,34 @@ using namespace nepenthes;
 #define STDTAGS l_net | l_hlr
 
 
+
+/**
+ * set the sockets status
+ * if we are
+ * - a connect socket
+ * - in state SS_CONNECTING and set to state SS_CONNECTED
+ * -> inform the attached dialogues about it
+ * 
+ * @param i      the new socket status
+ */
+void  TCPSocket::setStatus(socket_state i)
+{
+	logPF();
+	if (isConnect() && i == SS_CONNECTED && m_Status == SS_CONNECTING)
+	{
+		list <Dialogue *>::iterator dia;
+		for ( dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++ )
+		{
+			(*dia)->connectionEstablished();
+		}
+	}
+	m_Status = i;
+	return;
+}
+
+
+
+
 /**
  * contructor for bind sockets
  * 
@@ -92,9 +120,11 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, tim
 	m_Type = ST_TCP | ST_BIND;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
 	m_Nepenthes = nepenthes;
+
+	m_HighestConsumeLevel = CL_DROP;
 }
 
 /**
@@ -127,11 +157,26 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, i
 	m_Type = ST_TCP | ST_ACCEPT;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
-	
+
+	m_HighestConsumeLevel = CL_DROP;
 }
 
+
+
+/**
+ * constructor for connect sockets
+ * 
+ * @param nepenthes  the nepenthes
+ *                   
+ * @param localhost  the local ip address to bind the socket to
+ * @param remotehost the remote hosts ip address
+ * @param remoteport the port to connect to
+ *                   
+ * @param connectiontimeout
+ *                   the timeout before we drop this try
+ */
 TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout)
 {
 	m_Nepenthes = nepenthes;
@@ -146,9 +191,13 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehos
 	m_Type = ST_TCP|ST_CONNECT;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTING;
 	m_Polled = false;
+
+	m_HighestConsumeLevel = CL_DROP;
 }
+
+
 
 
 TCPSocket::~TCPSocket()
@@ -172,6 +221,12 @@ TCPSocket::~TCPSocket()
 		while( m_Dialogues.size() > 0 )
 		{
 			logSpam("\tRemoving Dialog \"%s\" \n",m_Dialogues.back()->getDialogueName().c_str());
+
+			if (m_HighestConsumeLevel != CL_ASSIGN_AND_DONE )
+			{
+				m_Dialogues.back()->dump();
+			}
+
 			delete m_Dialogues.back();
 			m_Dialogues.pop_back();
 		}
@@ -242,7 +297,7 @@ bool TCPSocket::bindPort()
 	int32_t iSize = sizeof(addrBind);
 	getsockname(m_Socket, (struct sockaddr *) &addrBind, (socklen_t *) &iSize);
 	m_LocalPort = ntohs( ( (sockaddr_in *)&addrBind)->sin_port ) ;
-	logInfo("Success binding Port %i\n", m_LocalPort);
+	logDebug("Success binding Port %i\n", m_LocalPort);
 
     return true;
 }
@@ -288,7 +343,7 @@ bool TCPSocket::Exit()
 
 bool TCPSocket::connectHost()
 {
-	logInfo("Connecting %s:%i \n",inet_ntoa(* (in_addr *)&m_RemoteHost), m_RemotePort);
+	logDebug("Connecting %s:%i \n",inet_ntoa(* (in_addr *)&m_RemoteHost), m_RemotePort);
 	
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
 
@@ -357,7 +412,8 @@ bool TCPSocket::connectHost()
 
 Socket * TCPSocket::acceptConnection()
 {
-	logInfo("%s","acceptConnection() \n");
+	logPF();
+
 	struct sockaddr_in addrNew;
 	int32_t iSize = sizeof(addrNew);
 
@@ -448,7 +504,12 @@ int32_t TCPSocket::doSend()
 			list <Dialogue *>::iterator dia;
             for( dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++ )
 			{
-				logInfo("giving data tp %s \n",(*dia)->getDialogueName().c_str());
+				if ((*dia)->getConsumeLevel() == CL_DROP)
+				{
+					continue;
+				}
+
+				logDebug("giving data to %s \n",(*dia)->getDialogueName().c_str());
 				ConsumeLevel cl;
 				cl = (*dia)->outgoingData(&Msg);
 				(*dia)->setConsumeLevel(cl);
@@ -456,11 +517,11 @@ int32_t TCPSocket::doSend()
 			m_CanSend = true;
 
 // check if we sended the full packet, cut the packet if we did not, else remove the packet from queue
-			logInfo("sended %i from %i bytes \n",sended,(int32_t)packet->getLength());
+			logDebug("sended %i from %i bytes \n",sended,(int32_t)packet->getLength());
 			if(sended < (int32_t)packet->getLength())
 			{
                 packet->cut(sended);
-				logInfo("cutted packet has size %i\n",(int32_t)packet->getLength());
+				logDebug("cutted packet has size %i\n",(int32_t)packet->getLength());
 				sendon = false;
 			}else
 			{
@@ -478,20 +539,20 @@ int32_t TCPSocket::doSend()
 #else
 			case EWOULDBLOCK:
 #endif
-				logSpam("Socket would Block '%s' \n",strerror(errno));
+				logDebug("Socket would Block '%s' \n",strerror(errno));
 				sendon = false;
 				break;
 
 			case EPIPE:
 				{
 
-					logWarn("Socket has broken pipe '%s' \n",strerror(errno));
+					logDebug("Socket has broken pipe '%s' \n",strerror(errno));
 					Message Msg(NULL,0,m_LocalPort,m_RemotePort,m_LocalHost, m_RemoteHost,this,this);
 					m_CanSend = false;
 					list <Dialogue *>::iterator dia;
 					for ( dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++ )
 					{
-						logInfo("Broken Pipe to %s \n",(*dia)->getDialogueName().c_str());
+						logDebug("Broken Pipe to %s \n",(*dia)->getDialogueName().c_str());
 						ConsumeLevel cl;
 						cl = (*dia)->connectionLost(&Msg);
 						(*dia)->setConsumeLevel(cl);
@@ -539,116 +600,104 @@ int32_t TCPSocket::doRecv()
 	logPF();
 	char szBuffer[2048];
 	memset(szBuffer,0,sizeof(char)*2048);
-	int32_t iLength = recv(m_Socket, (char *) szBuffer, sizeof(szBuffer), 0);
+	int32_t length = recv(m_Socket, (char *) szBuffer, sizeof(szBuffer), 0);
 
-	Message *Msg = new Message (szBuffer,iLength,m_LocalPort,m_RemotePort,m_LocalHost, m_RemoteHost,this,this);
+	Message *Msg = new Message (szBuffer,length,m_LocalPort,m_RemotePort,m_LocalHost, m_RemoteHost,this,this);
 
 	MessageEvent mEvent(Msg,EV_SOCK_TCP_RX);
     g_Nepenthes->getEventMgr()->handleEvent(&mEvent);
 
-	logSpam("doRecv() %i\n",iLength);
+	logSpam("doRecv() %i\n",length);
 	list <Dialogue *>::iterator dia, dib;
-	bool bAssigned=false;
-	bool bDone=false;
 
 	for(dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++)
 	{
-		if((*dia)->getConsumeLevel() == CL_READONLY)
+
+		if ((*dia)->getConsumeLevel() == CL_DROP)
+			continue;
+
+		if((*dia)->getConsumeLevel() == CL_READONLY || (*dia)->getConsumeLevel() == CL_ASSIGN_AND_DONE )
 			m_CanSend = false;
 
 		ConsumeLevel cl = CL_UNSURE;
-		if(iLength > 0)
+
+
+		if(length > 0)		// we actually received something
 		{
 			cl = (*dia)->incomingData(Msg);
-			switch ( cl )
-			{
-			case CL_ASSIGN_AND_DONE:
-				bDone = true;
-			case CL_ASSIGN:
-				bAssigned = true;
-				break;
-			default:
-				break;
-			}
-
 		} else
-		if(iLength == 0)
+		if(length == 0)		// connection was closed properly
 		{
-			if( (cl = (*dia)->connectionShutdown(Msg)) == CL_ASSIGN )
-			{
-            	bAssigned = true;
-			}
-
-		} else
+			cl = (*dia)->connectionShutdown(Msg);
+		} else				// connection broke
 		{
-			if( (cl = (*dia)->connectionLost(Msg)) == CL_ASSIGN )
-			{
-				bAssigned = true;
-			}
+			cl = (*dia)->connectionLost(Msg);
 		}
+
+	    if (cl > m_HighestConsumeLevel )
+		{
+			m_HighestConsumeLevel = cl;
+		}
+
+		switch (cl)
+		{
+		case CL_ASSIGN_AND_DONE:
+
+			for(dib = m_Dialogues.begin(); dib != m_Dialogues.end(); dib++)
+			{
+				if ((*dib)->getConsumeLevel() != CL_READONLY && *dib != *dia)
+				{
+					logDebug("setting Dialogue %s inactive as %s did it already\n",(*dib)->getDialogueName().c_str(),(*dia)->getDialogueName().c_str());
+                	(*dib)->setConsumeLevel(CL_DROP);
+				}
+			}
+			break;
+
+		case CL_DROP:
+			logDebug("Dialogue %s inactive, returned CL_DROP\n",(*dia)->getDialogueName().c_str());
+			break;
+
+		default:
+			break;
+		}
+
 		(*dia)->setConsumeLevel(cl);
 		m_CanSend = true;
-
-
-/*		// if the action is done, notify _all_ dialogues
-		if ( cl == CL_ASSIGN || cl == CL_ASSIGN_AND_DONE )
-		{
-			logSpam("ConsumeLevel is %i \n",cl);
-			for ( dib = m_Dialogues.begin(); dib != m_Dialogues.end(); dib++ )
-			{
-				(*dib)->syncState(cl);
-			}
-		}
-*/
 	}
 
 	delete Msg;
 
-/*
-	if ( bDone == true || bAssigned  == true )
-	{
-		for ( dib = m_Dialogues.begin(); dib != m_Dialogues.end(); dib++ )
-		{
-			if (bDone == true)
-			{
-				(*dib)->syncState(CL_ASSIGN_AND_DONE);
-			}
-			if (bAssigned == true)
-			{
-				(*dib)->syncState(CL_ASSIGN);
-			}
-
-		}
-	}
-*/
-		
-
+	uint16_t activeDialogues=0;
 	for ( dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++ )
 	{
-		if ( (bAssigned == true && (*dia)->getConsumeLevel() == CL_UNSURE ) || (*dia)->getConsumeLevel() == CL_DROP )
+		switch((*dia)->getConsumeLevel())
 		{
-			logSpam("%s removing Dialog %s as Dialogue returned CL_DROP or CL_UNSURE \n",getDescription().c_str(),(*dia)->getDialogueName().c_str());
-			Dialogue *deldia = *dia;
-			m_Dialogues.erase(dia);
-			delete deldia;
-			dia = m_Dialogues.begin();
+
+		case CL_ASSIGN:
+		case CL_ASSIGN_AND_DONE:
+		case CL_UNSURE:
+			activeDialogues++;
+			break;
+
+		default:
+			break;
 		}
 	}
 
-	if (m_Dialogues.size() == 0)
+	if ( activeDialogues == 0 )
 	{
-		logInfo("%s\n has no Dialogues left, closing \n",getDescription().c_str());
+		logDebug("%s\n has no active Dialogues left, closing \n",getDescription().c_str());
     	m_Status = SS_CLOSED;
 	}
 
 	m_LastAction = time(NULL);
 
-	if((iLength == 0 || ( iLength == -1 && errno != EAGAIN )) && bAssigned == false)
+	if((length == 0 || ( length == -1 && errno != EAGAIN )) && activeDialogues == 0)
 	{
-		logInfo("Connection %s CLOSED \n",getDescription().c_str());
+		logDebug("Connection %s CLOSED \n",getDescription().c_str());
 		m_Status = SS_CLOSED;
 	}
-	return iLength;
+	return length;
 }
 
 /**

@@ -93,7 +93,7 @@ RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, char *nicinterface, u
 	m_Protocoll = protocoll;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
 	m_Nepenthes = nepenthes;
 
@@ -115,7 +115,7 @@ RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, uint32_t localhost)
 	m_Type = ST_RAW | ST_ACCEPT;
 
 	m_CanSend = true;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Polled = false;
 	m_Nepenthes = nepenthes;
 
@@ -413,7 +413,7 @@ int32_t RAWSocketListener::doRecv()
                 {
                     socket = (*it);
                     (*it)->doRead(payload,payloadsize);
-                    if ( socket->getStatus() != SS_NULL )
+                    if ( socket->getStatus() != SS_CONNECTED )
                     {
                         m_Sockets.erase(it);
                         delete socket;
@@ -431,7 +431,7 @@ int32_t RAWSocketListener::doRecv()
 
 
                     socket->doRead(payload,payloadsize);
-                    if ( socket->getStatus() != SS_NULL )
+                    if ( socket->getStatus() != SS_CONNECTED )
                     {
                         delete socket;
                     } else
@@ -512,7 +512,7 @@ int32_t RAWSocketListener::doRecv()
 				{
 					socket = (*it);
 					(*it)->doRead(payload,payloadsize);
-					if ( socket->getStatus() != SS_NULL )
+					if ( socket->getStatus() != SS_CONNECTED )
 					{
 						m_Sockets.erase(it);
 						delete socket;
@@ -530,7 +530,7 @@ int32_t RAWSocketListener::doRecv()
 
 
 					socket->doRead(payload,payloadsize);
-					if ( socket->getStatus() != SS_NULL )
+					if ( socket->getStatus() != SS_CONNECTED )
 					{
 						logSpam("NOT Adding RAWSocketReader %i\n",m_Sockets.size());
 						delete socket;
@@ -690,7 +690,7 @@ RAWSocketReader::RAWSocketReader(Nepenthes *nepenthes,uint32_t localhost,
 	setRemotePort(remoteport);
 
 	m_Type = ST_RAW | ST_CONNECT;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 
 	logSpam("%s\n",getDescription().c_str());
 

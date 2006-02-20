@@ -76,16 +76,6 @@ PNPDialogue::PNPDialogue(Socket *socket)
 
 PNPDialogue::~PNPDialogue()
 {
-	switch (m_State)
-	{
-	case PNP_DONE:
-		break;
-
-	default:
-		logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","PNP",m_Buffer->getSize(),m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
-	}
-
 	delete m_Buffer;
 }
 
@@ -118,7 +108,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		{
 			if ( memcmp(pnp_hod_req1,m_Buffer->getData(),sizeof(pnp_hod_req1) -1) == 0 )
 			{
-				logInfo("Valid LSASS PNP Stage #1 (%i %i)\n",sizeof(pnp_hod_req1), m_Buffer->getSize());
+				logDebug("Valid LSASS PNP Stage #1 (%i %i)\n",sizeof(pnp_hod_req1), m_Buffer->getSize());
 				m_State = PNP_HOD_STAGE2;
 				m_Buffer->clear();
 //				reply[9]=0;
@@ -135,7 +125,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		 {
 			  if ( memcmp(pnp_hod_req2,m_Buffer->getData(),sizeof(pnp_hod_req2) -1) == 0 )
 			  {
-				  logInfo("Valid LSASS PNP Stage #2 (%i %i)\n",sizeof(pnp_hod_req2), m_Buffer->getSize());
+				  logDebug("Valid LSASS PNP Stage #2 (%i %i)\n",sizeof(pnp_hod_req2), m_Buffer->getSize());
 				  m_State = PNP_HOD_STAGE3;
 				  m_Buffer->clear();
 //				  reply[9]=0;
@@ -152,7 +142,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		 {
 			  if ( memcmp(pnp_hod_req3,m_Buffer->getData(),sizeof(pnp_hod_req3) -1) == 0 )
 			  {
-				  logInfo("Valid LSASS PNP Stage #3 (%i %i)\n",sizeof(pnp_hod_req3), m_Buffer->getSize());
+				  logDebug("Valid LSASS PNP Stage #3 (%i %i)\n",sizeof(pnp_hod_req3), m_Buffer->getSize());
 				  m_State = PNP_HOD_STAGE4;
 				  m_Buffer->clear();
 				  reply[9]=0;
@@ -164,7 +154,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		 break;
 
 	 case PNP_HOD_STAGE4:
-		 logInfo("PNP Stage #4 %i\n",m_Buffer->getSize());
+		 logDebug("PNP Stage #4 %i\n",m_Buffer->getSize());
 		 m_State = PNP_HOD_STAGE5;
 		 m_Buffer->clear();
 		 reply[9]=0;
@@ -177,7 +167,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		  {
 			   if ( memcmp(pnp_hod_req5,m_Buffer->getData(),sizeof(pnp_hod_req5) -1) == 0 )
 			   {
-				   logInfo("Valid LSASS PNP Stage #5 (%i %i)\n",sizeof(pnp_hod_req5), m_Buffer->getSize());
+				   logDebug("Valid LSASS PNP Stage #5 (%i %i)\n",sizeof(pnp_hod_req5), m_Buffer->getSize());
 				   m_State = PNP_HOD_STAGE6;
 				   m_Buffer->clear();
 				   reply[9]=0;
@@ -194,7 +184,7 @@ ConsumeLevel PNPDialogue::incomingData(Message *msg)
 		 {
 			  if ( memcmp(pnp_hod_req6,m_Buffer->getData(),sizeof(pnp_hod_req6) -1) == 0 )
 			  {
-				  logInfo("Valid LSASS PNP Stage #6 (%i %i)\n",sizeof(pnp_hod_req6), m_Buffer->getSize());
+				  logDebug("Valid LSASS PNP Stage #6 (%i %i)\n",sizeof(pnp_hod_req6), m_Buffer->getSize());
 				  m_State = PNP_HOD_REST;
 				  m_Buffer->clear();
 				  reply[9]=0;
@@ -282,3 +272,9 @@ ConsumeLevel PNPDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
+
+void PNPDialogue::dump()
+{
+		logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","PNP",m_Buffer->getSize(),m_State);
+		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
+}

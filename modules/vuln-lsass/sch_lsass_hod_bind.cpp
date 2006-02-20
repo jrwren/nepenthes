@@ -95,7 +95,7 @@ bool HODBind::Init()
     
 
 
-	logInfo("pcre is %s \n",oc192bindpcre);
+//	logInfo("pcre is %s \n",oc192bindpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;

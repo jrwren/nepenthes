@@ -52,7 +52,7 @@ THCConnect::THCConnect(ShellcodeManager *shellcodemanager)
 {
 	m_ShellcodeManager = shellcodemanager;
 	m_ShellcodeHandlerName = "THCConnect";
-	m_ShellcodeHandlerDescription = "handles linkbot connectback transferrs";
+	m_ShellcodeHandlerDescription = "handles thc iis connectbackshells";
 	m_pcre = NULL;
 }
 
@@ -134,7 +134,7 @@ char shellcode[] =
 	"\\x8D\\x45\\x78\\x50\\x8D\\x45\\x88\\x50\\xB1\\x08\\x53\\x53\\x6A\\x10\\xFE\\xCE"
 	"\\x52\\x53\\x53\\x53\\x55\\xFF\\x55\\xF0\\x6A\\xFF\\xFF\\x55\\xE4";
 
-	logInfo("pcre is %s \n",thcconnectpcre);
+//	logInfo("pcre is %s \n",thcconnectpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;

@@ -34,7 +34,7 @@ using namespace nepenthes;
 POLLSocket::POLLSocket(Nepenthes *nepenthes)
 {
 	m_Type = ST_POLL|ST_CONNECT|ST_NODEL;
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_CanSend = false;
 
 	setLocalPort(0);

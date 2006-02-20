@@ -96,7 +96,7 @@ typedef unsigned char byte;
 #define logInfo(format, ...) logWrite(l_info	| STDTAGS , format, __VA_ARGS__)
 #define logWarn(format, ...) logWrite(l_warn	| STDTAGS , format, __VA_ARGS__)
 #define logCrit(format, ...) logWrite(l_crit	| STDTAGS , format, __VA_ARGS__)
-#define logPF() logInfo("<in %s>\n", __PRETTY_FUNCTION__)
+#define logPF() logSpam("<in %s>\n", __PRETTY_FUNCTION__)
 
 #endif
 

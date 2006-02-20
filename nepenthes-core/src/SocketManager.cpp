@@ -116,7 +116,7 @@ bool  SocketManager::Init()
 		return false;
 	}else
 	{
-		logInfo("%s\n","WSAStartup worked");
+		logDebug("%s\n","WSAStartup worked");
 	}
 #endif
 
@@ -143,34 +143,34 @@ bool  SocketManager::Init()
         }
 
         int32_t nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
-        logInfo("There are %i interfaces \n",nNumInterfaces);
+        logDebug("There are %i interfaces \n",nNumInterfaces);
         int32_t i;
         for (i = 0; i < nNumInterfaces; ++i)
         {
-            logInfo("Interface %i \n", i);
+            logDebug("Interface %i \n", i);
 
             u_long nFlags = InterfaceList[i].iiFlags;
             if (nFlags & IFF_UP) 
-                logInfo("Iface is %s\n","up");
+                logDebug("Iface is %s\n","up");
             else                 
-                logInfo("Iface is %s\n","down");
+                logDebug("Iface is %s\n","down");
 
 
 
             sockaddr_in *pAddress;
             pAddress = (sockaddr_in *) & (InterfaceList[i].iiAddress);
-            logInfo("\tip %s\n",inet_ntoa(pAddress->sin_addr));
+            logDebug("\tip %s\n",inet_ntoa(pAddress->sin_addr));
 
             pAddress = (sockaddr_in *) & (InterfaceList[i].iiBroadcastAddress);
-            logInfo("\tbcast %s\n",inet_ntoa(pAddress->sin_addr));
+            logDebug("\tbcast %s\n",inet_ntoa(pAddress->sin_addr));
 
             pAddress = (sockaddr_in *) & (InterfaceList[i].iiNetmask);
-            logInfo("\tnetmask %s\n",inet_ntoa(pAddress->sin_addr));
+            logDebug("\tnetmask %s\n",inet_ntoa(pAddress->sin_addr));
 
             if (nFlags & IFF_POINTTOPOINT) 
-                logInfo("%s\n","\tis point-to-point");
+                logDebug("%s\n","\tis point-to-point");
             if (nFlags & IFF_LOOPBACK)     
-                logInfo("%s\n","\tis a loopback iface");
+                logDebug("%s\n","\tis a loopback iface");
             
 
             string features = "";
@@ -179,7 +179,7 @@ bool  SocketManager::Init()
                 features += "bcast ";
             if (nFlags & IFF_MULTICAST)
                 features +=  "multicast ";
-            logInfo("\tFeatures: %s \n", features.c_str());
+            logDebug("\tFeatures: %s \n", features.c_str());
         }
 
 
@@ -245,14 +245,14 @@ bool  SocketManager::Init()
 
 		for (it=interfaces.begin();it!= interfaces.end();it++)
 		{
-			logInfo("Interface %s is availible for sniffing\n",it->c_str());
+			logDebug("Interface %s is availible for sniffing\n",it->c_str());
 		}
 
 		for ( it=interfaces.begin();it!= interfaces.end();it++ )
 		{
 			if (strstr(it->c_str(),"eth") == NULL)
 			{
-				logInfo("No sniffing on %s\n",it->c_str());
+				logDebug("No sniffing on %s\n",it->c_str());
 				continue;
 			}
 
@@ -348,6 +348,9 @@ void SocketManager::doList()
  *         else false
  */
 #ifdef WIN32
+	#error "i changed some stuff and found no reason to port it"
+	#error "to be precise, the setStatus thing for connected sockets"
+	
 bool SocketManager::doLoop(uint32_t polltimeout)
 {// FIXME ..
 	list <Socket *>::iterator itSocket;
@@ -358,7 +361,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		(*itSocket)->checkTimeout();
 		if ((*itSocket)->getStatus() == SS_TIMEOUT )
 		{
-			logInfo("Deleting Socket %s due to timeout \n",(*itSocket)->getDescription().c_str());
+			logDebug("Deleting Socket %s due to timeout \n",(*itSocket)->getDescription().c_str());
 			Socket *delsocket = *itSocket;
 			m_Sockets.erase(itSocket);
 			delete delsocket;
@@ -372,7 +375,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 
 		if ( (*itSocket)->getStatus() == SS_CLOSED )
 		{
-			logInfo("Deleting %s due to closed connection \n",(*itSocket)->getDescription().c_str());
+			logDebug("Deleting %s due to closed connection \n",(*itSocket)->getDescription().c_str());
 			Socket *delsocket = *itSocket;
 			m_Sockets.erase(itSocket);
 			delete delsocket;
@@ -489,7 +492,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 				// getStatus i just a cheap fix
 //				logInfo("SSS %s \n",(*itSocket)->getDescription().c_str());
 				if (
-                    ( (*itSocket)->getStatus() == SS_NULL || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
+                    ( (*itSocket)->getStatus() == SS_CONNECTED || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
 				    (
 				     (*itSocket)->isAccept() ||
 				     (*itSocket)->isConnect() || 
@@ -528,7 +531,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 					{
 						if (FD_ISSET((*itSocket)->getSocket(),&rfds))
 						{
-							logInfo("%s could Accept a Connection\n",(*itSocket)->getDescription().c_str());
+							logDebug("%s could Accept a Connection\n",(*itSocket)->getDescription().c_str());
 							Socket * socket = (*itSocket)->acceptConnection();
 							if ( socket == NULL )
 							{
@@ -565,7 +568,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		(*itSocket)->checkTimeout();
 		if ((*itSocket)->getStatus() == SS_TIMEOUT )
 		{
-			logInfo("Deleting Socket %s due to timeout \n",(*itSocket)->getDescription().c_str());
+			logDebug("Deleting Socket %s due to timeout \n",(*itSocket)->getDescription().c_str());
 			Socket *delsocket = *itSocket;
 			m_Sockets.erase(itSocket);
 			delete delsocket;
@@ -579,7 +582,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 
 		if ( (*itSocket)->getStatus() == SS_CLOSED )
 		{
-			logInfo("Deleting %s due to closed connection \n",(*itSocket)->getDescription().c_str());
+			logDebug("Deleting %s due to closed connection \n",(*itSocket)->getDescription().c_str());
 			Socket *delsocket = *itSocket;
 			m_Sockets.erase(itSocket);
 			delete delsocket;
@@ -609,16 +612,17 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 			switch (iError)
 			{
 			case 0:	// der socket is soweit okay
-//				logSpam("Socket %s is OK\n",(*itSocket)->getDescription().c_str());
-				(*itSocket)->setPolled();
+			case EISCONN:
+//				logSpam("EISCONN State %i \n",(*itSocket)->getStatus());
+				if ((*itSocket)->getStatus() == SS_CONNECTING)
+				{
+					(*itSocket)->setStatus(SS_CONNECTED);
+				}
+				(*itSocket)->setPolled();	// der socket ist am start
 				break;
 
 			case EINPROGRESS: // der socket versuchts
 				(*itSocket)->unsetPolled();
-				break;
-
-			case EISCONN:
-				(*itSocket)->setPolled();	// der socket ist am start
 				break;
 
 
@@ -690,9 +694,9 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 				// we need a valid way to verify we dont try to send on a closed socket, 
 				// i think wantSend() is a good option here
 				// getStatus i just a cheap fix
-//				logInfo("SSS %s \n",(*itSocket)->getDescription().c_str());
+//				logDebug("SSS %s \n",(*itSocket)->getDescription().c_str());
 				if (
-                    ( (*itSocket)->getStatus() == SS_NULL || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
+                    ( (*itSocket)->getStatus() == SS_CONNECTED || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
 				    (
 				     (*itSocket)->isAccept() ||
 				     (*itSocket)->isConnect() || 
@@ -734,7 +738,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 					{
 						if ( polls[i].revents & POLLIN && polls[i].events & POLLIN )
 						{
-							logInfo("%s could Accept a Connection\n",(*itSocket)->getDescription().c_str());
+							logDebug("%s could Accept a Connection\n",(*itSocket)->getDescription().c_str());
 							Socket * socket = (*itSocket)->acceptConnection();
 							if ( socket == NULL )
 							{

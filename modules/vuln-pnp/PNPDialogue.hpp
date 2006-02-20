@@ -66,6 +66,7 @@ namespace nepenthes
 		ConsumeLevel handleTimeout(Message *msg);
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
+		void dump();
 //		void syncState(ConsumeLevel cl);
 
 	protected:

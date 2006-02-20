@@ -39,6 +39,11 @@
 
 using namespace nepenthes;
 
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_shell
+
 VFS::VFS()
 {
 
@@ -153,7 +158,7 @@ string VFS::execute(string *input)
 			{
 				
 				i++;
-				logInfo("breaking here %i \n",i);
+				logDebug("breaking here %i \n",i);
 				break;
 			}
 			else
@@ -180,7 +185,7 @@ string VFS::execute(string *input)
 
 		
 		line = m_StdIn.substr(0,linelen);
-		logInfo("Line (%i) is '%s' \n",line.size(),line.c_str());
+		logDebug("Line (%i) is '%s' \n",line.size(),line.c_str());
 		m_StdIn = m_StdIn.substr(linelen,m_StdIn.size() - linelen);
 		if (line[line.size()-1] == ';' || line[line.size()-1] == '&')
 			line[line.size()-1] = '\0';
@@ -202,13 +207,13 @@ string VFS::execute(string *input)
 		{
 			if (line[i] == ' ' && haschar == true)
 			{
-				logInfo("breaking here %i \n",i);
+				logDebug("breaking here %i \n",i);
 				break;
 			}
 
 			if (hasredir == true && line[i] != '>')
 			{
-				logInfo("breaking here %i \n",i);
+				logDebug("breaking here %i \n",i);
 				break;
 			}
 
@@ -230,7 +235,7 @@ string VFS::execute(string *input)
 
 		commandstopp=i;
 		string command = line.substr(commandstart,commandstopp-commandstart);
-		logInfo("Command (%i) is '%s'\n",command.size(),command.c_str());
+		logDebug("Command (%i) is '%s'\n",command.size(),command.c_str());
 
 		/* beispiel fuer den block 'parameter finden'
 
@@ -249,7 +254,7 @@ string VFS::execute(string *input)
 				params[i] = '\0';
 			i++;
 		}
-		logInfo("Params (%i)is '%s' \n",params.size(),params.c_str());
+		logDebug("Params (%i)is '%s' \n",params.size(),params.c_str());
 
 
 
@@ -265,7 +270,7 @@ string VFS::execute(string *input)
 			{
 				wordstopp = i;
 				string word = params.substr(wordstart,wordstopp-wordstart);
-				logInfo("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
+				logDebug("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
 				paramlist.push_back(word);
 				haschar = false;
 			}else

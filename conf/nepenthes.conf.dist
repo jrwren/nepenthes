@@ -4,7 +4,7 @@
 nepenthes
 {
     moduledir               "lib/nepenthes";        // relative to workdir
-    moduleconfigdir         "etc";                  // relative to workdir
+    moduleconfigdir         "etc/nepenthes";                  // relative to workdir
 
     modules(
 //  module name (in moduledir)      config file (in moduleconfigdir)
@@ -41,6 +41,7 @@ nepenthes
 // vulnerability modules
     "vulnasn1.so",                  "vuln-asn1.conf",               ""
     "vulnbagle.so",                 "vuln-bagle.conf",              ""
+    "vulndameware.so",              "vuln-dameware.conf",           ""    
     "vulndcom.so",                  "vuln-dcom.conf",               ""
     "vulniis.so",                   "vuln-iis.conf",                ""
     "vulnkuang2.so",                "vuln-kuang2.conf",             ""
@@ -57,16 +58,16 @@ nepenthes
     "vulnupnp.so",                  "vuln-upnp.conf",               ""
     "vulnveritas.so",               "vuln-veritas.conf",            ""
     "vulnwins.so",                  "vuln-wins.conf",               ""
-    "vulnpnp.so",                   "vuln-pnp.conf",               ""
+
 
 // eXample modules for testing - disabled by default
-//  "x-1.so",                       "x-1/x-1.conf",                 "",
-//  "x-2.so",                       "",                             "",
-//  "x-3.so",                       "",                             "",
-//  "x-4.so",                       "",                             "",
-//  "x-5.so",                       "",                             "",
-//  "x-6.so",                       "",                             "",
-//  "x-7.so",                       "",                             "",
+//  "x1.so",                       "x-1.conf",                     "",
+//  "x2.so",                       "x-2.conf",                     "",
+//  "x3.so",                       "",                             "",
+//  "x4.so",                       "",                             "",
+//  "x5.so",                       "",                             "",
+//  "x6.so",                       "",                             "",
+//  "x7.so",                       "",                             "",
     );
 
     modulemanager
@@ -89,5 +90,10 @@ nepenthes
     socketmanager
     {
         use_rawsockets              "0"; // unstable feature
+    };
+    
+    utilities
+    {
+	hexdump_path                "var/hexdumps/";
     };
 };

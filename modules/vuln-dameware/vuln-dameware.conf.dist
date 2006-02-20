@@ -1,0 +1,5 @@
+vuln-dameware
+{
+	ports		("6129");
+	accepttimeout	"30";
+};

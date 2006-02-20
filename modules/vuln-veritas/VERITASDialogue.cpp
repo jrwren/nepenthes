@@ -81,19 +81,6 @@ VERITASDialogue::VERITASDialogue(Socket *socket)
 
 VERITASDialogue::~VERITASDialogue()
 {
-	switch (m_State)
-	{
-
-	case VERITAS_NULL:
-	case VERITAS_SHELLCODE:
-		logWarn("Unknown VERITAS exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
-		break;
-
-	case VERITAS_DONE:
-		break;
-	}
-
 	delete m_Buffer;
 }
 
@@ -199,4 +186,8 @@ ConsumeLevel VERITASDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-
+void VERITASDialogue::dump()
+{
+	logWarn("Unknown VERITAS exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+}

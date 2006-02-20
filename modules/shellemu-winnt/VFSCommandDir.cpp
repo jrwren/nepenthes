@@ -33,6 +33,12 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 
+
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_shell
+
 using namespace nepenthes;
 using namespace std;
 

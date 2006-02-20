@@ -65,7 +65,7 @@ FILESocket::FILESocket(Nepenthes *nepenthes, char *filepath, int32_t flags)
 
 	setRemoteHost(0);
 	setRemotePort(0);
-	m_Status = SS_NULL;
+	m_Status = SS_CONNECTED;
 	m_Type = ST_ACCEPT | ST_FILE;
 	m_Polled = false;
 }

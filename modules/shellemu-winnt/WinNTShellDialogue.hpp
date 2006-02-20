@@ -46,6 +46,8 @@ namespace nepenthes
 		ConsumeLevel handleTimeout(Message *msg);
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
+
+		ConsumeLevel connectionEstablished();
 	protected:
 		FILE 		*m_File;
 		VFS			m_VFS;

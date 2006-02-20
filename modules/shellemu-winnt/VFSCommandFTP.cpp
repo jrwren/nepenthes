@@ -25,7 +25,7 @@
  *
  *******************************************************************************/
 
-/* $Id */
+/* $Id$ */
  
 #include "VFSCommandFTP.hpp"
 #include "VFSNode.hpp"
@@ -37,6 +37,12 @@
 #include "DownloadManager.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
+#include "Download.hpp"
+
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_shell
 
 using namespace nepenthes;
 using namespace std;
@@ -104,13 +110,14 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 	string user = "anonymous";
 	string pass = "guest";
 	string getfile = "nofileyet";
+	uint8_t	downloadflags=0;
 
 
 	for(it=slist.begin();it!=slist.end();it++)
 	{
 // FTP [-v] [-d] [-i] [-n] [-g] [-s:Dateiname] [-a] [-w:Fenstergröße] [-A]     [Host]
 
-		logSpam("ftp.exe param %s \n",&*it->c_str());
+		logDebug("ftp.exe param %s \n",&*it->c_str());
 		if (strncmp(&*it->c_str(),"-v",2) == 0)	
 			continue;
 		else
@@ -135,14 +142,14 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 		if (strncmp(&*it->c_str(),"-s:",3) == 0)
 		{
 			string filename = it->substr(3,it->size()-2);
-			logInfo("Filenameis %s\n",filename.c_str());
+			logDebug("Filenameis %s\n",filename.c_str());
 			VFSFile *file = m_VFS->getCurrentDir()->getFile((char *)filename.c_str());
 			if (file == NULL)
 			{
 				logCrit("VFS FTP file %s not found\n",filename.c_str());
 				return 0;
 			}
-			logInfo("file content is is \n%.*s\n",file->getSize(),(char *)file->getData());
+			logDebug("file content is is \n%.*s\n",file->getSize(),(char *)file->getData());
 
 			uint32_t i=0;
 			int32_t linestart=0;
@@ -184,7 +191,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 					{
 						wordstopp = i;
 						string word = params.substr(wordstart,wordstopp-wordstart);
-						logInfo("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
+						logDebug("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
 						paramlist.push_back(word);
 						haschar = false;
 					} else
@@ -227,7 +234,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 
 						}
 
-						logInfo("ftp://%s:%s\n",host.c_str(),port.c_str());
+						logDebug("ftp://%s:%s\n",host.c_str(),port.c_str());
 					} else
 					if ( strncasecmp((char *)&*jt->c_str(),"user",4) == 0 )
 					{
@@ -252,7 +259,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 								pass = paramlist[2];
 								break;
 							}
-							logInfo("ftp://%s:%s@%s:%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str());
+							logDebug("ftp://%s:%s@%s:%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str());
 						}
 					} else
 					if ( strncasecmp((char *)&*jt->c_str(),"get",3) == 0 )
@@ -261,12 +268,16 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 						{
 						case 1:
 							state = NEXT_IS_FILE;
-							logInfo("%s","get without param, next arg is filename\n");
+							logDebug("%s","get without param, next arg is filename\n");
 							break;
 						default:
                             getfile = paramlist[1];
-							logInfo("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
+							logDebug("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
 						}
+					}else
+					if ( strncasecmp((char *)&*jt->c_str(),"binary",6) == 0 )
+					{
+						downloadflags |= DF_TYPE_BINARY;
 					}
 					break;
 
@@ -348,7 +359,8 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 	{
 		g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url.c_str(),
 												   remotehost,
-												   (char *)url.c_str());
+												   (char *)url.c_str(),
+												   downloadflags);
 	}else
 	{
     	g_Nepenthes->getDownloadMgr()->downloadUrl("ftp",
@@ -357,7 +369,8 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 												   (char *)host.c_str(), 
 												   (char *)port.c_str(), 
 												   (char *)getfile.c_str(),
-												   remotehost); 
+												   remotehost,
+												   downloadflags); 
 	}
 
     return 0;

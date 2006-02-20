@@ -75,16 +75,6 @@ LSASSDialogue::LSASSDialogue(Socket *socket)
 
 LSASSDialogue::~LSASSDialogue()
 {
-	switch (m_State)
-	{
-	case LSASS_DONE:
-		break;
-
-	default:
-		logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","LSASS",m_Buffer->getSize(),m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
-	}
-
 	delete m_Buffer;
 }
 
@@ -118,7 +108,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 {
 			 if (memcmp(lsass_hod_req1,m_Buffer->getData(),sizeof(lsass_hod_req1) -1) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #1 (%i %i)\n",sizeof(lsass_hod_req1), m_Buffer->getSize());
+				 logDebug("Valid LSASS HOD Stage #1 (%i %i)\n",sizeof(lsass_hod_req1), m_Buffer->getSize());
 				 m_State = LSASS_HOD_STAGE2;
 				 m_Buffer->clear();
 				 reply[9]=0;
@@ -134,7 +124,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 {
 			 if (memcmp(lsass_hod_req2,m_Buffer->getData(),sizeof(lsass_hod_req2) -1) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #2 (%i)\n",sizeof(lsass_hod_req2));
+				 logDebug("Valid LSASS HOD Stage #2 (%i)\n",sizeof(lsass_hod_req2));
 				 m_State = LSASS_HOD_STAGE3;
 				 m_Buffer->clear();
 				 reply[9]=0;
@@ -151,7 +141,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 {
 			 if (memcmp(lsass_hod_req3,m_Buffer->getData(),sizeof(lsass_hod_req3) -1) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #3 (%i)\n",sizeof(lsass_hod_req3));
+				 logDebug("Valid LSASS HOD Stage #3 (%i)\n",sizeof(lsass_hod_req3));
 				 m_State = LSASS_HOD_STAGE4;
 				 m_Buffer->clear();
                  char *osversion = "W i n d o w s   5 . 1 ";
@@ -164,12 +154,12 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 break;
 
 	 case LSASS_HOD_STAGE4:
-		 logInfo("Checking LSASS HOD Stage #4 (%i)\n",sizeof(lsass_hod_req4));
+		 logDebug("Checking LSASS HOD Stage #4 (%i)\n",sizeof(lsass_hod_req4));
 		 if (m_Buffer->getSize() >= 50)
 		 {
 			 if (1)//memcmp(lsass_hod_req4+10,((char *)m_Buffer->getData())+10,10) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #4 (%i)\n",sizeof(lsass_hod_req4));
+				 logDebug("Valid LSASS HOD Stage #4 (%i)\n",sizeof(lsass_hod_req4));
 				 m_State = LSASS_HOD_STAGE5;
 				 m_Buffer->clear();
 				 msg->getResponder()->doRespond(reply,64);
@@ -184,7 +174,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 {
 			 if (memcmp(lsass_hod_req5,m_Buffer->getData(),sizeof(lsass_hod_req5) -1) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #5 (%i)\n",sizeof(lsass_hod_req5));
+				 logDebug("Valid LSASS HOD Stage #5 (%i)\n",sizeof(lsass_hod_req5));
 				 m_State = LSASS_HOD_STAGE6;
 				 m_Buffer->clear();
 				 msg->getResponder()->doRespond(reply,64);
@@ -200,7 +190,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 		 {
 			 if (memcmp(lsass_hod_req6,m_Buffer->getData(),sizeof(lsass_hod_req6) -1) == 0 )
 			 {
-				 logInfo("Valid LSASS HOD Stage #6 (%i)\n",sizeof(lsass_hod_req6));
+				 logDebug("Valid LSASS HOD Stage #6 (%i)\n",sizeof(lsass_hod_req6));
 				 m_State = LSASS_HOD_REST;
 				 m_Buffer->clear();
 				 msg->getResponder()->doRespond(reply,64);
@@ -288,23 +278,9 @@ ConsumeLevel LSASSDialogue::connectionShutdown(Message *msg)
 }
 
 
-void LSASSDialogue::syncState(ConsumeLevel cl)
+void LSASSDialogue::dump()
 {
-	logPF();
-
-	switch (cl)
-	{
-	case CL_ASSIGN_AND_DONE:
-	case CL_ASSIGN:
-		if (getConsumeLevel() != cl)
-		{
-			logSpam(" STATE %i -> %i \n",m_State,LSASS_DONE);
-			m_State = LSASS_DONE;
-		}
-		break;
-
-	default:
-		break;
-	}
+	logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","LSASS",m_Buffer->getSize(),m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 }
 

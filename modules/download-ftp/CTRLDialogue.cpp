@@ -54,6 +54,11 @@
 #include "Buffer.hpp"
 #include "Buffer.cpp"
 
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_dl | l_dia | l_hlr
+
 using namespace nepenthes;
 
 /**
@@ -72,14 +77,10 @@ CTRLDialogue::CTRLDialogue(Socket *socket, Download *down)
 
 	m_ConsumeLevel = CL_ASSIGN;
 
-	char *msg;
-	asprintf(&msg,"USER %s\r\n",down->getDownloadUrl()->getUser().c_str());
-	logInfo("FTPSEND: '%s'\n",msg);
-	m_Socket->doRespond(msg,strlen(msg));
-	free(msg);
 
 	m_Download = down;
 
+	sendUser();
 	m_State = FTP_USER;
 
 	m_Buffer = new Buffer(128);
@@ -111,8 +112,8 @@ CTRLDialogue::~CTRLDialogue()
  */
 ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 {
-//	logInfo("RX:\n%.*s\n",msg->getMsgLen(),msg->getMsg());
-	if (m_Download == NULL )
+//	logDebug("RX:\n%.*s\n",msg->getMsgLen(),msg->getMsg());
+	if (m_Download == NULL && m_State < FTP_RETR)
 	{
 		logWarn("%s","broken ftp daemon \n");
 		return CL_DROP;
@@ -127,86 +128,79 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 	{
 		if ( memcmp((char *)m_Buffer->getData()+iStopp,"\n",1) == 0 && iStopp < m_Buffer->getSize() )
 		{
-			logInfo("FTPLINE (%i %i %i): '%.*s' \n",iStart,iStopp,iStopp-iStart,iStopp-iStart,(char *)m_Buffer->getData()+iStart);
+			logDebug("FTPLINE (%i %i %i): '%.*s' \n",iStart,iStopp,iStopp-iStart,iStopp-iStart,(char *)m_Buffer->getData()+iStart);
 			
+
+			// add ftp daemon fingerprinting here
+			
+
 
 			switch (m_State)
 			{
 			case FTP_USER:
-				if (strncmp((char *)m_Buffer->getData() + iStart,"331 ",4) == 0)
+				if (parseUser((char *)m_Buffer->getData() + iStart) == true)
 				{
-					logInfo("User accepted, sending pass %s \n",m_Download->getDownloadUrl()->getPass().c_str());
-					char *nmsg;
-					asprintf(&nmsg,"PASS %s\r\n",m_Download->getDownloadUrl()->getPass().c_str());
-					logInfo("FTPSEND: '%s'\n",nmsg);
-					m_Socket->doRespond(nmsg,strlen(nmsg));
-					free(nmsg);
+					sendPass();
 					m_State = FTP_PASS;
 				}
+				
 				break;
+
 			case FTP_PASS:
-				if (strncmp((char *)m_Buffer->getData() + iStart,"230 ",4) == 0)
+				if (parsePass((char *)m_Buffer->getData() + iStart) == true)
 				{
-					logInfo("%s","Pass accepted, logged in \n");
-					m_State = FTP_PORT;
-
-					// get local ip
-					int32_t sock = m_Socket->getSocket();
-
-					// get name
-					socklen_t len = sizeof(struct sockaddr_in);
-					sockaddr_in addr;
-
-					getsockname(sock, (struct sockaddr *)&addr,&len);
-
-					logInfo("local ip is %s \n",inet_ntoa(addr.sin_addr));
-
-					uint32_t ip = *(uint32_t *)&addr.sin_addr;
-					uint16_t port = rand()%10000 +32000;
-
-					Socket *socket;
-//						 = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,30,30);
-					if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,0,60,30)) == NULL )
+					if ( m_Download->getDownloadFlags() != 0 )
 					{
-						logCrit("Could not bind port %u \n",port);
-						return CL_DROP;
+						if ( m_Download->getDownloadFlags() & DF_TYPE_BINARY )
+						{
+							sendType();
+							m_State = FTP_TYPE;
+						}
+					}else
+					{
+						sendPort();
+						m_State = FTP_PORT;
 					}
-					port = socket->getLocalPort();
-
-					m_Context->setActiveFTPBindPort(port);
-					socket->addDialogueFactory(g_FTPDownloadHandler);
-
-					char *nmsg;
-					asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
-							(int32_t)ip & 0xff,
-							(int32_t)(ip >> 8) & 0xff,
-							(int32_t)(ip >> 16) & 0xff,
-							(int32_t)(ip >> 24) & 0xff,
-							(int32_t)(port >> 8) & 0xff,
-							(int32_t)port & 0xff);
-                    logInfo("FTPSEND: '%s'\n",nmsg);
-					m_Socket->doRespond(nmsg,strlen(nmsg));
-					free(nmsg);
-
+					
 				}
 				break;
+
+
+			case FTP_TYPE:
+				if (parseType((char *)m_Buffer->getData() + iStart)== true)
+				{
+					sendPort();
+					m_State = FTP_PORT;
+				}
+				break;
+
 			case FTP_PORT:
-				if (strncmp((char *)m_Buffer->getData() + iStart,"200 ",4) == 0)
+				if (parsePort((char *)m_Buffer->getData() + iStart) == true)
                 {
-					logInfo("%s","port command accepted\n");
-					char *nmsg;
-					asprintf(&nmsg,"RETR %s\r\n",m_Download->getDownloadUrl()->getPath().c_str());
-					logSpam("Sending\n %s \n",nmsg);
-					m_Socket->doRespond(nmsg,strlen(nmsg));
-					free(nmsg);
+					sendRetr();
 					m_State = FTP_RETR;
 				}
-
 				break;
+
 			case FTP_RETR:
-//				logInfo("ftp said %s\n",msg->getMsg());
+				if (strncmp((char *)m_Buffer->getData() + iStart,"150 ",4) == 0)
+				{
+					logDebug("%s","RETR accepted\n");
+				}else
+				if (strncmp((char *)m_Buffer->getData() + iStart,"226 ",4) == 0)
+				{
+					logDebug("%s","Transferr finished\n");
+					sendQuit();
+					m_State = FTP_QUIT;
+				}
 				break;
 
+			case FTP_QUIT:
+				if (parseQuit((char *)m_Buffer->getData() + iStart) == true)
+				{
+					return CL_DROP;
+				}
+				break;
 
 			default:
 				break;
@@ -252,7 +246,8 @@ ConsumeLevel CTRLDialogue::outgoingData(Message *msg)
  */
 ConsumeLevel CTRLDialogue::handleTimeout(Message *msg)
 {
-	return CL_DROP;
+	sendQuit();
+	return CL_ASSIGN;
 }
 
 /**
@@ -292,3 +287,173 @@ void CTRLDialogue::setDownload(Download *down)
 {
 	m_Download = down;
 }
+
+
+void CTRLDialogue::sendUser()
+{
+	char *msg;
+	asprintf(&msg,"USER %s\r\n",m_Download->getDownloadUrl()->getUser().c_str());
+	logDebug("FTPSEND: '%s'\n",msg);
+	m_Socket->doRespond(msg,strlen(msg));
+	free(msg);
+}
+bool CTRLDialogue::parseUser(char *msg)
+{
+	if (strncmp(msg,"331 ",4) == 0)
+	{
+		logDebug("User accepted .. \n",m_Download->getDownloadUrl()->getPass().c_str());
+		return true;
+	}else
+	{
+		return false;
+	}
+}
+
+
+void CTRLDialogue::sendPass()
+{
+	char *nmsg;
+	asprintf(&nmsg,"PASS %s\r\n",m_Download->getDownloadUrl()->getPass().c_str());
+	logDebug("FTPSEND: '%s'\n",nmsg);
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+	free(nmsg);
+	
+}
+bool CTRLDialogue::parsePass(char *msg)
+{
+	if (strncmp(msg,"230 ",4) == 0)
+	{
+		logDebug("%s","Pass accepted, logged in \n");
+		return true;
+	}else
+	{
+		return false;
+	}
+
+
+}
+
+
+
+void CTRLDialogue::sendType()
+{
+	char *nmsg = "TYPE I\r\n";
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+	logDebug("FTPSEND: '%s'\n",nmsg);
+}
+
+bool CTRLDialogue::parseType(char *msg)
+{
+	if (strncmp(msg,"200 ",4) == 0)
+	{
+		logDebug("%s","Type accepted \n");
+		return true;
+	}else
+	{
+		return false;
+	}
+}
+
+
+
+void CTRLDialogue::sendPort()
+{
+	logDebug("%s","System ... \n");
+
+	// get local ip
+	int32_t sock = m_Socket->getSocket();
+
+	// get name
+	socklen_t len = sizeof(struct sockaddr_in);
+	sockaddr_in addr;
+
+	getsockname(sock, (struct sockaddr *)&addr,&len);
+
+	logDebug("local ip is %s \n",inet_ntoa(addr.sin_addr));
+
+	uint32_t ip = *(uint32_t *)&addr.sin_addr;
+	uint16_t port = 0;
+
+	Socket *socket;
+	if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,0,60,30)) == NULL )
+	{
+		logCrit("Could not bind port %u \n",port);
+	}
+
+	port = socket->getLocalPort();
+
+	m_Context->setActiveFTPBindPort(port);
+	socket->addDialogueFactory(g_FTPDownloadHandler);
+
+	char *nmsg;
+	asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
+			(int32_t)ip & 0xff,
+			(int32_t)(ip >> 8) & 0xff,
+			(int32_t)(ip >> 16) & 0xff,
+			(int32_t)(ip >> 24) & 0xff,
+			(int32_t)(port >> 8) & 0xff,
+			(int32_t)port & 0xff);
+	logDebug("FTPSEND: '%s'\n",nmsg);
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+	free(nmsg);
+
+}
+
+bool CTRLDialogue::parsePort(char *msg)
+{
+	if (strncmp(msg,"200 ",4) == 0)
+	{
+		logDebug("%s","Port accepted\n");
+		return true;
+	}else
+	{
+		return false;
+	}
+	
+}
+
+
+void CTRLDialogue::sendRetr()
+{
+	
+	char *nmsg;
+	asprintf(&nmsg,"RETR %s\n",m_Download->getDownloadUrl()->getPath().c_str());
+	logDebug("FTPSEND: '%s'\n",nmsg);
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+	free(nmsg);
+}
+
+bool CTRLDialogue::parseRetr(char *msg)
+{
+	if (strncmp(msg,"150 ",4) == 0)
+	{
+		logDebug("%s","Retr accepted\n");
+		return true;
+	}else
+	{
+		return false;
+	}
+}
+
+void CTRLDialogue::sendQuit()
+{
+	
+	char *nmsg = "QUIT\r\n";
+	
+	logDebug("FTPSEND: '%s'\n",nmsg);
+	m_Socket->doRespond(nmsg,strlen(nmsg));
+//	free(nmsg);
+}
+
+bool CTRLDialogue::parseQuit(char *msg)
+{
+	if (strncmp(msg,"221 ",4) == 0)
+	{
+		logDebug("%s","Quit accepted\n");
+		return true;
+	}else
+	{
+		return false;
+	}
+}
+

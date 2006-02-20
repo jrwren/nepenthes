@@ -34,6 +34,11 @@
 #include "LogManager.hpp"
 #include "VFS.hpp"
 
+#ifdef STDTAGS 
+#undef STDTAGS 
+#endif
+#define STDTAGS l_shell
+
 using namespace nepenthes;
 using namespace std;
 

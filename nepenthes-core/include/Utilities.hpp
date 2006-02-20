@@ -177,7 +177,7 @@ namespace nepenthes
 		static void b64enc(unsigned char *in, int32_t inlen, unsigned char *out);
 		static void b64dec(unsigned char *in, int32_t inlen, unsigned char *out);
 
-
+		string m_HexdumpPath;
 	};
 }
 

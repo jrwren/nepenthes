@@ -92,7 +92,7 @@ bool GenericConnectTrans::Init()
 		uint16_t offset = atoi(sList[i]);
 		i++;
 
-		logInfo("pcre is %s \n",pattern);
+//		logInfo("pcre is %s \n",pattern);
 		const char * pcreEerror;
 		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
@@ -103,7 +103,7 @@ bool GenericConnectTrans::Init()
 			return false;
 		}else
 		{
-			logInfo("Adding %s \n",name);
+			logDebug("Adding %s \n",name);
 			PcreContext *ctx = new PcreContext;
 			ctx->m_Name = name;
 			ctx->m_Pcre = mypcre;
@@ -171,7 +171,7 @@ sch_result GenericConnectTrans::handleShellcode(Message **msg)
 
 			char *url;
 			asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, (*it)->m_Offset);
-			g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url);
+			g_Nepenthes->getDownloadMgr()->downloadUrl(url, (*msg)->getRemoteHost(), url,0);
 			free(url);
 
 			return SCH_DONE;

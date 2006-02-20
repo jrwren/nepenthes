@@ -52,7 +52,7 @@
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
-#define STDTAGS l_mod
+#define STDTAGS l_dl | l_hlr
 
 using namespace nepenthes;
 
@@ -135,7 +135,7 @@ bool FTPDownloadHandler::Exit()
 Dialogue *FTPDownloadHandler::createDialogue(Socket *socket)
 {
 	logPF();
-	logInfo("Incoming connection on port %i\n",socket->getLocalPort());
+	logDebug("Incoming connection on port %i\n",socket->getLocalPort());
 
 	list<FTPContext *>::iterator it;
 	for (it= m_Contexts.begin();it != m_Contexts.end();it++)
@@ -203,7 +203,7 @@ bool FTPDownloadHandler::dnsResolved(DNSResult *result)
 
 bool FTPDownloadHandler::dnsFailure(DNSResult *result)
 {
-	logInfo("url %s unresolved \n",result->getDNS().c_str());
+	logWarn("url %s unresolved \n",result->getDNS().c_str());
 	return true;
 }
 

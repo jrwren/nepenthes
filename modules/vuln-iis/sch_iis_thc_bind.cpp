@@ -53,7 +53,7 @@ THCBind::THCBind(ShellcodeManager *shellcodemanager)
 {
 	m_ShellcodeManager = shellcodemanager;
 	m_ShellcodeHandlerName = "THCBind";
-	m_ShellcodeHandlerDescription = "handles linkbot connectback transferrs";
+	m_ShellcodeHandlerDescription = "handles thc iis bindshells";
 	m_pcre = NULL;
 }
 
@@ -93,7 +93,7 @@ bool THCBind::Init()
 	"\x78\x50\x8d\x45\x88\x50\xb1\x08\x53\x53\x6a\x10\xfe\xce\x52"
 	"\x53\x53\x53\x55\xff\x55\xec\x6a\xff\xff\x55\xe0";
 
-	logInfo("pcre is %s \n",thcconnectpcre);
+//	logInfo("pcre is %s \n",thcconnectpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;

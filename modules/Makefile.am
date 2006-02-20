@@ -10,7 +10,7 @@ SUBDIRS = download-creceive download-csend download-curl download-ftp \
           vuln-asn1 vuln-bagle vuln-dcom vuln-iis vuln-kuang2 vuln-lsass \
           vuln-msmq vuln-mssql vuln-mydoom \
           vuln-netbiosname vuln-netdde vuln-optix vuln-pnp vuln-sasserftpd \
-          vuln-sub7 vuln-upnp vuln-veritas vuln-wins\
+          vuln-sub7 vuln-upnp vuln-veritas vuln-wins vuln-dameware\
           x-1 x-2 x-3 x-4 x-5 x-6 x-7  
           # log-prelude vuln-netbios
           # x-5 has linking issues on MacOS X

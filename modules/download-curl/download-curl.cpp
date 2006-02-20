@@ -150,7 +150,7 @@ uint32_t CurlDownloadHandler::handleEvent(Event *event)
                 curl_easy_getinfo(pMessage->easy_handle, CURLINFO_PRIVATE, (char * *) &pDown);
 				if ( pMessage->data.result )
 				{
-                    logInfo("Download error %s on getting file %s \n", curl_easy_strerror(pMessage->data.result), pDown->getUrl().c_str());
+                    logWarn("Download error %s on getting file %s \n", curl_easy_strerror(pMessage->data.result), pDown->getUrl().c_str());
 				} else
 				{
 					curl_easy_getinfo(pMessage->easy_handle, CURLINFO_EFFECTIVE_URL, &szUrl);
@@ -202,10 +202,10 @@ bool CurlDownloadHandler::download(Download *down)
 	curl_easy_setopt(pCurlHandle, CURLOPT_LOW_SPEED_LIMIT , 1);	// 2 min under 1 byte /s and we break it
 	curl_easy_setopt(pCurlHandle, CURLOPT_LOW_SPEED_TIME, 120);
 
-	
-	if (down->getDownloadUrl()->getProtocol() == "http")
+    if (down->getDownloadUrl()->getProtocol() == "http")
 	{
     	curl_easy_setopt(pCurlHandle, CURLOPT_URL			, down->getUrl().c_str());
+		logInfo("HTTP DOWNLOAD %s \n",down->getUrl().c_str());
 	}else
 	if (down->getDownloadUrl()->getProtocol() == "ftp")
 	{
@@ -220,7 +220,7 @@ bool CurlDownloadHandler::download(Download *down)
 		curl_easy_setopt(pCurlHandle, CURLOPT_URL			, url);
 		curl_easy_setopt(pCurlHandle, CURLOPT_FTP_RESPONSE_TIMEOUT, 120);	// 2 min ftp timeout
 //		curl_easy_setopt(pCurlHandle, 
-		logSpam("FTP DOWNLOAD %s %s \n",url,down->getDownloadUrl()->getAuth().c_str());
+		logInfo("FTP DOWNLOAD %s %s \n",url,down->getDownloadUrl()->getAuth().c_str());
 //		free(url);
 	}
 

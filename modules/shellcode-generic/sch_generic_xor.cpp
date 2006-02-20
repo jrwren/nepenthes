@@ -174,7 +174,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			memcpy(decodedMessage, match, totalsize);
 			pcre_free_substring(match);
 
-			logDebug("Detected generic XOR decoder #%i size length has %d bytes, size is %d, totalsize %d.\n",i, codesizeLen, codesize, totalsize);
+			logInfo("Detected generic XOR decoder #%i size length has %d bytes, size is %d, totalsize %d.\n",i, codesizeLen, codesize, totalsize);
 
 			if( codesize > totalsize )
 				logWarn("%s\n", "codesize > totalsize - broken shellcode?");

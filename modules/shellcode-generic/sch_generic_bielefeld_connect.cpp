@@ -74,7 +74,7 @@ bool BieleFeldConnect::Init()
 	"\\x57\\x53\\xff\\x57\\xf8\\x53\\xff\\x57\\xfc\\x50\\xff"
 	"\\x57\\xec";
 
-	logInfo("pcre is %s \n",pattern);
+//	logInfo("pcre is %s \n",pattern);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;

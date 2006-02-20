@@ -125,7 +125,7 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 		key = *substring;
 		pcre_free_substring(substring);
 
-		logDebug("Found linkbot XOR decoder, key 0x%02x, payload is 0x%04x bytes long.\n", key, payloadLen);
+		logInfo("Found linkbot XOR decoder, key 0x%02x, payload is 0x%04x bytes long.\n", key, payloadLen);
 
 		pcre_get_substring((char *)shellcode, offvec, result, 4, &substring);
 		payload = (byte *)malloc(payloadLen);

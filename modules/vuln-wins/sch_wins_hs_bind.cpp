@@ -90,7 +90,7 @@ bool HATSQUADBind::Init()
 									"\\x44\\x29\\x2C\\xBA\\x30\\x49\\x2F\\xE9\\x7F\\x7A\\x2C\\xBC\\xE9\\xE1\\x03\\x02"
 									"\\x54\\xD0\\x33\\x0A\\xE8\\xE1\\x05\\x95\\x6B\\x1E\\xD3\\x6A"
 									").*";
-	logInfo("pcre is %s \n",hatsquadbindpcre);
+//	logInfo("pcre is %s \n",hatsquadbindpcre);
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)

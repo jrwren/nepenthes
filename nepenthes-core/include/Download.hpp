@@ -35,6 +35,10 @@
 //#include "EvCID.hpp"
 using namespace std;
 
+
+
+#define DF_TYPE_BINARY	0x0000001
+
 namespace nepenthes
 {
 	class DownloadUrl;
@@ -62,6 +66,9 @@ namespace nepenthes
 		virtual void setFileType(char *type);
 		virtual string getFileType();
 
+		uint8_t	getDownloadFlags();
+		void	addDownloadFlags(uint8_t flags);
+
 	protected:
 		string  m_Url;
 		string  m_TriggerLine;
@@ -73,6 +80,8 @@ namespace nepenthes
 		uint32_t m_Address;
 		DownloadUrl *m_DownloadUrl;
 		DownloadBuffer  *m_DownloadBuffer;
+
+		uint8_t	m_DownloadFlags;
 
 	};
 }

@@ -124,7 +124,7 @@ void FileSubmitHandler::Submit(Download *down)
 			{
 				logCrit("writing to file %s failed %i <-> %i\n",path.c_str(),size,down->getDownloadBuffer()->getLength());
 			}
-			logInfo("wrote file %s %i to disk \n",path.c_str(),down->getDownloadBuffer()->getLength());
+			logDebug("wrote file %s %i to disk \n",path.c_str(),down->getDownloadBuffer()->getLength());
 			fclose(f);
 			break;
 		}

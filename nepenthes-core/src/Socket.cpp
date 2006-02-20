@@ -66,11 +66,11 @@ bool Socket::addDialogueFactory(DialogueFactory *diaf)
 	}
 	if (known == false)
 	{
-    	logInfo("%s \n\tAdding DialogueFactory %s \n",getDescription().c_str(),diaf->getFactoryName().c_str());
+    	logDebug("%s \n\tAdding DialogueFactory %s \n",getDescription().c_str(),diaf->getFactoryName().c_str());
 		m_DialogueFactories.push_back(diaf);
 	}else
 	{
-		logInfo("%s \tAdding DialogueFactory: already known\n",getDescription().c_str(),diaf->getFactoryName().c_str());
+		logDebug("%s \tAdding DialogueFactory: already known\n",getDescription().c_str(),diaf->getFactoryName().c_str());
 	}
 	return true;
 }

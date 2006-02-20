@@ -42,14 +42,14 @@ namespace nepenthes
     class Nepenthes;
     class Message;
 
-    typedef enum
-    {
-        CL_UNSURE = 0,
-        CL_READONLY,
-        CL_ASSIGN,
-		CL_ASSIGN_AND_DONE,
-        CL_DROP,
-    } ConsumeLevel;
+	typedef enum
+	{
+		CL_DROP,
+		CL_UNSURE,
+		CL_READONLY,
+		CL_ASSIGN,
+		CL_ASSIGN_AND_DONE
+	} ConsumeLevel;
 
 
     class Dialogue
@@ -59,6 +59,12 @@ namespace nepenthes
         virtual ConsumeLevel incomingData(Message * msg) = 0;
         virtual ConsumeLevel outgoingData(Message * msg) = 0;
         virtual ConsumeLevel handleTimeout(Message * msg) = 0;
+
+		virtual ConsumeLevel connectionEstablished()
+		{
+			return m_ConsumeLevel;
+		};      // getsockopt()  == EISCONN || == 0 && m_Socket->getState() == SS_CONNECTING
+		
         virtual ConsumeLevel connectionLost(Message * msg) = 0;      // recv < 0
         virtual ConsumeLevel connectionShutdown(Message * msg) = 0;  // recv() == 0
         virtual ConsumeLevel getConsumeLevel()
@@ -85,14 +91,9 @@ namespace nepenthes
 
 
 		/**
-		 * if more than one dialogues is assigned to a socket, 
-		 * a dialogue who fits the traffic and recognizes a shellcode, can return CL_ASSIGN_AND_DONE
-		 * the Socket will then call setStateDone for each assigned dialogue.
-		 * its upto the dialogue itself to implement it in a way it sets the dialogue to a _DONE state, 
-		 * so it does not hexdump the already by some other dialogue recognized traffic
 		 */
-		virtual void syncState(ConsumeLevel cl)
-		{
+		virtual void dump()
+		{// as some dialogues wont need this fn
 			return;
 		}
 

@@ -82,18 +82,6 @@ UPNPDialogue::UPNPDialogue(Socket *socket)
 
 UPNPDialogue::~UPNPDialogue()
 {
-	switch (m_State)
-	{
-
-	case UPNP_NULL:
-		logWarn("Unknown UPNP exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
-		break;
-
-	case UPNP_DONE:
-		break;
-	}
-
 	delete m_Buffer;
 }
 
@@ -119,12 +107,16 @@ ConsumeLevel UPNPDialogue::incomingData(Message *msg)
 		{
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 									   m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-			if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
+			sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			delete Msg;
+
+			if ( sch == SCH_DONE )
 			{
 				m_Buffer->clear();
 				m_State = UPNP_DONE;
+				return CL_ASSIGN_AND_DONE;
 			}
-			delete Msg;
+			
 
 		}
 		break;
@@ -195,4 +187,8 @@ ConsumeLevel UPNPDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-
+void UPNPDialogue::dump()
+{
+	logWarn("Unknown UPNP exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+}

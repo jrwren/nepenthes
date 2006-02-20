@@ -147,7 +147,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 					}
 				}
 				logInfo("Bagle URL %s \n",url);
-				g_Nepenthes->getDownloadMgr()->downloadUrl(url,msg->getRemoteHost(),url);
+				g_Nepenthes->getDownloadMgr()->downloadUrl(url,msg->getRemoteHost(),url,0);
 				free(url);
 				return CL_DROP;
 				

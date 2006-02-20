@@ -154,7 +154,7 @@ sch_result Stuttgart::handleShellcode(Message **msg)
 		unsigned char *base64Key = g_Nepenthes->getUtilities()->b64encode_alloc(authKey,4);
 
 		asprintf(&url,"link://%s:%i/%s",inet_ntoa(*(in_addr *)&address),port,base64Key);
-		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url);
+		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url,0);
 		free(url);
 		free(base64Key);
 

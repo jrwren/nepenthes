@@ -56,7 +56,7 @@
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
-#define STDTAGS l_mod
+#define STDTAGS l_dl | l_dia | l_hlr
 
 using namespace nepenthes;
 

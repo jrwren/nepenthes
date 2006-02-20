@@ -10,6 +10,6 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = x2.la
 
-x2_la_SOURCES = x-2.cpp x-2.hpp
+x2_la_SOURCES = x-2.cpp x-2.hpp x-2.conf.dist
 
 x2_la_LDFLAGS = -module -no-undefined -avoid-version

@@ -73,16 +73,6 @@ SMBDialogue::SMBDialogue(Socket *socket)
 
 SMBDialogue::~SMBDialogue()
 {
-	switch (m_State)
-	{
-	case SMB_DONE:
-		break;
-
-	default:
-		logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","ASN1_SMB",m_Buffer->getSize(),m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
-	}
-
 	delete m_Buffer;
 }
 
@@ -109,7 +99,7 @@ ConsumeLevel SMBDialogue::incomingData(Message *msg)
 			 memcmp(smb_request1, m_Buffer->getData(), 30 ) == 0 &&
 			 memcmp(smb_request1+32, (char *)m_Buffer->getData()+32, 137-32) == 0 )
 		{
-			logInfo("Got ASN1 SMB exploit Stage #1(%i)\n",msg->getMsgLen());
+			logDebug("Got ASN1 SMB exploit Stage #1(%i)\n",msg->getMsgLen());
 			m_Buffer->cut(sizeof(smb_request1));
 			m_State = SMB_SESSION_SETUP;
 			return CL_UNSURE;	// same as lsass bindstr
@@ -135,7 +125,7 @@ ConsumeLevel SMBDialogue::incomingData(Message *msg)
 			 memcmp(smb_request2, m_Buffer->getData(), 30 ) == 0 &&
 			 memcmp(smb_request2+32, (char *)m_Buffer->getData()+32, 4291-32) == 0 )
 		{
-			logInfo("Got ASN1 SMB exploit Stage #2(%i) Binding Port 8721\n",m_Buffer->getSize());
+			logDebug("Got ASN1 SMB exploit Stage #2(%i) Binding Port 8721\n",m_Buffer->getSize());
 			m_Buffer->cut(sizeof(smb_request1));
 
 			Socket *socket;
@@ -232,21 +222,8 @@ ConsumeLevel SMBDialogue::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-void SMBDialogue::syncState(ConsumeLevel cl)
+void SMBDialogue::dump()
 {
-	logPF();
-	switch (cl)
-	{
-	case CL_ASSIGN_AND_DONE:
-	case CL_ASSIGN:
-		if (getConsumeLevel() != cl)
-		{
-			m_State = SMB_DONE;
-		}
-		break;
-
-	default:
-		break;
-	}
-	
+	logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","ASN1_SMB",m_Buffer->getSize(),m_State);
+	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 }

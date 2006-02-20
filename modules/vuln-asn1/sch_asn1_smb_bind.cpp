@@ -122,7 +122,7 @@ bool ASN1SMBBind::Init()
 "\\xff\\xd0\\x33\\xc0\\x50\\xff\\x75\\x14\\x57\\x68\\x98\\xfe\\x8a\\x0e\\xff\\xd6"
 "\\xff\\xd0\\x57\\x68\\xef\\xce\\xe0\\x60\\xff\\xd6\\xff\\xd0).*";
 
-	logInfo("pcre is %s \n",oc192bindpcre);
+//	logInfo("pcre is %s \n",oc192bindpcre);
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
@@ -168,14 +168,15 @@ sch_result ASN1SMBBind::handleShellcode(Message **msg)
 
         uint16_t port = *(uint16_t *)&pCode[253];
 		port = ntohs(port);
-		logInfo("SMB ASN1 Bind Port %i  %i\n",port,(*msg)->getMsgLen());
+		logInfo("SMB ASN1 Bind Port %i \n",port);
 
 		char *url;
 		uint32_t host = (*msg)->getRemoteHost();
 			
 		asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port);
-		g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url,(*msg)->getRemoteHost(),"asn1 smb bind");
-		logSpam("URL IS %s \n",url);
+		logInfo("URL IS %s \n",url);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((char *)url,(*msg)->getRemoteHost(),"asn1 smb bind",0);
+		
 		free(url);
 		return SCH_DONE;
 		
