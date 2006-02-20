@@ -27,60 +27,72 @@
 
  /* $Id$ */
 
-#ifndef HAVE_DOWNLOAD_FTP_HPP
-#define HAVE_DOWNLOAD_FTP_HPP
-
-#include "DialogueFactory.hpp"
 #include "Module.hpp"
 #include "ModuleManager.hpp"
 #include "SocketManager.hpp"
 #include "Nepenthes.hpp"
-#include "Dialogue.hpp"
-#include "Socket.hpp"
-
-#include "DownloadHandler.hpp"
+#include "SubmitHandler.hpp"
 #include "DNSCallback.hpp"
+
 
 using namespace std;
 
 namespace nepenthes
 {
 
-	class FTPContext;
+	struct GotekContext
+	{
+		unsigned char *m_FileBuffer;
+		uint32_t m_FileSize;
+		unsigned char	m_SHA512Hash[64];
+		uint64_t	m_EvCID;
+	};
 
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
+
+	class Socket;
+
+	class GotekSubmitHandler : public Module , public SubmitHandler, public DNSCallback
 	{
 	public:
-		FTPDownloadHandler(Nepenthes *);
-		~FTPDownloadHandler();
-		Dialogue *createDialogue(Socket *socket);
+		GotekSubmitHandler(Nepenthes *);
+		~GotekSubmitHandler();
 		bool Init();
 		bool Exit();
 
-		bool download(Download *down);
+		void Submit(Download *down);
+		void Hit(Download *down);
+		string getUser();
+		unsigned char *getCommunityKey();
+
+		void setSessionKey(uint64_t);
 
 		bool dnsResolved(DNSResult *result);
 		bool dnsFailure(DNSResult *result);
 
-		bool removeContext(FTPContext *context);
+		void setSocket(Socket *);
 
-		uint16_t getMinPort();
-		uint16_t getMaxPort();
-		uint32_t getRetrAddress();
+		bool popGote();
+		bool sendGote();
+
+		
 	protected:
-		list <FTPContext *> m_Contexts;
+//		string m_FilePath;
+		
+// 
+		Socket *m_CTRLSocket;
+		string m_User;
+		unsigned char *m_CommunityKey;
 
-		// we need those vars for NAT active ftp
-		string	m_DynDNS;
-		uint16_t m_MinPort;
-		uint16_t m_MaxPort;
-		uint32_t m_RetrAddress;
+		uint64_t m_Sessionkey;
+		string m_GotekHost;
+		uint32_t m_GotekHostIP;
+
+		uint16_t m_GotekPort;
+
+		list <GotekContext *> m_Goten;
 	};
 
-
-
 }
-extern nepenthes::Nepenthes *g_Nepenthes;
-extern nepenthes::FTPDownloadHandler *g_FTPDownloadHandler;
 
-#endif
+extern nepenthes::Nepenthes *g_Nepenthes;
+extern nepenthes::GotekSubmitHandler *g_GotekSubmitHandler;

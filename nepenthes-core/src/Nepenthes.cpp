@@ -41,6 +41,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
+#include <sys/utsname.h>
 
 #include "Nepenthes.hpp"
 #include "SocketManager.hpp"
@@ -1330,36 +1331,27 @@ void SignalHandler(int32_t iSignal)
     switch(iSignal)
     {
 	case SIGHUP:
-		printf("Got SIGHUP\nRereading Config File!\n");
+		logCrit("Got SIGHUP\nRereading Config File!\n");
 		g_Nepenthes->reloadConfig();
 		break;
 
 	case SIGINT:
-		printf("Got SIGINT\nStopping NOW!\n");
+		logCrit("Got SIGINT\nStopping NOW!\n");
 		g_Nepenthes->stop();
 		break;
 
 	case SIGABRT:
-		printf("%s\n", "Unhandled Exception");
+		logCrit("%s\n", "Unhandled Exception");
 		exit(-1);
 		break;
 
 	case SIGSEGV:
-		printf("%s\n", "Segmentation Fault");
+		logCrit("%s\n", "Segmentation Fault");
 		exit(-1);
 		break;
 
-#ifndef HAVE_MSG_NOSIGNAL
-	// this wont work
-	// at least it did not work for me when i wanted to ignore SIGWINCH this way
-	// -- common
-	case SIGPIPE:
-		printf("Ignoring %i\n", iSignal);
-		signal(iSignal,SIG_IGN);
-		break;
-#endif
 	default:
-		printf("Exit 'cause of %i\n", iSignal);
+		logCrit("Exit 'cause of %i\n", iSignal);
 		g_Nepenthes->stop();
 	}
 }
@@ -1398,7 +1390,20 @@ int main(int32_t argc, char **argv)
 	signal(SIGFPE,   SignalHandler);	//       8       Core    Floating point exception
 //  signal(SIGKILL,  SignalHandler);	//       9       Term    Kill signal
 	signal(SIGSEGV,  SignalHandler);	//      11       Core    Invalid memory reference
+
+/* I hate breaking this well formatted list, 
+ * but some systems lack
+ * MSG_NOSIGNAL as send() option and 
+ * SO_NOSIGPIPE as setsockopt() feature
+ * So we would get sigpipe when sending data on a closed connection ...
+ * it sucks, but we have to ignore sigpipe on such systems (f.e. OpenBSD 3.8)
+ */
+#if !defined(HAVE_SO_NOSIGPIPE) && !defined(HAVE_MSG_NOSIGNAL)
+	signal(SIGPIPE,  SIG_IGN);	        //      13       Term    Broken pipe: write to pipe with no readers
+#else
 	signal(SIGPIPE,  SignalHandler);	//      13       Term    Broken pipe: write to pipe with no readers
+#endif
+										// 
 	signal(SIGALRM,  SignalHandler);	//      14       Term    Timer signal from alarm(2)
 	signal(SIGTERM,  SignalHandler);	//      15       Term    Termination signal
 	signal(SIGUSR1,  SignalHandler);	//   30,10,16    Term    User-defined signal 1
@@ -1415,6 +1420,7 @@ int main(int32_t argc, char **argv)
  */
 
 	signal(SIGBUS,   SignalHandler);	//   10,7,10     Core    Bus error (bad memory access)
+	
 #ifdef HAVE_SIGPOLL
 	signal(SIGPOLL,  SignalHandler);	//               Term    Pollable event (Sys V). Synonym of SIGIO
 #endif
@@ -1565,20 +1571,67 @@ void show_help(bool defaults)
 	}
 }
 
-#ifdef __GNUG__
+
+#if defined(__GNUG__)
 	#define MY_COMPILER "g++"
 /*
-	#if ( __GNUC__ == 4 && __GNUC_MINOR__ == 0  ) // g++ 4 detection
-		#error "g++ 4 has bugs, dont use g++4 " 
-		#error "nepenthes would compile using g++4, "
-		#error "but the async dns would fail as there is a bug somewhere outside nepenthes" 
+	#if ( __GNUC__ == 4 && __GNUC_MINOR__ == 0  && __GNUC_PATCHLEVEL__ <= 2 ) // g++ 4 detection
+		#error "MAKE SURE TO READ THIS"
+		#error "g++ 4 has bugs, dont use it" 
+		#error "nepenthes would compile using g++4, but it will segfault while running"
 		#error "refer to http://nepenthes.sourceforge.net/documentation:readme:faq:gcc_4 for more information"
+		#error "if you got no other compiler feel free to remove this section by commenting it out"
+		#error "but don't complain when it does not work"
+		#error "you can find it in Nepenthes.cpp around line 1569, just search for 'g++ 4 detection'"
 	#endif
 */	
-#else
+#elif defined(__CYGWIN__)
+	#define MY_COMPILER "cygwin"
+#else	
 	#define MY_COMPILER "unknown Compiler"
 #endif
 
+
+#if defined(__FreeBSD__)
+#  define MY_OS "FreeBSD"
+#elif defined(linux) || defined (__linux)
+#  define MY_OS "Linux"
+#elif defined (__MACOSX__) || defined (__APPLE__)
+#  define MY_OS "Mac OS X"
+#elif defined(__NetBSD__)
+#  define MY_OS "NetBSD"
+#elif defined(__OpenBSD__)
+#  define MY_OS "OpenBSD"
+#elif defined(_WIN32) || defined(__WIN32__) || defined(__TOS_WIN__)
+#  define MY_OS "Windows"
+#elif defined(CYGWIN)
+#  define MY_OS "Cygwin\Windows"
+#else
+#  define MY_OS "Unknown OS"
+#endif
+
+
+#if defined(__alpha__) || defined(__alpha) || defined(_M_ALPHA)
+#  define MY_ARCH "Alpha"
+#elif defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_X86_) || defined(__THW_INTEL)
+#  define MY_ARCH "x86"
+#elif defined(__x86_64__) || defined(__amd64__)
+#  define MY_ARCH "x86_64"
+#elif defined(__ia64__) || defined(_IA64) || defined(__IA64__) || defined(_M_IA64)
+#  define MY_ARCH "Intel Architecture-64"
+#elif defined(__mips__) || defined(__mips) || defined(__MIPS__)
+#  define MY_ARCH "MIPS"
+#elif defined(__hppa__) || defined(__hppa)
+#  define MY_ARCH "PA RISC"
+#elif defined(__powerpc) || defined(__powerpc__) || defined(__POWERPC__) || defined(__ppc__) || defined(_M_PPC) || defined(__PPC) || defined(__PPC__)
+#  define MY_ARCH "PowerPC"
+#elif defined(__THW_RS6000) || defined(_IBMR2) || defined(_POWER) || defined(_ARCH_PWR) || defined(_ARCH_PWR2)
+#  define MY_ARCH "RS/6000"
+#elif defined(__sparc__) || defined(sparc) || defined(__sparc)
+#  define MY_ARCH "SPARC"
+#else
+#  define MY_ARCH "Unknown Architecture"
+#endif
 
 void show_loghelp()
 {
@@ -1598,9 +1651,23 @@ void show_loghelp()
  */
 void show_version()
 {
+	struct utsname sysinfo;
+	int i = uname(&sysinfo);
+
 	printf("\n");
 	printf("Nepenthes Version %s \n",VERSION);
-	printf("Compiled on %s %s with %s %s \n",__DATE__, __TIME__,MY_COMPILER,__VERSION__);
+	printf("Compiled on %s/%s at %s %s with %s %s \n",MY_OS,MY_ARCH,__DATE__, __TIME__,MY_COMPILER,__VERSION__);
+
+	if (i == 0)
+	{
+		printf("Started on %s running %s/%s release %s\n",
+			   sysinfo.nodename,
+			   sysinfo.sysname, 
+			   sysinfo.machine,
+			   sysinfo.release
+			   );
+	}
+
 	printf("\n");
 }
 

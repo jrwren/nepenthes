@@ -130,7 +130,7 @@ ConsumeLevel Kuang2Dialogue::incomingData(Message *msg)
 				m_FileName = kmsg->sdata;
 				logInfo("Kuang2 File upload requested %s %i\n",m_FileName.c_str(),m_FileSize);
 				m_State = KUANG2_FILETRANSFERR;
-				m_Download = new Download(msg->getRemoteHost(),"kuang2://foo/bar",msg->getRemoteHost(),"some triggerline");
+				m_Download = new Download(msg->getLocalHost(),"kuang2://foo/bar",msg->getRemoteHost(),"some triggerline");
 				m_Buffer->clear();
 
 			} else

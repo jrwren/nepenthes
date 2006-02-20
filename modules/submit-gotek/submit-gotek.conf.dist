@@ -1,0 +1,8 @@
+submit-gotek
+{
+	host	"alliance.mwcollect.org";
+	port	"34109";
+	
+	communitykey = "hexdump here";
+	user	"user.name";
+};

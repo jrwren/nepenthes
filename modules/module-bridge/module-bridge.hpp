@@ -27,9 +27,6 @@
 
  /* $Id$ */
 
-#ifndef HAVE_DOWNLOAD_FTP_HPP
-#define HAVE_DOWNLOAD_FTP_HPP
-
 #include "DialogueFactory.hpp"
 #include "Module.hpp"
 #include "ModuleManager.hpp"
@@ -38,49 +35,27 @@
 #include "Dialogue.hpp"
 #include "Socket.hpp"
 
-#include "DownloadHandler.hpp"
-#include "DNSCallback.hpp"
-
 using namespace std;
 
 namespace nepenthes
 {
 
-	class FTPContext;
+	class Buffer;
 
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
+	class BridgeModule : public Module , public DialogueFactory
 	{
 	public:
-		FTPDownloadHandler(Nepenthes *);
-		~FTPDownloadHandler();
+		BridgeModule(Nepenthes *);
+		~BridgeModule();
 		Dialogue *createDialogue(Socket *socket);
 		bool Init();
 		bool Exit();
+	private:
+		uint32_t m_BridgeHost;
 
-		bool download(Download *down);
-
-		bool dnsResolved(DNSResult *result);
-		bool dnsFailure(DNSResult *result);
-
-		bool removeContext(FTPContext *context);
-
-		uint16_t getMinPort();
-		uint16_t getMaxPort();
-		uint32_t getRetrAddress();
-	protected:
-		list <FTPContext *> m_Contexts;
-
-		// we need those vars for NAT active ftp
-		string	m_DynDNS;
-		uint16_t m_MinPort;
-		uint16_t m_MaxPort;
-		uint32_t m_RetrAddress;
 	};
 
 
 
 }
 extern nepenthes::Nepenthes *g_Nepenthes;
-extern nepenthes::FTPDownloadHandler *g_FTPDownloadHandler;
-
-#endif

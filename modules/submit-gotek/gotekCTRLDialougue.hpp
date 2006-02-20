@@ -27,9 +27,6 @@
 
  /* $Id$ */
 
-#ifndef HAVE_DOWNLOAD_FTP_HPP
-#define HAVE_DOWNLOAD_FTP_HPP
-
 #include "DialogueFactory.hpp"
 #include "Module.hpp"
 #include "ModuleManager.hpp"
@@ -37,8 +34,6 @@
 #include "Nepenthes.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
-
-#include "DownloadHandler.hpp"
 #include "DNSCallback.hpp"
 
 using namespace std;
@@ -46,41 +41,29 @@ using namespace std;
 namespace nepenthes
 {
 
-	class FTPContext;
+	typedef enum 
+	{
+		GCTRL_NULL,
+		GCTRL_AUTH,
+		GCTRL_CTRL
+	} gdata_state;
 
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
+
+	class Buffer;
+
+	class gotekCTRLDialogue : public Dialogue
 	{
 	public:
-		FTPDownloadHandler(Nepenthes *);
-		~FTPDownloadHandler();
-		Dialogue *createDialogue(Socket *socket);
-		bool Init();
-		bool Exit();
+		gotekCTRLDialogue(Socket *socket);
+		~gotekCTRLDialogue();
+		ConsumeLevel incomingData(Message *msg);
+		ConsumeLevel outgoingData(Message *msg);
+		ConsumeLevel handleTimeout(Message *msg);
+		ConsumeLevel connectionLost(Message *msg);
+		ConsumeLevel connectionShutdown(Message *msg);
 
-		bool download(Download *down);
-
-		bool dnsResolved(DNSResult *result);
-		bool dnsFailure(DNSResult *result);
-
-		bool removeContext(FTPContext *context);
-
-		uint16_t getMinPort();
-		uint16_t getMaxPort();
-		uint32_t getRetrAddress();
 	protected:
-		list <FTPContext *> m_Contexts;
-
-		// we need those vars for NAT active ftp
-		string	m_DynDNS;
-		uint16_t m_MinPort;
-		uint16_t m_MaxPort;
-		uint32_t m_RetrAddress;
+		Buffer		*m_Buffer;
+		gdata_state m_State;
 	};
-
-
-
 }
-extern nepenthes::Nepenthes *g_Nepenthes;
-extern nepenthes::FTPDownloadHandler *g_FTPDownloadHandler;
-
-#endif

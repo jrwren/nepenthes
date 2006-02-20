@@ -23,7 +23,7 @@ nepenthes
     "downloadcsend.so",             "download-csend.conf",          ""
     "downloadcreceive.so",          "",                             ""
 //    "downloadcurl.so",              "download-curl.conf",           ""
-    "downloadftp.so",               "",                             ""
+    "downloadftp.so",               "download-ftp.conf",            ""
     "downloadhttp.so",               "",                             ""
     "downloadlink.so",              "download-link.conf",           ""
 //  "downloadnepenthes.so",         "download-nepenthes.conf",      ""  // get data from others via submit-nepenthes

@@ -167,7 +167,13 @@ X6Dialogue::~X6Dialogue()
  */
 ConsumeLevel X6Dialogue::incomingData(Message *msg)
 {
-	char *message = strdup(msg->getMsg());
+	char *freemessage = strdup(msg->getMsg());
+	char *message = freemessage;
+
+	if (message == NULL)
+	{
+		return CL_ASSIGN;
+	}
 
 	for(uint32_t i=0;i < strlen(message);i++)
 	{
@@ -209,7 +215,11 @@ ConsumeLevel X6Dialogue::incomingData(Message *msg)
 		msg->getResponder()->doRespond((char *)sDeineMutter.c_str(),sDeineMutter.size());
 
 	}
-	free(message);
+
+	if (freemessage != NULL)
+	{
+    	free(freemessage);
+	}
 
 //	msg->getResponder()->doRespond("deine mutter\n",strlen("deine mutter\n"));
 	return CL_ASSIGN;

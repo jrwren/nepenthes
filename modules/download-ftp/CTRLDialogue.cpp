@@ -389,24 +389,57 @@ void CTRLDialogue::sendPort()
 {
 	logDebug("%s","System ... \n");
 
-	// get local ip
-	int32_t sock = m_Socket->getSocket();
+	uint32_t ip;
+	uint16_t minport;
+	uint16_t maxport;
 
-	// get name
-	socklen_t len = sizeof(struct sockaddr_in);
-	sockaddr_in addr;
+	if ( g_FTPDownloadHandler->getRetrAddress() == 0 )
+	{ // no NAT settings
+		// get local ip
+		int32_t sock = m_Socket->getSocket();
 
-	getsockname(sock, (struct sockaddr *)&addr,&len);
+		// get name
+		socklen_t len = sizeof(struct sockaddr_in);
+		sockaddr_in addr;
 
-	logDebug("local ip is %s \n",inet_ntoa(addr.sin_addr));
+		getsockname(sock, (struct sockaddr *)&addr,&len);
 
-	uint32_t ip = *(uint32_t *)&addr.sin_addr;
+		logDebug("local ip is %s \n",inet_ntoa(addr.sin_addr));
+
+		ip =  *(uint32_t *)&addr.sin_addr;
+
+		minport = rand()%40000+1024;
+		maxport = minport + 1000;
+	} else
+	{	// nat settings, use external ip
+		ip = g_FTPDownloadHandler->getRetrAddress();
+		minport = g_FTPDownloadHandler->getMinPort();
+		maxport = g_FTPDownloadHandler->getMaxPort();
+
+	}
+
 	uint16_t port = 0;
 
-	Socket *socket;
-	if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,0,60,30)) == NULL )
+	Socket *socket=NULL;
+
+
+	for (uint16_t i =minport; i<maxport;i++)
 	{
-		logCrit("Could not bind port %u \n",port);
+		if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,i,60,30)) != NULL )
+		{
+			if ( socket->getDialogst()->size() == 0 && socket->getFactories()->size() == 0 )
+			{
+				logInfo("Found unused bind socket on port %i\n",i);
+				break;
+			}
+		}
+
+	}
+
+	if ( socket == NULL)
+	{
+		logCrit("Could not bind port in range %i -> %i \n",minport, maxport);
+		return;
 	}
 
 	port = socket->getLocalPort();
@@ -415,6 +448,8 @@ void CTRLDialogue::sendPort()
 	socket->addDialogueFactory(g_FTPDownloadHandler);
 
 	char *nmsg;
+	
+
 	asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
 			(int32_t)ip & 0xff,
 			(int32_t)(ip >> 8) & 0xff,

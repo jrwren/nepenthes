@@ -1,0 +1,5 @@
+module-bridge
+{
+    ports   ("1025");
+    accepttimeout    "30";
+};

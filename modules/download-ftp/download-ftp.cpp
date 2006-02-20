@@ -49,6 +49,8 @@
 #include "DNSManager.hpp"
 #include "DNSResult.hpp"
 
+#include "Config.hpp"
+
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
@@ -95,6 +97,11 @@ FTPDownloadHandler::FTPDownloadHandler(Nepenthes *nepenthes)
 
 	g_Nepenthes = nepenthes;
 	g_FTPDownloadHandler = this;
+	m_DNSCallbackName = "download-ftp dns callback";
+
+	m_DynDNS = "";
+
+	m_RetrAddress = 0;
 }
 
 FTPDownloadHandler::~FTPDownloadHandler()
@@ -113,6 +120,37 @@ FTPDownloadHandler::~FTPDownloadHandler()
  */
 bool FTPDownloadHandler::Init()
 {
+	if ( m_Config == NULL )
+	{
+		logCrit("%s","I need a config\n");
+		return false;
+	}
+
+	StringList sList;
+	try
+	{
+		if (m_Config->getValInt("download-ftp.use_nat") == 1)
+		{
+        		sList = *m_Config->getValStringList("download-ftp.nat_settings.forwarded_ports");
+				if ( sList.size() == 2 )
+				{
+					m_MinPort = atoi(sList[0]);
+					m_MaxPort = atoi(sList[1]);
+				}
+
+				m_DynDNS = m_Config->getValString("download-ftp.nat_settings.dyndns");
+
+				logInfo("download-ftp nat settings; uses %s for external ip and ports %i->%i for transferr\n",
+						m_DynDNS.c_str(),
+						m_MinPort, 
+						m_MaxPort);
+		}
+	} catch ( ... )
+	{
+		logCrit("%s","Error setting needed vars, check your config\n");
+		return false;
+	}
+
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 	REG_DOWNLOAD_HANDLER(this,"ftp");
 	return true;
@@ -163,24 +201,30 @@ bool FTPDownloadHandler::download(Download *down)
 {
 	logPF();
 
-	uint32_t host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	if ( m_DynDNS == "" )
+	{
+		uint32_t host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
-	if ((int32_t)host == -1)
+		if ( (int32_t)host == -1 )
+		{
+			logInfo("url %s has a dns as hostname, we have to resolve it \n", down->getUrl().c_str());
+			g_Nepenthes->getDNSMgr()->addDNS(this,(char *)down->getDownloadUrl()->getHost().c_str(), down);
+			return true;
+		} else
+		{
+			logInfo("url has %s ip, we will download it now\n",down->getUrl().c_str());
+			Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
+			CTRLDialogue *dia = new CTRLDialogue(socket,down);
+			socket->addDialogue(dia);
+			FTPContext *context = new FTPContext(down,dia);
+			dia->setContext(context);
+			m_Contexts.push_back(context);
+		}
+	} else
 	{
-		logInfo("url %s has a dns as hostname, we have to resolve it \n", down->getUrl().c_str());
-        g_Nepenthes->getDNSMgr()->addDNS(this,(char *)down->getDownloadUrl()->getHost().c_str(), down);
-		return true;
-	}else
-	{
-		logInfo("url has %s ip, we will download it now\n",down->getUrl().c_str());
-		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
-		CTRLDialogue *dia = new CTRLDialogue(socket,down);
-		socket->addDialogue(dia);
-		FTPContext *context = new FTPContext(down,dia);
-		dia->setContext(context);
-		m_Contexts.push_back(context);
+		logSpam("Resolving DynDNS %s for active ftp\n",m_DynDNS.c_str());
+		g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_DynDNS.c_str(),down);
 	}
-
 	return true;
 }
 
@@ -191,19 +235,46 @@ bool FTPDownloadHandler::dnsResolved(DNSResult *result)
 	logInfo("url %s resolved \n",result->getDNS().c_str());
 	uint32_t host = result->getIP4List().front();
 	Download *down = (Download *) result->getObject();
-	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
-	CTRLDialogue *dia = new CTRLDialogue(socket,down);
-	socket->addDialogue(dia);
-	FTPContext *context = new FTPContext(down,dia);
-	dia->setContext(context);
-	m_Contexts.push_back(context);
-
+	if ( result->getDNS() != m_DynDNS )
+	{ // resolved domain for a download
+		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
+		CTRLDialogue *dia = new CTRLDialogue(socket,down);
+		socket->addDialogue(dia);
+		FTPContext *context = new FTPContext(down,dia);
+		dia->setContext(context);
+		m_Contexts.push_back(context);
+	}else
+	{ // resolved dyndns
+		m_RetrAddress = host;
+		// resolve domain for download
+		uint32_t host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+		if ( (int32_t)host == -1 )
+		{
+			logInfo("url %s has a dns as hostname, we have to resolve it \n", down->getUrl().c_str());
+			g_Nepenthes->getDNSMgr()->addDNS(this,(char *)down->getDownloadUrl()->getHost().c_str(), down);
+			return true;
+		} else
+		{
+			logInfo("url has %s ip, we will download it now\n",down->getUrl().c_str());
+			Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
+			CTRLDialogue *dia = new CTRLDialogue(socket,down);
+			socket->addDialogue(dia);
+			FTPContext *context = new FTPContext(down,dia);
+			dia->setContext(context);
+			m_Contexts.push_back(context);
+		}
+	}
 	return true;
 }
 
 bool FTPDownloadHandler::dnsFailure(DNSResult *result)
 {
-	logWarn("url %s unresolved \n",result->getDNS().c_str());
+	Download *down = (Download *) result->getObject();
+	logWarn("url %s unresolved, dropping download %s \n",result->getDNS().c_str(),down->getUrl().c_str());
+
+	
+	delete down;
+
 	return true;
 }
 
@@ -223,6 +294,21 @@ bool FTPDownloadHandler::removeContext(FTPContext *context)
 	}
 
 	return false;
+}
+
+uint16_t FTPDownloadHandler::getMinPort()
+{
+	return m_MinPort;
+}
+
+uint16_t FTPDownloadHandler::getMaxPort()
+{
+	return m_MaxPort;
+}
+
+uint32_t FTPDownloadHandler::getRetrAddress()
+{
+	return m_RetrAddress;
 }
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)

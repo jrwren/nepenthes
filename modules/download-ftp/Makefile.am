@@ -10,6 +10,10 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = downloadftp.la
 
-downloadftp_la_SOURCES = CTRLDialogue.hpp FILEDialogue.hpp FTPContext.hpp download-ftp.hpp CTRLDialogue.cpp FTPContext.cpp FILEDialogue.cpp download-ftp.cpp
+downloadftp_la_SOURCES = CTRLDialogue.hpp CTRLDialogue.cpp        
+downloadftp_la_SOURCES += FILEDialogue.hpp FILEDialogue.cpp        
+downloadftp_la_SOURCES += FTPContext.hpp   FTPContext.cpp          
+downloadftp_la_SOURCES += download-ftp.hpp download-ftp.cpp        
+downloadftp_la_SOURCES += download-ftp.conf.dist
 
 downloadftp_la_LDFLAGS = -module -no-undefined -avoid-version

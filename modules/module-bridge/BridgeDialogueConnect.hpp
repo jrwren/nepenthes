@@ -27,9 +27,6 @@
 
  /* $Id$ */
 
-#ifndef HAVE_DOWNLOAD_FTP_HPP
-#define HAVE_DOWNLOAD_FTP_HPP
-
 #include "DialogueFactory.hpp"
 #include "Module.hpp"
 #include "ModuleManager.hpp"
@@ -38,49 +35,30 @@
 #include "Dialogue.hpp"
 #include "Socket.hpp"
 
-#include "DownloadHandler.hpp"
-#include "DNSCallback.hpp"
-
 using namespace std;
 
 namespace nepenthes
 {
+	class Buffer;
 
-	class FTPContext;
-
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
+	class BridgeDialogueConnect : public Dialogue
 	{
 	public:
-		FTPDownloadHandler(Nepenthes *);
-		~FTPDownloadHandler();
-		Dialogue *createDialogue(Socket *socket);
-		bool Init();
-		bool Exit();
+		BridgeDialogueConnect(Socket *socket, Socket *bridgesocket);
+		~BridgeDialogueConnect();
+		ConsumeLevel incomingData(Message *msg);
+		ConsumeLevel outgoingData(Message *msg);
+		ConsumeLevel handleTimeout(Message *msg);
+		ConsumeLevel connectionLost(Message *msg);
+		ConsumeLevel connectionShutdown(Message *msg);
 
-		bool download(Download *down);
-
-		bool dnsResolved(DNSResult *result);
-		bool dnsFailure(DNSResult *result);
-
-		bool removeContext(FTPContext *context);
-
-		uint16_t getMinPort();
-		uint16_t getMaxPort();
-		uint32_t getRetrAddress();
+		void setBridge(Dialogue *dia);
+		void receivePartCompleted();
 	protected:
-		list <FTPContext *> m_Contexts;
+		Buffer *m_Buffer;
+		Socket *m_BridgeSocket;
+		Dialogue *m_BridgeDialogue;
+		uint8_t m_State;
 
-		// we need those vars for NAT active ftp
-		string	m_DynDNS;
-		uint16_t m_MinPort;
-		uint16_t m_MaxPort;
-		uint32_t m_RetrAddress;
 	};
-
-
-
 }
-extern nepenthes::Nepenthes *g_Nepenthes;
-extern nepenthes::FTPDownloadHandler *g_FTPDownloadHandler;
-
-#endif

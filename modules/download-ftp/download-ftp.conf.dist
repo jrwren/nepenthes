@@ -1,0 +1,9 @@
+download-ftp
+{
+	use_nat 	"0";
+	nat_settings	
+	{
+		dyndns			"foo.dyndns.org";	// the dyndns pointing to your external ip
+		forwarded_ports		("62001","63000");	// the port _range_ from -> to
+	};
+};

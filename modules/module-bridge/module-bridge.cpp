@@ -29,30 +29,36 @@
 
 #include <ctype.h>
 
-#include "download-http.hpp"
-#include "HTTPDialogue.hpp"
+#include "module-bridge.hpp"
+#include "BridgeDialogueAccept.hpp"
+#include "BridgeDialogueConnect.hpp"
 
 #include "SocketManager.hpp"
-#include "Message.hpp"
 
+#include "DownloadManager.hpp"
 #include "LogManager.hpp"
 #include "DialogueFactoryManager.hpp"
 
-#include "DownloadManager.hpp"
+
+#include "Buffer.hpp"
+#include "Buffer.cpp"
+
+#include "Message.hpp"
+#include "Message.cpp"
+
+#include "ShellcodeManager.hpp"
+
+#include "Config.hpp"
 
 #include "Download.hpp"
-#include "DownloadUrl.hpp"
-#include "DownloadBuffer.hpp"
-
-#include "DNSManager.hpp"
-#include "DNSResult.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
-#define STDTAGS l_dl | l_hlr
+#define STDTAGS l_mod
 
 using namespace nepenthes;
+
 
 /**
  * as we may need a global pointer to our Nepenthes in our modules,
@@ -64,8 +70,8 @@ Nepenthes *g_Nepenthes;
 
 /**
  * The Constructor
- * creates a new HTTPDownloadHandler Module, 
- * HTTPDownloadHandler is an example for binding a socket & setting up the Dialogue & DialogueFactory
+ * creates a new BridgeModule Module, 
+ * BridgeModule is an example for binding a socket & setting up the Dialogue & DialogueFactory
  * 
  * 
  * it can be used as a shell emu to allow trigger commands 
@@ -77,20 +83,20 @@ Nepenthes *g_Nepenthes;
  * 
  * @param nepenthes the pointer to our Nepenthes
  */
-HTTPDownloadHandler::HTTPDownloadHandler(Nepenthes *nepenthes)
+BridgeModule::BridgeModule(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "download-http";
-	m_ModuleDescription = "painless simple http client";
+	m_ModuleName        = "module-bridge";
+	m_ModuleDescription = "bridge bad traffic to real hosts";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
-	m_DownloadHandlerDescription = "simple http downloadhandler";
-	m_DownloadHandlerName  = "http download handler";
+	m_DialogueFactoryName = "bridge Factory";
+	m_DialogueFactoryDescription = "creates bridge dialogues";
 
 	g_Nepenthes = nepenthes;
 }
 
-HTTPDownloadHandler::~HTTPDownloadHandler()
+BridgeModule::~BridgeModule()
 {
 
 }
@@ -104,61 +110,87 @@ HTTPDownloadHandler::~HTTPDownloadHandler()
  * @return returns true if everything was fine, else false
  *         false indicates a fatal error
  */
-bool HTTPDownloadHandler::Init()
+bool BridgeModule::Init()
 {
-	m_ModuleManager = m_Nepenthes->getModuleMgr();
-	REG_DOWNLOAD_HANDLER(this,"http");
-	return true;
-}
-
-bool HTTPDownloadHandler::Exit()
-{
-	return true;
-}
-
-
-
-bool HTTPDownloadHandler::download(Download *down)
-{
-	logPF();
-
-	logInfo("Resolving host %s ... \n", down->getUrl().c_str());
-    g_Nepenthes->getDNSMgr()->addDNS(this,(char *)down->getDownloadUrl()->getHost().c_str(), down);
-	return true;
-}
-
-
-
-bool HTTPDownloadHandler::dnsResolved(DNSResult *result)
-{
-	logInfo("url %s resolved \n",result->getDNS().c_str());
-	uint32_t host = result->getIP4List().front();
-	Download *down = (Download *) result->getObject();
-	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(down->getLocalHost(),host,down->getDownloadUrl()->getPort(),30);
-	HTTPDialogue *dia = new HTTPDialogue(socket,down);
-	socket->addDialogue(dia);
-	return true;
-}
-
-bool HTTPDownloadHandler::dnsFailure(DNSResult *result)
-{
-	logWarn("url %s unresolved, dropping download\n",result->getDNS().c_str());
-	Download *down = (Download *) result->getObject();
-	if (down != NULL)
+	if ( m_Config == NULL )
 	{
-		delete down;
+		logCrit("%s","I need a config\n");
+		return false;
+	}
+
+	StringList sList;
+	int32_t timeout;
+
+	m_BridgeHost = inet_addr("192.168.53.204");
+
+	try
+	{
+		sList = *m_Config->getValStringList("module-bridge.ports");
+		timeout = m_Config->getValInt("module-bridge.accepttimeout");
+	} catch ( ... )
+	{
+		logCrit("%s","Error setting needed vars, check your config\n");
+		return false;
+	}
+
+	uint32_t i = 0;
+	while (i < sList.size())
+	{
+		m_Nepenthes->getSocketMgr()->bindTCPSocket(0,atoi(sList[i]),0,timeout,this);
+		i++;
 	}
 	return true;
 }
 
+bool BridgeModule::Exit()
+{
+	return true;
+}
 
+/**
+ * DialogueFactory::createDialogue(Socket *)
+ * 
+ * creates a new BridgeModuleDialogue
+ * 
+ * @param socket the socket the DIalogue has to use, can be NULL if the Dialogue can handle it
+ * 
+ * @return returns the new created dialogue
+ */
+Dialogue *BridgeModule::createDialogue(Socket *socket)
+{
+
+	Socket *bridgesocket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,m_BridgeHost,socket->getLocalPort(),30);
+
+	BridgeDialogueAccept *adia = new BridgeDialogueAccept(socket,bridgesocket);
+	BridgeDialogueConnect *cdia = new BridgeDialogueConnect(bridgesocket,socket);
+
+	adia->setBridge(cdia);
+	cdia->setBridge(adia);
+
+	bridgesocket->addDialogue(cdia);
+
+	return adia;
+}
+
+
+
+
+
+
+
+
+
+#ifdef WIN32
+extern "C" int32_t __declspec(dllexport)  module_init(int32_t version, Module **module, Nepenthes *nepenthes)
+#else
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
+#endif
+
 {
 	if (version == MODULE_IFACE_VERSION) {
-        *module = new HTTPDownloadHandler(nepenthes);
+        *module = new BridgeModule(nepenthes);
         return 1;
     } else {
         return 0;
     }
 }
-

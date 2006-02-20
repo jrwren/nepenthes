@@ -27,60 +27,79 @@
 
  /* $Id$ */
 
-#ifndef HAVE_DOWNLOAD_FTP_HPP
-#define HAVE_DOWNLOAD_FTP_HPP
+#include <prelude.h>
+#include <string>
 
-#include "DialogueFactory.hpp"
 #include "Module.hpp"
 #include "ModuleManager.hpp"
 #include "SocketManager.hpp"
 #include "Nepenthes.hpp"
-#include "Dialogue.hpp"
-#include "Socket.hpp"
-
-#include "DownloadHandler.hpp"
-#include "DNSCallback.hpp"
+#include "EventHandler.hpp"
+#include "EventHandler.cpp"
 
 using namespace std;
+
+int32_t add_idmef_object(idmef_message_t *message, const char *object, const char *value);
+int32_t add_idmef_object(idmef_message_t *message, const char *object, int32_t i);
 
 namespace nepenthes
 {
 
-	class FTPContext;
-
-	class FTPDownloadHandler : public Module , public DialogueFactory , public DownloadHandler , public DNSCallback
+	class SocketContext
 	{
+
 	public:
-		FTPDownloadHandler(Nepenthes *);
-		~FTPDownloadHandler();
-		Dialogue *createDialogue(Socket *socket);
-		bool Init();
-		bool Exit();
+		SocketContext(Socket *s)
+		{
+			m_Socket = s;
+		}
+		~SocketContext()
+		{
+			m_Collection.clear();
+		}
 
-		bool download(Download *down);
+		Socket *getSocket()
+		{
+			return m_Socket;
+		}
 
-		bool dnsResolved(DNSResult *result);
-		bool dnsFailure(DNSResult *result);
-
-		bool removeContext(FTPContext *context);
-
-		uint16_t getMinPort();
-		uint16_t getMaxPort();
-		uint32_t getRetrAddress();
+		list<string> m_Collection;
 	protected:
-		list <FTPContext *> m_Contexts;
 
-		// we need those vars for NAT active ftp
-		string	m_DynDNS;
-		uint16_t m_MinPort;
-		uint16_t m_MaxPort;
-		uint32_t m_RetrAddress;
+		Socket 			*m_Socket;
+		
 	};
 
 
+	class LogPrelude : public Module , public EventHandler
+	{
+	public:
+		LogPrelude(Nepenthes *);
+		~LogPrelude();
+		bool Init();
+		bool Exit();
+
+		uint32_t handleEvent(Event *event);
+
+		void handleTCPaccept(Event *event);
+		void handleTCPclose(Event *event);
+		void handleTCPrecv(Event *event);
+		void handleSubmission(Event *event);
+	protected:
+		uint64_t generateID()
+		{
+			return ((uint64_t) time(0)) << 32 | (uint64_t) rand();
+		}
+
+		list<SocketContext *>::iterator findSocketContext(Socket *s);
+		bool addIDtoSocketContext(Socket *s,char *msgid);
+
+		prelude_client_t *m_PreludeClient;
+
+		list <SocketContext *> m_Contexts;
+
+	};
 
 }
-extern nepenthes::Nepenthes *g_Nepenthes;
-extern nepenthes::FTPDownloadHandler *g_FTPDownloadHandler;
 
-#endif
+extern nepenthes::Nepenthes *g_Nepenthes;
