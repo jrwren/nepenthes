@@ -42,6 +42,7 @@ using namespace std;
 namespace nepenthes
 {
 
+/*
 	struct HTTPHeaderValue
 	{
 		HTTPHeaderValue(string name, string value);
@@ -68,7 +69,7 @@ namespace nepenthes
 
 
 	};
-
+*/
 }
 
 

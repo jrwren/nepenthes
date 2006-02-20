@@ -27,8 +27,9 @@
 
  /* $Id$ */
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
-
 #include <arpa/inet.h>
 
 #include "LogManager.hpp"
@@ -96,7 +97,7 @@ bool HODConnect::Init()
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("HODConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				oc192bindpcre, pcreEerror, pcreErrorPos);
@@ -128,18 +129,18 @@ sch_result HODConnect::handleShellcode(Message **msg)
 
 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		g_Nepenthes->getUtilities()->hexdump((unsigned char *)shellcode,len);
 		const char * match;
 		uint16_t port;
         uint32_t host;
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &match);
         host = * ((uint32_t *) match) ^ 0x99999999;
 		pcre_free_substring(match);
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 2, &match);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 2, &match);
 		port = *(uint16_t *) match;
 		port = ntohs(port);
 		port = port^0x9999;

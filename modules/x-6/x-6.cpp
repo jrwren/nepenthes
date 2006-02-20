@@ -84,6 +84,7 @@ X6::X6(Nepenthes *nepenthes)
 	m_DialogueFactoryDescription = "eXample Dialogue Factory";
 
 	g_Nepenthes = nepenthes;
+
 }
 
 X6::~X6()
@@ -142,6 +143,7 @@ X6Dialogue::X6Dialogue(Socket *socket)
 	m_DialogueDescription = "eXample Dialogue";
 
 	m_ConsumeLevel = CL_ASSIGN;
+	m_DNSCallbackName = "x-6 eXample module";
 
 	m_Socket->doRespond("Welcome to dns Shell\n",strlen("Welcome to dns Shell\n"));
 }
@@ -287,17 +289,17 @@ bool X6Dialogue::dnsResolved(DNSResult *result)
 		int32_t i=0;
 		for ( it=resolved.begin();it!=resolved.end();it++ )
 		{
-			printf("NUM %i\n",i);
+			printf("NUM %i\n",(int)i);
 			logSpam( "domain %s has ip %s \n",result->getDNS().c_str(),inet_ntoa(*(in_addr *)&*it));
 			char *reply;
-			asprintf(&reply,"domain %s has A %s (context %8x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (uint32_t)result->getObject());
+			asprintf(&reply,"domain %s has A %s (context %08x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (uint32_t)((intptr_t)result->getObject()));
 			m_Socket->doRespond(reply,strlen(reply));
 			free(reply);
 
 //		logSpam("foooo %s \n",msg.c_str());
 			i++;
 		}
-		printf("NUM %i DONE\n",i);
+		printf("NUM %i DONE\n",(int)i);
 	} else
 	if ( result->getQueryType() & DNS_QUERY_TXT )
 	{

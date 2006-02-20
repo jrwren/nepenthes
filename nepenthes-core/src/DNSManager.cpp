@@ -45,7 +45,7 @@
 
 using namespace nepenthes;
 
-extern int32_t errno;
+//extern int32_t errno;
 
 /**
  * DNSManager constructor
@@ -193,6 +193,7 @@ bool DNSManager::registerDNSHandler(DNSHandler *handler)
 	{
 		m_DNSHandler = handler;
 	}
+	return true;
 }
 
 /**
@@ -205,4 +206,5 @@ bool DNSManager::registerDNSHandler(DNSHandler *handler)
 bool DNSManager::unregisterDNSHandler(DNSHandler *handler)
 {
 	m_DNSHandler = NULL;
+	return true;
 }

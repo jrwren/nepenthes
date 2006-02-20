@@ -345,7 +345,7 @@ void Utilities::hexdump(byte *data, uint32_t len)
 {
 	char conv[] = "0123456789abcdef";
 
-	printf("=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)data, len);
+	printf("=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)((intptr_t)data), len);
 	for( uint32_t i = 0; i < len; i += 0x10 )
 	{
 		printf("0x%04x  ", i);
@@ -411,7 +411,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 		g_Nepenthes->getLogMgr()->logf(mask,"=--------[ %s ]---------=\n", md5.c_str());
 	}
 
-	g_Nepenthes->getLogMgr()->logf(mask,"=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)data, len);
+	g_Nepenthes->getLogMgr()->logf(mask,"=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)((intptr_t)data), len);
 	for( uint32_t i = 0; i < len; i += 0x10 )
 	{
 		string line;

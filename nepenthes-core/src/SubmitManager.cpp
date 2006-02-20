@@ -122,7 +122,11 @@ bool SubmitManager::Init()
     struct dirent *dent=NULL;
     for (dent = readdir(dirfiles); dent != NULL; dent = readdir(dirfiles))
     {
+#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
+		if (1)
+#else
         if ( (int32_t)dent->d_type == DT_REG)
+#endif
         {
 			if (strlen(dent->d_name) == 32)
 			{

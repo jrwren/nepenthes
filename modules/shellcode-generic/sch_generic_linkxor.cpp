@@ -77,7 +77,7 @@ bool LinkXOR::Init()
 
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_linkDecoder = pcre_compile(linkDecoder, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_linkDecoder = pcre_compile(linkDecoder, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("LinkXOR could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				linkDecoder, pcreEerror, pcreErrorPos);
@@ -106,7 +106,7 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 	int32_t offvec[10 * 3];
 	int32_t result;
 
-	if( (result = pcre_exec(m_linkDecoder, 0, (char *)shellcode, len, 0, 0, offvec, sizeof(offvec)/sizeof(int32_t))) > 0 )
+	if( (result = pcre_exec(m_linkDecoder, 0, (char *)shellcode, len, 0, 0, (int *)offvec, sizeof(offvec)/sizeof(int32_t))) > 0 )
 	{
 		const char *substring;
 
@@ -115,23 +115,23 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 		byte key;
 		byte *payload;
 
-		pcre_get_substring((char *)shellcode, offvec, result, 1, &substring);
+		pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 1, &substring);
 		a = *((uint32_t *)substring);
 		pcre_free_substring(substring);
 
-		pcre_get_substring((char *)shellcode, offvec, result, 2, &substring);
+		pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 2, &substring);
 		b = *((uint32_t *)substring);
 		pcre_free_substring(substring);
 
 		payloadLen = a ^ b;
 
-		pcre_get_substring((char *)shellcode, offvec, result, 3, &substring);
+		pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 3, &substring);
 		key = *substring;
 		pcre_free_substring(substring);
 
 		logInfo("Found linkbot XOR decoder, key 0x%02x, payload is 0x%04x bytes long.\n", key, payloadLen);
 
-		if ( (realLen = pcre_get_substring((char *)shellcode, offvec, result, 4, &substring)) < payloadLen)
+		if ( (realLen = pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 4, &substring)) < payloadLen)
 		{
 			logWarn("linkbot XOR decoder expected len %i actual len %i\n",payloadLen,realLen);
 			payloadLen = realLen;

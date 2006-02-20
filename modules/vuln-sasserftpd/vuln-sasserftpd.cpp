@@ -86,13 +86,13 @@ Nepenthes *g_Nepenthes;
  */
 SasserFTPDVuln::SasserFTPDVuln(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "vuln-upnp";
-	m_ModuleDescription = "provides Factory & dialogues for the upnp vuln";
+	m_ModuleName        = "vuln-sasserftpd";
+	m_ModuleDescription = "provides Factory & dialogues for the sasserftpd vuln";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
 	m_DialogueFactoryName = "SasserFTPD Factory";
-	m_DialogueFactoryDescription = "creates upnp dialogues";
+	m_DialogueFactoryDescription = "creates sasserftpd dialogues";
 
 	g_Nepenthes = nepenthes;
 }

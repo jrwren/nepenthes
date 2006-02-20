@@ -114,15 +114,15 @@ bool  DownloadManager::Exit()
  * these cool makros are taken from the clamav mailing list  
  * 
  */
-#ifndef BIG_ENDIAN
-	#define SWAP_ORDER(x) (x)
-#else
+//#ifndef BIG_ENDIAN
+//	#define SWAP_ORDER(x) (x)
+//#else
 	#define SWAP_ORDER(x) ( \
 		((x & 0xff) << 24) | \
 		((x & 0xff00) << 8) | \
 		((x & 0xff0000) >> 8 ) | \
 		((x & 0xff000000) >> 24 ))
-#endif
+//#endif
 
 #define PACKADDR(a, b, c, d) SWAP_ORDER((((uint32_t)(a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
 #define MAKEMASK(bits)	SWAP_ORDER(((uint32_t)(0xffffffff << (32-bits))))

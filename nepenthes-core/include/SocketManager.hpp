@@ -62,8 +62,9 @@ namespace nepenthes
 		virtual Socket *bindUDPSocket(uint32_t localhost, uint16_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
 
 		virtual Socket *openFILESocket(char *filepath, int32_t flags);
-		virtual Socket *connectUDPHost(uint32_t localHost, uint32_t remotehost, uint16_t Port,time_t connecttimeout);
-		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t Port,time_t connecttimeout);
+		virtual Socket *connectUDPHost(uint32_t localHost, uint32_t remotehost, uint16_t remoteport,time_t connecttimeout);
+		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t remoteport,time_t connecttimeout);
+		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t localport, uint16_t remoteport,time_t connecttimeout);
 
 		virtual Socket *createRAWSocketUDP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
 		virtual Socket *createRAWSocketTCP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);

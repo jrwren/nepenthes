@@ -230,7 +230,7 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 		case SCH_REPROCESS:
             shandler = m_ShellcodeHandlers.begin();
 			nnmsg = *nmsg;
-			logDebug("SCHMGR REPROCESS Msg ptr is %x \n",(uint32_t )*msg);
+			logDebug("SCHMGR REPROCESS Msg ptr is %x \n",(uint32_t )((intptr_t)*msg));
 			break;
 
 		case SCH_REPROCESS_BUT_NOT_ME:

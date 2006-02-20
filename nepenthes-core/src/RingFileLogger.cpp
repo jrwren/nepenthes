@@ -152,6 +152,6 @@ void RingFileLogger::log(uint32_t mask, const char *message)
 	// rotation needed?
 	stat(m_FirstFile, &s);
 
-	if( s.st_size > m_MaxSize )
+	if( (uint32_t)s.st_size > m_MaxSize )
 		rotate();
 }

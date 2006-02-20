@@ -34,6 +34,7 @@
 #define socklen_t int32_t
 #endif
 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include "Dialogue.hpp"
 

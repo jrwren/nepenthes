@@ -4,7 +4,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-AM_CPPFLAGS = -I../include -I ../..
+AM_CPPFLAGS = -I../include -I ../.. -Wall -Werror
 
 bin_PROGRAMS = nepenthes
 

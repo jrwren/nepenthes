@@ -150,7 +150,7 @@ uint32_t DNSResolverADNS::handleEvent(Event *event)
 	memset(&tz,0,sizeof(struct timezone));
 	gettimeofday(&currenttime,&tz);
 
-	adns_beforepoll(m_aDNSState, pfd, &nfds, &timeout, &currenttime);
+	adns_beforepoll(m_aDNSState, pfd, (int *)&nfds, (int *)&timeout, &currenttime);
 	poll(pfd, nfds, timeout);
 	adns_afterpoll(m_aDNSState, pfd, nfds, &currenttime);
 	adns_processany(m_aDNSState);

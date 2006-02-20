@@ -85,13 +85,13 @@ Nepenthes *g_Nepenthes;
  */
 NETDDEVuln::NETDDEVuln(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "vuln-upnp";
-	m_ModuleDescription = "provides Factory & dialogues for the upnp vuln";
+	m_ModuleName        = "vuln-netdde";
+	m_ModuleDescription = "provides Factory & dialogues for the netdde vuln";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
 	m_DialogueFactoryName = "NETDDE Factory";
-	m_DialogueFactoryDescription = "creates upnp dialogues";
+	m_DialogueFactoryDescription = "creates netdde dialogues";
 
 	g_Nepenthes = nepenthes;
 }

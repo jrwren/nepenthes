@@ -205,7 +205,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:d:f:g:hHikl:Lor:Ru:vVw:", long_options, &option_index);
+		int32_t c = getopt_long(argc, argv, "c:d:f:g:hHikl:Lor:Ru:vVw:", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
@@ -570,6 +570,9 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	// --common
 	if ( run == true )
 	{
+#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
+
+#else
 		if ( ringlog == true )
 		{
 
@@ -668,6 +671,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 				}
 			}
 		}
+#endif
 	}
 
 	// change process group id
@@ -744,10 +748,6 @@ bool Nepenthes::fileCheckMain(char *optval, int32_t argc, int32_t opti, char **a
 	}
 
 
-	bool rmknown=false;
-	bool rmnonop=false;
-	bool dononop=false;
-
 	uint8_t options=0;
 	if (optval != NULL)
 	{
@@ -800,7 +800,11 @@ bool Nepenthes::fileCheckMain(char *optval, int32_t argc, int32_t opti, char **a
 			while ( (dirnode = readdir(bindir)) != NULL && m_running == true )
 			{
 
+#if !defined(CYGWIN)  && !defined(CYGWIN32) &&!defined(__CYGWIN__) || !defined(__CYGWIN32__)
 				if ( dirnode->d_type == 8 )
+#else
+				if (1)
+#endif
 				{
 					string filepath = basepath + "/" + dirnode->d_name;
 					uint8_t result = fileCheckPrinter(filepath.c_str(),options);
@@ -820,6 +824,7 @@ bool Nepenthes::fileCheckMain(char *optval, int32_t argc, int32_t opti, char **a
 
 		opti++;
 	}
+	return true;
 }
 
 uint8_t Nepenthes::fileCheckPrinter(const char *filename, uint8_t options)
@@ -1372,12 +1377,14 @@ void show_logo();
  * 
  * @return returns 0 on success
  */
-int32_t main(int32_t argc, char **argv)
+#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
+int main(int32_t argc, char **argv)
 {
-#ifdef WIN32
+
 	// win32 signals here
 #else
-
+int main(int32_t argc, char **argv)
+{
 
 /*         Signal     Handler                  Value     Action   Comment
  *	-------------------------------------------------------------------------

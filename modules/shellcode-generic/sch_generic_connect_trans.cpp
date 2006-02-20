@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -96,7 +98,7 @@ bool GenericConnectTrans::Init()
 		const char * pcreEerror;
 		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
-		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 		{
 			logCrit("GenericConnectTrans could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 					pattern, pcreEerror, pcreErrorPos);
@@ -142,12 +144,12 @@ sch_result GenericConnectTrans::handleShellcode(Message **msg)
 	{
 		int32_t result=0;
 		const char *match;
-		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0 )
+		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, (int*)output, sizeof(output)/sizeof(int32_t))) > 0 )
 		{
 			uint32_t host = 0, codesizeLen;
 			uint16_t port=0;
 
-			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 1, &match);
+			codesizeLen = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 1, &match);
 			if( codesizeLen == 2 )
 			{
             	port = (uint32_t)*((uint16_t *)match);
@@ -160,7 +162,7 @@ sch_result GenericConnectTrans::handleShellcode(Message **msg)
 
 			pcre_free_substring(match);
 
-			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 2, &match);
+			codesizeLen = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 2, &match);
 			if( codesizeLen == 2 )
 			{
 				port = (uint32_t)*((uint16_t *)match);

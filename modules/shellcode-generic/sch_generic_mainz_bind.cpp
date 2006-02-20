@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+ 
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include "LogManager.hpp"
@@ -72,7 +74,7 @@ bool MainzBind::Init()
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("MainzBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				pattern, pcreEerror, pcreErrorPos);
@@ -104,13 +106,13 @@ sch_result MainzBind::handleShellcode(Message **msg)
 
 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		g_Nepenthes->getUtilities()->hexdump((unsigned char *)shellcode,len);
 		const char * match;
 		uint16_t port;
         
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &match);
 
         port = ntohs(*(uint32_t *) match);
         logInfo("Detected Lsass Mainz listenshell shellcode, :%u \n", port);

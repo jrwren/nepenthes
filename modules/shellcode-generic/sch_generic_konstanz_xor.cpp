@@ -70,7 +70,7 @@ bool KonstanzXOR::Init()
 
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_konstanzDecoder = pcre_compile(konstanzDecoder, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_konstanzDecoder = pcre_compile(konstanzDecoder, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("KonstanzXOR could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				konstanzDecoder, pcreEerror, pcreErrorPos);
@@ -100,19 +100,19 @@ sch_result KonstanzXOR::handleShellcode(Message **msg)
 	int32_t offvec[10 * 3];
 	int32_t result;
 
-	if( (result = pcre_exec(m_konstanzDecoder, 0, (char *)shellcode, len, 0, 0, offvec, sizeof(offvec)/sizeof(int32_t))) > 0 )
+	if( (result = pcre_exec(m_konstanzDecoder, 0, (char *)shellcode, len, 0, 0, (int *)offvec, sizeof(offvec)/sizeof(int32_t))) > 0 )
 	{
 		const char *substring;
 
 		uint16_t payloadLen, payloadSize;
         byte *payload;
 
-		pcre_get_substring((char *)shellcode, offvec, result, 1, &substring);
+		pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 1, &substring);
 		payloadLen = *((uint16_t *)substring);
 		payloadLen +=1;
 		pcre_free_substring(substring);
 
-		payloadSize = pcre_get_substring((char *)shellcode, offvec, result, 2, &substring);
+		payloadSize = pcre_get_substring((char *)shellcode, (int *)offvec, (int)result, 2, &substring);
 
 		if (payloadSize < payloadLen )
 		{

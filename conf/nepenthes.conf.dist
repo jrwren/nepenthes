@@ -28,6 +28,7 @@ nepenthes
     "downloadlink.so",              "download-link.conf",           ""
 //  "downloadnepenthes.so",         "download-nepenthes.conf",      ""  // get data from others via submit-nepenthes
     "downloadtftp.so",              "download-tftp.conf",           ""
+    "downloadrcp.so",	            ""			            ""
 
 // upload handler for various? protocols
     "uploadhttp.so",               "",                             ""

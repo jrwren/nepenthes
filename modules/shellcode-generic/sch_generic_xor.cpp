@@ -54,6 +54,9 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#define XF_NONE 			0x00001
+#define XF_SIZE_INVERT 		0x00002
+#define XF_INVERSE_ORDER 	0x00004
 
 using namespace nepenthes;
 
@@ -86,60 +89,91 @@ bool GenericXOR::Init()
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
 
-	XORPcreHelper test[9]=
+	XORPcreHelper test[15]=
 	{
 		{
 			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(.)\\xFF\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$", 
 			"rbot 64k",
-			23
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80\\x73\\x0C(.)\\x43\\xE2\\xF9)(.*)$",			
 			"rbot 265 byte",
-			21
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$",		
 			"bielefeld",
-			14
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$",		
 			"halle",
-			23
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x19\\x5E\\x31\\xC9\\x81\\xE9(....)\\x81\\x36(....)\\x81\\xEE\\xFC\\xFF\\xFF\\xFF\\xE2\\xF2\\xEB\\x05\\xE8\\xE2\\xFF\\xFF\\xFF)(.*)$", 			
-			"adenau xor"
+			"adenau xor",
+			XF_SIZE_INVERT
 		},
 		
 		{
 			"(.*)(\\xEB\\x03\\x5D\\xEB\\x05\\xE8\\xF8\\xFF\\xFF\\xFF\\x8B\\xC5\\x83\\xC0\\x11\\x33\\xC9\\x66\\xB9(..)\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$",	
 			"kaltenborn xor",
-			27
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x10\\x5A\\x4A\\x31\\xC9\\x66\\xB9\(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$",
 			"deggendorf xor",
-			27
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB\\x0F\\x5B\\x33\\xC9\\x66\\xB9(..)\\x80\\x33(.)\\x43\\xE2\\xFA\\xEB\\x05\\xE8\\xEC\\xFF\\xFF\\xFF)(.*)$",
 			"langenfeld xor",
-			21
+			XF_NONE
+		},
+		{
+			"(.*)(\\xEB\\x03\\x5D\\xEB\\x05\\xE8\\xF8\\xFF\\xFF\\xFF\\x83\\xC5\\x15\\x90\\x90\\x90\\x8B\\xC5\\x33\\xC9\\x66\\xB9(..)\\x50\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$",
+			"saalfeld xor",
+			XF_NONE
+		},
+		{
+			"(.*)(\\x31\\xC9\\x83\\xE9(.)\\xD9\\xEE\\xD9\\x74\\x24\\xF4\\x5B\\x81\\x73\\x13(....)\\x83\\xEB\\xFC\\xE2\\xF4)(.*)$",
+			"schoenberg xor",
+			XF_SIZE_INVERT
+		},
+		{
+			"(.*)(\\x33\\xC0\\xF7\\xD0\\x8B\\xFC\\xF2\\xAF\\x57\\x33\\xC9\\xB1(.)\\x90\\x90\\x90\\x90\\x80\\x37(.)\\x47\\xE2\\xFA.*\\xFF\\xFF\\xFF\\xFF)(.*)$",
+			"rosengarten xor",
+			XF_NONE
+		},
+		{
+			"(.*)(\\xEB\\x0F\\x8B\\x34\\x24\\x33\\xC9\\x80\\xC1(.)\\x80\\x36(.)\\x46\\xE2\\xFA\\xC3\\xE8\\xEC\\xFF\\xFF\\xFF)(.*)$",
+			"schauenburg xor",
+			XF_NONE
+		},
+		{
+			"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x58\\x83\\xC0\\x1B\\x8D\\xA0\\x01\\xFC\\xFF\\xFF\\x83\\xE4\\xFC\\x8B\\xEC\\x33\\xC9\\x66\\xB9(..)\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$",
+			"lichtenfels xor",
+			XF_NONE
+
+		},
+		{
+			"(.*)(\\xEB\\x0E\\x5B\\x4B\\x33\\xC9\\xB1(.)\\x80\\x34\\x0B(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xED\\xFF\\xFF\\xFF)(.*)$",
+			"leimbach xor",
+			XF_NONE
 		},
 		{
 			"(.*)(\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.)(.*)$",																	
 			"generic mwcollect",
-			20
-
+			XF_NONE
 		}
 	};
 
-	for( uint32_t i = 0; i <= 8; i++ )
+	for( uint32_t i = 0; i <= 14; i++ )
 	{
 		pcre *mypcre;
-		if((mypcre = pcre_compile(test[i].m_PCRE, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+		if((mypcre = pcre_compile(test[i].m_PCRE, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 		{
 			logCrit("GenericXOR could not compile pattern %i\n\t\"%s\"\n\t Error:\"%s\" at Position %u", i,
 					test[i], pcreEerror, pcreErrorPos);
@@ -188,17 +222,17 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 	for (it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++)
 	{
 		int32_t result=0;
-		if((result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0)
+		if((result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)output, sizeof(output)/sizeof(int32_t))) > 0)
 		{
 //			logSpam("PCRE %i %x matches %i \n",i,*it,result);
 			const char *preload;
 			uint32_t preloadSize;
-			preloadSize = pcre_get_substring((char *) shellcode, output, result, 1, &preload);
+			preloadSize = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 1, &preload);
 
 
 			const char *xordecoder;
 			uint32_t xordecoderSize;
-			xordecoderSize = pcre_get_substring((char *) shellcode, output, result, 2, &xordecoder);			
+			xordecoderSize = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 2, &xordecoder);			
 
 
 			const char *match;
@@ -207,32 +241,45 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			uint32_t keysize;
 			uint32_t codesize = 0, codesizeLen, totalsize;
 
-			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 3, &match);
-			switch (codesizeLen )
+			codesizeLen = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 3, &match);
+			switch ( codesizeLen )
 			{
 			case 4:
 				// this is a special case, for dword xor we have to invert the size
-				codesize = 0 - (uint32_t)*((uint32_t *)match);
+				if ( (*it)->m_Options & XF_SIZE_INVERT )
+				{
+					logSpam("Inverting Size %i\n",codesize);
+					codesize = 0 - (uint32_t)*((uint32_t *)match);
+				} else
+				{
+					codesize = (uint32_t)*((uint32_t *)match);
+				}
 				break;
 
 			case 2:
 				codesize = (uint32_t)*((uint16_t *)match);
-                break;
+				break;
 
 			case 1:
-				codesize = (uint32_t)*((byte *)match);
-                break;
+				if ( (*it)->m_Options & XF_SIZE_INVERT )
+				{
+					logSpam("Inverting Size %i\n",codesize);
+					codesize = 256 - (uint32_t)*((byte *)match);
+				} else
+				{
+					codesize = (uint32_t)*((byte *)match);
+				}
+				break;
 			}
+
 			pcre_free_substring(match);
 
 
 
-
-			keysize = pcre_get_substring((char *) shellcode, output, result, 4, &match);
-
-			switch(keysize)
+			keysize = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 4, &match);
+			switch ( keysize )
 			{
-
+			
 			case 1:
 				key = *((byte *)match);
 				break;
@@ -245,10 +292,9 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			
 			pcre_free_substring(match);
 
-			
 
 
-			totalsize = pcre_get_substring((char *) shellcode, output, result, 5, &match);
+			totalsize = pcre_get_substring((char *) shellcode, (int *)output, (int)result, 5, &match);
 			byte *decodedMessage = (byte *)malloc(totalsize);
 			memcpy(decodedMessage, match, totalsize);
 			pcre_free_substring(match);
@@ -305,4 +351,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 	}
 	return SCH_NOTHING;
 }
+
+
+
 

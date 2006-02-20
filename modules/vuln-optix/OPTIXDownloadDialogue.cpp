@@ -80,7 +80,7 @@ OPTIXDownloadDialogue::OPTIXDownloadDialogue(Socket *socket)
 
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if ((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if ((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("OPTIXDownloadDialoguePCRE could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				oc192bindpcre, pcreEerror, pcreErrorPos);
@@ -118,13 +118,13 @@ ConsumeLevel OPTIXDownloadDialogue::incomingData(Message *msg)
 			m_Buffer->add((char *)msg->getMsg(),msg->getSize());
 			int32_t piOutput[10 * 3];
 			int32_t iResult; 
-			if ((iResult = pcre_exec(m_pcre, 0, (char *) m_Buffer->getData(), m_Buffer->getSize(), 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+			if ((iResult = pcre_exec(m_pcre, 0, (char *) m_Buffer->getData(), m_Buffer->getSize(), 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 			{
 				const char *filepath;
-				pcre_get_substring((char *) m_Buffer->getData(), piOutput, iResult, 2, &filepath);
+				pcre_get_substring((char *) m_Buffer->getData(), (int *)piOutput, (int)iResult, 2, &filepath);
 
 				const char *filesize;
-				pcre_get_substring((char *) m_Buffer->getData(), piOutput, iResult, 3, &filesize);
+				pcre_get_substring((char *) m_Buffer->getData(), (int *)piOutput, (int)iResult, 3, &filesize);
 
 				m_FileSize = atoi(filesize);
 				logInfo("OPTIX filetransferr path is %s size is %i \n",filepath,m_FileSize);

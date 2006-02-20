@@ -73,6 +73,7 @@ HTTPUploadHandler::HTTPUploadHandler(Nepenthes *nepenthes)
 	m_ModuleDescription = "upload files via http POST";
 	m_ModuleRevision    = "$Rev$";
 
+	m_UploadHandlerName		= "upload-http";
 	m_UploadHandlerDescription = "upload files via http post";
 
 	m_Nepenthes = nepenthes;
@@ -119,7 +120,7 @@ bool HTTPUploadHandler::upload(UploadQuery *up)
 
 bool HTTPUploadHandler::dnsResolved(DNSResult *result)
 {
-	logDebug("url %s resolved %i for %x\n",result->getDNS().c_str(), result->getIP4List().size(), (uint32_t) result->getObject());
+	logDebug("url %s resolved %i for %x\n",result->getDNS().c_str(), result->getIP4List().size(), (uint32_t) ((intptr_t)result->getObject()));
 
 	list <uint32_t> resolved = result->getIP4List();
 	uint32_t host = resolved.front();

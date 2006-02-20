@@ -83,13 +83,13 @@ Nepenthes *g_Nepenthes;
  */
 NetbiosNameVuln::NetbiosNameVuln(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "vuln-upnp";
-	m_ModuleDescription = "provides Factory & dialogues for the upnp vuln";
+	m_ModuleName        = "vuln-netbiosname";
+	m_ModuleDescription = "provides Factory & dialogues for the netbios name resolution";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
 	m_DialogueFactoryName = "NetbiosName Factory";
-	m_DialogueFactoryDescription = "creates upnp dialogues";
+	m_DialogueFactoryDescription = "creates netbiosname dialogues";
 
 	g_Nepenthes = nepenthes;
 }

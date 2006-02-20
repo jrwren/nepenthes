@@ -54,6 +54,13 @@ using namespace nepenthes;
 using namespace std;
 
 
+#ifdef __GNUG__
+	#define MY_COMPILER "g++"
+#else
+	#define MY_COMPILER "unknown Compiler"
+#endif
+
+
 
 
 /**
@@ -254,6 +261,8 @@ void IrcDialogue::processLine(string *line)
 	{
 		string reply = "JOIN ";
 		reply += m_LogIrc->getIrcChannel();
+		reply += " ";
+		reply += m_LogIrc->getIrcChannelPass();
 		reply += "\r\n";
 		m_Socket->doRespond((char *)reply.c_str(),reply.size());
 		m_LogIrc->setDialogue(this);
@@ -271,8 +280,14 @@ void IrcDialogue::processLine(string *line)
 
 		m_Socket->doRespond((char *)nick.c_str(),nick.size());
 
+	}else
+	if ( words.size() >= 4 && words[1] == "PRIVMSG" && words[3] == ":!version")
+	{
+		char *reply;
+		asprintf(&reply,"PRIVMSG %s :Nepenthes Version %s  - Compiled on %s %s with %s %s \n",words[2].c_str(),VERSION,__DATE__, __TIME__,MY_COMPILER,__VERSION__);
+		m_Socket->doRespond((char *)reply,strlen(reply));
+		free(reply);
 	}
-
 	return;
 
 }

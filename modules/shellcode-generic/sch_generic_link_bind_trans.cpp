@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -112,7 +114,7 @@ bool LinkBindTrans::Init()
 
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(pcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(pcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("LinkTrans could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				pcre, pcreEerror, pcreErrorPos);
@@ -139,18 +141,18 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 	int32_t ovec[10 * 3];
 	int32_t matchCount; 
 
-	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
+	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
 	{
 		uint16_t netPort, port;
 		const char *match;
 		unsigned char authKey[4];
 
-		pcre_get_substring((char *)shellcode, ovec, matchCount, 1, &match);
+		pcre_get_substring((char *)shellcode, (int *)ovec, (int)matchCount, 1, &match);
         memcpy(&netPort, match, 2);
 		port = ntohs(netPort);
 		pcre_free_substring(match);
 
-		pcre_get_substring((char *)shellcode, ovec, matchCount, 2, &match);
+		pcre_get_substring((char *)shellcode, (int *)ovec, (int)matchCount, 2, &match);
 		memcpy(authKey, match, 4);
 		pcre_free_substring(match);
 

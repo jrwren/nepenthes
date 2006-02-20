@@ -174,7 +174,7 @@ void SubmitXMLRPC::Submit(Download *down)
 							down->getRemoteHost(), 
 							CS_INIT_SESSION);
 #ifdef HAVE_GEOLOCATION
-	g_Nepenthes->getGeoMgr()->addGeoLocation(this,down->getLocalHost(),ctx);
+	g_Nepenthes->getGeoMgr()->addGeoLocation(this,down->getRemoteHost(),ctx);
 #else
 	string request = ctx->getRequest();
 	g_Nepenthes->getUploadMgr()->uploadUrl((char *)m_XMLRPCServer.c_str(),(char *)request.c_str(),request.size(),this,ctx);
@@ -284,7 +284,7 @@ void SubmitXMLRPC::uploadSuccess(UploadResult *up)
 
 void SubmitXMLRPC::uploadFailure(UploadResult *up)
 {
-	logCrit("UPLOAD FAILED %x\n",(uint32_t )up);
+	logCrit("UPLOAD FAILED %x\n",(uint32_t )((intptr_t)up));
 	XMLRPCContext *ctx  = (XMLRPCContext *)up->getObject();
 	delete ctx;
 }

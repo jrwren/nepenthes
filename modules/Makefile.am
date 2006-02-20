@@ -2,7 +2,7 @@
 # Maximillian Dornseif
 # $Id$
 
-SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-nepenthes download-tftp \
+SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-nepenthes download-tftp download-rcp\
           upload-http \
           log-download log-irc \
           submit-file submit-nepenthes submit-norman submit-xmlrpc \

@@ -26,8 +26,9 @@
  *******************************************************************************/
 
  /* $Id$ */
-
-
+ 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
@@ -91,7 +92,7 @@ bool ZUCConnect::Init()
 //	logInfo("pcre is %s \n",hatsquadbindpcre);
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("ZUCConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				hatsquadbindpcre, pcreEerror, pcreErrorPos);
@@ -119,20 +120,20 @@ sch_result ZUCConnect::handleShellcode(Message **msg)
 
 //	(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 		const char * match;
 		uint16_t port;
 		uint32_t host;
 
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &match);
 		port = *(uint16_t *) match;
 		port = ntohs(port);
 		port = port^0x9393;
 		pcre_free_substring(match);
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 2, &match);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 2, &match);
 		host = * ((uint32_t *) match) ^ 0x93939393;
 		pcre_free_substring(match);
 

@@ -27,7 +27,7 @@
 
  /* $Id$ */
  
-#include <arpa/tftp.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include "CSendDialogue.hpp"

@@ -36,6 +36,7 @@
 #include "VFSCommandFTP.hpp"
 #include "VFSCommandCMD.hpp"
 #include "VFSCommandSTART.hpp"
+#include "VFSCommandRCP.hpp"
 
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -109,6 +110,8 @@ bool VFS::Init(Dialogue *dia)
 	VFSCommand *vcstart = new VFSCommandSTART(sdir, this);
 	sdir->createCommand(vcstart);
 
+	VFSCommand *vcrcp = new VFSCommandRCP(sdir, this);
+	sdir->createCommand(vcrcp);
 
 	return true;
 }
@@ -401,7 +404,7 @@ string VFS::execute(string *input)
 					 )
 				{
 					logSpam("found command '%s' <-> '%s' \n",(*cfile)->getName().c_str(), command.c_str());
-					printf("adding %.*s to stdin\n",((VFSFile *)(*cfile))->getSize(),((VFSFile *)(*cfile))->getData());
+					printf("adding %.*s to stdin\n",(int)((VFSFile *)(*cfile))->getSize(),((VFSFile *)(*cfile))->getData());
 					string addme(((VFSFile *)(*cfile))->getData(),((VFSFile *)(*cfile))->getSize());
 					m_StdIn += addme;
 					logSpam("response buffer '%s' (%i) \n",m_StdOut.c_str(),m_StdOut.size());

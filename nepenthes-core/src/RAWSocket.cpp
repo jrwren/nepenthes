@@ -198,13 +198,23 @@ bool RAWSocketListener::bindPort()
 	struct ifreq __ifreq_;
 	strncpy(__ifreq_.ifr_name,m_Interface.c_str(),m_Interface.size()+4);
 
+#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
+	if (1)
+#else
 	if ( (ioctl(m_Socket,SIOCGIFFLAGS,&__ifreq_))==-1 )
+#endif
 	{
+
 		logCrit("I can't sniff this interface %s!\n", m_Interface.c_str());
 		return false;
 	}
 
-    if ( (ioctl(m_Socket,SIOCSIFFLAGS,&__ifreq_))==-1 )
+
+#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
+	if (1)
+#else
+	if ( (ioctl(m_Socket,SIOCSIFFLAGS,&__ifreq_))==-1 )
+#endif
 	{
 		logCrit("Can't set promisc mode for interface %s\n",m_Interface.c_str());
 		return false;

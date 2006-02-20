@@ -66,7 +66,7 @@ bool GenericCMD::Init()
 	const char *createprocesspcre = ".*(cmd.* /.*(\\x00|\\x0D\\x0A)).*";
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("GenericCMD could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				createprocesspcre, pcreEerror, pcreErrorPos);
@@ -92,14 +92,14 @@ sch_result GenericCMD::handleShellcode(Message **msg)
 	uint32_t len = (*msg)->getSize();
 	int32_t piOutput[10 * 3];
 	int32_t iResult=0;
-	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		logDebug("GenricCMD (improve pcre debug) (%i bytes)\n",(*msg)->getSize());
 //		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)(*msg)->getMsg(),(*msg)->getSize());
  
 		const char * pRemoteCommand;
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pRemoteCommand);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &pRemoteCommand);
 
 		logInfo("Detected generic CMD Shellcode: \"%s\" \n", pRemoteCommand);
 

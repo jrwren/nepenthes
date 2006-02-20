@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -67,7 +69,7 @@ bool SOL2KConnect::Init()
 	
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(sol2kconnectpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(sol2kconnectpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("SOL2KConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				sol2kconnectpcre, pcreEerror, pcreErrorPos);
@@ -95,7 +97,7 @@ sch_result SOL2KConnect::handleShellcode(Message **msg)
 	int32_t piOutput[10 * 3];
 	int32_t iResult; 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 		const char * pCode;
@@ -103,7 +105,7 @@ sch_result SOL2KConnect::handleShellcode(Message **msg)
 		uint32_t ulHost;
 
 		
-		uint32_t foo = pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pCode);
+		uint32_t foo = pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &pCode);
 
 		(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)pCode,foo);
 		usPort = htons(* ((uint16_t *) &pCode[441 - 28]) ^0x9595);

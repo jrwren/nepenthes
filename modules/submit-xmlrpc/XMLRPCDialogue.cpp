@@ -65,7 +65,7 @@ Date: Mon, 22 Aug 2005 15:40:32 GMT
 Connection: Keep-Alive
 
 */
-
+/*
 HTTPHeader::HTTPHeader(char *header, uint32_t size)
 {
 	if (strncmp(header,"HTTP",4) != 0)
@@ -195,3 +195,4 @@ HTTPHeaderValue::~HTTPHeaderValue()
 {
 }
 
+*/

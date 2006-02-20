@@ -63,7 +63,7 @@ am_shellemuwinnt_la_OBJECTS = VFS.lo shellemu-winnt.lo VFSDir.lo \
 	VFSFile.lo WinNTShellDialogue.lo VFSCommandCMD.lo \
 	VFSCommandDir.lo VFSCommandECHO.lo VFSCommandFTP.lo \
 	VFSCommandREDIR.lo VFSCommandRREDIR.lo VFSCommandTFTP.lo \
-	VFSCommandSTART.lo
+	VFSCommandSTART.lo VFSCommandRCP.lo
 shellemuwinnt_la_OBJECTS = $(am_shellemuwinnt_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -206,7 +206,8 @@ shellemuwinnt_la_SOURCES = VFS.cpp VFS.hpp shellemu-winnt.cpp \
 	VFSCommandECHO.hpp VFSCommandFTP.cpp VFSCommandFTP.hpp \
 	VFSCommandREDIR.cpp VFSCommandREDIR.hpp VFSCommandRREDIR.cpp \
 	VFSCommandRREDIR.hpp VFSCommandTFTP.cpp VFSCommandTFTP.hpp \
-	VFSCommandSTART.cpp VFSCommandSTART.hpp
+	VFSCommandSTART.cpp VFSCommandSTART.hpp VFSCommandRCP.cpp \
+	VFSCommandRCP.hpp
 shellemuwinnt_la_LDFLAGS = -module -no-undefined -avoid-version
 all: all-am
 
@@ -282,6 +283,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandDir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandECHO.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandFTP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandRCP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandREDIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandRREDIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VFSCommandSTART.Plo@am__quote@

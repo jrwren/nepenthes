@@ -164,7 +164,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-nepenthes download-tftp \
+SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-nepenthes download-tftp download-rcp\
           upload-http \
           log-download log-irc \
           submit-file submit-nepenthes submit-norman submit-xmlrpc \
@@ -192,9 +192,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  modules/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  modules/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  modules/Makefile
+	  $(AUTOMAKE) --gnu  modules/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

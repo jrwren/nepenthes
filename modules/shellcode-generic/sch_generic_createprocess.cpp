@@ -83,10 +83,12 @@ GenericCreateProcess::~GenericCreateProcess()
 
 bool GenericCreateProcess::Init()
 {
+//	const char *createprocesspcre = "\\xE8\\x46\\x00\\x00\\x00\\x8B\\x45\\x3C\\x8B\\x7C\\x05\\x78\\x01\\xEF\\x8B\\x4F\\x18\\x8B\\x5F\\x20\\x01\\xEB\\xE3\\x2E\\x49\\x8B\\x34\\x8B\\x01\\xEE\\x31\\xC0\\x99\\xAC\\x84\\xC0\\x74\\x07\\xC1\\xCA\\x0D\\x01\\xC2\\xEB\\xF4\\x3B\\x54\\x24\\x04\\x75\\xE3\\x8B\\x5F\\x24\\x01\\xEB\\x66\\x8B\\x0C\\x4B\\x8B\\x5F\\x1C\\x01\\xEB\\x8B\\x1C\\x8B\\x01\\xEB\\x89\\x5C\\x24\\x04\\xC3\\x31\\xC0\\x64\\x8B\\x40\\x30\\x85\\xC0\\x78\\x0F\\x8B\\x40\\x0C\\x8B\\x70\\x1C\\xAD\\x8B\\x68\\x08\\xE9\\x0B\\x00\\x00\\x00\\x8B\\x40\\x34\\x05\\x7C\\x00\\x00\\x00\\x8B\\x68\\x3C\\x5F\\x31\\xF6\\x60\\x56\\xEB\\x0D\\x68\\xEF\\xCE\\xE0\\x60\\x68\\x98\\xFE\\x8A\\x0E\\x57\\xFF\\xE7\\xE8\\xEE\\xFF\\xFF\\xFF(.*\\x00)";
+
 	const char *createprocesspcre = "^.*\\x0A\\x65\\x73\\x73.*\\x57\\xE8....(.*)\\x6A.\\xE8....+$";
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("GenericCreateProcess could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				createprocesspcre, pcreEerror, pcreErrorPos);
@@ -113,11 +115,11 @@ sch_result GenericCreateProcess::handleShellcode(Message **msg)
 	uint32_t len = (*msg)->getSize();
 	int32_t piOutput[10 * 3];
 	int32_t iResult=0;
-	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
+	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 		const char * pRemoteCommand;
 
-		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pRemoteCommand);
+		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &pRemoteCommand);
 
 		logInfo("Detected generic CreateProcess Shellcode: \"%s\" \n", pRemoteCommand);
 

@@ -59,14 +59,16 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 shellcodegeneric_la_LIBADD =
-am_shellcodegeneric_la_OBJECTS = sch_generic_connect_trans.lo \
-	sch_generic_konstanz_xor.lo sch_generic_bielefeld_connect.lo \
-	sch_generic_bind.lo sch_generic_cmd.lo sch_generic_connect.lo \
+am_shellcodegeneric_la_OBJECTS = shellcode-generic.lo \
+	sch_generic_connect_trans.lo sch_generic_konstanz_xor.lo \
+	sch_generic_bielefeld_connect.lo sch_generic_bind.lo \
+	sch_generic_cmd.lo sch_generic_connect.lo \
 	sch_generic_createprocess.lo sch_generic_link_bind_trans.lo \
 	sch_generic_link_trans.lo sch_generic_linkxor.lo \
 	sch_generic_mainz_bind.lo sch_generic_stuttgart.lo \
 	sch_generic_url.lo sch_generic_wuerzburg.lo sch_generic_xor.lo \
-	shellcode-generic.lo sch_generic_unicode.lo
+	sch_generic_unicode.lo sch_generic_winexec.lo \
+	sch_generic_leimbach_url_xor.lo
 shellcodegeneric_la_OBJECTS = $(am_shellcodegeneric_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -201,7 +203,27 @@ AM_CPPFLAGS = -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-c
 AM_CXXFLAGS = -Wall -Werror
 AM_LDFLAGS = -lpcre
 pkglib_LTLIBRARIES = shellcodegeneric.la
-shellcodegeneric_la_SOURCES = shellcode-generic.conf.dist sch_generic_connect_trans.cpp sch_generic_connect_trans.hpp sch_generic_konstanz_xor.cpp sch_generic_konstanz_xor.hpp sch_generic_bielefeld_connect.hpp sch_generic_bind.hpp sch_generic_cmd.hpp sch_generic_connect.hpp sch_generic_createprocess.hpp sch_generic_link_bind_trans.hpp sch_generic_link_trans.hpp sch_generic_linkxor.hpp sch_generic_mainz_bind.hpp sch_generic_stuttgart.hpp sch_generic_url.hpp sch_generic_wuerzburg.hpp sch_generic_xor.hpp shellcode-generic.hpp sch_generic_bielefeld_connect.cpp sch_generic_bind.cpp sch_generic_cmd.cpp sch_generic_connect.cpp sch_generic_createprocess.cpp sch_generic_link_bind_trans.cpp sch_generic_link_trans.cpp sch_generic_linkxor.cpp sch_generic_mainz_bind.cpp sch_generic_stuttgart.cpp sch_generic_url.cpp sch_generic_wuerzburg.cpp sch_generic_xor.cpp shellcode-generic.cpp sch_generic_unicode.cpp sch_generic_unicode.hpp
+shellcodegeneric_la_SOURCES = shellcode-generic.conf.dist \
+	shellcode-generic.cpp shellcode-generic.hpp \
+	sch_generic_connect_trans.cpp sch_generic_connect_trans.hpp \
+	sch_generic_konstanz_xor.cpp sch_generic_konstanz_xor.hpp \
+	sch_generic_bielefeld_connect.cpp \
+	sch_generic_bielefeld_connect.hpp sch_generic_bind.cpp \
+	sch_generic_bind.hpp sch_generic_cmd.cpp sch_generic_cmd.hpp \
+	sch_generic_connect.cpp sch_generic_connect.hpp \
+	sch_generic_createprocess.cpp sch_generic_createprocess.hpp \
+	sch_generic_link_bind_trans.cpp \
+	sch_generic_link_bind_trans.hpp sch_generic_link_trans.cpp \
+	sch_generic_link_trans.hpp sch_generic_linkxor.cpp \
+	sch_generic_linkxor.hpp sch_generic_mainz_bind.cpp \
+	sch_generic_mainz_bind.hpp sch_generic_stuttgart.cpp \
+	sch_generic_stuttgart.hpp sch_generic_url.cpp \
+	sch_generic_url.hpp sch_generic_wuerzburg.cpp \
+	sch_generic_wuerzburg.hpp sch_generic_xor.cpp \
+	sch_generic_xor.hpp sch_generic_unicode.cpp \
+	sch_generic_unicode.hpp sch_generic_winexec.cpp \
+	sch_generic_winexec.hpp sch_generic_leimbach_url_xor.cpp \
+	sch_generic_leimbach_url_xor.hpp
 shellcodegeneric_la_LDFLAGS = -module -no-undefined -avoid-version
 all: all-am
 
@@ -279,6 +301,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_connect_trans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_createprocess.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_konstanz_xor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_leimbach_url_xor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_link_bind_trans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_link_trans.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_linkxor.Plo@am__quote@
@@ -286,6 +309,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_stuttgart.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_unicode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_url.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_winexec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_wuerzburg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sch_generic_xor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shellcode-generic.Plo@am__quote@

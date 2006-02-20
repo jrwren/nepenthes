@@ -26,6 +26,6 @@ shellemuwinnt_la_SOURCES += VFSCommandREDIR.cpp VFSCommandREDIR.hpp
 shellemuwinnt_la_SOURCES += VFSCommandRREDIR.cpp VFSCommandRREDIR.hpp 
 shellemuwinnt_la_SOURCES += VFSCommandTFTP.cpp  VFSCommandTFTP.hpp 
 shellemuwinnt_la_SOURCES += VFSCommandSTART.cpp VFSCommandSTART.hpp 
-
+shellemuwinnt_la_SOURCES += VFSCommandRCP.cpp VFSCommandRCP.hpp 
 
 shellemuwinnt_la_LDFLAGS = -module -no-undefined -avoid-version

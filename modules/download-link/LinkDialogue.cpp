@@ -29,8 +29,6 @@
 
 
 #include <ctype.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include "LinkDialogue.hpp"
 

@@ -1,3 +1,91 @@
+Version 0.1.6
+=============
+
+
+We made sure the source compiles on
+  * cygwin
+  * linux (tested debian on x86, fedora core 3 on amd64, suse 9 enterprise server on powerpc)
+  * openbsd (tested on openbsd 3.8 on x86)
+  * netbsd (tested on netbsd 2.0.2 on x86)
+
+For cygwin we had to cast many int32_t to int, and many int32_t * to int too (104 times)... and include sys/socket.h (26 times)
+OpenBSD enforced including sys/types.h nearly everywhere (37 times)
+64bit fedora made us use intptr_t instead of int to point to memory (19 times)
+
+The other focus was adding some new shellcode handlers, 
+and we added a new download handler for the broken by design rcp protocol
+
+
+Nepenthes
+	FIXES and ADDITIONS
+	-----
+	* DownloadManager
+		* as long as BIG_ENDIAN is not coverd by  autoconf, dont rely it on here.
+
+	* UploadManager 
+		* fixed includes
+	* DNSManager 
+		* errno fix
+	
+	* DownloadUrl
+		* fixed inclues	
+	
+	* Buffer 
+		* casting int for amd64	
+
+	* Nepenthes
+		* getopt int casting
+		* no logfiles chown own cygwin
+		* no filetype on cygwin, dont rely on it 
+		* cygwin needs int main()
+		* no signals for cygwin (yet)
+		
+	* SocketManager
+		* interface to request tcp connect sockets with provided local port ( for download-rcp )
+	* TCPSocket 
+		* new constructor for connect sockets which allows setting a local port
+		
+	
+Modules
+	FIXES and ADDITIONS
+	-----
+	* many modules
+		* fixed wrong module names/descriptions
+	
+	* shellcode-generic (picchio contributed the analysis for them, we are really glad about his work)
+		* added sch_generic_winexec
+		* pinnebergConnect added
+		* sch_generic_xor schoenberg xor added
+		* schoenenberg bind added
+		* ravensburg bind added
+		* rosengarten xor added
+		* schauenburg bind added
+		* schauenburg xor added
+		* leimbach xor family added
+		* lichtenfels xor & connectback
+		
+	* submit-xmlrpc
+		* using geolocation submit-xmlrpc resolved the locals geolocation, 
+		  now we resolve the remotes
+		  
+	* log-irc 
+		* channel pass fix
+		* upon request - reply nepenthes version to !version
+		
+	* shellemu-winnt
+		* added VFSCommandRCP for rcp.exe
+		
+		  
+	NEW
+	---
+	* download-rcp
+		* created, downloads files via the undocumented rcp protcoll
+
+
+
+
+
+
 Version 0.1.5
 =============
 Bugfix release/minor features.

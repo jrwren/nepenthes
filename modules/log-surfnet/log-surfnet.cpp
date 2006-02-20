@@ -265,13 +265,13 @@ uint32_t LogSurfNET::handleEvent(Event *event)
 	case EV_DIALOGUE_ASSIGN_AND_DONE:
 	case EV_SHELLCODE_DONE:
 		{
-			if (m_SocketTracker.count((uint32_t) socket) == 0)
+			if (m_SocketTracker.count((uintptr_t) socket) == 0)
 			{
 				process=false;
 			}else
 			{
 				process=true;
-				attackit = m_SocketTracker.find((uint32_t) socket);
+				attackit = m_SocketTracker.find((uintptr_t) socket);
 				attackid = attackit->second;
 			}
 		}
@@ -329,12 +329,12 @@ void LogSurfNET::handleTCPAccept(Socket *socket)
 {
 	logCrit("handleTCPAccept()\n"
 			"\tSocket 0x%x\n",
-			(uint32_t) socket);
+			(uint32_t) ((intptr_t)socket));
 
     int32_t sensorid = m_DB->getSensorID(socket->getLocalHost());
 	int32_t attackid = m_DB->addAttack(AS_POSSIBLE_MALICIOUS_CONNECTION, socket->getRemoteHost(), socket->getRemotePort(), socket->getLocalHost(), socket->getLocalPort(),sensorid);
 
-	m_SocketTracker[(uint32_t)socket] = attackid;
+	m_SocketTracker[(uintptr_t)socket] = attackid;
 }
 
 void LogSurfNET::handleTCPclose(Socket *socket, uint32_t attackid)
@@ -342,10 +342,10 @@ void LogSurfNET::handleTCPclose(Socket *socket, uint32_t attackid)
 	logCrit("handleTCPclose()\n"
 			"\tSocket 0x%x\n"
 			"\tattackID %i\n",
-			(uint32_t) socket, 
+			(uint32_t) ((intptr_t)socket), 
 			attackid);
 
-	m_SocketTracker.erase((uint32_t) socket);
+	m_SocketTracker.erase((uintptr_t) socket);
 }
 
 void LogSurfNET::handleDialogueAssignAndDone(Socket *socket, Dialogue *dia, uint32_t attackid)
@@ -354,7 +354,7 @@ void LogSurfNET::handleDialogueAssignAndDone(Socket *socket, Dialogue *dia, uint
 			"\tSocket 0x%x\n"
 			"\tDialogue %s\n"
 			"\tattackID %i\n",
-			(uint32_t) socket, 
+			(uint32_t) ((uintptr_t)socket), 
 			dia->getDialogueName().c_str(), 
 			attackid);
 
@@ -373,7 +373,7 @@ void LogSurfNET::handleShellcodeDone(Socket *socket, ShellcodeHandler *handler, 
 			"\tSocket 0x%x\n"
 			"\tShellcodeHandler %s\n"
 			"\tattackID %i\n",
-			(uint32_t) socket, 
+			(uint32_t) ((uintptr_t)socket), 
 			handler->getShellcodeHandlerName().c_str(), 
 			attackid);
 

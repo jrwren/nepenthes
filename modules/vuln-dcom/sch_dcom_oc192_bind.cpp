@@ -26,7 +26,7 @@
  *******************************************************************************/
 
  /* $Id$ */
-
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include "LogManager.hpp"
@@ -115,7 +115,7 @@ bool OC192Bind::Init()
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("OC192Bind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				oc192bindpcre, pcreEerror, pcreErrorPos);
@@ -144,14 +144,14 @@ sch_result OC192Bind::handleShellcode(Message **msg)
 	int32_t ovec[10 * 3];
 	int32_t matchCount; 
 
-	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
+	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
 	{
 		uint32_t lport;
 		uint16_t sport;
 		const char *match;
 		
 
-		pcre_get_substring((char *)shellcode, ovec, matchCount, 1, &match);
+		pcre_get_substring((char *)shellcode, (int *)ovec, (int)matchCount, 1, &match);
 		memcpy(&lport, match, 4);
 		lport ^= 0x9432BF80;
 		memcpy(&sport,(char *)&lport+1,2);

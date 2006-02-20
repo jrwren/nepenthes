@@ -48,7 +48,7 @@ OPTIXDownloadHandler::OPTIXDownloadHandler(Nepenthes *nepenthes)
 {
 	logPF();
 	m_DownloadHandlerName = "Optix Download Handler";
-	m_DownloadHandlerDescription = "";
+	m_DownloadHandlerDescription = "download files via optix";
 
 	m_DialogueFactoryName = "Optix DownloadHandler DialogueFactory";
 	m_DialogueFactoryDescription = "creates a dialogue to download a file from via the optix bindport 500";

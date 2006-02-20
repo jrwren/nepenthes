@@ -26,7 +26,9 @@
  *******************************************************************************/
 
  /* $Id$ */
-
+ 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -89,7 +91,7 @@ bool MandragoreConnect::Init()
     
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
-	if((m_pcre = pcre_compile(thcconnectpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+	if((m_pcre = pcre_compile(thcconnectpcre, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("MandragoreConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				thcconnectpcre, pcreEerror, pcreErrorPos);
@@ -118,19 +120,19 @@ sch_result MandragoreConnect::handleShellcode(Message **msg)
 	int32_t ovec[10 * 3];
 	int32_t matchCount; 
 
-	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
+	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
 	{
 		uint16_t netPort, port;
 		uint32_t address;
 		const char *match;
         
-		pcre_get_substring((char *)shellcode, ovec, matchCount, 1, &match);
+		pcre_get_substring((char *)shellcode, (int *)ovec, (int)matchCount, 1, &match);
 		memcpy(&address, match, 4);
 		address=address^0xdededede;
 		pcre_free_substring(match);
 		
 
-		pcre_get_substring((char *)shellcode, ovec, matchCount, 2, &match);
+		pcre_get_substring((char *)shellcode, (int *)ovec, (int)matchCount, 2, &match);
         memcpy(&netPort, match, 2);
 		netPort ^= 0xdede;
 		port = ntohs(netPort);

@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.5], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.5])
+AC_INIT([nepenthes], [0.1.6], [dornseif@informatik.rwth-aachen.de])
+AM_INIT_AUTOMAKE([nepenthes], [0.1.6])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
@@ -165,36 +165,106 @@ AC_CHECK_FUNCS([strndup alarm bzero gethostbyname gethostname gettimeofday inet_
 dnl **************************************************
 dnl * libcurl Support                                *
 dnl **************************************************
+AC_ARG_WITH(curl-include,
+    [  --with-curl-include=PATH	specify path to curl include files],
+    [curl_inc=$withval],
+    [curl_inc=no])
 
+AC_ARG_WITH(curl-lib,
+    [  --with-curl-lib=PATH	specify path to curl client library],
+    [curl_lib=$withval],
+    [curl_lib=no])
 
-AC_CHECK_LIB([curl], [curl_version],
+if test xyes = "xyes"; then
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$curl_inc" != xno; then
+      CPPFLAGS="-I$curl_inc $CPPFLAGS"
+    fi
+
+    orig_ldflags=$LDFLAGS
+    if test "x$curl_lib" != "xno"; then
+        LDFLAGS="-L$curl_lib $LDFLAGS"
+    fi
+
+    AC_CHECK_LIB([curl], [curl_version],
              [AC_DEFINE(HAVE_LIBCURL, 1,
                        [Define if you want to use libcurl])
               LIBS="-lcurl $LIBS"],
              [AC_MSG_ERROR([libcurl is missing - install it please])
              ])
+fi
+	  
 
 dnl **************************************************
 dnl * libpcre Support                                *
 dnl **************************************************
 
-AC_CHECK_LIB([pcre], [pcre_compile],
+AC_ARG_WITH(pcre-include,
+    [  --with-pcre-include=PATH		specify path to pcre include files],
+    [pcre_inc=$withval],
+    [pcre_inc=no])
+
+AC_ARG_WITH(pcre-lib,
+    [  --with-pcre-lib=PATH	specify path to pcre client library],
+    [pcre_lib=$withval],
+    [pcre_lib=no])
+
+if test xyes = "xyes"; then
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$pcre_inc" != xno; then
+      CPPFLAGS="-I$pcre_inc $CPPFLAGS"
+    fi
+
+    orig_ldflags=$LDFLAGS
+    if test "x$pcre_lib" != "xno"; then
+        LDFLAGS="-L$pcre_lib $LDFLAGS"
+    fi
+    
+    AC_CHECK_LIB([pcre], [pcre_compile],
              [AC_DEFINE(HAVE_LIBPCRE, 1,
                         [Define if you want to use libpcre])
               LIBS="-lpcre $LIBS"],
              [AC_MSG_ERROR([libpcre is missing - install it please])
              ])
+fi	     
 
 dnl **************************************************
 dnl * libmagic Support                               *
 dnl **************************************************
-AC_CHECK_LIB([magic], [magic_open],
+
+AC_ARG_WITH(magic-include,
+    [  --with-magic-include=PATH		specify path to magic include files],
+    [magic_inc=$withval],
+    [magic_inc=no])
+
+AC_ARG_WITH(magic-lib,
+    [  --with-magic-lib=PATH	specify path to magic client library],
+    [magic_lib=$withval],
+    [magic_lib=no])
+
+if test xyes = "xyes"; then
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$magic_inc" != xno; then
+      CPPFLAGS="-I$magic_inc $CPPFLAGS"
+    fi
+
+    orig_ldflags=$LDFLAGS
+    if test "x$magic_lib" != "xno"; then
+        LDFLAGS="-L$magic_lib $LDFLAGS"
+    fi
+
+
+    AC_CHECK_LIB([magic], [magic_open],
              [AC_DEFINE(HAVE_LIBMAGIC, 1,
                        [Define if you want to use libmagic])
               LIBS="-lmagic $LIBS"],
              [AC_MSG_ERROR([libmagic is missing - install it please])
              ])
-AC_CHECK_HEADERS(magic.h)
+    AC_CHECK_HEADERS(magic.h)
+fi
 
 
 
@@ -587,8 +657,30 @@ AC_ARG_ENABLE(dnsresolve_adns, [  --enable-dnsresolve-adns	Enable adns [default=
 dnl **************************************************
 dnl * libadns Support                                *
 dnl **************************************************
+AC_ARG_WITH(adns-include,
+    [  --with-adns-include=PATH	specify path to adns include files],
+    [adns_inc=$withval],
+    [adns_inc=no])
+
+AC_ARG_WITH(adns-lib,
+    [  --with-adns-lib=PATH	specify path to adns client library],
+    [adns_lib=$withval],
+    [adns_lib=no])
+
 if test x$enable_dnsresolve_adns = xyes; then
-  AC_CHECK_LIB([adns], [adns_init],
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$adns_inc" != xno; then
+      CPPFLAGS="-I$adns_inc $CPPFLAGS"
+    fi
+
+    orig_ldflags=$LDFLAGS
+    if test "x$adns_lib" != "xno"; then
+        LDFLAGS="-L$adns_lib $LDFLAGS"
+    fi
+
+
+    AC_CHECK_LIB([adns], [adns_init],
            [AC_DEFINE(HAVE_LIBADNS, 1,
                       [Define if you want to use adns])
             LIBS="-ladns $LIBS"],
@@ -599,6 +691,35 @@ fi
 if test x$enable_dnsresolve_adns = xno; then
   AC_MSG_ERROR([at least one dnsresolver has to work])
 fi
+
+
+
+#dnl **************************************************
+#dnl * ipv6 Support                                   *
+#dnl **************************************************
+#
+#AC_ARG_ENABLE(ipv6,
+#  [  --enable-ipv6          enable IPv6 support [default=auto].],
+#  [ if test "$enableval" = "no"; then
+#       enable_ipv6="no"
+#    fi ],
+#  [ enable_ipv6="yes" ] )
+#
+#
+#
+#if test x$enabled_ipv6 = xno ; then
+#    AC_MSG_RESULT([no -- disabled by user])
+#else
+#    enable_ipv6="no"
+#    AC_CHECK_FUNC(inet_pton,[enable_ipv6=yes])
+#    AC_CHECK_LIB(resolv,inet_pton,[enable_ipv6=yes])
+#    AC_MSG_CHECKING(for sockaddr_in6 in netinet/in.h)
+#    AC_EGREP_HEADER(sockaddr_in6,netinet/in.h,
+#    [AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no); enable_ipv6="no"])
+#    if ${have_ipv6}; then
+#        AC_DEFINE(HAVE_IPV6, 1, Define if the system have IPv6 structures.)
+#    fi
+#fi
 
 
 
@@ -679,10 +800,13 @@ AC_CONFIG_FILES([Makefile
 		 modules/geolocation-ip2location/Makefile
 		 modules/log-surfnet/Makefile		 
 		 modules/vuln-msdtc/Makefile
+		 modules/download-rcp/Makefile
 		 ])
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])
 #                modules/vuln-netbios/Makefile
+#                 modules/module-baitnswitch/Makefile
+                 
                  
 AC_OUTPUT
 
@@ -703,3 +827,5 @@ echo ""
 echo "- Support PostgreSQL          : $enable_postgre"
 echo "" 
 echo "- Support ssh                 : $enable_ssh"
+# echo ""
+# echo "- Support ipv6                : $enable_ipv6"

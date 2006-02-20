@@ -149,7 +149,7 @@ void Buffer::add(void *data, uint32_t size)
 			resize(newSize);
 		}
 		
-		memcpy((void *)((int32_t)m_data + m_offset), data, size);
+		memcpy((void *)((intptr_t)m_data + m_offset), data, size);
 	}
 
 	m_offset += size;
@@ -180,7 +180,7 @@ void Buffer::cut(int32_t size)
 	if( size > 0 )
 	{
 		//memcpy(m_data, (void *)((int32_t)m_data + size), m_offset - size);
-		memmove(m_data, (void *)((int32_t)m_data + size), m_offset - size);
+		memmove(m_data, (void *)((intptr_t)m_data + size), m_offset - size);
 		m_offset -= size;
 	}
 }
@@ -214,8 +214,8 @@ uint32_t Buffer::getSize()
 void Buffer::debug()
 {
 	printf("SB shellbuffer debug\n");
-	printf("  > m_data = 0x%08x\n", (int32_t)m_data);
-	printf("  > m_offset = %d\n", m_offset);
-	printf("  > m_allocSize = %d\n", m_allocSize);
+	printf("  > m_data = 0x%08x\n", (int)((intptr_t)m_data));
+	printf("  > m_offset = %d\n", (int)m_offset);
+	printf("  > m_allocSize = %d\n", (int)m_allocSize);
 }
 

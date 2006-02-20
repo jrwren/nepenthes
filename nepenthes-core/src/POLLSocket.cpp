@@ -31,6 +31,13 @@
 
 using namespace nepenthes;
 
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 POLLSocket::POLLSocket()
 {
 	m_Type = ST_POLL|ST_CONNECT|ST_NODEL;

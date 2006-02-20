@@ -30,15 +30,12 @@
 #ifndef HAVE_UPLOADMANAGER_HPP
 #define HAVE_UPLOADMANAGER_HPP
 
-#ifdef WIN32
 
-#else
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#endif
+
 
 #include <string>
 #include <list>
+#include <stdint.h>
 
 
 

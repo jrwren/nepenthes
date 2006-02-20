@@ -985,7 +985,7 @@ Socket *SocketManager::connectUDPHost(uint32_t localhost, uint32_t remotehost, u
 	return sock;
 }
 
-Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint16_t port,time_t connecttimeout)
+Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint16_t remoteport,time_t connecttimeout)
 {
 	logPF();
 	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
@@ -994,11 +994,31 @@ Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, u
 		localhost = m_BindAddress;
 	}
 
-	TCPSocket *sock = new TCPSocket(getNepenthes(),localhost,remotehost,port,connecttimeout);
+	TCPSocket *sock = new TCPSocket(getNepenthes(),localhost,remotehost,remoteport,connecttimeout);
 	sock->Init();
 	m_Sockets.push_back(sock);
 	return sock;
 }
+
+Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint16_t localport, uint16_t remoteport,time_t connecttimeout)
+{
+	logPF();
+	if ( localhost == INADDR_ANY && m_BindAddress != INADDR_ANY )
+	{
+		logDebug("Changed local Bind address from 0.0.0.0 to %s \n",inet_ntoa(*(in_addr *)&m_BindAddress));
+		localhost = m_BindAddress;
+	}
+
+	TCPSocket *sock = new TCPSocket(getNepenthes(),localhost,remotehost,localport,remoteport,connecttimeout);
+	if ( sock->Init() != true )
+	{
+		delete sock;
+		return NULL;
+	}
+	m_Sockets.push_back(sock);
+	return sock;
+}
+
 
 Socket *SocketManager::addPOLLSocket(POLLSocket *sock)
 {

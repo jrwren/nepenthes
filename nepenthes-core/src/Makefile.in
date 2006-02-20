@@ -199,7 +199,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-AM_CPPFLAGS = -I../include -I ../..
+AM_CPPFLAGS = -I../include -I ../.. -Wall -Werror
 nepenthes_SOURCES = Buffer.cpp Compatibility.cpp Config.cpp \
 	Dialogue.cpp DialogueFactory.cpp DialogueFactoryManager.cpp \
 	DNSManager.cpp DNSHandler.cpp DNSQuery.cpp DNSResult.cpp \

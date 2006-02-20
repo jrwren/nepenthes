@@ -197,7 +197,37 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehos
 	m_HighestConsumeLevel = CL_DROP;
 }
 
+/**
+ * constructor for connect sockets
+ * 
+ * @param nepenthes  the nepenthes
+ *                   
+ * @param localhost  the local ip address to bind the socket to
+ * @param remotehost the remote hosts ip address
+ * @param remoteport the port to connect to
+ *                   
+ * @param connectiontimeout
+ *                   the timeout before we drop this try
+ */
+TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, uint16_t localport, uint16_t remoteport, time_t connectiontimeout)
+{
+	m_Nepenthes = nepenthes;
+	setLocalPort(localport);
+	setLocalHost(localhost);
+	setRemoteHost(remotehost);
+	setRemotePort(remoteport);
 
+	m_TimeoutIntervall = connectiontimeout;
+	m_LastAction = time(NULL);
+
+	m_Type = ST_TCP|ST_CONNECT;
+
+	m_CanSend = true;
+	m_Status = SS_CONNECTING;
+	m_Polled = false;
+
+	m_HighestConsumeLevel = CL_DROP;
+}
 
 
 TCPSocket::~TCPSocket()
@@ -346,7 +376,7 @@ bool TCPSocket::connectHost()
 	string localhost, remotehost;
 	localhost = inet_ntoa(* (in_addr *)&m_LocalHost);
 	remotehost = inet_ntoa(* (in_addr *)&m_RemoteHost);
-	logDebug("Connecting %s -> %s:%i \n",localhost.c_str(), remotehost.c_str(), m_RemotePort);
+	logDebug("Connecting %s:%i -> %s:%i \n",localhost.c_str(),m_LocalPort, remotehost.c_str(), m_RemotePort);
 	
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
 
@@ -354,7 +384,7 @@ bool TCPSocket::connectHost()
 	addrBind.sin_family = AF_INET;
 
 	addrBind.sin_addr.s_addr = getLocalHost();
-	addrBind.sin_port = 0;
+	addrBind.sin_port = htons(getLocalPort());
 
 	if ( bind(m_Socket, (struct sockaddr *) &addrBind, sizeof(addrBind)) < 0 )
 	{
@@ -376,9 +406,10 @@ bool TCPSocket::connectHost()
 	fcntl(m_Socket, F_SETFL, O_NONBLOCK);
 #endif
 
-	int32_t x=1;
+
 
 #ifdef HAVE_SO_NOSIGPIPE
+	int32_t x=1;
 	if(setsockopt(m_Socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&x, sizeof(x)) < 0)
 		logCrit("setsockopt() to SO_NOSIGPIPE failed - everything will screw up on the long run!\n%s\n",strerror(errno));
 #endif
@@ -489,7 +520,6 @@ int32_t TCPSocket::doSend()
 	while(m_TxPackets.size() > 0 && sendon == true )
 	{
 		packet = m_TxPackets.front();
-		int32_t onoff = 1;
 
 #ifdef HAVE_MSG_NOSIGNAL
 		int32_t sended = send(m_Socket,packet->getData(), packet->getSize(), MSG_NOSIGNAL);

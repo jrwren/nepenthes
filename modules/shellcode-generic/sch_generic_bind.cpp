@@ -26,7 +26,8 @@
  *******************************************************************************/
 
  /* $Id$ */
-
+ 
+#include <sys/types.h>
 #include <netinet/in.h>
 
 #include "LogManager.hpp"
@@ -90,7 +91,7 @@ bool GenericBind::Init()
 		const char * pcreEerror;
 		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
-		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
+		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL)
 		{
 			logCrit("GenericBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 					pattern, pcreEerror, pcreErrorPos);
@@ -140,12 +141,12 @@ sch_result GenericBind::handleShellcode(Message **msg)
 	for ( it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++ )
 	{
 		int32_t result=0;
-		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0 )
+		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)output, sizeof(output)/sizeof(int32_t))) > 0 )
 		{
 			const char * match;
 			uint16_t port;
 
-			pcre_get_substring((char *) shellcode, output, result, 1, &match);
+			pcre_get_substring((char *) shellcode, (int *)output, (int)result, 1, &match);
 
 			port = ntohs(*(uint16_t *) match);
 			logInfo("Detected Generic listenshell shellcode #%s, :%u \n",(*it)->m_Name.c_str(), port);
