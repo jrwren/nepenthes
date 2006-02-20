@@ -106,10 +106,11 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 
  
 	 char reply[512];
-	 for (int i=0;i<512;i++)
+	 for (int32_t i=0;i<512;i++)
 	 {
 		 reply[i] = rand()%255;
 	 }
+
 	 switch (m_State)
 	 {
 	 case LSASS_HOD_STAGE1:
@@ -120,6 +121,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 				 logInfo("Valid LSASS HOD Stage #1 (%i %i)\n",sizeof(lsass_hod_req1), m_Buffer->getSize());
 				 m_State = LSASS_HOD_STAGE2;
 				 m_Buffer->clear();
+				 reply[9]=0;
 				 msg->getResponder()->doRespond(reply,64);
 				 return CL_UNSURE;	// same as asn1 
 			 }else
@@ -135,8 +137,9 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 				 logInfo("Valid LSASS HOD Stage #2 (%i)\n",sizeof(lsass_hod_req2));
 				 m_State = LSASS_HOD_STAGE3;
 				 m_Buffer->clear();
+				 reply[9]=0;
 				 msg->getResponder()->doRespond(reply,64);
-				 return CL_ASSIGN;
+				 return CL_UNSURE;
 			 }else
 				 return CL_DROP;
 		 }

@@ -36,6 +36,6 @@ namespace nepenthes
 	public:
 		VFSCommandTFTP(VFSNode *parent,VFS *vfs);
 		~VFSCommandTFTP();
-    	int run(vector<string> *paramlist);
+    	int32_t run(vector<string> *paramlist);
 	};
 }

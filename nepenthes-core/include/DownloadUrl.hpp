@@ -53,7 +53,7 @@ namespace nepenthes
 		virtual string          getHost();
 		
 
-		virtual unsigned int    getPort();
+		virtual uint32_t    getPort();
 		virtual string          getPath();
 		virtual string          getFile();
 		virtual string          getDir();
@@ -64,10 +64,10 @@ namespace nepenthes
 		virtual void          	setPass(char *arg);
 		virtual void        	setAuth(char *arg);
 		virtual void			setHost(char *arg);
-		virtual void			setHost(unsigned long host);
+		virtual void			setHost(uint32_t host);
 		
 
-		virtual void			setPort(unsigned int i);
+		virtual void			setPort(uint32_t i);
 		virtual void          	setPath(char *arg);
 		virtual void          	setFile(char *arg);
 		virtual void          	setDir(char *arg);
@@ -80,7 +80,7 @@ namespace nepenthes
 		string          m_pass;
 		string			m_auth;	// "user:pass"
 		string          m_host;
-		unsigned int    m_port;
+		uint32_t    m_port;
 		string          m_path;
 
 		string          m_file;

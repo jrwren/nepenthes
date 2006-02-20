@@ -71,7 +71,7 @@ LogDownload::LogDownload(Nepenthes *nepenthes)
 	m_Nepenthes = nepenthes;
 
 	m_EventHandlerName = "LogDownloadEventHandler";
-	m_EventHandlerDescription = "keeps on logging";
+	m_EventHandlerDescription = "log download attempts and successfull downloads";
 
 	m_Timeout = 0;
 	g_Nepenthes = nepenthes;
@@ -169,7 +169,7 @@ bool LogDownload::Exit()
  * 
  * @return return 0
  */
-unsigned int LogDownload::handleEvent(Event *event)
+uint32_t LogDownload::handleEvent(Event *event)
 {
 	logPF();
 //	logInfo("Event %i\n",event->getType());
@@ -186,10 +186,11 @@ unsigned int LogDownload::handleEvent(Event *event)
 		{
 			SubmitEvent *se = (SubmitEvent *)event;
 			Download *down = se->getDownload();
-			fprintf(m_DownloadFile, "[%02d%02d%04d %02d:%02d:%02d] %s \n", 
-					t.tm_mday, 
-					t.tm_mon + 1, 
+			// we use ISO 8601 %Y-%m-%dT%H:%M:%S
+			fprintf(m_DownloadFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s\n", 
 					t.tm_year + 1900,
+					t.tm_mon + 1, 
+					t.tm_mday, 
 					t.tm_hour, 
 					t.tm_min, 
 					t.tm_sec,
@@ -203,15 +204,15 @@ unsigned int LogDownload::handleEvent(Event *event)
 		{
 			SubmitEvent *se = (SubmitEvent *)event;
 			Download *down = se->getDownload();
-			fprintf(m_SubmitFile, "[%02d%02d%04d %02d:%02d:%02d] %s %s\n", 
-					t.tm_mday, 
-					t.tm_mon + 1, 
+			fprintf(m_SubmitFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s %s\n", 
 					t.tm_year + 1900,
+					t.tm_mon + 1, 
+					t.tm_mday, 
 					t.tm_hour, 
 					t.tm_min, 
 					t.tm_sec,
-					down->getMD5Sum().c_str(),
-					down->getUrl().c_str()
+					down->getUrl().c_str(),
+					down->getMD5Sum().c_str()
 					);
 			fflush(m_SubmitFile);
 		}
@@ -224,7 +225,7 @@ unsigned int LogDownload::handleEvent(Event *event)
 }
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new LogDownload(nepenthes);

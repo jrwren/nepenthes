@@ -33,7 +33,7 @@
 
 using namespace nepenthes;
 
-Packet::Packet(char *data, unsigned int len)
+Packet::Packet(char *data, uint32_t len)
 {
 	m_Data = (char *)malloc(len*sizeof(char));
 	memcpy(m_Data,data,len);
@@ -49,12 +49,12 @@ char *Packet::getData()
 {
 	return m_Data;
 }
-unsigned int Packet::getLength()
+uint32_t Packet::getLength()
 {
 	return m_Length;
 }
 
-bool Packet::cut(unsigned int offset)
+bool Packet::cut(uint32_t offset)
 {
 	if(offset >= m_Length )
 		return false;
@@ -68,7 +68,7 @@ bool Packet::cut(unsigned int offset)
 
 // some extensions we will need for bound udp sockets
 
-UDPPacket::UDPPacket(unsigned long ip, unsigned short port, char *data,unsigned int len) : Packet(data,len)
+UDPPacket::UDPPacket(uint32_t ip, uint16_t port, char *data,uint32_t len) : Packet(data,len)
 {
 	m_Host = ip;
 	m_Port = port;
@@ -80,12 +80,12 @@ UDPPacket::~UDPPacket()
 }
 
 
-unsigned long UDPPacket::getHost()
+uint32_t UDPPacket::getHost()
 {
 	return m_Host;
 }
 
-unsigned short UDPPacket::getPort()
+uint16_t UDPPacket::getPort()
 {
 	return m_Port;
 }

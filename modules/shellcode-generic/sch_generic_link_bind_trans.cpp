@@ -111,7 +111,7 @@ bool LinkBindTrans::Init()
 		"\\xff\\xd6\\xbf(....)\\xff\\xe5";
 
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(pcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("LinkTrans could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -134,14 +134,14 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int ovec[10 * 3];
-	int matchCount; 
+	int32_t ovec[10 * 3];
+	int32_t matchCount; 
 
-	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int))) > 0)
+	if ((matchCount = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
 	{
-		unsigned short int netPort, port;
+		uint16_t netPort, port;
 		const char *match;
 		unsigned char authKey[4];
 
@@ -161,7 +161,7 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 		char *url;
 		unsigned char *base64Key = g_Nepenthes->getUtilities()->b64encode_alloc(authKey,4);
 
-		uint remoteHost = (*msg)->getRemoteHost();
+		uint32_t remoteHost = (*msg)->getRemoteHost();
 		asprintf(&url,"blink://%s:%i/%s",inet_ntoa(*(in_addr *)&remoteHost),port,base64Key);
 		g_Nepenthes->getDownloadMgr()->downloadUrl(url,(*msg)->getRemoteHost(),url);
 		free(url);

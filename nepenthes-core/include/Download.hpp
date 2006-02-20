@@ -30,7 +30,9 @@
 #define HAVE_DOWNLOAD_HPP
 
 #include <string>
+#include <stdint.h>
 
+//#include "EvCID.hpp"
 using namespace std;
 
 namespace nepenthes
@@ -38,30 +40,40 @@ namespace nepenthes
 	class DownloadUrl;
 	class DownloadBuffer;
 
-	class Download
+	class Download //: public EvCID
 	{
 	public:
-		Download(char *pszUri, unsigned long ulAddress, char *triggerline);
+		Download(char *pszUri, uint32_t ulAddress, char *triggerline);
 		virtual ~Download();
 		virtual void setUrl(string *url);
 		virtual string getUrl();
 		virtual string getTriggerLine();
+
 		virtual void   setMD5Sum(string *s);
 		virtual string getMD5Sum();
-		virtual unsigned long getAddress();
+
+		virtual void setSHA512(unsigned char *hash);
+		virtual unsigned char *getSHA512();
+		virtual string getSHA512Sum();
+
+		virtual uint32_t getAddress();
 		virtual DownloadUrl *getDownloadUrl();
 		virtual DownloadBuffer *getDownloadBuffer();
 		virtual void setFileType(char *type);
 		virtual string getFileType();
+
 	protected:
 		string  m_Url;
 		string  m_TriggerLine;
 		string  m_MD5Sum;
+
+		unsigned char m_SHA512Sum[64];
 		string m_FileType;
 
-		unsigned long m_Address;
+		uint32_t m_Address;
 		DownloadUrl *m_DownloadUrl;
 		DownloadBuffer  *m_DownloadBuffer;
+
 	};
 }
 

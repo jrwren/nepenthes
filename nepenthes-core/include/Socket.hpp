@@ -31,8 +31,11 @@
 #define HAVE_SOCKET_HPP
 
 #ifdef WIN32
-#define socklen_t int
+#define socklen_t int32_t
 #endif
+
+#include <sys/socket.h>
+
 
 #include <list>
 #include <string>
@@ -93,10 +96,10 @@ namespace nepenthes
 
 		virtual bool wantSend()=0;
 
-        virtual int doSend()=0;
-        virtual int doRecv()=0;
+        virtual int32_t doSend()=0;
+        virtual int32_t doRecv()=0;
 
-        virtual int doWrite(char *msg,unsigned int len)=0;
+        virtual int32_t doWrite(char *msg,uint32_t len)=0;
 
         virtual bool checkTimeout()=0;
 		virtual bool handleTimeout()=0;
@@ -109,32 +112,32 @@ namespace nepenthes
 		 */
 		virtual string getDescription();
 
-        virtual int   getStatus();
+        virtual int32_t   getStatus();
         virtual void  setStatus(socket_state i);
         virtual void  setPolled();
         virtual void  unsetPolled();
         virtual bool  isPolled();
 
-        virtual int   getsockOpt(int level, int optname,void *optval,socklen_t *optlen);
+        virtual int32_t   getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen);
 
 
-        virtual int   getSocket();
-        virtual void  setSocket(int i);
+        virtual int32_t   getSocket();
+        virtual void  setSocket(int32_t i);
 
         
 
-        virtual int   getType();
+        virtual int32_t   getType();
 
-        virtual int   getLocalPort();
-        virtual int   getRemotePort();
-        virtual void  setLocalPort(int i);
-        virtual void  setRemotePort(int i);
+        virtual int32_t   getLocalPort();
+        virtual int32_t   getRemotePort();
+        virtual void  setLocalPort(int32_t i);
+        virtual void  setRemotePort(int32_t i);
 
 
-        virtual void          setRemoteHost(unsigned long i);
-        virtual void          setLocalHost(unsigned long i);
-        virtual unsigned long getLocalHost();
-        virtual unsigned long getRemoteHost();
+        virtual void          setRemoteHost(uint32_t i);
+        virtual void          setLocalHost(uint32_t i);
+        virtual uint32_t getLocalHost();
+        virtual uint32_t getRemoteHost();
         virtual list <DialogueFactory *>   * getFactories();
         virtual list <Dialogue *>          * getDialogst();
 
@@ -154,20 +157,20 @@ namespace nepenthes
         list <Dialogue *>           m_Dialogues;
 
 
-        int       		m_ReconnectMax;
-        int       		m_ReconnectTries;
+        int32_t       		m_ReconnectMax;
+        int32_t       		m_ReconnectTries;
 
-        unsigned int	m_Type;     // udp / tcp // bind / connect / accept
-        int       		m_Socket;
+        uint32_t	m_Type;     // udp / tcp // bind / connect / accept
+        int32_t       		m_Socket;
 
         socket_state 	m_Status;
 
-        unsigned int    m_RemoteHost;
-        unsigned int    m_RemotePort;
+        uint32_t    m_RemoteHost;
+        uint32_t    m_RemotePort;
         string          m_RemoteHostString;
 
-        unsigned int    m_LocalHost;
-        unsigned int    m_LocalPort;
+        uint32_t    m_LocalHost;
+        uint32_t    m_LocalPort;
         string          m_LocalHostString;
 
         time_t 		m_TimeoutIntervall;        // intervall between time(NULL) and m_tLastSocketAction

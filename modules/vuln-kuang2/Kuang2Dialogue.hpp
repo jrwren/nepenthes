@@ -62,13 +62,13 @@ namespace nepenthes
 {
 	typedef struct
 	{
-		unsigned int command;
+		uint32_t command;
 		union
 		{
 			char bdata[1024-4];
 			struct
 			{
-				unsigned int param;
+				uint32_t param;
 				char sdata[1024-8];
 			};
 		};
@@ -100,7 +100,7 @@ namespace nepenthes
 		Download *m_Download;
 
 		string m_FileName;
-		unsigned int m_FileSize;
+		uint32_t m_FileSize;
 	};
 }
 

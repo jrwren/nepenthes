@@ -15,8 +15,8 @@
 #include <errno.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
-#define uint unsigned int
 #define byte unsigned char
 
 #define max(a, b) ((a > b) ? (a) : (b))
@@ -29,13 +29,13 @@
 
 typedef struct _FileInfo
 {
-	uint		m_number;
+	uint32_t		m_number;
 	const char	*m_filename;
-	uint		m_size;
+	uint32_t		m_size;
 	void		*m_data;
 } FileInfo;
 
-void pcolor(uint c)
+void pcolor(uint32_t c)
 {
 	if( c == CL_RESET )
 		printf("\033[0m");
@@ -43,12 +43,12 @@ void pcolor(uint c)
 		printf("\033[%d;1m", c);
 }
 
-int percent(float p)
+int32_t percent(float p)
 {
-	return (int)(p * 100);
+	return (int32_t)(p * 100);
 }
 
-uint getRevision()
+uint32_t getRevision()
 {
 	char revision[] = "$Rev$";
 	char *p = revision;
@@ -64,7 +64,7 @@ uint getRevision()
 
 float getSimilarity(FileInfo *a, FileInfo *b)
 {
-	uint diffBytes, i;
+	uint32_t diffBytes, i;
 	
 	if( a->m_size > b->m_size )
 		diffBytes = a->m_size - b->m_size;
@@ -81,10 +81,10 @@ float getSimilarity(FileInfo *a, FileInfo *b)
 	return (1.0 - ((float)diffBytes / max(a->m_size, b->m_size)));
 }
 
-void displayMatrix(uint count, FileInfo *files)
+void displayMatrix(uint32_t count, FileInfo *files)
 {
 
-	uint i, j;
+	uint32_t i, j;
 	float similarity;
 	
 	printf("    |");
@@ -132,10 +132,10 @@ void displayMatrix(uint count, FileInfo *files)
 	printf("\n");
 }
 
-int main(int argc, char **argv)
+int32_t main(int32_t argc, char **argv)
 {
-	uint		fileCount = 0, i;
-	int		fd;
+	uint32_t		fileCount = 0, i;
+	int32_t		fd;
 	FileInfo	*files;
 	struct stat	statInfo;
 	const char	*currentFile;
@@ -166,16 +166,16 @@ int main(int argc, char **argv)
 
 		files[i].m_number = i + 1;
 		files[i].m_filename = currentFile;
-		files[i].m_size = (uint)statInfo.st_size;
+		files[i].m_size = (uint32_t)statInfo.st_size;
 		files[i].m_data = mmap(0, files[i].m_size, PROT_READ, MAP_PRIVATE, fd, 0);
 		
-		if( (int)files[i].m_data == -1 )
+		if( (int32_t)files[i].m_data == -1 )
 		{
 			printf("%s: Unable to mmap %s: %s\n", argv[0], currentFile, strerror(errno));
 			return -1;
 		}
 		
-		printf("%02d  %-50s  0x%08x  0x%08x\n", files[i].m_number, files[i].m_filename, files[i].m_size, (uint)files[i].m_data);
+		printf("%02d  %-50s  0x%08x  0x%08x\n", files[i].m_number, files[i].m_filename, files[i].m_size, (uint32_t)files[i].m_data);
 		
 		fileCount++;
 

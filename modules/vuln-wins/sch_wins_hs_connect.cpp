@@ -89,7 +89,7 @@ bool HATSQUADConnect::Init()
 
 	logInfo("pcre is %s \n",hatsquadbindpcre);
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("HATSQUADConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -111,26 +111,26 @@ sch_result HATSQUADConnect::handleShellcode(Message **msg)
 {
 	logPF();
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
 //	(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 		const char * match;
-		unsigned short port;
-		unsigned long host;
+		uint16_t port;
+		uint32_t host;
 
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
-		host = * ((unsigned long *) match);
+		host = * ((uint32_t *) match);
 		pcre_free_substring(match);
 
 
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 2, &match);
-		port = *(unsigned short *) match;
+		port = *(uint16_t *) match;
 		port = ntohs(port);
 		pcre_free_substring(match);
 

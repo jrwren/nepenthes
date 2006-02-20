@@ -31,10 +31,12 @@
 #define HAVE_EVENTMANAGER_HPP
 
 #include <list>
+#include <stdint.h>
 
 #include "Manager.hpp"
 
 #define REG_EVENT_HANDLER(handler) g_Nepenthes->getEventMgr()->registerEventHandler(handler)
+#define UNREG_EVENT_HANDLER(handler) g_Nepenthes->getEventMgr()->unregisterEventHandler(handler)
 
 using namespace std;
 
@@ -50,7 +52,7 @@ namespace nepenthes
     public:
         EventManager(Nepenthes *nepenthes);
         virtual ~EventManager();
-        unsigned int handleEvent(Event *event);
+        uint32_t handleEvent(Event *event);
         virtual void registerEventHandler(EventHandler *handler);
         virtual bool unregisterEventHandler(EventHandler *handler);
 

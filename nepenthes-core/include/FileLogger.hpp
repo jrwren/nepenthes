@@ -43,7 +43,7 @@ namespace nepenthes
 	public:
 						FileLogger(LogManager *lm);
 		virtual			~FileLogger();
-		virtual void	log(unsigned int mask, const char *message);
+		virtual void	log(uint32_t mask, const char *message);
 		virtual void	setLogFile(const char *filename);
 
 	private:

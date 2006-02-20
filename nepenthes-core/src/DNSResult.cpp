@@ -33,7 +33,7 @@
 
 using namespace nepenthes;
 
-DNSResult::DNSResult(unsigned long ip , char *dns, void *obj)
+DNSResult::DNSResult(uint32_t ip , char *dns, void *obj)
 {
 	m_ResolvedIPv4.push_back(ip);
 	m_DNS = dns;
@@ -46,13 +46,13 @@ DNSResult::DNSResult(unsigned long ip , char *dns, void *obj)
 #else
 DNSResult::DNSResult(adns_answer *answer, char *dns, void *obj)
 {
-	int i;
+	int32_t i;
 	struct in_addr *mysi_addr = answer->rrs.inaddr;
 	logSpam(" %i resolves \n", answer->nrrs);
 	for ( i=0;  answer->nrrs > i; i++ )
 	{
 		logSpam("result '%i %s \n",i, inet_ntoa((struct in_addr) mysi_addr[i]));
-		unsigned long ip;
+		uint32_t ip;
 		memcpy(&ip,mysi_addr+i,4);
 		m_ResolvedIPv4.push_back(ip);
 	}
@@ -67,7 +67,7 @@ DNSResult::~DNSResult()
 	m_ResolvedIPv4.clear();
 }
 
-list <unsigned int> DNSResult::getIP4List()
+list <uint32_t> DNSResult::getIP4List()
 {
 	return m_ResolvedIPv4;
 }

@@ -60,7 +60,7 @@ void FileLogger::setLogFile(const char *filename)
 }
 
 
-void FileLogger::log(unsigned int mask, const char *message)
+void FileLogger::log(uint32_t mask, const char *message)
 {
 	if( !m_Filename ) // remain silent until we get a log dest.
 		return;
@@ -83,11 +83,11 @@ void FileLogger::log(unsigned int mask, const char *message)
 
 
 	string tag = "";
-	for ( unsigned int i = 0; i < MAX_TAGS; i++ )
+	for ( uint32_t i = 0; i < MAX_TAGS; i++ )
 		if ( (1 << i) & mask  ) 
 		{
 			tag += " ";
-			tag += m_LogManager->getTag(i);
+			tag += m_LogManager->getTagName(i);
 		}
 
     fprintf(f, "[%02d%02d%04d %02d:%02d:%02d%s] %s", t.tm_mday, t.tm_mon + 1, t.tm_year + 1900,

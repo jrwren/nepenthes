@@ -30,33 +30,35 @@
 #ifndef HAVE_PACKET_HPP
 #define HAVE_PACKET_HPP
 
+#include <stdint.h>
+
 namespace nepenthes
 {
 
 	class Packet
 	{
 	public:
-		Packet(char *pszData,unsigned int iLen);
+		Packet(char *pszData,uint32_t iLen);
 		~Packet();
 		char *getData();
-		unsigned int getLength();
-		bool cut(unsigned int offset);
+		uint32_t getLength();
+		bool cut(uint32_t offset);
 
 	protected:
 		char    *m_Data;
-		unsigned int m_Length;
+		uint32_t m_Length;
 	};
 
 	class UDPPacket : public Packet
 	{
 	public:
-		UDPPacket(unsigned long ip, unsigned short port, char *pszData,unsigned int iLen);
+		UDPPacket(uint32_t ip, uint16_t port, char *pszData,uint32_t iLen);
 		~UDPPacket();
-		unsigned long getHost();
-		unsigned short getPort();
+		uint32_t getHost();
+		uint16_t getPort();
 	protected:
-		unsigned long m_Host;
-		unsigned short m_Port;
+		uint32_t m_Host;
+		uint16_t m_Port;
 	};
 
 

@@ -42,7 +42,7 @@ namespace nepenthes
 	class FILESocket : public Socket
 	{
 public:
-    FILESocket(Nepenthes *nepenthes, char *filepath, int flags);
+    FILESocket(Nepenthes *nepenthes, char *filepath, int32_t flags);
 	~FILESocket();
 		bool bindPort();
 		bool Init();
@@ -51,15 +51,15 @@ public:
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int doSend();
-		int doRecv();
-		int doWrite(char *msg, unsigned int len);
+		int32_t doSend();
+		int32_t doRecv();
+		int32_t doWrite(char *msg, uint32_t len);
 		bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 	private:
 		string m_FilePath;
-		int m_Flags;
+		int32_t m_Flags;
 	};
 }
 

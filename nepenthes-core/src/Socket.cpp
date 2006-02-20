@@ -87,7 +87,7 @@ bool Socket::addDialogue(Dialogue *dia)
  * 
  * @return returns the sockets status
  */
-int   Socket::getStatus()
+int32_t   Socket::getStatus()
 {
 	return m_Status;
 }
@@ -148,7 +148,7 @@ bool  Socket::isPolled()
  * 
  * @return the getsockopt returnvalue
  */
-int   Socket::getsockOpt(int level, int optname,void *optval,socklen_t *optlen)
+int32_t   Socket::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
 #ifdef WIN32
 	return getsockopt(m_Socket, level, optname, (char *)optval,optlen);
@@ -163,7 +163,7 @@ int   Socket::getsockOpt(int level, int optname,void *optval,socklen_t *optlen)
  * 
  * @return the socket
  */
-int   Socket::getSocket()
+int32_t   Socket::getSocket()
 {
 	return m_Socket;
 }
@@ -174,7 +174,7 @@ int   Socket::getSocket()
  * 
  * @param i      the new socket
  */
-void  Socket::setSocket(int i)
+void  Socket::setSocket(int32_t i)
 {
 	m_Socket = i;
 	return;
@@ -186,7 +186,7 @@ void  Socket::setSocket(int i)
  * 
  * @return returns the sockets type
  */
-int   Socket::getType()
+int32_t   Socket::getType()
 {
 	return m_Type;
 }
@@ -197,7 +197,7 @@ int   Socket::getType()
  * 
  * @return returns the sockets local port
  */
-int   Socket::getLocalPort()
+int32_t   Socket::getLocalPort()
 {
 	return m_LocalPort;
 }
@@ -208,7 +208,7 @@ int   Socket::getLocalPort()
  * 
  * @return returns the sockets remote port
  */
-int  Socket::getRemotePort()
+int32_t  Socket::getRemotePort()
 {
 
 	return m_RemotePort;
@@ -218,9 +218,9 @@ int  Socket::getRemotePort()
 /**
  * set the sockets localport
  * 
- * @param i      the new local port as int in host byte order
+ * @param i      the new local port as int32_t in host byte order
  */
-void  Socket::setLocalPort(int i)
+void  Socket::setLocalPort(int32_t i)
 {
 	m_LocalPort = i;
 	return;
@@ -230,9 +230,9 @@ void  Socket::setLocalPort(int i)
 /**
  * set the sockets remoteport
  * 
- * @param i      the new remote port as int in host byte order
+ * @param i      the new remote port as int32_t in host byte order
  */
-void  Socket::setRemotePort(int i)
+void  Socket::setRemotePort(int32_t i)
 {
 	m_RemotePort = i;
 	return;
@@ -242,9 +242,9 @@ void  Socket::setRemotePort(int i)
 /**
  * set the sockets remotehost
  * 
- * @param i      the new remote host as unsigned long in network byte order
+ * @param i      the new remote host as uint32_t in network byte order
  */
-void Socket::setRemoteHost(unsigned long i)
+void Socket::setRemoteHost(uint32_t i)
 {
 	m_RemoteHost = i;
 	return;
@@ -254,9 +254,9 @@ void Socket::setRemoteHost(unsigned long i)
 /**
  * set the sockets localhost
  * 
- * @param i      the new localhost as unsigned long in network byte order
+ * @param i      the new localhost as uint32_t in network byte order
  */
-void Socket::setLocalHost(unsigned long i)
+void Socket::setLocalHost(uint32_t i)
 {
 	m_LocalHost = i;
 	return;
@@ -266,9 +266,9 @@ void Socket::setLocalHost(unsigned long i)
 /**
  * get the sockets local host
  * 
- * @return returns the sockets localhost as unsigned long
+ * @return returns the sockets localhost as uint32_t
  */
-unsigned long Socket::getLocalHost()
+uint32_t Socket::getLocalHost()
 {
 	return m_LocalHost;
 }
@@ -277,9 +277,9 @@ unsigned long Socket::getLocalHost()
 /**
  * get the sockets remote host
  * 
- * @return the sockets remote host as unsigned long
+ * @return the sockets remote host as uint32_t
  */
-unsigned long Socket::getRemoteHost()
+uint32_t Socket::getRemoteHost()
 {
 	return m_RemoteHost;
 }

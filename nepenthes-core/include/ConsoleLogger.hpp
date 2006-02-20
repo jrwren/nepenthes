@@ -43,7 +43,7 @@ namespace nepenthes
 	public:
 						ConsoleLogger(LogManager *lm);
 		virtual			~ConsoleLogger();
-		virtual void	log(unsigned int mask, const char *message);
+		virtual void	log(uint32_t mask, const char *message);
 	};
 
 }

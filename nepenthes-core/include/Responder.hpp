@@ -30,6 +30,8 @@
 #ifndef HAVE_RESPONDER_H
 #define HAVE_RESPONDER_H
 
+#include <stdint.h>
+
 namespace nepenthes
 {
 
@@ -37,7 +39,7 @@ namespace nepenthes
     {
     public:
 		virtual ~Responder() {};
-        virtual bool doRespond(char *msg, unsigned int len)=0;
+        virtual bool doRespond(char *msg, uint32_t len)=0;
 
     };
 

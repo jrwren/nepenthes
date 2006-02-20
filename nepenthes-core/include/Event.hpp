@@ -45,6 +45,10 @@ namespace nepenthes
 		EV_SOCK_TCP_ACCEPT,
 		EV_SOCK_TCP_CONNECT,
 		EV_SOCK_TCP_CLOSE,
+
+		EV_SOCK_TCP_RX,
+		EV_SOCK_TCP_TX,
+
 //	udp	events
 		EV_SOCK_UDP_BIND,
 		EV_SOCK_UDP_ACCEPT,

@@ -76,7 +76,7 @@ using namespace nepenthes;
 
 /**
  */
-RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, char *nicinterface, unsigned long localhost, unsigned int protocoll)
+RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, char *nicinterface, uint32_t localhost, uint32_t protocoll)
 {
 	setLocalHost(localhost);
 	setLocalPort(0);
@@ -100,7 +100,7 @@ RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, char *nicinterface, u
 	m_Interface = nicinterface;
 }
 
-RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, unsigned long localhost)
+RAWSocketListener::RAWSocketListener(Nepenthes *nepenthes, uint32_t localhost)
 {
 	setLocalHost(localhost);
 	setLocalPort(10000);
@@ -173,8 +173,8 @@ bool RAWSocketListener::bindPort()
     {
         logInfo("Got RAWSocket for ip %s \n",inet_ntoa(*(struct in_addr *)&m_LocalHost));
     }
-    unsigned long crap=0;
-    int optval = 1;
+    uint32_t crap=0;
+    int32_t optval = 1;
     DWORD dwBytesRet;
     if ( WSAIoctl(
         m_Socket, 
@@ -216,7 +216,7 @@ bool RAWSocketListener::bindPort()
     return true;
 }
 
-int RAWSocketListener::getSocket()
+int32_t RAWSocketListener::getSocket()
 {
     return m_Socket;
 }
@@ -267,14 +267,14 @@ bool RAWSocketListener::wantSend()
 	return false;
 }
 
-int RAWSocketListener::doSend()
+int32_t RAWSocketListener::doSend()
 {
 	logPF();
     return 0;
 }
 
 
-int RAWSocketListener::doRecv()
+int32_t RAWSocketListener::doRecv()
 {
 //	logPF();
 //	logSpam("RAWSocketReader %s %i \n",m_Interface.c_str(),m_Protocoll);
@@ -283,11 +283,11 @@ int RAWSocketListener::doRecv()
     char buf[70000];
 	memset(buf,0,70000);
 #ifdef WIN32
-	int p=sizeof(servaddr);
-    int i=recvfrom(m_Socket,buf,70000,0,&servaddr,&p);
+	int32_t p=sizeof(servaddr);
+    int32_t i=recvfrom(m_Socket,buf,70000,0,&servaddr,&p);
 #else
 	socklen_t p =sizeof(servaddr);
-	int i=recvfrom(m_Socket,buf,70000,0,&servaddr,&p);
+	int32_t i=recvfrom(m_Socket,buf,70000,0,&servaddr,&p);
 #endif
     if (i <= 0 )
     {
@@ -314,13 +314,13 @@ int RAWSocketListener::doRecv()
 	struct tcphdr *tcp;
 	struct udphdr *udp;
 	char *payload;
-	unsigned int payloadsize;
+	uint32_t payloadsize;
 
 	if ( ip->ip_version == 4 )
 	{
 
-		unsigned int localhost = getLocalHost();
-		unsigned int remotehost;
+		uint32_t localhost = getLocalHost();
+		uint32_t remotehost;
 		if (ip->ip_source == localhost)
 		{
 			remotehost = ip->ip_dest;
@@ -362,8 +362,8 @@ int RAWSocketListener::doRecv()
                 payload = (char *)((char *)ip + ip->ip_length * 4 + tcp->tcp_hlen*4);
 
 
-                unsigned short localport = ntohs(tcp->tcp_dest_port);
-                unsigned short remoteport = ntohs(tcp->tcp_source_port);
+                uint16_t localport = ntohs(tcp->tcp_dest_port);
+                uint16_t remoteport = ntohs(tcp->tcp_source_port);
 
 
                 // drop packets to ports we dont need
@@ -456,11 +456,11 @@ int RAWSocketListener::doRecv()
 					return 0;
 				}
 				payload = (char *)((char *)ip + ip->ip_length * 4 + 8);
-				unsigned int localhost = ip->ip_dest;
-				unsigned int remotehost = ip->ip_source;
+				uint32_t localhost = ip->ip_dest;
+				uint32_t remotehost = ip->ip_source;
 
-				unsigned short localport = ntohs(udp->udp_dest_port);
-				unsigned short remoteport = ntohs(udp->udp_source_port);
+				uint16_t localport = ntohs(udp->udp_dest_port);
+				uint16_t remoteport = ntohs(udp->udp_source_port);
 
 
 				// drop packets to ports we dont need
@@ -559,7 +559,7 @@ int RAWSocketListener::doRecv()
 }
 
 
-int RAWSocketListener::doWrite(char *msg, unsigned int len)
+int32_t RAWSocketListener::doWrite(char *msg, uint32_t len)
 {
 	logPF();
 	return 0;
@@ -602,7 +602,7 @@ bool RAWSocketListener::handleTimeout()
 }
 
 
-bool RAWSocketListener::doRespond(char *msg, unsigned int len)
+bool RAWSocketListener::doRespond(char *msg, uint32_t len)
 {
 	return false;
 }
@@ -640,13 +640,13 @@ string RAWSocketListener::getDescription()
 
 
 
-bool RAWSocketListener::addListenPort(unsigned int port)
+bool RAWSocketListener::addListenPort(uint32_t port)
 {
 	m_ListenPorts.push_back(port);
 	return true;
 }
 
-bool RAWSocketListener::addListenFactory(unsigned int localport, unsigned int remoteport, unsigned short protocoll, DialogueFactory *diaf)
+bool RAWSocketListener::addListenFactory(uint32_t localport, uint32_t remoteport, uint16_t protocoll, DialogueFactory *diaf)
 {
 	logPF();
 	list<ListenDialogueFactoryMap *>::iterator it;
@@ -677,10 +677,10 @@ bool RAWSocketListener::addListenFactory(unsigned int localport, unsigned int re
 
 
 
-RAWSocketReader::RAWSocketReader(Nepenthes *nepenthes,unsigned long localhost,
-								 unsigned short localport,unsigned long remotehost,
-								 unsigned short remoteport, time_t connecttimeout, 
-								 unsigned int protocoll)
+RAWSocketReader::RAWSocketReader(Nepenthes *nepenthes,uint32_t localhost,
+								 uint16_t localport,uint32_t remotehost,
+								 uint16_t remoteport, time_t connecttimeout, 
+								 uint32_t protocoll)
 {
 	logPF();
 	
@@ -763,19 +763,19 @@ bool RAWSocketReader::wantSend()
 
 
 
-int RAWSocketReader::doSend()
+int32_t RAWSocketReader::doSend()
 {
     return 0;
 }
 
 
-int RAWSocketReader::doRecv()
+int32_t RAWSocketReader::doRecv()
 {
 	return 0;
 }
 
 
-socket_state RAWSocketReader::doRead(char *msg,unsigned int len)
+socket_state RAWSocketReader::doRead(char *msg,uint32_t len)
 {
 	logPF();
 //	g_Nepenthes->getUtilities()->hexdump((byte *)msg,len);
@@ -843,7 +843,7 @@ socket_state RAWSocketReader::doRead(char *msg,unsigned int len)
 }
 
 
-int RAWSocketReader::doWrite(char *msg, unsigned int len)
+int32_t RAWSocketReader::doWrite(char *msg, uint32_t len)
 {
 	return 0;
 }
@@ -868,7 +868,7 @@ bool RAWSocketReader::handleTimeout()
 }
 
 
-bool RAWSocketReader::doRespond(char *msg, unsigned int len)
+bool RAWSocketReader::doRespond(char *msg, uint32_t len)
 {
 	return false;
 }

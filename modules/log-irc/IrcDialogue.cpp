@@ -179,15 +179,15 @@ void IrcDialogue::processBuffer()
 	unsigned char *linestart = (unsigned char *)m_Buffer->getData();
 	unsigned char *linestopp = (unsigned char *)m_Buffer->getData();
 
-	unsigned int i=0;
+	uint32_t i=0;
 	while (i < m_Buffer->getSize())
 	{
 		
 		if ( linestopp[i] == '\n')
 		{
 			i++;
-//			printf("IRCLINE len %i \n'%.*s'\n",(int)(linestopp+i-linestart),(int)(linestopp+i-linestart),linestart);
-			string line((char *)m_Buffer->getData(),(int)(linestopp+i - linestart));	
+//			printf("IRCLINE len %i \n'%.*s'\n",(int32_t)(linestopp+i-linestart),(int32_t)(linestopp+i-linestart),linestart);
+			string line((char *)m_Buffer->getData(),(int32_t)(linestopp+i - linestart));	
 			if (line[line.size()-1] == '\n')
 			{
 				line[line.size()-1] = '\0';
@@ -212,10 +212,10 @@ void IrcDialogue::processLine(string *line)
 {
 	vector<string> words;
 
-	unsigned int i=0;      
+	uint32_t i=0;      
 	bool haschar = false;
-	unsigned int wordstart=0;
-	unsigned int wordstopp=0;
+	uint32_t wordstart=0;
+	uint32_t wordstopp=0;
 
 	while ( i<=line->size() )
 	{
@@ -266,7 +266,7 @@ void IrcDialogue::processLine(string *line)
 	{
 		string nick = "NICK ";
 		nick += m_LogIrc->getIrcNick();
-		nick += (char) ((int)rand()%20 + 97);
+		nick += (char) ((int32_t)rand()%20 + 97);
 		nick += "\r\n";
 
 		m_Socket->doRespond((char *)nick.c_str(),nick.size());
@@ -350,7 +350,7 @@ ConsumeLevel IrcDialogue::connectionShutdown(Message *msg)
 
 struct FlagMapping
 {
-	int 	m_LogFlag;
+	int32_t 	m_LogFlag;
 	char 	*m_ColorFlag;
 };
 
@@ -381,7 +381,7 @@ const struct FlagMapping colors[] =
 
 
 
-void 	IrcDialogue::logIrc(unsigned int mask, const char *message)
+void 	IrcDialogue::logIrc(uint32_t mask, const char *message)
 {
 	if (
 		((mask & l_dl || mask & l_sub) && mask & l_mgr && !(mask & l_spam)  ) ||
@@ -394,7 +394,7 @@ void 	IrcDialogue::logIrc(unsigned int mask, const char *message)
 		line += m_LogIrc->getIrcChannel();
 		line += " :";
 
-		unsigned int i=0;
+		uint32_t i=0;
 
 		for (i=0;i<sizeof(colors)/sizeof(struct FlagMapping);i++)
 		{

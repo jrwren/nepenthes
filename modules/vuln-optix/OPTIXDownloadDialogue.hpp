@@ -71,7 +71,7 @@ namespace nepenthes
 		Download 			*m_Download;
 		pcre 				*m_pcre;
 		Buffer 				*m_Buffer;
-		unsigned int		m_FileSize;
+		uint32_t		m_FileSize;
     };
 };
 

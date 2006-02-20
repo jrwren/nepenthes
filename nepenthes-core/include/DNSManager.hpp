@@ -49,14 +49,14 @@ namespace nepenthes
 		virtual bool addDNS(DNSHandler *callback,char *dns, void *obj);
 		void pollDNS();
 		void callBack();
-		unsigned int getSize();
+		uint32_t getSize();
 
 		void doList();
 		bool Init();
 		bool Exit();
 
 	protected:
-		unsigned int m_Queue;
+		uint32_t m_Queue;
 #ifdef WIN32
 
 #else

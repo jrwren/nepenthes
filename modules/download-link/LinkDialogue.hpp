@@ -54,7 +54,7 @@ namespace nepenthes
 	class LinkDialogue : public Dialogue
 	{
 	public:
-		LinkDialogue(Socket *socket, Download *down, unsigned long maxfilesize);
+		LinkDialogue(Socket *socket, Download *down, uint32_t maxfilesize);
 		~LinkDialogue();
 		ConsumeLevel incomingData(Message *msg);
 		ConsumeLevel outgoingData(Message *msg);
@@ -67,7 +67,7 @@ namespace nepenthes
 
 		unsigned char m_Challenge[4];
 		Download	*m_Download;
-		unsigned long m_MaxFileSize;
+		uint32_t m_MaxFileSize;
 	};
 
 }

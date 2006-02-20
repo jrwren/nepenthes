@@ -26,6 +26,9 @@
  *******************************************************************************/
 
 /* $Id$ */
+
+#include <stdlib.h>
+
 #include "Config.hpp"
 
 #include "Compatibility.hpp"
@@ -87,7 +90,7 @@ ConfigItem *Config::findKey(const char *key)
 	return item;
 }
 
-int Config::getValInt(ConfigItem *key)
+int32_t Config::getValInt(ConfigItem *key)
 {
 	if( !key )
 		throw InvalidKey();
@@ -158,7 +161,7 @@ void Config::load(const char *filename)
 	fclose(f);
 
 #else
-	int				fd;
+	int32_t				fd;
 	if( (fd = open(filename, O_RDONLY)) == -1 )
 		throw LoadError(strerror(errno));
 
@@ -184,7 +187,7 @@ void Config::load(const char *filename)
 /*
 skip whitespaces and comments, return a pointer to the first non-ws getChar()
 */
-void Config::skipWS(CharField *data, int *lineNum)
+void Config::skipWS(CharField *data, int32_t *lineNum)
 {
 	unsigned char c;
 
@@ -253,7 +256,7 @@ parse and malloc "word" containing [a-z][A-Z]-_
 */
 char *Config::parseKey(CharField *data)
 {
-	unsigned int		len = 0;
+	uint32_t		len = 0;
 	unsigned char		c;
 
 	while( !data->isEOF() )
@@ -273,7 +276,7 @@ char *Config::parseKey(CharField *data)
 
 	char *key = new char[len + 1];
 
-	for( unsigned int i = 0; i < len; i++ )
+	for( uint32_t i = 0; i < len; i++ )
 		key[i] = data->getChar();
 
 	key[len] = 0;
@@ -284,9 +287,9 @@ char *Config::parseKey(CharField *data)
 /*
 parse a string, \" \x4f \0 etc will be added later
 */
-char *Config::parseString(CharField *data, int lineNum)
+char *Config::parseString(CharField *data, int32_t lineNum)
 {
-	unsigned int len = 0, rawLen = 0;
+	uint32_t len = 0, rawLen = 0;
 	unsigned char c;
 	char *str;
 
@@ -302,16 +305,16 @@ char *Config::parseString(CharField *data, int lineNum)
 				c = data->getChar();
 				rawLen++;
 				
-				if( c != '0' && c != '"' && c != '\\' )//&& c != 'x' )//&& c != '{' )
+				if( c != '0' && c != '"' && c != '\\' && c != 'x' )//&& c != '{' )
 					throw ParseError("Invalid escape sequence in string", lineNum);
-/*				if (c == 'x')
+				if (c == 'x')
 				{
 					len++;
                     c = data->getChar();
 					c = data->getChar();
 					rawLen +=2;
 				}
-*/				
+				
 				else
 					len++;
 			}
@@ -330,9 +333,9 @@ char *Config::parseString(CharField *data, int lineNum)
 		str = new char[len + 1];
 
 //		printf("strlen is %i\n",len);
-		for( unsigned int i = 0; i < len; i++ )
+		for( uint32_t i = 0; i < len; i++ )
 		{
-//			printf("unsigned int i is %i\n",i);
+//			printf("uint32_t i is %i\n",i);
 			c = data->getChar();
 			if( c == '\\' )
 			{
@@ -340,22 +343,24 @@ char *Config::parseString(CharField *data, int lineNum)
 
 				if( c == '0' )
 					str[i] = 0;
-/*				else
+				else
 				if( c == 'x' )
 				{// escaped hex value
-					char szHexConv[2];
+					char szHexConv[3];
+
 					szHexConv[0] = data->getChar();
 					szHexConv[1] = data->getChar();
-//					printf("unsigned int i is here %i\n",i);
-//					printf("Converting %i %c%c -> %li\n",i, szHexConv[0],szHexConv[1], strtol(szHexConv,NULL,16) );
+					szHexConv[3] = 0;
+//					printf("uint32_t i is here %i\n",i);
+//					printf("Converting %i %c%c -> %i\n",i, szHexConv[0],szHexConv[1], (unsigned char)strtol(szHexConv,NULL,16) );
 //					strtol(szHexConv,NULL,16);
 //					str[i] = (char) strtol(szHexConv,(char **)&szHexConv+1,16);
 //					i+=2;
-					str[i] = strtol(szHexConv,NULL,16);
-//					printf("unsigned int i is later %i\n",i);
+					str[i] = (unsigned char)strtol(szHexConv,NULL,16);
+//					printf("uint32_t i is later %i\n",i);
 					
 				}
-*/				
+				
 				else
 					str[i] = c;
 			}
@@ -378,13 +383,13 @@ char *Config::parseString(CharField *data, int lineNum)
 /*
 debug helper to visualize a memory config tree (stdout)
 */
-void Config::dump(map< const char *, ConfigItem *, confltstr > *m, int level)
+void Config::dump(map< const char *, ConfigItem *, confltstr > *m, int32_t level)
 {
 	map< const char *, ConfigItem *, confltstr >::iterator it;
 
 	for( it = m->begin(); it != m->end(); it++ )
 	{
-		for( int k = 0; k < level; k++ )
+		for( int32_t k = 0; k < level; k++ )
 			printf("%s", "  ");
 
 		if( (*it).second->m_type == TYPE_STRING )
@@ -398,11 +403,11 @@ void Config::dump(map< const char *, ConfigItem *, confltstr > *m, int level)
 		{
 			printf("(stringlist) %s\n", (*it).first);
 
-			unsigned int i = 0;
+			uint32_t i = 0;
 
 			while( i < (*it).second->m_valStringList->size() )
 			{
-				for( int k = 0; k < (level + 1); k++ )
+				for( int32_t k = 0; k < (level + 1); k++ )
 					printf("%s", "  ");
 
 				printf("(str) \"%s\"\n", (*(*it).second->m_valStringList)[i]);
@@ -529,7 +534,7 @@ void Config::tokenize(CharField *data)
 {
 	vector< Token >	tokenList;
 	Token tok;
-	int lineNum = 1;
+	int32_t lineNum = 1;
 	unsigned char c;
 
 	for(;;)
@@ -606,7 +611,7 @@ void Config::tokenize(CharField *data)
 
 
 
-CharField::CharField(const unsigned char *ptr, unsigned int len)
+CharField::CharField(const unsigned char *ptr, uint32_t len)
 {
 	m_ptr = ptr;
 	m_len = len;
@@ -626,7 +631,7 @@ inline unsigned char CharField::getChar()
 		throw OutOfBounds();
 }
 
-inline void CharField::ungetChar(unsigned int amt)
+inline void CharField::ungetChar(uint32_t amt)
 {
 	if( amt > m_pos )
 		throw OutOfBounds();
@@ -646,8 +651,8 @@ char *Config::terminateString(char *str)
     }
 
     
-    int i=0;    // the \ counter
-    int j=0;    // the " counter
+    int32_t i=0;    // the \ counter
+    int32_t j=0;    // the " counter
 
     while (strstr(str+i,"\\") != NULL )
         i++;

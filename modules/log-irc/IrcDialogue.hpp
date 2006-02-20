@@ -43,8 +43,8 @@ namespace nepenthes
 	{
 		unsigned char ucVersion;
 		unsigned char ucCommand;
-		unsigned short usDestPort;
-		unsigned long ulDestAddr;
+		uint16_t usDestPort;
+		uint32_t ulDestAddr;
 		char szUser[1024];
 
 	} socks4_header_t;
@@ -70,7 +70,7 @@ namespace nepenthes
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
 
-		void 	logIrc(unsigned int mask, const char *message);
+		void 	logIrc(uint32_t mask, const char *message);
 
 	protected:
 

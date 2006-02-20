@@ -108,7 +108,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 	{
 	case BAGLE_AUTH:
 		m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
-		for (int i=0;i<=1;i++)
+		for (int32_t i=0;i<=1;i++)
 		{
 			if (m_Buffer->getSize() >= strlen(BagleAuths[i]))
 			{
@@ -139,7 +139,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 				memset(url,0,msg->getMsgLen()+1);
 				memcpy(url,msg->getMsg(),msg->getMsgLen());
 
-				for (unsigned int i=0;i<=strlen(url);i++)
+				for (uint32_t i=0;i<=strlen(url);i++)
 				{
 					if (isprint(url[i]) == 0)
 					{
@@ -154,7 +154,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 			}else
 			if ( msg->getMsgLen() >= 4 )
 			{
-				m_FileSize = ntohs (*(unsigned int *)msg->getMsg());
+				m_FileSize = ntohs (*(uint32_t *)msg->getMsg());
 				logInfo("Unexpected but detected: Bagle Binary Stream (%i bytes)\n",m_FileSize);
 				m_State = BAGLE_BINARY;
 				m_Download = new Download("bagle://",m_Socket->getRemoteHost(),"bagle://foo/bar");

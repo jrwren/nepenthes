@@ -68,7 +68,7 @@ bool DialogueFactoryManager::Exit()
 void DialogueFactoryManager::doList()
 {
 	list <DialogueFactory *>::iterator diaf;
-	int i =0;
+	int32_t i =0;
 	logInfo("%s","=--- DialogueFactoryManager --=\n");
 	for (diaf = m_Factories.begin();diaf != m_Factories.end();diaf++, i++)
 	{

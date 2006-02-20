@@ -163,9 +163,9 @@ bool FTPDownloadHandler::download(Download *down)
 {
 	logPF();
 
-	unsigned long host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	uint32_t host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
-	if ((int)host == -1)
+	if ((int32_t)host == -1)
 	{
 		logInfo("url %s has a dns as hostname, we have to resolve it \n", down->getUrl().c_str());
         g_Nepenthes->getDNSMgr()->addDNS(this,(char *)down->getDownloadUrl()->getHost().c_str(), down);
@@ -189,7 +189,7 @@ bool FTPDownloadHandler::download(Download *down)
 bool FTPDownloadHandler::dnsResolved(DNSResult *result)
 {
 	logInfo("url %s resolved \n",result->getDNS().c_str());
-	unsigned long host = result->getIP4List().front();
+	uint32_t host = result->getIP4List().front();
 	Download *down = (Download *) result->getObject();
 	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,down->getDownloadUrl()->getPort(),30);
 	CTRLDialogue *dia = new CTRLDialogue(socket,down);
@@ -225,7 +225,7 @@ bool FTPDownloadHandler::removeContext(FTPContext *context)
 	return false;
 }
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new FTPDownloadHandler(nepenthes);

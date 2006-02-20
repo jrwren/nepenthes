@@ -137,7 +137,7 @@ char shellcode[] =
 	logInfo("pcre is %s \n",thcconnectpcre);
     
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(thcconnectpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("THCConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -160,27 +160,27 @@ sch_result THCConnect::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 
 		const char * match;
-		unsigned short port;
-		unsigned long host;
+		uint16_t port;
+		uint32_t host;
 
 
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
-		port = *(unsigned short *) match;
+		port = *(uint16_t *) match;
 		port = ntohs(port);
 		port = port^0x9393;
 		pcre_free_substring(match);
 
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 2, &match);
-		host = * ((unsigned long *) match) ^ 0x93939393;
+		host = * ((uint32_t *) match) ^ 0x93939393;
 		pcre_free_substring(match);
 
 

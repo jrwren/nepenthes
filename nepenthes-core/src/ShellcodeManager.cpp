@@ -65,7 +65,7 @@ void ShellcodeManager::doList()
 {
 	list <ShellcodeHandler *>::iterator shandler;
 	logInfo("=--- %-69s ---=\n","ShellcodeManager");
-	int i=0;
+	int32_t i=0;
 	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++,i++)
 	{
 		logInfo("  %i) %-8s %s\n",i,(*shandler)->getShellcodeHandlerName().c_str(), (*shandler)->getShellcodeHandlerDescription().c_str());
@@ -147,7 +147,7 @@ sch_result ShellcodeManager::fileCheck(Message **nmsg)
  */
 sch_result ShellcodeManager::handleShellcode(Message **msg)
 {
-	logDebug("SCHMGR Msg ptr is %x \n",(unsigned int )*msg);
+	logDebug("SCHMGR Msg ptr is %x \n",(uint32_t )*msg);
 	list <ShellcodeHandler *>::iterator shandler;
 
 	
@@ -161,9 +161,9 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 
 	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++)
 	{
-		if ((unsigned int )*nmsg == 0xffffffff )
+		if ((uint32_t )*nmsg == 0xffffffff )
 		{
-			logCrit("ERROR SCHMGR Msg ptr is %x %s ( pre  sch %x)\n",(unsigned int )*nmsg,(unsigned int )nnmsg, (unsigned int )*shandler);
+			logCrit("ERROR SCHMGR Msg ptr is %x %s ( pre  sch %x)\n",(uint32_t )*nmsg,(uint32_t )nnmsg, (uint32_t )*shandler);
 			return SCH_NOTHING;
 		}
 /*		if (notme.size() > 0)
@@ -197,23 +197,23 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 		case SCH_REPROCESS:
             shandler = m_ShellcodeHandlers.begin();
 			nnmsg = *nmsg;
-			logDebug("SCHMGR REPROCESS Msg ptr is %x \n",(unsigned int )*msg);
+			logDebug("SCHMGR REPROCESS Msg ptr is %x \n",(uint32_t )*msg);
 			break;
 
 		case SCH_REPROCESS_BUT_NOT_ME:
 /*			notme.push_back(*shandler);
 			shandler = m_ShellcodeHandlers.begin();
 			nnmsg = *nmsg;
-			logDebug("SCHMGR REPROCESS_BUT_NOT_ME Msg ptr is %x \n",(unsigned int )*msg);
+			logDebug("SCHMGR REPROCESS_BUT_NOT_ME Msg ptr is %x \n",(uint32_t )*msg);
 */			
             break;
 			
 
 		}
-		if ((unsigned int )*nmsg == 0xffffffff )
+		if ((uint32_t )*nmsg == 0xffffffff )
 		{
-        	logCrit("ERROR SCHMGR Msg ptr is %x should be %x ( post sch %x)\n",(unsigned int )*nmsg,(unsigned int )nnmsg, (unsigned int )*shandler);
-//			logCrit("FIXING THIS BULLSHIT %x -> %x\n",(unsigned int )*nmsg,(unsigned int )nnmsg);
+        	logCrit("ERROR SCHMGR Msg ptr is %x should be %x ( post sch %x)\n",(uint32_t )*nmsg,(uint32_t )nnmsg, (uint32_t )*shandler);
+//			logCrit("FIXING THIS BULLSHIT %x -> %x\n",(uint32_t )*nmsg,(uint32_t )nnmsg);
 //			nmsg = &nnmsg;
 			return SCH_NOTHING;
 		}

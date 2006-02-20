@@ -40,7 +40,7 @@ namespace nepenthes
 	struct LogHandlerEntry
 	{
 		LogHandler		*m_Lh;
-		int				m_FilterMask;
+		int32_t				m_FilterMask;
 	};
 }
 

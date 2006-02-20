@@ -36,6 +36,6 @@ namespace nepenthes
 		bagle_state m_State;
 		Buffer 		*m_Buffer;
 		Download 	*m_Download;
-		unsigned long 	m_FileSize;
+		uint32_t 	m_FileSize;
 	};
 }

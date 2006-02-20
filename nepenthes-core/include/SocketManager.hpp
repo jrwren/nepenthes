@@ -31,6 +31,7 @@
 #define HAVE_SOCKETMANAGER_HPP
 
 #include <list>
+#include <stdint.h>
 
 #include "Manager.hpp"
 
@@ -49,22 +50,22 @@ namespace nepenthes
 	public:
 		SocketManager(Nepenthes *pNepethes);
 		virtual ~SocketManager();
-		virtual Socket *bindTCPSocket(unsigned long localHost, unsigned int Port,time_t bindtimeout,time_t accepttimeout);
-		virtual Socket *bindTCPSocket(unsigned long localHost, unsigned int Port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
-		virtual Socket *bindTCPSocket(unsigned long localHost, unsigned int Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
+		virtual Socket *bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname);
 
-		virtual Socket *bindUDPSocket(unsigned long localhost, unsigned int port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
+		virtual Socket *bindUDPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory);
 
-		virtual Socket *openFILESocket(char *filepath, int flags);
-		virtual Socket *connectUDPHost(unsigned long localHost, unsigned long remotehost, unsigned int Port,time_t connecttimeout);
-		virtual Socket *connectTCPHost(unsigned long localHost, unsigned long remotehost, unsigned int Port,time_t connecttimeout);
+		virtual Socket *openFILESocket(char *filepath, int32_t flags);
+		virtual Socket *connectUDPHost(uint32_t localHost, uint32_t remotehost, uint32_t Port,time_t connecttimeout);
+		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint32_t Port,time_t connecttimeout);
 
-		virtual Socket *createRAWSocketUDP(unsigned int localport, unsigned int remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
-		virtual Socket *createRAWSocketTCP(unsigned int localport, unsigned int remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
+		virtual Socket *createRAWSocketUDP(uint32_t localport, uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
+		virtual Socket *createRAWSocketTCP(uint32_t localport, uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
 
 		virtual Socket *addPOLLSocket(POLLSocket *sock);
 
-		bool doLoop(unsigned int polltimeout);
+		bool doLoop(uint32_t polltimeout);
 
 		bool Init();
 		bool Exit();

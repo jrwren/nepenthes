@@ -53,7 +53,7 @@
 
 using namespace nepenthes;
 
-FILESocket::FILESocket(Nepenthes *nepenthes, char *filepath, int flags)
+FILESocket::FILESocket(Nepenthes *nepenthes, char *filepath, int32_t flags)
 {
 	logPF();
 	m_Nepenthes = nepenthes;
@@ -108,17 +108,17 @@ bool FILESocket::wantSend()
 	return false;
 }
 
-int FILESocket::doSend()
+int32_t FILESocket::doSend()
 {
 	return 0;
 }
-int FILESocket::doRecv()
+int32_t FILESocket::doRecv()
 {
 	logPF();
-//	ssize_t read(int fd, void *buf, size_t count);
+//	ssize_t read(int32_t fd, void *buf, size_t count);
 
 	char szBuffer[2048];
-	int readbytes=0;
+	int32_t readbytes=0;
 	if((readbytes = read(m_Socket,szBuffer,2048)) > 0)
 	{
 		Message Msg(szBuffer,readbytes,0,0,0,0,this,this);
@@ -127,7 +127,7 @@ int FILESocket::doRecv()
 	}
     return readbytes;
 }
-int FILESocket::doWrite(char *msg, unsigned int len)
+int32_t FILESocket::doWrite(char *msg, uint32_t len)
 {
 	return 0;
 }
@@ -142,7 +142,7 @@ bool FILESocket::handleTimeout()
 	return false;
 }
 
-bool FILESocket::doRespond(char *msg, unsigned int len)
+bool FILESocket::doRespond(char *msg, uint32_t len)
 {
 	return false;
 }

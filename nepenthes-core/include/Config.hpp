@@ -48,6 +48,8 @@
 // open()
 #include <fcntl.h>
 
+#include <stdint.h>
+
 #endif
 
 using namespace std;
@@ -108,15 +110,15 @@ namespace nepenthes
 
 	class ParseError
 	{
-		int         m_line;
+		int32_t         m_line;
 		const char  *m_msg;
 
 	public:
-		ParseError(const char *msg, int line)
+		ParseError(const char *msg, int32_t line)
 		{
 			m_line = line; m_msg = msg;
 		};
-		int         getLine()
+		int32_t         getLine()
 		{
 			return m_line;
 		};
@@ -179,7 +181,7 @@ namespace nepenthes
 	struct Token
 	{
 		TokenType       t;
-		int             lineNum;
+		int32_t             lineNum;
 
 		union
 		{
@@ -191,13 +193,13 @@ namespace nepenthes
 	class CharField
 	{
 		const unsigned char     *m_ptr;
-		unsigned int    m_len;
-		unsigned int    m_pos;
+		uint32_t    m_len;
+		uint32_t    m_pos;
 
 	public:
-		CharField(const unsigned char *ptr, unsigned int len);
+		CharField(const unsigned char *ptr, uint32_t len);
 		inline unsigned char    getChar();
-		inline void         ungetChar(unsigned int amt = 1);
+		inline void         ungetChar(uint32_t amt = 1);
 		inline bool     isEOF();
 	};
 
@@ -209,13 +211,13 @@ namespace nepenthes
 	{
 		ConfigItem      *m_root;
 
-		virtual void            skipWS(CharField *data, int *lineNum);
-		virtual char            *parseString(CharField *data, int lineNum);
+		virtual void            skipWS(CharField *data, int32_t *lineNum);
+		virtual char            *parseString(CharField *data, int32_t lineNum);
 		virtual char            *parseKey(CharField *data);
 
 		virtual void            tokenize(CharField *data);
 		virtual void            readObject(vector< Token > *tokenList, vector< Token >::iterator *pos, ConfigItem *item);
-		virtual void            dump(map< const char *, ConfigItem *, confltstr > *m, int level = 0);
+		virtual void            dump(map< const char *, ConfigItem *, confltstr > *m, int32_t level = 0);
 
 		virtual ConfigItem      *findKey(const char *);
 	public:
@@ -231,12 +233,12 @@ namespace nepenthes
 		char            *m_terminatedstring;
 		virtual char            *terminateString(char *str);
 
-		// return the int value of key
-		virtual int             getValInt(const char *key)
+		// return the int32_t value of key
+		virtual int32_t             getValInt(const char *key)
 		{
 			return getValInt(findKey(key));
 		};
-		virtual int             getValInt(ConfigItem *key);
+		virtual int32_t             getValInt(ConfigItem *key);
 
 		// return a char * of the key
 		virtual const char      *getValString(const char *key)

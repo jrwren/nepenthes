@@ -52,8 +52,8 @@ namespace nepenthes
 		bool Exit();
 
 	protected:
-		unsigned short m_SMBPort;
-		unsigned short m_IISPort;
+		uint16_t m_SMBPort;
+		uint16_t m_IISPort;
 		list <ShellcodeHandler *> m_ShellcodeHandlers;
 	};		
 

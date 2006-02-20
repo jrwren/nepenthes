@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include "config.h"
+
 #include <sys/types.h>
 
 #ifdef WIN32
@@ -75,7 +77,7 @@ using namespace nepenthes;
  * @param accepttimeout
  *                  the timeout intervall for all sockets getting acepted by this bind socket
  */
-TCPSocket::TCPSocket(Nepenthes *nepenthes, unsigned long localhost, int port, time_t bindtimeout, time_t accepttimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout)
 {
 	setLocalHost(localhost);
 	setLocalPort(port);
@@ -107,7 +109,7 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, unsigned long localhost, int port, ti
  * @param accepttimeout
  *                   the accept timeout fromt he bind socket who accepted this connection
  */
-TCPSocket::TCPSocket(Nepenthes *nepenthes, int socket, unsigned long localhost, int localport, unsigned long  remotehost,int remoteport, time_t accepttimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, int32_t localport, uint32_t  remotehost,int32_t remoteport, time_t accepttimeout)
 {
 	m_Nepenthes = nepenthes;
 	setSocket(socket);
@@ -130,7 +132,7 @@ TCPSocket::TCPSocket(Nepenthes *nepenthes, int socket, unsigned long localhost, 
 	
 }
 
-TCPSocket::TCPSocket(Nepenthes *nepenthes,unsigned long localhost, unsigned long remotehost, int remoteport, time_t connectiontimeout)
+TCPSocket::TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout)
 {
 	m_Nepenthes = nepenthes;
 	setLocalPort(0);
@@ -175,10 +177,16 @@ TCPSocket::~TCPSocket()
 		}
 	}
 	Exit();
+
+	SocketEvent sEvent(this,EV_SOCK_TCP_CLOSE);
+	g_Nepenthes->getEventMgr()->handleEvent(&sEvent);
+	
+	
 }
 
 bool TCPSocket::bindPort()
 {
+	logPF();
 	struct sockaddr_in addrBind;
 	addrBind.sin_family = AF_INET;
 
@@ -193,24 +201,31 @@ bool TCPSocket::bindPort()
 	}
 
 #ifdef WIN32
-	int iMode = 0;
+	int32_t iMode = 0;
 	ioctlsocket(m_Socket, FIONBIO, (u_long FAR*) &iMode);
 #else
 	fcntl(m_Socket, F_SETFL, O_NONBLOCK);
 #endif
 
-	int x=1;
+	int32_t x=1;
 
 #ifdef WIN32
 	if ( setsockopt(m_Socket,SOL_SOCKET,SO_REUSEADDR,(char *)&x,sizeof(x)) == -1 )
 #else
-	if ( setsockopt(m_Socket,SOL_SOCKET,SO_REUSEADDR,&x,sizeof(x)) == -1 )
+	if ( setsockopt(m_Socket,SOL_SOCKET,SO_REUSEADDR, (void *)&x,sizeof(x)) == -1 )
 #endif
 	{
 		logCrit("setsockopt() to SO_REUSEADDR failed\n%s\n",strerror(errno));
 		return false;
 	}
 
+#ifdef HAVE_SO_NOSIGPIPE
+	if(setsockopt(m_Socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&x, sizeof(x)) < 0)
+	{
+		logCrit("setsockopt() to SO_NOSIGPIPE failed - everything will screw up on the long run!\n%s\n",strerror(errno));
+		return false;
+	}
+#endif
 
 	if ( bind(m_Socket, (struct sockaddr *) &addrBind, sizeof(addrBind)) < 0 )
 	{
@@ -224,6 +239,9 @@ bool TCPSocket::bindPort()
 		return false;
 	}
 
+	int32_t iSize = sizeof(addrBind);
+	getsockname(m_Socket, (struct sockaddr *) &addrBind, (socklen_t *) &iSize);
+	m_LocalPort = ntohs( ( (sockaddr_in *)&addrBind)->sin_port ) ;
 	logInfo("Success binding Port %i\n", m_LocalPort);
 
     return true;
@@ -273,14 +291,39 @@ bool TCPSocket::connectHost()
 	logInfo("Connecting %s:%i \n",inet_ntoa(* (in_addr *)&m_RemoteHost), m_RemotePort);
 	
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
+
+	struct sockaddr_in addrBind;
+	addrBind.sin_family = AF_INET;
+
+	addrBind.sin_addr.s_addr = getLocalHost();
+	addrBind.sin_port = 0;
+
+	if ( bind(m_Socket, (struct sockaddr *) &addrBind, sizeof(addrBind)) < 0 )
+	{
+		logCrit("Could not Bind Socket for connectHost %i\n%s\n", m_LocalPort,strerror(errno));
+		return false;
+	}
+
+	int32_t iSize = sizeof(addrBind);
+	getsockname(m_Socket, (struct sockaddr *) &addrBind, (socklen_t *) &iSize);
+	m_LocalPort = ntohs( ( (sockaddr_in *)&addrBind)->sin_port ) ;
+    
+
 	
+
 #ifdef WIN32
-	int iMode = 0;
+	int32_t iMode = 0;
 	ioctlsocket(m_Socket, FIONBIO, (u_long FAR*) &iMode);
 #else
 	fcntl(m_Socket, F_SETFL, O_NONBLOCK);
 #endif
 
+	int32_t x=1;
+
+#ifdef HAVE_SO_NOSIGPIPE
+	if(setsockopt(m_Socket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&x, sizeof(x)) < 0)
+		logCrit("setsockopt() to SO_NOSIGPIPE failed - everything will screw up on the long run!\n%s\n",strerror(errno));
+#endif
 
 	sockaddr_in ssin; 
 
@@ -289,7 +332,7 @@ bool TCPSocket::connectHost()
 	ssin.sin_addr.s_addr=m_RemoteHost;
 	
 	m_LastAction = time(NULL);
-	int iRes=-1;
+	int32_t iRes=-1;
 
 	iRes=connect(m_Socket, (sockaddr*)&ssin, sizeof(sockaddr_in));
 
@@ -316,9 +359,9 @@ Socket * TCPSocket::acceptConnection()
 {
 	logInfo("%s","acceptConnection() \n");
 	struct sockaddr_in addrNew;
-	int iSize = sizeof(addrNew);
+	int32_t iSize = sizeof(addrNew);
 
-	int sock = accept(m_Socket, (struct sockaddr *) &addrNew, (socklen_t *) &iSize);
+	int32_t sock = accept(m_Socket, (struct sockaddr *) &addrNew, (socklen_t *) &iSize);
 
 	if(sock < 0)
 	{
@@ -326,10 +369,13 @@ Socket * TCPSocket::acceptConnection()
 		return NULL;
 	}
 
-	int RemotePort = ntohs( ( (sockaddr_in *)&addrNew)->sin_port ) ;
-	unsigned long RemoteHost =  addrNew.sin_addr.s_addr;
+	int32_t RemotePort = ntohs( ( (sockaddr_in *)&addrNew)->sin_port ) ;
+	uint32_t RemoteHost =  addrNew.sin_addr.s_addr;
 
-	Socket *socket = new TCPSocket(m_Nepenthes, sock ,m_LocalHost, m_LocalPort, RemoteHost, RemotePort, m_TimeoutIntervall);
+	getsockname(sock, (struct sockaddr *) &addrNew, (socklen_t *) &iSize);
+	uint32_t LocalHost =   addrNew.sin_addr.s_addr;
+
+	Socket *socket = new TCPSocket(m_Nepenthes, sock ,LocalHost, m_LocalPort, RemoteHost, RemotePort, m_TimeoutIntervall);
 	logSpam("%s \n",socket->getDescription().c_str());
 
 	list <DialogueFactory *>::iterator diaf;
@@ -362,7 +408,6 @@ bool TCPSocket::wantSend()
 }
 
 
-
 /**
  * this tries to send as much 'Packets' as possible from our private queue
  * if a packets is sended complete, it gets removed from the queue, 
@@ -374,24 +419,24 @@ bool TCPSocket::wantSend()
  * 
  * @return returns the number of successfully sended bytes
  */
-int TCPSocket::doSend()
+int32_t TCPSocket::doSend()
 {
 	if(m_TxPackets.size() == 0)
 		return -1;
 
 	Packet *packet;
 	bool sendon = true;
-	unsigned int sumsended = 0;
+	uint32_t sumsended = 0;
 	while(m_TxPackets.size() > 0 && sendon == true )
 	{
 		packet = m_TxPackets.front();
+		int32_t onoff = 1;
 
-#ifdef WIN32
-	int sended = send(m_Socket,packet->getData(), packet->getLength(), 0);
+#ifdef HAVE_MSG_NOSIGNAL
+		int32_t sended = send(m_Socket,packet->getData(), packet->getLength(), MSG_NOSIGNAL);
 #else
-		int sended = send(m_Socket,packet->getData(), packet->getLength(), MSG_NOSIGNAL);
+		int32_t sended = send(m_Socket,packet->getData(), packet->getLength(), 0);
 #endif
-
 		if(sended > 0)
 		{
 			sumsended += sended;
@@ -411,11 +456,11 @@ int TCPSocket::doSend()
 			m_CanSend = true;
 
 // check if we sended the full packet, cut the packet if we did not, else remove the packet from queue
-			logInfo("sended %i from %i bytes \n",sended,(int)packet->getLength());
-			if(sended < (int)packet->getLength())
+			logInfo("sended %i from %i bytes \n",sended,(int32_t)packet->getLength());
+			if(sended < (int32_t)packet->getLength())
 			{
                 packet->cut(sended);
-				logInfo("cutted packet has size %i\n",(int)packet->getLength());
+				logInfo("cutted packet has size %i\n",(int32_t)packet->getLength());
 				sendon = false;
 			}else
 			{
@@ -489,14 +534,17 @@ int TCPSocket::doSend()
  * 
  * @return returns the length we could read from a socket
  */
-int TCPSocket::doRecv()
+int32_t TCPSocket::doRecv()
 {
 	logPF();
 	char szBuffer[2048];
 	memset(szBuffer,0,sizeof(char)*2048);
-	int iLength = recv(m_Socket, (char *) szBuffer, sizeof(szBuffer), 0);
+	int32_t iLength = recv(m_Socket, (char *) szBuffer, sizeof(szBuffer), 0);
 
 	Message *Msg = new Message (szBuffer,iLength,m_LocalPort,m_RemotePort,m_LocalHost, m_RemoteHost,this,this);
+
+	MessageEvent mEvent(Msg,EV_SOCK_TCP_RX);
+    g_Nepenthes->getEventMgr()->handleEvent(&mEvent);
 
 	logSpam("doRecv() %i\n",iLength);
 	list <Dialogue *>::iterator dia, dib;
@@ -612,7 +660,7 @@ int TCPSocket::doRecv()
  * 
  * @return returns the queues size if the socket is allowed to send at this point of time, else -1
  */
-int TCPSocket::doWrite(char *msg, unsigned int len)
+int32_t TCPSocket::doWrite(char *msg, uint32_t len)
 {
 	logPF();
 	if (m_CanSend == false)
@@ -691,7 +739,7 @@ bool TCPSocket::handleTimeout()
 }
 
 
-bool TCPSocket::doRespond(char *msg, unsigned int len)
+bool TCPSocket::doRespond(char *msg, uint32_t len)
 {
 	logPF();
 	if (doWrite(msg, len) > 0)

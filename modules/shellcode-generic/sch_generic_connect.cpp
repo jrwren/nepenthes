@@ -78,7 +78,7 @@ bool GenericConnect::Init()
 		return false;
 	}
 
-	unsigned int i = 0;
+	uint32_t i = 0;
 	while (i < sList.size())
 	{
 		const char *name = sList[i];
@@ -87,7 +87,7 @@ bool GenericConnect::Init()
 		const char *pattern = sList[i];
 		logInfo("pcre is %s \n",pattern);
 		const char * pcreEerror;
-		int pcreErrorPos;
+		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
 		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 		{
@@ -121,31 +121,31 @@ sch_result GenericConnect::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int output[10 * 3];
+	int32_t output[10 * 3];
 
 
 	list <PcreContext *>::iterator it;
-	unsigned int i;
+	uint32_t i;
 	for ( it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++ )
 	{
-		int result=0;
+		int32_t result=0;
 		const char *match;
-		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int))) > 0 )
+		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0 )
 		{
-			uint host = 0, codesizeLen;
-			unsigned short port=0;
+			uint32_t host = 0, codesizeLen;
+			uint16_t port=0;
 
 			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 1, &match);
 			if( codesizeLen == 2 )
 			{
-            	port = (uint)*((unsigned short *)match);
+            	port = (uint32_t)*((uint16_t *)match);
 				port = ntohs(port);
 			}else
 			if( codesizeLen == 4 )
 			{
-				host = (uint)*((byte *)match);
+				host = (uint32_t)*((uint32_t *)match);
 			}
 
 			pcre_free_substring(match);
@@ -153,12 +153,12 @@ sch_result GenericConnect::handleShellcode(Message **msg)
 			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 2, &match);
 			if( codesizeLen == 2 )
 			{
-				port = (uint)*((unsigned short *)match);
+				port = (uint32_t)*((uint16_t *)match);
 				port = ntohs(port);
 			}else
 			if( codesizeLen == 4 )
 			{
-				host = (uint)*((byte *)match);
+				host = (uint32_t)*((uint32_t *)match);
 			}
 			pcre_free_substring(match);
 

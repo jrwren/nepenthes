@@ -110,8 +110,8 @@ bool CSendDownloadHandler::download(Download *down)
 {
 	logPF();
  
-	int Port = down->getDownloadUrl()->getPort();
-	unsigned long Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	int32_t Port = down->getDownloadUrl()->getPort();
+	uint32_t Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
 	Socket *socket = m_Nepenthes->getSocketMgr()->connectTCPHost(INADDR_ANY,Host,Port,m_ConnectTimeout);
 
@@ -132,7 +132,7 @@ Dialogue *CSendDownloadHandler::createDialogue(Socket *socket)
 
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new CSendDownloadHandler(nepenthes);

@@ -79,7 +79,7 @@ OPTIXDownloadDialogue::OPTIXDownloadDialogue(Socket *socket)
 	logInfo("pcre is %s \n",oc192bindpcre);
 
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if ((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("OPTIXDownloadDialoguePCRE could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -116,9 +116,9 @@ ConsumeLevel OPTIXDownloadDialogue::incomingData(Message *msg)
 	case OPTIX_DL_FILEINFO:
 		{
 			m_Buffer->add((char *)msg->getMsg(),msg->getMsgLen());
-			int piOutput[10 * 3];
-			int iResult; 
-			if ((iResult = pcre_exec(m_pcre, 0, (char *) m_Buffer->getData(), m_Buffer->getSize(), 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+			int32_t piOutput[10 * 3];
+			int32_t iResult; 
+			if ((iResult = pcre_exec(m_pcre, 0, (char *) m_Buffer->getData(), m_Buffer->getSize(), 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 			{
 				const char *filepath;
 				pcre_get_substring((char *) m_Buffer->getData(), piOutput, iResult, 2, &filepath);

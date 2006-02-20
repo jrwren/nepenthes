@@ -51,9 +51,9 @@ namespace nepenthes
 		void Submit(Download *down);
 		void Hit(Download *down);
 	protected:
-		unsigned int	m_Host;
-		unsigned int 	m_Port;
-		unsigned int 	m_ConnectTimeout;
+		uint32_t	m_Host;
+		uint32_t 	m_Port;
+		uint32_t 	m_ConnectTimeout;
 
 
 	};

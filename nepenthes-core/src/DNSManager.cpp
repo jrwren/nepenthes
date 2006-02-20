@@ -44,7 +44,7 @@
 
 using namespace nepenthes;
 
-extern int errno;
+extern int32_t errno;
 
 DNSManager::DNSManager(Nepenthes *nepenthes)
 {
@@ -62,7 +62,7 @@ bool DNSManager::Init()
 #ifdef WIN32
 	return true;
 #else
-	int r;
+	int32_t r;
 	r =adns_init(&m_aDNSState, adns_if_noautosys, 0);
 	if ( m_aDNSState == NULL )
 	{
@@ -98,14 +98,14 @@ bool DNSManager::addDNS(DNSHandler *callback,char *dns, void *obj)
 	if (strncasecmp(dns,"localhost",strlen("localhost")) == 0)
 	{
 		logSpam("DNS is %s resolving to 127.0.0.1\n",dns);
-		unsigned long ip = inet_addr("127.0.0.1");
+		uint32_t ip = inet_addr("127.0.0.1");
 		DNSResult result(ip,dns, obj);
 		callback->dnsResolved(&result);
 		return true;
 	}else
 	if (  inet_addr(dns) != INADDR_NONE )
 	{
-		unsigned long ip = inet_addr(dns);
+		uint32_t ip = inet_addr(dns);
 		logSpam("DNS is ip %s \n",dns);
 		DNSResult result(ip,dns, obj);
 		callback->dnsResolved(&result);
@@ -137,8 +137,8 @@ void DNSManager::pollDNS()
 
 
 	struct pollfd pfd[100];
-    int nfds = 100;
-    int timeout = 0;
+    int32_t nfds = 100;
+    int32_t timeout = 0;
 	memset(pfd,0,100*sizeof(struct pollfd));
 
 	struct timeval currenttime;
@@ -199,7 +199,7 @@ void DNSManager::callBack()
 #endif
 }
 
-unsigned int DNSManager::getSize()
+uint32_t DNSManager::getSize()
 {
 	return m_Queue;
 }

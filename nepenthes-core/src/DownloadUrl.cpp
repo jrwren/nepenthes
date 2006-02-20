@@ -41,7 +41,7 @@ using namespace nepenthes;
 typedef struct portTable
 {
     const char      *protocolName;
-    short           port;
+    uint16_t           port;
 };
  
 portTable g_portTable[] = {
@@ -57,7 +57,7 @@ DownloadUrl::DownloadUrl(char *psurl)
 {
     string      urlStr = psurl;
  
-    if ((int)urlStr.find("://") >= (int)0)
+    if ((int32_t)urlStr.find("://") >= (int32_t)0)
     {
 //        logSpam("Found Proto %i\n", urlStr.find("://"));
         m_protocol = urlStr.substr(0, urlStr.find("://"));
@@ -84,7 +84,7 @@ DownloadUrl::DownloadUrl(char *psurl)
         }
     }
  
-//    if ((int) urlStr.find("/") >= (int)0)
+//    if ((int32_t) urlStr.find("/") >= (int32_t)0)
     m_host = urlStr.substr(0, urlStr.find("/"));
 //    else
 
@@ -103,7 +103,7 @@ DownloadUrl::DownloadUrl(char *psurl)
 
         if (m_protocol.size() != 0)
         {
-            for( unsigned int i = 0; i < sizeof(g_portTable) / sizeof(portTable); i++ )
+            for( uint32_t i = 0; i < sizeof(g_portTable) / sizeof(portTable); i++ )
             {
                 if( g_portTable[i].protocolName == m_protocol )
                     m_port = g_portTable[i].port;
@@ -114,7 +114,7 @@ DownloadUrl::DownloadUrl(char *psurl)
         }
     }
  
-    if ((int)urlStr.find("/") >= (int)0)
+    if ((int32_t)urlStr.find("/") >= (int32_t)0)
 	{
         m_path = urlStr.substr(urlStr.find("/") + string("/").size());
 	}
@@ -127,13 +127,13 @@ DownloadUrl::DownloadUrl(char *psurl)
     // dir ?
     if (m_path.size() > 0)
     {
-        if ((int)m_path.rfind("/") >=(int)0 )
+        if ((int32_t)m_path.rfind("/") >=(int32_t)0 )
         {
             m_dir  = m_path.substr(0,m_path.rfind("/")+1);
         }
 
     // file
-        if ((int)m_path.rfind("/") >=(int)0 )
+        if ((int32_t)m_path.rfind("/") >=(int32_t)0 )
         {
             m_file = m_path.substr(m_path.rfind("/")+1,m_path.size());
         }else
@@ -188,7 +188,7 @@ bool DownloadUrl::checkUrl()
         return false;
     }
 
-    unsigned int i;
+    uint32_t i;
     for (i=0;i<m_host.size();i++)
     {
         if (isalnum(m_host[i]) == 0 && m_host[i] != '-' && m_host[i] != '_' && m_host[i] != '.' )
@@ -251,7 +251,7 @@ string          DownloadUrl::getAuth()
 
 
 // host
-void 			DownloadUrl::setHost(unsigned long host)
+void 			DownloadUrl::setHost(uint32_t host)
 {
 	m_host = inet_ntoa(*(in_addr *)&host);
 }
@@ -269,12 +269,12 @@ string          DownloadUrl::getHost()
 
 
 // port
-void DownloadUrl::setPort(unsigned int port)
+void DownloadUrl::setPort(uint32_t port)
 {
 	m_port = port;
 }
 
-unsigned int    DownloadUrl::getPort()
+uint32_t    DownloadUrl::getPort()
 {
 	return m_port;
 }

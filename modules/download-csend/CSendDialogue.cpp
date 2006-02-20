@@ -54,10 +54,13 @@ using namespace nepenthes;
 CSendDialogue::CSendDialogue(Socket *socket)
 {
 	m_DialogueName = "CSendDialogue";
-	m_DialogueDescription = "download a file via tftp";
+	m_DialogueDescription = "download a file via csend variants";
 
 	m_Socket = socket;
 	m_ConsumeLevel = CL_ASSIGN;
+	m_CuttedOffset = false;
+
+	m_ExpectedFileSize = 0;
 }
 
 
@@ -70,18 +73,43 @@ CSendDialogue::~CSendDialogue()
 void CSendDialogue::setDownload(Download *down)
 {
 	m_Download = down;
+	if (m_Download->getDownloadUrl()->getPath().size() == 0 || atoi(m_Download->getDownloadUrl()->getPath().c_str()) == 0)	// if there is no offset, no need to cut it
+	{
+		m_CuttedOffset = true;
+	}
 }
 
 
-void CSendDialogue::setMaxFileSize(unsigned long ul)
+void CSendDialogue::setMaxFileSize(uint32_t ul)
 {
 	m_MaxFileSize = ul;
 }
 
 ConsumeLevel CSendDialogue::incomingData(Message *msg)
 {
+
 	logInfo("got %i bytes data\n",msg->getMsgLen());
 	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getMsgLen());
+    if (m_CuttedOffset == false)
+	{
+		uint32_t len =  atoi(m_Download->getDownloadUrl()->getPath().c_str());
+		if (m_Download->getDownloadBuffer()->getLength() >= len )
+		{
+			if (len == 4 )
+			{
+				uint32_t expectedSize = *(uint32_t *)m_Download->getDownloadBuffer()->getData();
+				logSpam("Agobot CSend, leading 4 bytes are length ... (%i bytes)\n",expectedSize);
+				m_ExpectedFileSize = expectedSize;
+			}
+			
+			logSpam("Removing %i bytes from buffer, as requested by urls path \nURL '%s'\nPATH %s\n",len, m_Download->getUrl().c_str(),
+					m_Download->getDownloadUrl()->getPath().c_str());
+			m_Download->getDownloadBuffer()->cutFront(len);
+			m_CuttedOffset = true;
+		}
+	}
+
+	
 	return CL_ASSIGN;
 }
 
@@ -104,6 +132,14 @@ ConsumeLevel CSendDialogue::connectionLost(Message *msg)
 ConsumeLevel CSendDialogue::connectionShutdown(Message *msg)
 {
 	logPF();
-	msg->getSocket()->getNepenthes()->getSubmitMgr()->addSubmission(m_Download);
+	if (m_ExpectedFileSize > 0)
+	{
+		if (m_Download->getDownloadBuffer()->getLength() != m_ExpectedFileSize)
+		{
+			logInfo("CSend Filetransferr failed, expected %i bytes, got %i bytes\n",m_ExpectedFileSize,m_Download->getDownloadBuffer()->getLength());
+			return CL_DROP;
+		}
+	}
+	g_Nepenthes->getSubmitMgr()->addSubmission(m_Download);
     return CL_DROP;
 }

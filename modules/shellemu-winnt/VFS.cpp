@@ -128,8 +128,8 @@ string VFS::execute(string *input)
 		*/
 		
 		string line;
-		unsigned int linelen;
-		unsigned int i;
+		uint32_t linelen;
+		uint32_t i;
 		bool hasredir=false;	// line starts with "> .. "or ">> .."
 		bool escaped = false;
 		bool haschar = false;
@@ -195,8 +195,8 @@ string VFS::execute(string *input)
 
 		i=0;
 		haschar=false;
-		unsigned int commandstart=0;
-		unsigned int commandstopp=0;
+		uint32_t commandstart=0;
+		uint32_t commandstopp=0;
 		hasredir=false;
 		while (i<line.size())
 		{
@@ -256,8 +256,8 @@ string VFS::execute(string *input)
 		vector <string> paramlist;
 		i=0;
 		haschar = false;
-        unsigned int wordstart=0;
-		unsigned int wordstopp=0;
+        uint32_t wordstart=0;
+		uint32_t wordstopp=0;
 
 		while(i<=params.size())
 		{

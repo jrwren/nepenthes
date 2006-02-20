@@ -30,6 +30,7 @@
 #define HAVE_DOWNLOADBUFFER_HPP
 
 #include <string>
+#include <stdint.h>
 
 using namespace std;
 
@@ -39,15 +40,16 @@ namespace nepenthes
 	{
 	public:
 		DownloadBuffer();
-		virtual bool Init(unsigned int i);
+		virtual bool Init(uint32_t i);
 		virtual ~DownloadBuffer();
-		virtual bool addData(char *pszData, unsigned int iDataLen);
+		virtual bool addData(char *pszData, uint32_t iDataLen);
 		virtual char *getData();
-		virtual unsigned int getLength();
+		virtual uint32_t getLength();
+		virtual bool cutFront(uint32_t len);
 	private:
 		char 		*m_Buffer;
-		unsigned int   m_BufferSize;
-		unsigned int   m_BufferOffset;
+		uint32_t   m_BufferSize;
+		uint32_t   m_BufferOffset;
 
 	};
 }

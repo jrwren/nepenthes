@@ -78,8 +78,8 @@ CReceiveDialogue::CReceiveDialogue(Socket *socket)//, Download *down)
 
 	m_ConsumeLevel = CL_ASSIGN;
 	char *url;
-	unsigned long host = socket->getRemoteHost();
-	unsigned short port = socket->getRemotePort();
+	uint32_t host = socket->getRemoteHost();
+	uint16_t port = socket->getRemotePort();
 	asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port);
     m_Download = new Download(url,socket->getRemoteHost(),url);
 	free(url);

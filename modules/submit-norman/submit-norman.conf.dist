@@ -1,4 +1,5 @@
 submit-norman
 {
-    email   "foo@bar.org";
+	// this is the adress where norman sandbox reports will be sent
+	email   "malware@mac.com";
 };

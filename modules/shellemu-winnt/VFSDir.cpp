@@ -87,7 +87,7 @@ VFSDir* VFSDir::getDirectory(char *dirname)
 }
 
 
-VFSFile *VFSDir::createFile(char *name,char *data, unsigned int len)
+VFSFile *VFSDir::createFile(char *name,char *data, uint32_t len)
 {
 	VFSFile *file = new VFSFile(this,name,data,len);
 	m_Nodes.push_back(file);

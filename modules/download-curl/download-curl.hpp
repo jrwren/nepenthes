@@ -54,13 +54,13 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 		bool download(Download *down);
-		unsigned int handleEvent(Event *event);
+		uint32_t handleEvent(Event *event);
 
 		static size_t WriteCallback(char *buffer, size_t size, size_t nitems, void *userp);
 	protected:
 		CURLM * m_CurlStack;
-		int 	m_Queued;
-		unsigned int m_MaxFileSize;
+		int32_t 	m_Queued;
+		uint32_t m_MaxFileSize;
 	};
 
 }

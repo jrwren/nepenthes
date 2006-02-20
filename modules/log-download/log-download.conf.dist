@@ -1,5 +1,5 @@
 log-download
 {
-    downloadfile    "/tmp/logged_downloads";
-    submitfile    "/tmp/logged_submissions";
+    downloadfile    "var/log/logged_downloads"; // log download attempts
+    submitfile    "var/log/logged_submissions"; // log successfull downloads
 };

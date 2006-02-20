@@ -42,7 +42,7 @@ using namespace nepenthes;
  * 
  * @param socket the Socket the Dialogue has to use
  */
-SubmitNepenthesDialogue::SubmitNepenthesDialogue(Socket *socket, char *file, unsigned int len, char *md5sum)
+SubmitNepenthesDialogue::SubmitNepenthesDialogue(Socket *socket, char *file, uint32_t len, char *md5sum)
 {
 	m_Socket = socket;
     m_DialogueName = "SubmitNepenthesDialogue";

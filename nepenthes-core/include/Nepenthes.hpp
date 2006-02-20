@@ -36,7 +36,8 @@
 #include <windows.h>
 #endif
 
-typedef unsigned int uint;
+#include <stdint.h>
+
 typedef unsigned char byte;
 
 /* nepenthes specific log tags */
@@ -140,7 +141,7 @@ namespace nepenthes
 		virtual DialogueFactoryManager *getFactoryMgr();
 		virtual DNSManager 			*getDNSMgr();
 		virtual bool 				doLoop();
-		virtual int 				run(int argc, char **argv);
+		virtual int32_t 				run(int32_t argc, char **argv);
 		virtual bool				stop();
 		virtual bool 				reloadConfig();
 
@@ -162,23 +163,22 @@ namespace nepenthes
 		uid_t				m_UID;
 		gid_t				m_GID;
 	protected:
-		bool fileCheck(char *filecheckarg,int argc, int opti, char **argv);
-		int fileCheck(const char *filename, Message **Msg);
+		bool fileCheck(char *filecheckarg,int32_t argc, int32_t opti, char **argv);
+		int32_t fileCheck(const char *filename, Message **Msg);
 
 		bool changeUser(char *user);
-		bool changeUser();
-
 		bool changeGroup(char *group);
+		bool changeUser();
 		bool changeGroup();
 
 		bool changeRoot(char *path);
-
     };
 }
 
 extern nepenthes::Nepenthes *g_Nepenthes;
 
 void show_help(bool defaults);
+void show_loghelp();
 void show_version();
 void show_logo();
 void show_info();

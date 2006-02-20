@@ -92,7 +92,7 @@ bool HATSQUADBind::Init()
 									").*";
 	logInfo("pcre is %s \n",hatsquadbindpcre);
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(hatsquadbindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("HATSQUADBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -114,14 +114,14 @@ sch_result HATSQUADBind::handleShellcode(Message **msg)
 {
 	logPF();
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
 //	(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
         logInfo("%s","Detected hat-squad (static) bind shellcode :101 \n");
 

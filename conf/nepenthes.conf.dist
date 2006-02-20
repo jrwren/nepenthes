@@ -1,102 +1,93 @@
+// main configuration file for nepenthes
+// see also configuration files for modules (second row in the modules section)
+
 nepenthes
 {
-        moduledir       "modules";      // relative to workdir
-        moduleconfigdir "modules";      // relative to workdir ( workdir is the dir you start nepenthes from )
-		
-	modules(
-/*
- * eXample modules for testing 
- * disabled by default
- */
-//	"x-1/x-1.so",				"x-1/x-1.conf",				"",
-//	"x-2/x-2.so",				"",					"",
-//	"x-3/x-3.so",				"",					"",
-//        "x-4/x-4.so",				"",					"",
-//        "x-5/x-5.so",                           "",                                   "",
+    moduledir               "lib/nepenthes";        // relative to workdir
+    moduleconfigdir         "etc";                  // relative to workdir
 
-/*
- * download handler for various protocolls
- */
- 
-	"download-tftp/download-tftp.so",	"download-tftp/download-tftp.conf",	""
-	"download-csend/download-csend.so",     "download-csend/download-csend.conf",   ""
-	"download-creceive/download-creceive.so","",   ""
-	"download-curl/download-curl.so",     	"download-curl/download-curl.conf",   	""
-	"download-nepenthes/download-nepenthes.so",       "download-nepenthes/download-nepenthes.conf",     ""
-        "download-link/download-link.so",       "download-link/download-link.conf",     ""
-	"download-ftp/download-ftp.so",         ""      				""
+    modules(
+//  module name (in moduledir)      config file (in moduleconfigdir)
 
-	
+// download handler for various protocols
+    "downloadcsend.so",             "download-csend.conf",          ""
+    "downloadcreceive.so",          "",                             ""
+    "downloadcurl.so",              "download-curl.conf",           ""
+    "downloadftp.so",               "",                             ""
+    "downloadlink.so",              "download-link.conf",           ""
+//  "downloadnepenthes.so",         "download-nepenthes.conf",      ""  // get data from others via submit-nepenthes
+    "downloadtftp.so",              "download-tftp.conf",           ""
 
-/*
- * single shellcodehandler modules 
- */
-	"shellcode-generic/shellcode-generic.so","shellcode-generic/shellcode-generic.conf",""
+// submission handler
+    "submitfile.so",                "submit-file.conf",             ""  // save to disk
+//  "submitnorman.so",              "submit-norman.conf",           ""
+//  "submitnepenthes.so",           "submit-nepenthes.conf",        ""  // send to download-nepenthes in other nepenthes instances
+//  "submitxmlrpc.so",        	    "submit-xmlrpc.conf",           ""  // submit files to a xmlrpc server
 
-/*
- * vulnerability modules 
- * 
- */
-	"vuln-dcom/vuln-dcom.so",		"vuln-dcom/vuln-dcom.conf",		""	
-        "vuln-wins/vuln-wins.so",               "vuln-wins/vuln-wins.conf",             ""
-	"vuln-optix/vuln-optix.so",		"vuln-optix/vuln-optix.conf",           ""
-	"vuln-sub7/vuln-sub7.so",               "vuln-sub7/vuln-sub7.conf",             ""
-        "vuln-bagle/vuln-bagle.so",             "vuln-bagle/vuln-bagle.conf",           ""
-	"vuln-mydoom/vuln-mydoom.so",           "vuln-mydoom/vuln-mydoom.conf",         ""
-	"vuln-kuang2/vuln-kuang2.so",           "vuln-kuang2/vuln-kuang2.conf",         ""
-	"vuln-lsass/vuln-lsass.so",           	"vuln-lsass/vuln-lsass.conf",           ""
-        "vuln-mssql/vuln-mssql.so",            	"vuln-mssql/vuln-mssql.conf",		""
-        "vuln-asn1/vuln-asn1.so",            	"vuln-asn1/vuln-asn1.conf",		""
+// logging
+    "logdownload.so",               "log-download.conf",            ""
+//  "logirc.so",                    "log-irc.conf",                 ""  // needs configuration
 
 
-        "vuln-iis/vuln-iis.so",                 "vuln-iis/vuln-iis.conf",               ""
-        "vuln-upnp/vuln-upnp.so",               "vuln-upnp/vuln-upnp.conf",             ""
-        "vuln-netbiosname/vuln-netbiosname.so", "vuln-netbiosname/vuln-netbiosname.conf",""
-        "vuln-netdde/vuln-netdde.so",           "vuln-netdde/vuln-netdde.conf",         ""
+// dumping and logging
+    "moduleportwatch.so",           "module-portwatch.conf",        ""
 
-        "vuln-msmq/vuln-msmq.so",               "vuln-msmq/vuln-msmq.conf",             ""
+// cmd.exe simulation
+    "shellemuwinnt.so"              "",                             ""
 
-        "vuln-sasserftpd/vuln-sasserftpd.so",   "vuln-sasserftpd/vuln-sasserftpd.conf", ""
-       	"vuln-veritas/vuln-veritas.so",         "vuln-veritas/vuln-veritas.conf",       ""
+// single shellcodehandler modules 
+    "shellcodegeneric.so",          "shellcode-generic.conf",       ""
 
-/*
- * other modules
- */
+// vulnerability modules
+    "vulnasn1.so",                  "vuln-asn1.conf",               ""
+    "vulnbagle.so",                 "vuln-bagle.conf",              ""
+    "vulndcom.so",                  "vuln-dcom.conf",               ""
+    "vulniis.so",                   "vuln-iis.conf",                ""
+    "vulnkuang2.so",                "vuln-kuang2.conf",             ""
+    "vulnlsass.so",                 "vuln-lsass.conf",              ""
+    "vulnmsmq.so",                  "vuln-msmq.conf",               ""
+    "vulnmssql.so",                 "vuln-mssql.conf",              ""
+    "vulnmydoom.so",                "vuln-mydoom.conf",             ""
+    "vulnnetbiosname.so",           "vuln-netbiosname.conf",        ""
+    "vulnnetdde.so",                "vuln-netdde.conf",             ""
+    "vulnoptix.so",                 "vuln-optix.conf",              ""
+    "vulnpnp.so",                   "vuln-pnp.conf",                ""
+    "vulnsasserftpd.so",            "vuln-sasserftpd.conf",         ""
+    "vulnsub7.so",                  "vuln-sub7.conf",               ""
+    "vulnupnp.so",                  "vuln-upnp.conf",               ""
+    "vulnveritas.so",               "vuln-veritas.conf",            ""
+    "vulnwins.so",                  "vuln-wins.conf",               ""
+    "vulnpnp.so",                   "vuln-pnp.conf",               ""
 
-	"module-portwatch/module-portwatch.so", "module-portwatch/module-portwatch.conf",""
+// eXample modules for testing - disabled by default
+//  "x-1.so",                       "x-1/x-1.conf",                 "",
+//  "x-2.so",                       "",                             "",
+//  "x-3.so",                       "",                             "",
+//  "x-4.so",                       "",                             "",
+//  "x-5.so",                       "",                             "",
+//  "x-6.so",                       "",                             "",
+//  "x-7.so",                       "",                             "",
+    );
 
-/*
- * submission handler
- */
-	"submit-file/submit-file.so",		"submit-file/submit-file.conf",		""
-//        "submit-norman/submit-norman.so",       "submit-norman/submit-norman.conf",     ""
-//	"submit-nepenthes/submit-nepenthes.so", "submit-nepenthes/submit-nepenthes.conf",     ""
+    modulemanager
+    {
+        exit_on_broken_moduleload   "1";
+    };
 
+    submitmanager
+    {
+        strictfiletype              "1";
+        // where does submit-file write to? set this to the same dir
+        filesdir                    "var/binaries/"; 
+    };
 
-	"log-download/log-download.so"          "log-download/log-download.conf",       ""
-//      "log-irc/log-irc.so"                    "log-irc/log-irc.conf"                  ""
+    downloadmanager
+    {
+        replace_local_ips           "1";
+    };
 
-	"shellemu-winnt/shellemu-winnt.so"	"",					""
-	);
-
-	modulemanager
-	{
-		exit_on_broken_moduleload	"1";
-	};
-	
-	submitmanager
-	{
-		strictfiletype			"1";
-		filesdir			"/tmp/"; // where does submit-file write to? set this to the same dir
-	};
-	
-	downloadmanager
-	{
-		replace_local_ips		"1";
-	};
-
-        socketmanager
-        {
-               use_rawsockets                  "0"; // unstable feature
-        };
+    socketmanager
+    {
+        use_rawsockets              "0"; // unstable feature
+    };
 };

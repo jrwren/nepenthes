@@ -39,6 +39,7 @@
 #include <bitset>
 #include <list>
 #include <string>
+#include <stdint.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -58,7 +59,7 @@ namespace nepenthes
     {
     public:
         virtual ~EventHandler(){};
-        virtual unsigned int handleEvent(Event *event)=0;
+        virtual uint32_t handleEvent(Event *event)=0;
         virtual bool testEvent(Event *event);
 		virtual string getEventHandlerDescription();
 		virtual string getEventHandlerName();

@@ -38,8 +38,8 @@ namespace nepenthes
 	class UDPSocket : public Socket
 	{
 public:
-		UDPSocket(Nepenthes *nepenthes,unsigned long localhost, unsigned long remotehost, int remoteport, time_t connectiontimeout);
-		UDPSocket(Nepenthes *nepenthes, unsigned long localhost, int port, time_t bindtimeout, time_t accepttimeout);
+		UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout);
+		UDPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout);
 		~UDPSocket();
 
 		bool bindPort();
@@ -49,14 +49,14 @@ public:
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int doSend();
-		int doRecv();
-		int doWrite(char *msg, unsigned int len);
-		int doWriteTo(unsigned long ip, unsigned short port, char *msg, unsigned int len);
+		int32_t doSend();
+		int32_t doRecv();
+		int32_t doWrite(char *msg, uint32_t len);
+		int32_t doWriteTo(uint32_t ip, uint16_t port, char *msg, uint32_t len);
 
         bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 	private:
 		list <UDPPacket *> m_TxPackets;
 	};

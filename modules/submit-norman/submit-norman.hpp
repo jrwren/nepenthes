@@ -47,7 +47,7 @@ namespace nepenthes
 	class NormanContext
 	{
 	public:
-		NormanContext(char *email,string filename, unsigned int filesize, char *filebuffer, char *md5sum)
+		NormanContext(char *email,string filename, uint32_t filesize, char *filebuffer, char *md5sum)
 		{
 			m_Email = email;
 			m_FileName = filename;
@@ -101,7 +101,7 @@ namespace nepenthes
 		{
 			return (char *)m_FileName.c_str();
 		}
-		unsigned int getFileSize()
+		uint32_t getFileSize()
 		{
 			return m_FileSize;
 		}
@@ -123,7 +123,7 @@ namespace nepenthes
 		string m_Email;
 		string m_FileName;
 		char *m_FileBuffer;
-		unsigned int m_FileSize;
+		uint32_t m_FileSize;
 		string m_MD5Sum;
 	};
 
@@ -138,11 +138,11 @@ namespace nepenthes
 
 		void Submit(Download *down);
 		void Hit(Download *down);
-		unsigned int handleEvent(Event *event);
+		uint32_t handleEvent(Event *event);
 		static size_t WriteCallback(char *buffer, size_t size, size_t nitems, void *userp);
 	protected:
 		CURLM * m_CurlStack;
-		int 	m_Queued;
+		int32_t 	m_Queued;
 		string m_Email;
 	};
 }

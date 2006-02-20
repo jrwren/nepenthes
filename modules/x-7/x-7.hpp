@@ -67,7 +67,7 @@ namespace nepenthes
 
 typedef struct dns_header
 {
-  unsigned short  transid;
+  uint16_t  transid;
 /*#if defined (WORDS_BIGENDIAN)
   u_int16_t flag_qr:1,
             flag_opcode:4,
@@ -100,10 +100,10 @@ typedef struct dns_header
 
 typedef struct dns_rr{
   char name[NAME_SIZE];
-  unsigned short type;
-  unsigned short tclass;
-  unsigned long ttl;
-  unsigned short rdatalen;
+  uint16_t type;
+  uint16_t tclass;
+  uint32_t ttl;
+  uint16_t rdatalen;
   char data[NAME_SIZE];
 } dns_rr_t;
 

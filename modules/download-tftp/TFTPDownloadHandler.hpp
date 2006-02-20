@@ -59,8 +59,8 @@ namespace nepenthes
 		Dialogue *createDialogue(Socket *socket);
 	private:
 		list <TFTPDialogue *> m_Downloads;
-		unsigned int m_MaxFileSize;
-		unsigned int m_MaxResends;
+		uint32_t m_MaxFileSize;
+		uint32_t m_MaxResends;
 	};
 
 

@@ -41,7 +41,7 @@ using namespace nepenthes;
  */
 LogManager::LogManager()
 {
-	for( int i = 0; i < MAX_TAGS; i++ )
+	for( int32_t i = 0; i < MAX_TAGS; i++ )
 		m_Tags[i] = 0;
 }
 
@@ -68,12 +68,12 @@ LogManager::~LogManager()
  * @param bit    the bit to which the tag will be bound.
  * @param tag    the tag name.
  */
-void LogManager::registerTag(unsigned int bit, const char *tag)
+void LogManager::registerTag(uint32_t bit, const char *tag)
 {
-	unsigned int i;
+	uint32_t i;
 
 	for( i = 0; i < MAX_TAGS; i++ )
-		if( (unsigned int)(1 << i) == bit )
+		if( (uint32_t)(1 << i) == bit )
 			break;
 
 	assert(i != MAX_TAGS); // wrong argument
@@ -89,7 +89,7 @@ void LogManager::registerTag(unsigned int bit, const char *tag)
  * @param tl         the logger.
  * @param filterMask filter mask, the logger will only receive messages with at least one of these tags.
  */
-void LogManager::addLogger(LogHandler *lh, unsigned int filterMask)
+void LogManager::addLogger(LogHandler *lh, uint32_t filterMask)
 {
 	LogHandlerEntry *lhe = new LogHandlerEntry;
 
@@ -100,7 +100,7 @@ void LogManager::addLogger(LogHandler *lh, unsigned int filterMask)
 
 	//printf("added log manager for these tags: ");
 
-	for( unsigned int i = 0; i < MAX_TAGS; i++ )
+	for( uint32_t i = 0; i < MAX_TAGS; i++ )
 		if( filterMask & (1 << i) )
 		{
 			assert(m_Tags[i]);
@@ -117,7 +117,7 @@ void LogManager::addLogger(LogHandler *lh, unsigned int filterMask)
  * @param mask    tags for this message.
  * @param message the message.
  */
-void LogManager::log(unsigned int mask, const char *message)
+void LogManager::log(uint32_t mask, const char *message)
 {
 	list<LogHandlerEntry *>::iterator it;
 
@@ -134,7 +134,7 @@ void LogManager::log(unsigned int mask, const char *message)
  * @param mask   the mask for this message.
  * @param format format for the va message.
  */
-void LogManager::logf(unsigned int mask, const char *format, ...)
+void LogManager::logf(uint32_t mask, const char *format, ...)
 {
 	va_list		ap;
 
@@ -144,8 +144,8 @@ void LogManager::logf(unsigned int mask, const char *format, ...)
 #ifdef WIN32
 	static char message[2048];
 	memset(message,0,2048);
-//    int len = vscprintf(format,ap);
-    int len = 5;
+//    int32_t len = vscprintf(format,ap);
+    int32_t len = 5;
 //    printf("len is %i \n",len);
 	vsprintf(message,format,ap);
 	log(mask,message);
@@ -164,14 +164,55 @@ void LogManager::logf(unsigned int mask, const char *format, ...)
 
 
 /**
- * return the tag for a specified bit.
+ * return the tag name for a specified bit.
  * 
  * @param bit    the bit number.
  * 
- * @return the tag assigned to this bit.
+ * @return the tag name assigned to this bit.
  */
-const char *LogManager::getTag(unsigned int bit)
+const char *LogManager::getTagName(uint32_t bit)
 {
 	assert(m_Tags[bit]);
 	return m_Tags[bit];
+}
+
+/**
+ * Return the bit id for a specified tag name.
+ * 
+ * @param tag the tag name.
+ * 
+ * @return the bit to which the tag is assigned or
+ * 			MAX_TAGS if the tag was not found.
+ */
+uint32_t LogManager::getTagId(const char *tag)
+{
+	uint32_t i;
+
+	for( i = 0; i < MAX_TAGS; i++ )
+	{
+		if( m_Tags[i] && !strcmp(m_Tags[i], tag) )
+			return i;
+	}
+
+	return i;
+}
+
+
+uint32_t LogManager::parseTagString(const char *tagString)
+{
+	char *str = strdup(tagString), *ptr, *tag;
+	uint32_t mask = 0, tagId;
+
+	ptr = str;
+
+	while( (tag = strsep(&ptr, ",")) )
+	{
+
+		tagId = getTagId(tag);
+		if( tagId != MAX_TAGS )
+			mask |= (1 << tagId);
+	}
+
+	free(str);
+	return mask;
 }

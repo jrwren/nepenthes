@@ -51,7 +51,7 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 
-		unsigned int handleEvent(Event *event);
+		uint32_t handleEvent(Event *event);
 
 	protected:
 		FILE *m_DownloadFile;

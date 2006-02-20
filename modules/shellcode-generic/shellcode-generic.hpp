@@ -43,6 +43,7 @@ namespace nepenthes
 	{
 		pcre *m_Pcre;
 		string m_Name;
+		uint16_t m_Offset; // we need this for agobot csend
 	};
 
 

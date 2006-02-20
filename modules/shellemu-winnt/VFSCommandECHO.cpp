@@ -50,7 +50,7 @@ VFSCommandECHO::~VFSCommandECHO()
 
 } 
 
-int VFSCommandECHO::run(vector<string> *paramlist)
+int32_t VFSCommandECHO::run(vector<string> *paramlist)
 {
 	m_VFS->getStdOut()->clear();
 	vector<string>::iterator it;

@@ -44,11 +44,11 @@ public:
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int send();
-		int recv();
-		int write(char *msg, unsigned int len);
+		int32_t send();
+		int32_t recv();
+		int32_t write(char *msg, uint32_t len);
 		bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 	};
 }

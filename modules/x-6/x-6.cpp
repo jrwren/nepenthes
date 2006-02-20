@@ -168,7 +168,7 @@ ConsumeLevel X6Dialogue::incomingData(Message *msg)
 {
 	char *message = strdup(msg->getMsg());
 
-	for(unsigned int i=0;i < strlen(message);i++)
+	for(uint32_t i=0;i < strlen(message);i++)
 	{
 		if(!isgraph(message[i]) && message[i] != ' ')
 		{
@@ -255,19 +255,23 @@ ConsumeLevel X6Dialogue::connectionShutdown(Message *msg)
 
 bool X6Dialogue::dnsResolved(DNSResult *result)
 {
-	list <unsigned int> resolved = result->getIP4List();
+	list <uint32_t> resolved = result->getIP4List();
 
-	list <unsigned int>::iterator it;
+	list <uint32_t>::iterator it;
+	int32_t i=0;
 	for (it=resolved.begin();it!=resolved.end();it++)
 	{
+		printf("NUM %i\n",i);
 		logSpam( "DNS has ip %s \n",inet_ntoa(*(in_addr *)&*it));
 		char *reply;
-		asprintf(&reply,"DNS %s has ip %s (context %8x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (unsigned int)result->getObject());
+		asprintf(&reply,"DNS %s has ip %s (context %8x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (uint32_t)result->getObject());
 		m_Socket->doRespond(reply,strlen(reply));
 		free(reply);
 		
 //		logSpam("foooo %s \n",msg.c_str());
+		i++;
 	}
+	printf("NUM %i DONE\n",i);
 	return true;
 }
 
@@ -283,7 +287,7 @@ bool X6Dialogue::dnsFailure(DNSResult *result)
 
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new X6(nepenthes);

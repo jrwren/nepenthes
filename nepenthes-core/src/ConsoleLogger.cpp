@@ -52,7 +52,7 @@ enum LogLevel
 	
 };
 
-const int g_ColorMap[NUM_LOGLEVELS] = {
+const int32_t g_ColorMap[NUM_LOGLEVELS] = {
 	36, // spam
 	32, // debug
 	33, // info
@@ -69,7 +69,7 @@ ConsoleLogger::~ConsoleLogger()
 {
 }
 
-void ConsoleLogger::log(unsigned int mask, const char *message)
+void ConsoleLogger::log(uint32_t mask, const char *message)
 {
 //	printf("ConsoleLogger: (0x%08x) %s", mask, message);
 	struct tm       t;
@@ -84,7 +84,7 @@ void ConsoleLogger::log(unsigned int mask, const char *message)
 #endif
 
 
-	int level = L_SPAM;
+	int32_t level = L_SPAM;
 	if (mask & l_crit)
 	{
 		level = L_CRIT;
@@ -107,12 +107,12 @@ void ConsoleLogger::log(unsigned int mask, const char *message)
 	}
 
 	string tag = "";
-	for ( unsigned int i = 0; i < MAX_TAGS; i++ )
+	for ( uint32_t i = 0; i < MAX_TAGS; i++ )
 		if ( (1 << i) & mask  ) 
 		{
 /*			if ( (1 << i) & l_crit || (1 << i) & l_warn  || (1 << i) & l_info || (1 << i) & l_debug || (1 << i) & l_spam )
 				continue;*/
-			tag += m_LogManager->getTag(i);
+			tag += m_LogManager->getTagName(i);
 			tag += " ";
 		}
 

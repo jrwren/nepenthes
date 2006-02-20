@@ -101,7 +101,7 @@ bool SubmitManager::Init()
     struct dirent *dent=NULL;
     for (dent = readdir(dirfiles); dent != NULL; dent = readdir(dirfiles))
     {
-        if ( (int)dent->d_type == DT_REG)
+        if ( (int32_t)dent->d_type == DT_REG)
         {
 			if (strlen(dent->d_name) == 32)
 			{
@@ -149,6 +149,13 @@ void SubmitManager::addSubmission(Download *down)
 	down->setMD5Sum(&md5sum);
 //	logInfo("Submission has md5sum %s (%i bytes)\n",down->getMD5Sum().c_str(),
 //													down->getDownloadBuffer()->getLength());
+
+
+	unsigned char sha512[64];
+	g_Nepenthes->getUtilities()->sha512((unsigned char *)down->getDownloadBuffer()->getData(),
+										down->getDownloadBuffer()->getLength(),
+										sha512);
+	down->setSHA512(sha512);
 
 // check file type
 #ifdef WIN32
@@ -231,7 +238,7 @@ void SubmitManager::doList()
 {
 	list <SubmitHandler *>::iterator submitter;
 	logInfo("=--- %-69s ---=\n","SubmitManager");
-	int i=0;
+	int32_t i=0;
 	for(submitter = m_Submitters.begin();submitter != m_Submitters.end();submitter++,i++)
 	{
 		logInfo("  %i) %-8s %s\n",i,(*submitter)->getSubmitterName().c_str(), (*submitter)->getSubmitterDescription().c_str());

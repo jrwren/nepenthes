@@ -74,6 +74,7 @@ CTRLDialogue::CTRLDialogue(Socket *socket, Download *down)
 
 	char *msg;
 	asprintf(&msg,"USER %s\r\n",down->getDownloadUrl()->getUser().c_str());
+	logInfo("FTPSEND: '%s'\n",msg);
 	m_Socket->doRespond(msg,strlen(msg));
 	free(msg);
 
@@ -119,9 +120,9 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 
 	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
 
-	unsigned int iStart=0;
-	unsigned int iStopp=0;
-	unsigned int endoflines=0;
+	uint32_t iStart=0;
+	uint32_t iStopp=0;
+	uint32_t endoflines=0;
 	while ( iStopp<m_Buffer->getSize() )
 	{
 		if ( memcmp((char *)m_Buffer->getData()+iStopp,"\n",1) == 0 && iStopp < m_Buffer->getSize() )
@@ -137,6 +138,7 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 					logInfo("User accepted, sending pass %s \n",m_Download->getDownloadUrl()->getPass().c_str());
 					char *nmsg;
 					asprintf(&nmsg,"PASS %s\r\n",m_Download->getDownloadUrl()->getPass().c_str());
+					logInfo("FTPSEND: '%s'\n",nmsg);
 					m_Socket->doRespond(nmsg,strlen(nmsg));
 					free(nmsg);
 					m_State = FTP_PASS;
@@ -149,7 +151,7 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 					m_State = FTP_PORT;
 
 					// get local ip
-					int sock = m_Socket->getSocket();
+					int32_t sock = m_Socket->getSocket();
 
 					// get name
 					socklen_t len = sizeof(struct sockaddr_in);
@@ -159,23 +161,30 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 
 					logInfo("local ip is %s \n",inet_ntoa(addr.sin_addr));
 
-					unsigned long ip = *(unsigned long *)&addr.sin_addr;
-					unsigned short port = rand()%10000 +32000;
+					uint32_t ip = *(uint32_t *)&addr.sin_addr;
+					uint16_t port = rand()%10000 +32000;
 
-					Socket *socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,30,30);
-					socket->addDialogueFactory(g_FTPDownloadHandler);
+					Socket *socket;
+//						 = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,30,30);
+					if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,0,60,30)) == NULL )
+					{
+						logCrit("Could not bind port %u \n",port);
+						return CL_DROP;
+					}
+					port = socket->getLocalPort();
 
 					m_Context->setActiveFTPBindPort(port);
+					socket->addDialogueFactory(g_FTPDownloadHandler);
 
 					char *nmsg;
 					asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
-							(int)ip & 0xff,
-							(int)(ip >> 8) & 0xff,
-							(int)(ip >> 16) & 0xff,
-							(int)(ip >> 24) & 0xff,
-							(int)(port >> 8) & 0xff,
-							(int)port & 0xff);
-					logSpam("Sending\n %s \n",nmsg);
+							(int32_t)ip & 0xff,
+							(int32_t)(ip >> 8) & 0xff,
+							(int32_t)(ip >> 16) & 0xff,
+							(int32_t)(ip >> 24) & 0xff,
+							(int32_t)(port >> 8) & 0xff,
+							(int32_t)port & 0xff);
+                    logInfo("FTPSEND: '%s'\n",nmsg);
 					m_Socket->doRespond(nmsg,strlen(nmsg));
 					free(nmsg);
 

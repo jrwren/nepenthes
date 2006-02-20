@@ -91,23 +91,23 @@ namespace nepenthes
 		unsigned char       ip_length:4;
 		unsigned char       ip_version:4;
 		unsigned char       ip_tos;
-		unsigned short      ip_total_length;
-		unsigned short      ip_id;
-		unsigned short      ip_flags;
+		uint16_t      ip_total_length;
+		uint16_t      ip_id;
+		uint16_t      ip_flags;
 		unsigned char       ip_ttl;
 		unsigned char       ip_protocol;
-		unsigned short      ip_cksum;
-		unsigned int        ip_source;
-		unsigned int        ip_dest;
+		uint16_t      ip_cksum;
+		uint32_t        ip_source;
+		uint32_t        ip_dest;
 	};
 
 	struct tcphdr
 	{
-		unsigned short      tcp_source_port;
-		unsigned short      tcp_dest_port;
-		unsigned int        tcp_seqno;
-		unsigned int        tcp_ackno;
-		unsigned int        tcp_res1:4,
+		uint16_t      tcp_source_port;
+		uint16_t      tcp_dest_port;
+		uint32_t        tcp_seqno;
+		uint32_t        tcp_ackno;
+		uint32_t        tcp_res1:4,
 		tcp_hlen:4,
 		tcp_fin:1,
 		tcp_syn:1,
@@ -116,24 +116,24 @@ namespace nepenthes
 		tcp_ack:1,
 		tcp_urg:1,
 		tcp_res2:2;
-		unsigned short      tcp_winsize;
-		unsigned short      tcp_cksum;
-		unsigned short      tcp_urgent;
+		uint16_t      tcp_winsize;
+		uint16_t      tcp_cksum;
+		uint16_t      tcp_urgent;
 	};
 
     struct udphdr
     {
-        unsigned short udp_source_port;
-        unsigned short udp_dest_port;
-        unsigned short udp_length;
-        unsigned short udp_chksum;
+        uint16_t udp_source_port;
+        uint16_t udp_dest_port;
+        uint16_t udp_length;
+        uint16_t udp_chksum;
     };
 
 
 	class RAWSocketReader : public Socket
 	{
 	public:
-		RAWSocketReader(Nepenthes *nepenthes,unsigned long localhost,unsigned short localport,unsigned long remotehost,unsigned short remoteport, time_t connecttimeout, unsigned int protocoll);
+		RAWSocketReader(Nepenthes *nepenthes,uint32_t localhost,uint16_t localport,uint32_t remotehost,uint16_t remoteport, time_t connecttimeout, uint32_t protocoll);
 		~RAWSocketReader();
 		bool bindPort();
 		bool Init();
@@ -142,32 +142,32 @@ namespace nepenthes
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int doSend();
-		int doRecv();
-		socket_state doRead(char *msg, unsigned int len);
-		int doWrite(char *msg, unsigned int len);
+		int32_t doSend();
+		int32_t doRecv();
+		socket_state doRead(char *msg, uint32_t len);
+		int32_t doWrite(char *msg, uint32_t len);
 		bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 		string getDescription();
 	protected:
-		unsigned int				m_Protocoll;
+		uint32_t				m_Protocoll;
 	};
 
 	struct ListenDialogueFactoryMap
 	{
-		unsigned short 			m_LocalPort;
-		unsigned short 			m_RemotePort;
+		uint16_t 			m_LocalPort;
+		uint16_t 			m_RemotePort;
 
-		unsigned short			m_Protocoll;
+		uint16_t			m_Protocoll;
 		list <DialogueFactory *> m_DialogueFactories;
 	};
 
 	class RAWSocketListener : public Socket
 	{
 	public:
-		RAWSocketListener(Nepenthes *nepenthes, char *ninterface,unsigned long localhost, unsigned int protocoll);
-        RAWSocketListener(Nepenthes *nepenthes, unsigned long localhost);
+		RAWSocketListener(Nepenthes *nepenthes, char *ninterface,uint32_t localhost, uint32_t protocoll);
+        RAWSocketListener(Nepenthes *nepenthes, uint32_t localhost);
 		~RAWSocketListener();
 		bool bindPort();
 		bool Init();
@@ -176,26 +176,26 @@ namespace nepenthes
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int doSend();
-		int doRecv();
+		int32_t doSend();
+		int32_t doRecv();
 		
-		int doWrite(char *msg, unsigned int len);
+		int32_t doWrite(char *msg, uint32_t len);
 		bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 
 		string getDescription();
 
-		bool addListenPort(unsigned int port);
-		bool addListenFactory(unsigned int localport, unsigned int remoteport,unsigned short protocoll, DialogueFactory *diaf);
+		bool addListenPort(uint32_t port);
+		bool addListenFactory(uint32_t localport, uint32_t remoteport,uint16_t protocoll, DialogueFactory *diaf);
 
-        int getSocket();
+        int32_t getSocket();
 
 	protected:
-		unsigned int				m_Protocoll;
+		uint32_t				m_Protocoll;
 		string  m_Interface;
 		list <RAWSocketReader *>	m_Sockets;
-		list <unsigned int>			m_ListenPorts;
+		list <uint32_t>			m_ListenPorts;
 
 		list<ListenDialogueFactoryMap *> m_ListenFactories;
 

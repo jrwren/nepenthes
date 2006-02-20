@@ -30,6 +30,8 @@
 #ifndef LOGHANDLER_HPP
 #define LOGHANDLER_HPP
 
+#include <stdint.h>
+
 namespace nepenthes
 {
 	class LogManager;
@@ -42,7 +44,7 @@ namespace nepenthes
 	public:
 //						LogHandler(LogManager *lm);
 		virtual			~LogHandler();
-		virtual void	log(unsigned int mask, const char *message) = 0;
+		virtual void	log(uint32_t mask, const char *message) = 0;
 	
 	protected:
 		LogManager		*m_LogManager;

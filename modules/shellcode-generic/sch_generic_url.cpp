@@ -84,11 +84,11 @@ GenericUrl::~GenericUrl()
 
 bool GenericUrl::Init()
 {
-	const char *urlpcre = ".*((http|https|ftp):\\/\\/[a-zA-Z0-9\\/\\\\\\.\\+:]+).*";
+	const char *urlpcre = ".*((http|https|ftp):\\/\\/[@a-zA-Z0-9\\/\\\\\\.\\+:]+).*";
 //	".*((http|https|ftp):\\/\\/[a-zA-Z0-9\\/\\\\\\.\\+:]+).*\\xDF+.*$";
 	//"^.*\\xEB.((http|https|ftp):\\/\\/.*?)\\xDF+.*$";
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(urlpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("GenericUrl could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -112,11 +112,11 @@ sch_result GenericUrl::handleShellcode(Message **msg)
 
 	bool bMatch=false;
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
-	int piOutput[10 * 3];
-	int iResult=0;
+	uint32_t len = (*msg)->getMsgLen();
+	int32_t piOutput[10 * 3];
+	int32_t iResult=0;
 
-	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 		const char * pUrl;
 

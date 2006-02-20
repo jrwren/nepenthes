@@ -45,7 +45,7 @@ using namespace nepenthes;
  * @param initialSize
  *               the initial size of the buffer.
  */
-Buffer::Buffer(unsigned int initialSize)
+Buffer::Buffer(uint32_t initialSize)
 {
 	reset();
 
@@ -60,7 +60,7 @@ Buffer::Buffer(unsigned int initialSize)
  * @param data   pointer to the data.
  * @param size   length of the data.
  */
-Buffer::Buffer(void *data, unsigned int size)
+Buffer::Buffer(void *data, uint32_t size)
 {
 	reset();
 	add(data, size);
@@ -101,7 +101,7 @@ void Buffer::clear()
  * 
  * @param newSize the new size, padding to 256byte blocks is performed automatically.
  */
-void Buffer::resize(unsigned int newSize)
+void Buffer::resize(uint32_t newSize)
 {
 	assert(newSize > m_allocSize);
 
@@ -122,7 +122,7 @@ void Buffer::resize(unsigned int newSize)
  * @param data   pointer containing data.
  * @param size   size of the data.
  */
-void Buffer::add(void *data, unsigned int size)
+void Buffer::add(void *data, uint32_t size)
 {
 	if( !size )
 		return;
@@ -140,7 +140,7 @@ void Buffer::add(void *data, unsigned int size)
 		// realloc needed?
 		if( m_offset + size > m_allocSize )
 		{
-			unsigned int newSize = m_allocSize;
+			uint32_t newSize = m_allocSize;
 
 			// keep doubling the buffer size until it fits.
 			while( m_offset + size > newSize )
@@ -149,7 +149,7 @@ void Buffer::add(void *data, unsigned int size)
 			resize(newSize);
 		}
 		
-		memcpy((void *)((int)m_data + m_offset), data, size);
+		memcpy((void *)((int32_t)m_data + m_offset), data, size);
 	}
 
 	m_offset += size;
@@ -173,14 +173,14 @@ void Buffer::addString(const char *str)
  * 
  * @param size   number of bytes to cut, use negative values to cut from the back.
  */
-void Buffer::cut(int size)
+void Buffer::cut(int32_t size)
 {
-	assert(size <= (int)m_offset);
+	assert(size <= (int32_t)m_offset);
 
 	if( size > 0 )
 	{
-		//memcpy(m_data, (void *)((int)m_data + size), m_offset - size);
-		memmove(m_data, (void *)((int)m_data + size), m_offset - size);
+		//memcpy(m_data, (void *)((int32_t)m_data + size), m_offset - size);
+		memmove(m_data, (void *)((int32_t)m_data + size), m_offset - size);
 		m_offset -= size;
 	}
 }
@@ -202,7 +202,7 @@ void *Buffer::getData()
  * 
  * @return size of the buffer.
  */
-unsigned int Buffer::getSize()
+uint32_t Buffer::getSize()
 {
 	return m_offset;
 }
@@ -214,7 +214,7 @@ unsigned int Buffer::getSize()
 void Buffer::debug()
 {
 	printf("SB shellbuffer debug\n");
-	printf("  > m_data = 0x%08x\n", (int)m_data);
+	printf("  > m_data = 0x%08x\n", (int32_t)m_data);
 	printf("  > m_offset = %d\n", m_offset);
 	printf("  > m_allocSize = %d\n", m_allocSize);
 }

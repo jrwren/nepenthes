@@ -51,7 +51,7 @@ VFSCommandRREDIR::~VFSCommandRREDIR()
 
 } 
 
-int VFSCommandRREDIR::run(vector<string> *paramlist)
+int32_t VFSCommandRREDIR::run(vector<string> *paramlist)
 {
 
 	

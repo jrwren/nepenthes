@@ -68,12 +68,12 @@ bool POLLSocket::wantSend()
 	return false;
 }
 
-int POLLSocket::doSend()
+int32_t POLLSocket::doSend()
 {
 	return 0;
 }
 
-int POLLSocket::doRecv()
+int32_t POLLSocket::doRecv()
 {
 	return 0;
 }
@@ -105,12 +105,12 @@ Socket *POLLSocket::acceptConnection()
 }
 
 
-int POLLSocket::doWrite(char *msg, unsigned int len)
+int32_t POLLSocket::doWrite(char *msg, uint32_t len)
 {
 	return 0;
 }
 
-bool POLLSocket::doRespond(char *msg, unsigned int len)
+bool POLLSocket::doRespond(char *msg, uint32_t len)
 {
 	return false;
 }

@@ -46,6 +46,6 @@ namespace nepenthes
 	public:
 		VFSCommandFTP(VFSNode *parent,VFS *vfs);
 		~VFSCommandFTP();
-    	int run(vector<string> *paramlist);
+    	int32_t run(vector<string> *paramlist);
 	};
 }

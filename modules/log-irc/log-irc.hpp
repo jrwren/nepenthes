@@ -66,7 +66,7 @@ namespace nepenthes
         bool dnsResolved(DNSResult *result);
 		bool dnsFailure(DNSResult *result);
 
-		void log(unsigned int mask, const char *message);
+		void log(uint32_t mask, const char *message);
 
 
 		bool doStart();
@@ -75,8 +75,8 @@ namespace nepenthes
 
 		
 
-		unsigned long getIrcIP();
-		unsigned short getIrcPort();
+		uint32_t getIrcIP();
+		uint16_t getIrcPort();
 		string getIrcNick();
 		string getIrcIdent();
 		string getIrcUserInfo();
@@ -95,16 +95,16 @@ namespace nepenthes
 
 		bool m_UseTor;
 		string m_TorServer;
-		unsigned long m_TorIP;
+		uint32_t m_TorIP;
 
-		unsigned short m_TorPort;
+		uint16_t m_TorPort;
 
 		
 
 		string m_IrcServer;
-		unsigned long m_IrcIP;
+		uint32_t m_IrcIP;
 
-		unsigned short m_IrcPort;
+		uint16_t m_IrcPort;
 
 
 		string m_IrcPass;

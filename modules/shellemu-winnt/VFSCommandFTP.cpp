@@ -92,7 +92,7 @@ Hinweis:
 */  
 
 
-int VFSCommandFTP::run(vector<string> *paramlist)
+int32_t VFSCommandFTP::run(vector<string> *paramlist)
 { 
 
 	bool direktconnect = true;
@@ -144,9 +144,9 @@ int VFSCommandFTP::run(vector<string> *paramlist)
 			}
 			logInfo("file content is is \n%.*s\n",file->getSize(),(char *)file->getData());
 
-			unsigned int i=0;
-			int linestart=0;
-			int linestopp=0;
+			uint32_t i=0;
+			int32_t linestart=0;
+			int32_t linestopp=0;
 			vector <string> ftpcommands;
 			while(i<file->getSize())
 			{
@@ -175,8 +175,8 @@ int VFSCommandFTP::run(vector<string> *paramlist)
 				string params(&*jt->c_str());
 				i=0;
 				bool haschar = false;
-				unsigned int wordstart=0;
-				unsigned int wordstopp=0;
+				uint32_t wordstart=0;
+				uint32_t wordstopp=0;
 				paramlist.clear();
 				while ( i<=params.size() )
 				{
@@ -338,7 +338,7 @@ int VFSCommandFTP::run(vector<string> *paramlist)
 
 
 	string url = "ftp://" + user + ":" + pass + "@" + host+ ":" + port + "/" + getfile;
-	unsigned long remotehost = 0;
+	uint32_t remotehost = 0;
 	if (m_VFS->getDialogue()->getSocket() != NULL)
 	{
 		remotehost = m_VFS->getDialogue()->getSocket()->getRemoteHost();

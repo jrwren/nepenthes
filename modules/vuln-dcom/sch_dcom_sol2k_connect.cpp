@@ -66,7 +66,7 @@ bool SOL2KConnect::Init()
 	const char *sol2kconnectpcre = "^.*(\\x42\\x65\\x61\\x76\\x75\\x68\\x3a\\x20\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90\\x90.*\\xf0\\xed\\xf0\\x95\\x0d\\x0a).*";
 	
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(sol2kconnectpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("SOL2KConnect could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -90,24 +90,24 @@ sch_result SOL2KConnect::handleShellcode(Message **msg)
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 		const char * pCode;
-		unsigned short usPort;
-		unsigned long ulHost;
+		uint16_t usPort;
+		uint32_t ulHost;
 
 		
-		unsigned int foo = pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pCode);
+		uint32_t foo = pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pCode);
 
 		(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)pCode,foo);
-		usPort = htons(* ((unsigned short *) &pCode[441 - 28]) ^0x9595);
-		ulHost = htonl(* ((unsigned long *) &pCode[446 - 28]) ^ 0x95959595);
+		usPort = htons(* ((uint16_t *) &pCode[441 - 28]) ^0x9595);
+		ulHost = htonl(* ((uint32_t *) &pCode[446 - 28]) ^ 0x95959595);
         logInfo("Detected sol2k connectshell shellcode, %s:%u .\n",inet_ntoa(*(in_addr *)&ulHost) , usPort);
 		// fixme spawn a shell
 		pcre_free_substring(pCode);

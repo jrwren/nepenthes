@@ -81,7 +81,7 @@ CMD [/A | /U] [/Q] [/D] [/E:ON | /E:OFF] [/F:ON | /F:OFF] [/V:ON | /V:OFF]
 /V:OFF  Deaktiviert die verzögerte Erweiterung von Variablen.
 */
 
-int VFSCommandCMD::run(vector<string> *paramlist)
+int32_t VFSCommandCMD::run(vector<string> *paramlist)
 { // "tftp.exe -i 84.60.21.184 get IExplore327.exe"
 
 	vector <string> params = *paramlist;
@@ -102,6 +102,7 @@ int VFSCommandCMD::run(vector<string> *paramlist)
 					command  += " ";
 				}
 			}
+			command += " & ";
 			m_VFS->addStdIn(&command);
 			return 0;
 		}

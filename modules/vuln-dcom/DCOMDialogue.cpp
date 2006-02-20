@@ -83,7 +83,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 
 //	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getMsgLen());
 	char reply[512];
-	for (int i=0;i<512;i++)
+	for (int32_t i=0;i<512;i++)
 	{
 		reply[i] = rand()%255;
 	}
@@ -189,14 +189,14 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			}
 
 
-			if ( m_Buffer->getSize() < 0x10 + sizeof(unsigned long) )
+			if ( m_Buffer->getSize() < 0x10 + sizeof(uint32_t) )
 			{
 				logSpam("Got undersized DCOM Packet! %u \n", m_Buffer->getSize());
 //				g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
 				cl = CL_UNSURE;
 			}
 
-			unsigned long ulShellcodeLength = * ((unsigned long *) ( (char *)m_Buffer->getData() + 0x10)) - 964;
+			uint32_t ulShellcodeLength = * ((uint32_t *) ( (char *)m_Buffer->getData() + 0x10)) - 964;
 
 			if ( m_Buffer->getSize() < 880 + ulShellcodeLength )
 			{

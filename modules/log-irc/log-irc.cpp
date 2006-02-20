@@ -147,7 +147,7 @@ bool LogIrc::Init()
 		doStart();
 		break;
 	default:
-		logCrit("Calling Init() in invalid State %i \n",(int)m_State);
+		logCrit("Calling Init() in invalid State %i \n",(int32_t)m_State);
 	}
 //	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,10002,0,45,this);
 
@@ -173,7 +173,7 @@ bool LogIrc::doStart()
 			break;
 
 		default:
-			logCrit("Calling doStart() in invalid State %i \n",(int)m_State);
+			logCrit("Calling doStart() in invalid State %i \n",(int32_t)m_State);
 
 		}
 	} else
@@ -185,7 +185,7 @@ bool LogIrc::doStart()
 			g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_IrcServer.c_str(),this);
 			break;
 		default:
-			logCrit("Calling doStart() in invalid State %i \n",(int)m_State);
+			logCrit("Calling doStart() in invalid State %i \n",(int32_t)m_State);
 
 		}
 	}
@@ -221,7 +221,7 @@ bool LogIrc::dnsResolved(DNSResult *result)
 	case LIRC_RESOLV_TOR:
 		{
 			m_State = LIRC_RESOLV_IRC;
-			list <unsigned int> resolved = result->getIP4List();
+			list <uint32_t> resolved = result->getIP4List();
             m_TorIP = resolved.front();
 			logSpam("Resolved tor host %s to %s \n",result->getDNS().c_str(),inet_ntoa(*(in_addr *)&m_TorIP));
 			g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_IrcServer.c_str(),this);
@@ -232,7 +232,7 @@ bool LogIrc::dnsResolved(DNSResult *result)
 	case LIRC_RESOLV_IRC:
 		{// connect tor, create dialogue, assign dialogue, 
 		
-			list <unsigned int> resolved = result->getIP4List();
+			list <uint32_t> resolved = result->getIP4List();
 			m_IrcIP = resolved.front();
 			logSpam("Resolved Irc host %s to %s \n",result->getDNS().c_str(),inet_ntoa(*(in_addr *)&m_IrcIP));
 
@@ -252,18 +252,18 @@ bool LogIrc::dnsResolved(DNSResult *result)
 		
 		break;
 	default:
-		logCrit("Calling doStart() in invalid State %i \n",(int)m_State);
+		logCrit("Calling doStart() in invalid State %i \n",(int32_t)m_State);
 
 
 
-/*	list <unsigned int> resolved = result->getIP4List();
+/*	list <uint32_t> resolved = result->getIP4List();
 
-	list <unsigned int>::iterator it;
+	list <uint32_t>::iterator it;
 	for (it=resolved.begin();it!=resolved.end();it++)
 	{
 		logSpam( "DNS has ip %s \n",inet_ntoa(*(in_addr *)&*it));
 		char *reply;
-		asprintf(&reply,"DNS %s has ip %s (context %8x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (unsigned int)result->getObject());
+		asprintf(&reply,"DNS %s has ip %s (context %8x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (uint32_t)result->getObject());
 		m_Socket->doRespond(reply,strlen(reply));
 		free(reply);
 		
@@ -286,7 +286,7 @@ bool LogIrc::dnsFailure(DNSResult *result)
 	return true;
 }
 
-void LogIrc::log(unsigned int mask, const char *message)
+void LogIrc::log(uint32_t mask, const char *message)
 {
 	if (m_IrcDialogue != NULL)
 	{
@@ -294,12 +294,12 @@ void LogIrc::log(unsigned int mask, const char *message)
 	}
 }
 
-unsigned long LogIrc::getIrcIP()
+uint32_t LogIrc::getIrcIP()
 {
 	return m_IrcIP;
 }
 
-unsigned short LogIrc::getIrcPort()
+uint16_t LogIrc::getIrcPort()
 {
 	return m_IrcPort;
 }
@@ -344,7 +344,7 @@ bool LogIrc::useTor()
 	return m_UseTor;
 }
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new LogIrc(nepenthes);

@@ -11,16 +11,16 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
-#define uint unsigned int
 #define byte unsigned char
 
-int main(int argc, char **argv)
+int32_t main(int32_t argc, char **argv)
 {
 	FILE *f = stdin;
 	byte buffer[16];
-	uint bytesRead, totalBytes = 0, i = 1, exploitCode = 0;
-	uint startOffset = 0, addInt3 = 0;
+	uint32_t bytesRead, totalBytes = 0, i = 1, exploitCode = 0;
+	uint32_t startOffset = 0, addInt3 = 0;
 	
 	while( (argc - i) > 0 )
 	{
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 		printf("#pragma comment (lib, \"ws2_32\")\n\n");
 	}
 	
-	printf("unsigned char data[] = {\n");
+	printf("unsigned char shellcode[] = {\n");
 
 	if( addInt3 )
 		printf("0xcc, // debugger trap\n");
@@ -113,14 +113,14 @@ int main(int argc, char **argv)
 			"	WSAStartup(MAKEWORD(2, 0), &wsa);\n"
 			"}\n"
 			"\n"
-			"int main(int argc, char **argv)\n"
+			"int32_t main(int32_t argc, char **argv)\n"
 			"{\n"
-			"	int *ret;\n"
+			"	int32_t *ret;\n"
 			"\n"
 			"	fixWSA();\n"
 			"\n"
-			"	ret = (int *)&ret + 2;\n"
-			"	(*ret) = (int)shellcode;\n"
+			"	ret = (int32_t *)&ret + 2;\n"
+			"	(*ret) = (int32_t)shellcode;\n"
 			"\n"
 			"	return 0;\n"
 			"}\n"

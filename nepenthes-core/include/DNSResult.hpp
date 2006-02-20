@@ -51,15 +51,15 @@ namespace nepenthes
 #else
 		DNSResult(adns_answer *answer, char *dns, void *obj);
 #endif
-		DNSResult(unsigned long ip , char *dns, void *obj);
+		DNSResult(uint32_t ip , char *dns, void *obj);
 
 		virtual ~DNSResult();
-		virtual list <unsigned int> getIP4List();
+		virtual list <uint32_t> getIP4List();
 		virtual string getDNS();
 		virtual void *getObject();
 
 	protected:
-        list <unsigned int> m_ResolvedIPv4;
+        list <uint32_t> m_ResolvedIPv4;
 		string m_DNS;
 		void 	*m_Object;
 	};

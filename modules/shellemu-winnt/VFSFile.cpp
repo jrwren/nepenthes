@@ -38,7 +38,7 @@
 using namespace nepenthes;
 using namespace std;
 
-VFSFile::VFSFile(VFSNode *parentnode, char *name, char *data, unsigned int len)
+VFSFile::VFSFile(VFSNode *parentnode, char *name, char *data, uint32_t len)
 {
 	m_ParentNode = parentnode;
 	if (len == 0)
@@ -55,7 +55,7 @@ VFSFile::~VFSFile()
 	delete m_Buffer;
 }
 
-unsigned int VFSFile::addData(char *data, unsigned int len)
+uint32_t VFSFile::addData(char *data, uint32_t len)
 {
 	m_Buffer->add(data,len);
 	return 0;
@@ -71,7 +71,7 @@ void VFSFile::truncateFile()
 	m_Buffer->clear();
 }
 
-unsigned int VFSFile::getSize()
+uint32_t VFSFile::getSize()
 {
 	return m_Buffer->getSize();
 }

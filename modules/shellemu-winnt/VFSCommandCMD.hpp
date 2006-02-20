@@ -36,6 +36,6 @@ namespace nepenthes
 	public:
 		VFSCommandCMD(VFSNode *parent,VFS *vfs);
 		~VFSCommandCMD();
-    	int run(vector<string> *paramlist);
+    	int32_t run(vector<string> *paramlist);
 	};
 }

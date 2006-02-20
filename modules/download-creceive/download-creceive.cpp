@@ -154,8 +154,8 @@ Dialogue *CReceiveDownloadHandler::createDialogue(Socket *socket)
  */
 bool CReceiveDownloadHandler::download(Download *down)
 {
-//	unsigned long host = inet_addr(down->getDownloadUrl()->getHost().c_str());
-	unsigned short port = down->getDownloadUrl()->getPort();
+//	uint32_t host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	uint16_t port = down->getDownloadUrl()->getPort();
 
 	Socket *sock ;
 	if ((sock= g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,30,30)) != NULL)
@@ -170,7 +170,7 @@ bool CReceiveDownloadHandler::download(Download *down)
     return true;
 }
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new CReceiveDownloadHandler(nepenthes);

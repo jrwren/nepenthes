@@ -51,12 +51,12 @@ public:
 		Socket * acceptConnection();
 		virtual bool wantSend();
 
-		virtual int doSend();
-		virtual int doRecv();
-		int doWrite(char *msg, unsigned int len);
+		virtual int32_t doSend();
+		virtual int32_t doRecv();
+		int32_t doWrite(char *msg, uint32_t len);
 		virtual bool checkTimeout();
 		virtual bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 	};
 }
 

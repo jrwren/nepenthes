@@ -62,7 +62,7 @@ void ModuleManager::doList()
 {
 	list <Module *>::iterator module;
 	logInfo("=--- %-69s ---=\n","ModuleManager");
-	int i=0;
+	int32_t i=0;
 	for(module = m_Modules.begin();module != m_Modules.end();module++,i++)
 	{
 		logInfo("  %i) %-8s %s\n",i,(*module)->getModuleName().c_str(), (*module)->getModuleDescription().c_str());
@@ -97,7 +97,7 @@ bool ModuleManager::Init()
 	sList = *m_Nepenthes->getConfig()->getValStringList("nepenthes.modules");
 
 	
-	unsigned int i = 0;
+	uint32_t i = 0;
 	while (i < sList.size())
 	{
 //        printf("Module %s\n",sList[i]);
@@ -191,7 +191,7 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
     void *handle;
 #endif
 
-    typedef int (*module_init_proc)(int, Module**, Nepenthes *);
+    typedef int32_t (*module_init_proc)(int32_t, Module**, Nepenthes *);
     module_init_proc module_init;
 
 #ifdef WIN32

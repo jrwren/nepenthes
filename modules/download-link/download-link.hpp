@@ -46,8 +46,8 @@ namespace nepenthes
 {
 	struct LinkBindContext
 	{
-		unsigned long 		m_RemoteHost;
-		unsigned short int 	m_LocalPort;
+		uint32_t 		m_RemoteHost;
+		uint16_t 	m_LocalPort;
 		string				m_Challenge;
 		Download 			*m_Download;
 	};
@@ -69,8 +69,8 @@ namespace nepenthes
 		void socketClosed(Socket *socket);
 
 	protected:
-		unsigned int m_MaxFileSize;
-		unsigned int m_ConnectTimeout;
+		uint32_t m_MaxFileSize;
+		uint32_t m_ConnectTimeout;
 
 		list <LinkBindContext *> m_BindContexts;
 

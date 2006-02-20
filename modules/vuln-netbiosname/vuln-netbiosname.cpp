@@ -113,8 +113,8 @@ bool NetbiosNameVuln::Init()
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 
 
-	int timeout;
-	int port;
+	int32_t timeout;
+	int32_t port;
 	try
 	{
         port = m_Config->getValInt("vuln-netbiosname.port");
@@ -150,7 +150,7 @@ Dialogue *NetbiosNameVuln::createDialogue(Socket *socket)
 
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new NetbiosNameVuln(nepenthes);

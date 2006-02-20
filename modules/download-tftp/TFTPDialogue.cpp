@@ -76,20 +76,20 @@ void TFTPDialogue::setDownload(Download *down)
 }
 
 
-void TFTPDialogue::setMaxFileSize(unsigned long ul)
+void TFTPDialogue::setMaxFileSize(uint32_t ul)
 {
 	m_MaxFileSize = ul;
 }
 
-void TFTPDialogue::setMaxRetries(unsigned int i)
+void TFTPDialogue::setMaxRetries(uint32_t i)
 {
 	m_MaxRetries = i;
 }
 
-int TFTPDialogue::setRequest(char *file)
+int32_t TFTPDialogue::setRequest(char *file)
 {
 	m_LastSendPacket = (char *) malloc(strlen(file) + 9);
-	* ((unsigned short *) m_LastSendPacket) = 0x0100;          
+	* ((uint16_t *) m_LastSendPacket) = 0x0100;          
 	strcpy((char *) m_LastSendPacket + 2, file);
 	strcpy((char *) m_LastSendPacket + strlen(file) + 3, "octet");
 	m_LastSendLength = strlen(file) + 9;
@@ -131,7 +131,7 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 		{
 //			logInfo("got %i bytes \n",msg->getMsgLen());
 			m_Retries=0;
-			unsigned int iBlockNum = ntohs(ptftphdr->th_block);
+			uint32_t iBlockNum = ntohs(ptftphdr->th_block);
 			if (iBlockNum != m_Blocks + 1)
 			{
 				logSpam("Got block out of order %i <-> %i \n",m_Blocks, iBlockNum);

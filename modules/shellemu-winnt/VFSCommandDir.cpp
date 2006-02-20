@@ -48,14 +48,14 @@ VFSCommandDir::~VFSCommandDir()
 
 } 
 
-int VFSCommandDir::run(vector<string> *paramlist)
+int32_t VFSCommandDir::run(vector<string> *paramlist)
 {
 /*	list <VFSNode *>::iterator node;
 	list <VFSNode *> nodelist = *dir->getList();
 	string rs;
 	for (node = nodelist.begin();node != nodelist.end(); node++)
 	{
-		logSpam(" %i %s \n",(int)(*node)->getType(), (*node)->getName().c_str());
+		logSpam(" %i %s \n",(int32_t)(*node)->getType(), (*node)->getName().c_str());
 
 		switch((*node)->getType())
 		{

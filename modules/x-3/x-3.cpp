@@ -286,7 +286,7 @@ ConsumeLevel X3Download::connectionShutdown(Message *msg)
 	return CL_DROP;
 }
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new X3(nepenthes);

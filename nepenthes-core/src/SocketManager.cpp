@@ -38,7 +38,7 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <netinet/in.h>
-#include <linux/if.h>
+#include <net/if.h>
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #endif
@@ -104,7 +104,7 @@ bool  SocketManager::Init()
 #ifdef WIN32
 	WORD wVersionRequested;
 	WSADATA wsaData;
-	int err;
+	int32_t err;
  
 	wVersionRequested = MAKEWORD( 2, 2 );
  
@@ -134,7 +134,7 @@ bool  SocketManager::Init()
         }
 
         INTERFACE_INFO InterfaceList[20];
-        unsigned long nBytesReturned;
+        uint32_t nBytesReturned;
         if (WSAIoctl(sd, SIO_GET_INTERFACE_LIST, 0, 0, &InterfaceList,
                      sizeof(InterfaceList), &nBytesReturned, 0, 0) == SOCKET_ERROR)
         {
@@ -142,9 +142,9 @@ bool  SocketManager::Init()
             return false;
         }
 
-        int nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
+        int32_t nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
         logInfo("There are %i interfaces \n",nNumInterfaces);
-        int i;
+        int32_t i;
         for (i = 0; i < nNumInterfaces; ++i)
         {
             logInfo("Interface %i \n", i);
@@ -189,7 +189,7 @@ bool  SocketManager::Init()
             sockaddr_in *pAddress;
             pAddress = (sockaddr_in *) & (InterfaceList[i].iiAddress);
 
-            RAWSocketListener *sock = new RAWSocketListener(m_Nepenthes,*(unsigned long *)&(pAddress->sin_addr));
+            RAWSocketListener *sock = new RAWSocketListener(m_Nepenthes,*(uint32_t *)&(pAddress->sin_addr));
             if ( sock->Init() == true )
             {
                 m_Sockets.push_back(sock);
@@ -261,8 +261,8 @@ bool  SocketManager::Init()
 			memset(&ifr,0,sizeof(struct ifreq));
 //			struct ifconf ifc;
 
-			unsigned long localip;
-			int fd = socket(AF_INET, SOCK_DGRAM, 0);
+			uint32_t localip=0;
+			int32_t fd = socket(AF_INET, SOCK_DGRAM, 0);
 			if ( fd >= 0 )
 			{
 				strcpy(ifr.ifr_name, it->c_str());
@@ -330,7 +330,7 @@ void SocketManager::doList()
 {
 	list <Socket *>::iterator socket;
 	logSpam("=--- %-69s ---=\n","SocketManager");
-	int i=0;
+	int32_t i=0;
 	for(socket = m_Sockets.begin();socket != m_Sockets.end();socket++,i++)
 	{
 		logSpam("  %i) %-8s \n",i,(*socket)->getDescription().c_str());
@@ -348,7 +348,7 @@ void SocketManager::doList()
  *         else false
  */
 #ifdef WIN32
-bool SocketManager::doLoop(unsigned int polltimeout)
+bool SocketManager::doLoop(uint32_t polltimeout)
 {// FIXME ..
 	list <Socket *>::iterator itSocket;
 
@@ -387,11 +387,11 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 	FD_ZERO(&wfds);
 
 
-	int i=0;
+	int32_t i=0;
 	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
 	{
-		int iError = 0;
-		int iSize = sizeof(iError);
+		int32_t iError = 0;
+		int32_t iSize = sizeof(iError);
 		if((*itSocket)->getType() & ST_FILE)
 		{
 			(*itSocket)->setPolled();
@@ -427,7 +427,7 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 	}
 
 	i=0;
-	int maxsock=-1;
+	int32_t maxsock=-1;
 	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
 	{	
 		if ((*itSocket)->isPolled() == true )
@@ -452,7 +452,7 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 	tv.tv_sec = 2;
 	tv.tv_usec = 500000;
 
-	int iPollRet = select(maxsock,&rfds,&wfds,NULL,&tv);
+	int32_t iPollRet = select(maxsock,&rfds,&wfds,NULL,&tv);
 
 	if (iPollRet != 0)
 	{
@@ -551,7 +551,7 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 }
 #else
 
-bool SocketManager::doLoop(unsigned int polltimeout)
+bool SocketManager::doLoop(uint32_t polltimeout)
 {// FIXME ..
 
 
@@ -589,11 +589,11 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 
 	pollfd *polls = (pollfd *) malloc( (m_Sockets.size())* sizeof(pollfd));
 	memset(polls,0,(m_Sockets.size())* sizeof(pollfd));
-	int i=0;
+	int32_t i=0;
 	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
 	{
-		int iError = 0;
-		int iSize = sizeof(iError);
+		int32_t iError = 0;
+		int32_t iSize = sizeof(iError);
 		if((*itSocket)->getType() & ST_FILE)
 		{
 			(*itSocket)->setPolled();
@@ -651,7 +651,7 @@ bool SocketManager::doLoop(unsigned int polltimeout)
 		}
 	}
 
-	int iPollRet = poll(polls,i, 1500);
+	int32_t iPollRet = poll(polls,i, 1500);
 
 	if (iPollRet != 0)
 	{
@@ -770,7 +770,7 @@ bool SocketManager::doLoop(unsigned int polltimeout)
  * 
  * @return returns the bound Socket if binding was successfull, else NULL
  */
-Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,time_t bindtimeout,time_t accepttimeout)
+Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout)
 {
 	logSpam("bindTCPSocket %li %i %li %li\n",localhost,port,bindtimeout,accepttimeout);
 	TCPSocket *sock = NULL;
@@ -778,7 +778,7 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 	list <Socket *>::iterator socket;
 	for(socket = m_Sockets.begin();socket != m_Sockets.end(); socket++)
 	{
-		if((*socket)->getType() & ST_TCP && (*socket)->isBind() && (*socket)->getLocalPort() == (int)port )
+		if((*socket)->getType() & ST_TCP && (*socket)->isBind() && (*socket)->getLocalPort() == (int32_t)port )
 		{
 			return (*socket);
 		}
@@ -786,7 +786,9 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 
 	if(sock == NULL)
 	{
-		if ((sock = new TCPSocket(getNepenthes(), localhost, port, bindtimeout, accepttimeout)) == NULL )
+		// This can bee seen as ambiguous - at least on FreeBSD. We want this:
+		// TCPSocket(Nepenthes *nepenthes, uint32_t localaddress, int32_t port, time_t bindtimeout, time_t accepttimeout)
+		if ((sock = new TCPSocket(getNepenthes(), localhost, (int32_t) port, (time_t) bindtimeout, (time_t) accepttimeout)) == NULL )
 		{
 			logCrit("ERROR Binding %s:%i failed\n","",port);
 			return NULL;
@@ -808,7 +810,7 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 }
 
 
-Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::bindTCPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("bindTCPSocket %li %i %li %li %lx\n",localhost,port,bindtimeout,accepttimeout, dialoguefactory);
 	TCPSocket *sock = NULL;
@@ -816,7 +818,7 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 	list <Socket *>::iterator socket;
 	for(socket = m_Sockets.begin();socket != m_Sockets.end(); socket++)
 	{
-		if((*socket)->getType() & ST_TCP && (*socket)->isBind() && (*socket)->getLocalPort() == (int)port )
+		if((*socket)->getType() & ST_TCP && (*socket)->isBind() && (*socket)->getLocalPort() == (int32_t)port )
 		{
 			(*socket)->addDialogueFactory(dialoguefactory);
 			return (*socket);
@@ -825,7 +827,7 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 
 	if(sock == NULL)
 	{
-		if ((sock = new TCPSocket(getNepenthes(), localhost, port, bindtimeout, accepttimeout)) == NULL )
+		if ((sock = new TCPSocket(getNepenthes(), localhost, (int32_t) port, bindtimeout, accepttimeout)) == NULL )
 		{
 			logCrit("ERROR Binding %s:%i failed\n","",port);
 
@@ -849,7 +851,7 @@ Socket *SocketManager::bindTCPSocket(unsigned long localhost, unsigned int port,
 }
 
 
-Socket *SocketManager::bindUDPSocket(unsigned long localhost, unsigned int port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::bindUDPSocket(uint32_t localhost, uint32_t port,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("bindUDPSocket %li %i %li %li\n",localhost,port,bindtimeout,accepttimeout);
 	UDPSocket *sock = NULL;
@@ -857,7 +859,7 @@ Socket *SocketManager::bindUDPSocket(unsigned long localhost, unsigned int port,
 	list <Socket *>::iterator socket;
 	for(socket = m_Sockets.begin();socket != m_Sockets.end(); socket++)
 	{
-		if((*socket)->getType() & ST_UDP && (*socket)->isBind() && (*socket)->getLocalPort() == (int)port )
+		if((*socket)->getType() & ST_UDP && (*socket)->isBind() && (*socket)->getLocalPort() == (int32_t)port )
 		{
 			(*socket)->addDialogueFactory(dialoguefactory);
 			return (*socket);
@@ -866,7 +868,7 @@ Socket *SocketManager::bindUDPSocket(unsigned long localhost, unsigned int port,
 
 	if(sock == NULL)
 	{
-		if ((sock = new UDPSocket(getNepenthes(), localhost, port, bindtimeout, accepttimeout)) == NULL )
+		if ((sock = new UDPSocket(getNepenthes(), localhost, (int32_t) port, bindtimeout, accepttimeout)) == NULL )
 		{
 			logCrit("ERROR Binding %s:%i failed\n","",port);
 			return NULL;
@@ -890,13 +892,13 @@ Socket *SocketManager::bindUDPSocket(unsigned long localhost, unsigned int port,
 
 
 
-Socket *SocketManager::bindTCPSocket(unsigned long localHost, unsigned int Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname)
+Socket *SocketManager::bindTCPSocket(uint32_t localHost, uint32_t Port,time_t bindtimeout,time_t accepttimeout, char *dialoguefactoryname)
 {
 	return NULL;
 }
 
 
-Socket *SocketManager::openFILESocket(char *filepath, int flags)
+Socket *SocketManager::openFILESocket(char *filepath, int32_t flags)
 {
 #ifdef WIN32
 	return NULL;
@@ -908,7 +910,7 @@ Socket *SocketManager::openFILESocket(char *filepath, int flags)
 #endif
 }
 
-Socket *SocketManager::connectUDPHost(unsigned long localhost, unsigned long remotehost, unsigned int port,time_t connecttimeout)
+Socket *SocketManager::connectUDPHost(uint32_t localhost, uint32_t remotehost, uint32_t port,time_t connecttimeout)
 {
 	logPF();
 	UDPSocket *sock = new UDPSocket(getNepenthes(),localhost,remotehost,port,connecttimeout);
@@ -917,7 +919,7 @@ Socket *SocketManager::connectUDPHost(unsigned long localhost, unsigned long rem
 	return sock;
 }
 
-Socket *SocketManager::connectTCPHost(unsigned long localhost, unsigned long remotehost, unsigned int port,time_t connecttimeout)
+Socket *SocketManager::connectTCPHost(uint32_t localhost, uint32_t remotehost, uint32_t port,time_t connecttimeout)
 {
 	logPF();
 	TCPSocket *sock = new TCPSocket(getNepenthes(),localhost,remotehost,port,connecttimeout);
@@ -932,7 +934,7 @@ Socket *SocketManager::addPOLLSocket(POLLSocket *sock)
 	return sock;
 }
 
-Socket *SocketManager::createRAWSocketUDP(unsigned int localport, unsigned int remoteport, time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::createRAWSocketUDP(uint32_t localport, uint32_t remoteport, time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("createRAWPSocketUDP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
 	//RAWSocketListener *sock = NULL;
@@ -949,7 +951,7 @@ Socket *SocketManager::createRAWSocketUDP(unsigned int localport, unsigned int r
 	return NULL;
 }
 
-Socket *SocketManager::createRAWSocketTCP(unsigned int localport,unsigned int remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
+Socket *SocketManager::createRAWSocketTCP(uint32_t localport,uint32_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
 {
 	logSpam("createRAWPSocketTCP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
 	//RAWSocketListener *sock = NULL;

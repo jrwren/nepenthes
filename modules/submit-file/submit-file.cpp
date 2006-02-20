@@ -101,7 +101,7 @@ void FileSubmitHandler::Submit(Download *down)
 	string path = m_FilePath +  down->getMD5Sum();
 
 	struct stat s;
-	int retval;
+	int32_t retval;
 	if ((retval = stat(path.c_str(),&s)) == 0)
 	{
 		logInfo("Already knowing file %s %i \n",path.c_str(),down->getDownloadBuffer()->getLength());
@@ -141,7 +141,7 @@ void FileSubmitHandler::Hit(Download *down)
 }
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if(version == MODULE_IFACE_VERSION)
 	{

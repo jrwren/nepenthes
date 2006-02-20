@@ -65,7 +65,7 @@ bool GenericCMD::Init()
 {
 	const char *createprocesspcre = ".*(cmd.*/.*\\x00).*";
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(createprocesspcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("GenericCMD could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -89,10 +89,10 @@ sch_result GenericCMD::handleShellcode(Message **msg)
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
-	int piOutput[10 * 3];
-	int iResult=0;
-	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	uint32_t len = (*msg)->getMsgLen();
+	int32_t piOutput[10 * 3];
+	int32_t iResult=0;
+	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		logDebug("GenricCMD (improve pcre debug) (%i bytes)\n",(*msg)->getMsgLen());
 //		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)(*msg)->getMsg(),(*msg)->getMsgLen());

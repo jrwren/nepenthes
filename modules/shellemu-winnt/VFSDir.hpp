@@ -31,6 +31,7 @@
 #include <string>
 
 #include "VFSNode.hpp"
+#include <stdint.h>
 
 using namespace std;
 
@@ -50,7 +51,7 @@ namespace nepenthes
 		virtual VFSDir *createDirectory(char *dirname);
 		virtual VFSFile *getFile(char *filename);
 
-		virtual VFSFile *createFile(char *name, char *data, unsigned int len);
+		virtual VFSFile *createFile(char *name, char *data, uint32_t len);
 		virtual list <VFSNode *> *getList();
 		virtual VFSCommand *createCommand(VFSCommand *command);
 	};

@@ -31,6 +31,7 @@
 #define HAVE_MESSAGE_HPP
 
 #include <time.h>
+#include <stdint.h>
 
 
 namespace nepenthes
@@ -44,32 +45,32 @@ namespace nepenthes
     {
 
     public:
-        Message(char *msg, unsigned int len, unsigned int localport, unsigned int remoteport, 
-                unsigned long localhost, unsigned long remotehost, Responder *responder, Socket *socket); // standard msg
-        Message(unsigned int localport, unsigned int remoteport, unsigned long localhost, 
-                unsigned long remotehost, Responder *responder, Socket *socket); // timeout msg
+        Message(char *msg, uint32_t len, uint32_t localport, uint32_t remoteport, 
+                uint32_t localhost, uint32_t remotehost, Responder *responder, Socket *socket); // standard msg
+        Message(uint32_t localport, uint32_t remoteport, uint32_t localhost, 
+                uint32_t remotehost, Responder *responder, Socket *socket); // timeout msg
 
         virtual ~Message();
 
         virtual char            *getMsg();
-        virtual unsigned int    getMsgLen();
-        virtual unsigned long   getLocalHost();
-        virtual unsigned int    getLocalPort();
-        virtual unsigned long   getRemoteHost();
-        virtual unsigned int    getRemotePort();
+        virtual uint32_t    getMsgLen();
+        virtual uint32_t   getLocalHost();
+        virtual uint32_t    getLocalPort();
+        virtual uint32_t   getRemoteHost();
+        virtual uint32_t    getRemotePort();
         virtual time_t          getReceiveTime();
         virtual Socket          *getSocket();
         virtual Responder       *getResponder();
 
     private:
         char         *m_Msg;
-        unsigned int  m_MsgLen;
+        uint32_t  m_MsgLen;
 
-        unsigned long m_RemoteHost;
-        unsigned int  m_RemotePort;
+        uint32_t m_RemoteHost;
+        uint32_t  m_RemotePort;
 
-        unsigned long m_LocalHost;
-        unsigned int  m_LocalPort;
+        uint32_t m_LocalHost;
+        uint32_t  m_LocalPort;
 
         time_t        m_ReceiveTime;
 

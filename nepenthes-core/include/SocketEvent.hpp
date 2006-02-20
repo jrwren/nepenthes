@@ -51,4 +51,29 @@ namespace nepenthes
 	private:
 		Socket *m_Socket;
 	};
+
+
+
+
+	class Message;
+
+	class MessageEvent: public Event
+	{
+	public:
+		MessageEvent(Message *msg, event_type e)
+		{
+			m_Message = msg;
+			m_EventType = e;
+		}
+		virtual ~MessageEvent()
+		{
+		}
+		virtual Message *getMessage()
+		{
+			return m_Message;
+		}
+	private:
+		Message *m_Message;
+	};
+
 }

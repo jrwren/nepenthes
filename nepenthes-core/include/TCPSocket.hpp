@@ -38,9 +38,9 @@ namespace nepenthes
 	class TCPSocket : public Socket
 	{
 public:
-	TCPSocket(Nepenthes *nepenthes, unsigned long localaddress, int port, time_t bindtimeout, time_t accepttimeout);	// bind socket 
-	TCPSocket(Nepenthes *nepenthes, int socket, unsigned long localhost, int localport, unsigned long  remotehost,int remoteport, time_t accepttimeout); // accept socket
-	TCPSocket(Nepenthes *nepenthes,unsigned long localhost, unsigned long remotehost, int remoteport, time_t connectiontimeout);	// connect with timeout
+	TCPSocket(Nepenthes *nepenthes, uint32_t localaddress, int32_t port, time_t bindtimeout, time_t accepttimeout);	// bind socket 
+	TCPSocket(Nepenthes *nepenthes, int32_t socket, uint32_t localhost, int32_t localport, uint32_t  remotehost,int32_t remoteport, time_t accepttimeout); // accept socket
+	TCPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout);	// connect with timeout
 	~TCPSocket();
 		bool bindPort();
 		bool Init();
@@ -49,12 +49,12 @@ public:
 		Socket * acceptConnection();
 		bool wantSend();
 
-		int doSend();
-		int doRecv();
-		int doWrite(char *msg, unsigned int len);
+		int32_t doSend();
+		int32_t doRecv();
+		int32_t doWrite(char *msg, uint32_t len);
 		bool checkTimeout();
 		bool handleTimeout();
-		bool doRespond(char *msg, unsigned int len);
+		bool doRespond(char *msg, uint32_t len);
 	protected:
 		list <Packet *> m_TxPackets; 
 	};

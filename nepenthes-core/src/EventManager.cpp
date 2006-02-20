@@ -61,7 +61,7 @@ void EventManager::doList()
 {
 	list <EventHandler *>::iterator ehandler;
 	logInfo("=--- %-69s ---=\n","EventManager");
-	int i=0;
+	int32_t i=0;
 	for(ehandler = m_EventHandlers.begin();ehandler != m_EventHandlers.end();ehandler++,i++)
 	{
 		logInfo("  %i) %-8s %s\n",i,(*ehandler)->getEventHandlerName().c_str(), (*ehandler)->getEventHandlerDescription().c_str());
@@ -69,7 +69,7 @@ void EventManager::doList()
     logInfo("=--- %2i %-66s ---=\n\n",i, "EventHandlers registerd");
 }
 
-unsigned int EventManager::handleEvent(Event *event)
+uint32_t EventManager::handleEvent(Event *event)
 {
 	logPF();
 	list <EventHandler *>::iterator handler;
@@ -88,7 +88,17 @@ void EventManager::registerEventHandler(EventHandler *handler)
 }
 bool EventManager::unregisterEventHandler(EventHandler *handler)
 {
-	return true;
+	list <EventHandler *>::iterator it;
+	for(it = m_EventHandlers.begin();it != m_EventHandlers.end();it++)
+	{
+		if (*it == handler)
+		{
+			m_EventHandlers.erase(it);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

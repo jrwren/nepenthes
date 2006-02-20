@@ -30,12 +30,12 @@ FTPContext::~FTPContext()
 //	delete m_Download;
 }
 
-void FTPContext::setActiveFTPBindPort(unsigned short port)
+void FTPContext::setActiveFTPBindPort(uint16_t port)
 {
 	m_ActiveFtpBindPort = port;
 }
 
-unsigned short FTPContext::getActiveFTPBindPort()
+uint16_t FTPContext::getActiveFTPBindPort()
 {
 	return m_ActiveFtpBindPort;
 }

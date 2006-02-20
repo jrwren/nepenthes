@@ -29,6 +29,8 @@
 #ifndef HAVE_BUFFER_HPP
 #define HAVE_BUFFER_HPP
 
+#include <stdint.h>
+
 namespace nepenthes
 {
 	/**
@@ -37,26 +39,26 @@ namespace nepenthes
 	class Buffer
 	{
 	public:
-		Buffer(unsigned int intialSize = 0);
-		Buffer(void *data, unsigned int size);
+		Buffer(uint32_t intialSize = 0);
+		Buffer(void *data, uint32_t size);
 		virtual         ~Buffer();
 
 		virtual void            clear();
-		virtual void            add(void *data, unsigned int size);
+		virtual void            add(void *data, uint32_t size);
 		virtual void            addString(const char *str);
-		virtual unsigned int    getSize();
+		virtual uint32_t    getSize();
 		virtual void            *getData();
-		virtual void            cut(int size);
+		virtual void            cut(int32_t size);
 
 		virtual void            debug();
 
 	private:
-		virtual void            resize(unsigned int newSize);
+		virtual void            resize(uint32_t newSize);
 		virtual void            reset();
 
 		void            *m_data;
-		unsigned int    m_offset;
-		unsigned int    m_allocSize;
+		uint32_t    m_offset;
+		uint32_t    m_allocSize;
 	};
 }
 

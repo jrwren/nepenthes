@@ -62,8 +62,8 @@ namespace nepenthes
 		list <CSendDialogue *> m_Downloads;
 
 	protected:
-		unsigned int m_MaxFileSize;
-		unsigned int m_ConnectTimeout;
+		uint32_t m_MaxFileSize;
+		uint32_t m_ConnectTimeout;
 
 	};
 

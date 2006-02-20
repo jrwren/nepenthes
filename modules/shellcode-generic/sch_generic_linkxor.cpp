@@ -73,7 +73,7 @@ bool LinkXOR::Init()
 	const char *linkDecoder = "\\xEB\\x15\\xB9(....)\\x81\\xF1(....)\\x5E\\x80\\x74\\x31\\xFF(.)\\xE2\\xF9\\xEB\\x05\\xE8\\xE6\\xFF\\xFF\\xFF(.*)";
 
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_linkDecoder = pcre_compile(linkDecoder, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("LinkXOR could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -98,25 +98,25 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int offvec[10 * 3];
-	int result;
+	int32_t offvec[10 * 3];
+	int32_t result;
 
-	if( (result = pcre_exec(m_linkDecoder, 0, (char *)shellcode, len, 0, 0, offvec, sizeof(offvec)/sizeof(int))) > 0 )
+	if( (result = pcre_exec(m_linkDecoder, 0, (char *)shellcode, len, 0, 0, offvec, sizeof(offvec)/sizeof(int32_t))) > 0 )
 	{
 		const char *substring;
 
-		uint a, b, payloadLen;
+		uint32_t a, b, payloadLen;
 		byte key;
 		byte *payload;
 
 		pcre_get_substring((char *)shellcode, offvec, result, 1, &substring);
-		a = *((uint *)substring);
+		a = *((uint32_t *)substring);
 		pcre_free_substring(substring);
 
 		pcre_get_substring((char *)shellcode, offvec, result, 2, &substring);
-		b = *((uint *)substring);
+		b = *((uint32_t *)substring);
 		pcre_free_substring(substring);
 
 		payloadLen = a ^ b;
@@ -132,7 +132,7 @@ sch_result LinkXOR::handleShellcode(Message **msg)
 		memcpy(payload, substring, payloadLen);
 		pcre_free_substring(substring);
 
-		for( uint i = 0; i < payloadLen; i++ )
+		for( uint32_t i = 0; i < payloadLen; i++ )
 			payload[i] ^= key;
 
 		//g_Nepenthes->getUtilities()->hexdump(l_crit, payload, payloadLen);

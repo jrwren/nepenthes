@@ -35,7 +35,7 @@
 
 using namespace nepenthes;
 
-Download::Download(char *url,unsigned long address,char *triggerline)
+Download::Download(char *url,uint32_t address,char *triggerline)
 {
 	m_Url 			= url;
 	m_TriggerLine 	= triggerline;
@@ -77,7 +77,7 @@ string Download::getMD5Sum()
 	return m_MD5Sum;
 }
 
-unsigned long Download::getAddress()
+uint32_t Download::getAddress()
 {
 	return m_Address;
 }
@@ -100,4 +100,27 @@ void Download::setFileType(char *type)
 string Download::getFileType()
 {
 	return m_FileType;
+}
+
+void  Download::setSHA512(unsigned char *hash)
+{
+	memcpy(m_SHA512Sum,hash,64);
+}
+
+unsigned char * Download::getSHA512()
+{
+	return m_SHA512Sum;
+}
+
+string  Download::getSHA512Sum()
+{
+	string s;
+	string SHA512Sum ="";
+
+	for(uint32_t i = 0; i < 64; ++i)
+	{
+		SHA512Sum += ((m_SHA512Sum[i] >> 4) < 10 ? (m_SHA512Sum[i] >> 4) + '0' : (m_SHA512Sum[i] >> 4) + ('a' - 10));
+		SHA512Sum += ((m_SHA512Sum[i] & 0xF) < 10 ? (m_SHA512Sum[i] & 0xF) + '0' : (m_SHA512Sum[i] & 0xF) + ('a' - 10));
+	}
+	return SHA512Sum;
 }

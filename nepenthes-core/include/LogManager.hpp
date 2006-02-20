@@ -31,6 +31,7 @@
 #define LOGMANAGER_HPP
 
 #include <list>
+#include <stdint.h>
 
 namespace nepenthes
 {
@@ -52,11 +53,13 @@ namespace nepenthes
 							LogManager();
 		virtual 			~LogManager();
 	
-		void				registerTag(unsigned int bit, const char *tag);
-		virtual void				addLogger(LogHandler *lh, unsigned int filterMask);
-		virtual void				log(unsigned int mask, const char *message);
-		virtual void				logf(unsigned int mask, const char *format, ...);
-		const char			*getTag(unsigned int bit);
+		void				registerTag(uint32_t bit, const char *tag);
+		virtual void		addLogger(LogHandler *lh, uint32_t filterMask);
+		virtual void		log(uint32_t mask, const char *message);
+		virtual void		logf(uint32_t mask, const char *format, ...);
+		const char			*getTagName(uint32_t bit);
+		uint32_t		getTagId(const char *tag);
+		uint32_t		parseTagString(const char *tagString);
 	
 	private:
 		list<LogHandlerEntry *>	m_Loggers;

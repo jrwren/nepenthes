@@ -64,7 +64,7 @@ namespace nepenthes
 	protected:
 		sub7_state 	m_State;
 		Buffer 		*m_Buffer;
-		unsigned int		m_FileSize;
+		uint32_t		m_FileSize;
 		Download 			*m_Download;
 	};
 

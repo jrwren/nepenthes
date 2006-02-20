@@ -50,7 +50,7 @@ DownloadBuffer::~DownloadBuffer()
 	free(m_Buffer);
 }
 
-bool DownloadBuffer::Init(unsigned int i)
+bool DownloadBuffer::Init(uint32_t i)
 {
 	if(i <= 0 )
 	{
@@ -70,7 +70,7 @@ bool DownloadBuffer::Init(unsigned int i)
 }
 
 
-bool DownloadBuffer::addData(char *pszData, unsigned int iDataLen)
+bool DownloadBuffer::addData(char *pszData, uint32_t iDataLen)
 {
 	if(m_BufferSize == 0 && Init(65536) == false )
 	{
@@ -106,13 +106,27 @@ bool DownloadBuffer::addData(char *pszData, unsigned int iDataLen)
 	return true;
 }
 
+bool DownloadBuffer::cutFront(uint32_t len)
+{
+	if (len > m_BufferOffset)
+	{
+		return false;
+	}else
+	{
+		m_BufferOffset -= len;
+		memmove(m_Buffer,m_Buffer+len,m_BufferOffset);
+		return true;
+	}
+
+
+}
 
 char *DownloadBuffer::getData()
 {
 	return m_Buffer;
 }
 
-unsigned int DownloadBuffer::getLength()
+uint32_t DownloadBuffer::getLength()
 {
 	return m_BufferOffset;
 }

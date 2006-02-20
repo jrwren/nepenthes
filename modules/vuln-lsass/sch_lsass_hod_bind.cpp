@@ -98,7 +98,7 @@ bool HODBind::Init()
 	logInfo("pcre is %s \n",oc192bindpcre);
     
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(oc192bindpcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("HODBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -121,25 +121,25 @@ sch_result HODBind::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
 //	(*msg)->getSocket()->getNepenthes()->getUtilities()->hexdump((unsigned char *)shellcode,len);
 
 
 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
 //		g_Nepenthes->getUtilities()->hexdump((unsigned char *)shellcode,len);
 		const char * match;
-		unsigned short port;
+		uint16_t port;
         
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &match);
 
-        port = ntohs(*(unsigned long *) match^ 0x9999);
+        port = ntohs(*(uint32_t *) match^ 0x9999);
         logInfo("Detected Lsass HOD listenshell shellcode, :%u \n", port);
 		pcre_free_substring(match);
 

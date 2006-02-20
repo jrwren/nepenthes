@@ -158,7 +158,7 @@ X7Dialogue::~X7Dialogue()
 
 void dns_decode_name(char *name, char **buf)
 {
-  int i, k, len, j;
+  int32_t i, k, len, j;
 
   i = k = 0;
   while( **buf ){
@@ -210,27 +210,27 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 	case DNS_QRFLAG_RESPONSE:
 		logSpam("%s","DNS Packet is a Response\n");
 		{
-			dns_rr_t *rr = (dns_rr_t *)dns;
-            (char *)rr +=12;
-			dns_rr_t *header = rr;
+			char *rr = (char *)dns;
+                        rr +=12;
+			dns_rr_t *header = (dns_rr_t *)rr;
 
 			g_Nepenthes->getUtilities()->hexdump((byte *)rr,msg->getMsgLen()-12);
 			char name[256];
-			for (unsigned int i=1;i<=ntohs(dns->number_questions);i++)
+			for (uint32_t i=1;i<=ntohs(dns->number_questions);i++)
 			{
 				dns_decode_name(name,(char **)&rr);
                 logSpam("Question %02i/%02i %s \n",i,ntohs(dns->number_questions),name);
-				(char *)rr +=2;	// type
-				(char *)rr +=2;	// class
+				rr +=2;	// type
+				rr +=2;	// class
 			}
 
-			for (unsigned int i=1;i<=ntohs(dns->number_answers);i++)
+			for (uint32_t i=1;i<=ntohs(dns->number_answers);i++)
 			{
-				if ( *(char *)rr & 0xC0)
+				if ( *rr & 0xC0)
 				{// compressed reply
 					dns_rr_t *rrh = header;
                     dns_decode_name(name,(char **)&rrh);
-					(char *)rr +=2;// ((char *)rrh - (char *)header);
+					rr +=2;// ((char *)rrh - (char *)header);
 				}else
 				{
                 	dns_decode_name(name,(char **)&rr);
@@ -238,29 +238,29 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 
 				
 
-				unsigned short int type = *(unsigned short int *)rr;;
-				(char *)rr +=2;	// type
+				uint16_t type = *(uint16_t *)rr;;
+				rr +=2;	// type
 
 				
-				(char *)rr +=2;	// class
-				(char *)rr +=4;	// ttl
+				rr +=2;	// class
+				rr +=4;	// ttl
 				
-				short unsigned int datalen = *(short unsigned int *)rr;
-				(char *)rr +=2;	// datalen
+				 uint16_t datalen = *(uint16_t *)rr;
+				rr +=2;	// datalen
 
 				if (ntohs(type) == DNS_QUERYTYPE_A)
 				{
 					logSpam("Answer %02i/%02i %s datalen %i ip %s  len \n",i,ntohs(dns->number_answers),name, ntohs(datalen), inet_ntoa(*(in_addr *)rr));	
-					(char *)rr +=ntohs(datalen);	// the datalen
+					rr +=ntohs(datalen);	// the datalen
 				}
 				else
 				if (ntohs(type) == DNS_QUERYTYPE_CNAME)
 				{
 					char cname[256];
-					dns_rr_t *rrh = rr;
+					char *rrh = rr;
 					dns_decode_name(cname,(char **)&rrh);
 					logSpam("Answer %02i/%02i %s datalen %i cname %s  len \n",i,ntohs(dns->number_answers),name, ntohs(datalen), cname);
-					(char *)rr +=ntohs(datalen);	// the datalen
+					rr +=ntohs(datalen);	// the datalen
 				}
 
                 
@@ -274,8 +274,8 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 
 	}
 /*
-	int j=0;
-	for (int i=0;i<dns->number_questions;i++)
+	int32_t j=0;
+	for (int32_t i=0;i<dns->number_questions;i++)
 	{
 		logSpam("DNS %s \n",(char *)dns+sizeof(dns_header)+j);
 		j+=strlen((char *)dns+sizeof(dns_header)+j);
@@ -344,9 +344,9 @@ ConsumeLevel X7Dialogue::connectionShutdown(Message *msg)
 
 
 #ifdef WIN32
-extern "C" int __declspec(dllexport)  module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t __declspec(dllexport)  module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 #else
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 #endif
 
 {

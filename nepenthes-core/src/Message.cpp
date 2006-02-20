@@ -34,10 +34,10 @@
 using namespace nepenthes;
 
 
-Message::Message(char *msg, unsigned int len, unsigned int localport, unsigned int remoteport, 
-				 unsigned long localhost, unsigned long remotehost, Responder *responder, Socket *socket)
+Message::Message(char *msg, uint32_t len, uint32_t localport, uint32_t remoteport, 
+				 uint32_t localhost, uint32_t remotehost, Responder *responder, Socket *socket)
 {
-	if((int)len > 0 && msg != NULL )
+	if((int32_t)len > 0 && msg != NULL )
 	{
 		// malloc 1 byte more, 
 		// and se it 0
@@ -61,8 +61,8 @@ Message::Message(char *msg, unsigned int len, unsigned int localport, unsigned i
 
 }
 
-Message::Message(unsigned int localport, unsigned int remoteport, unsigned long localhost, 
-				 unsigned long remotehost, Responder *responder, Socket *socket)
+Message::Message(uint32_t localport, uint32_t remoteport, uint32_t localhost, 
+				 uint32_t remotehost, Responder *responder, Socket *socket)
 {
 	m_Msg = NULL;
 	m_MsgLen = 0;
@@ -88,27 +88,27 @@ char *Message::getMsg()
 	return m_Msg;
 }
 
-unsigned int Message::getMsgLen()
+uint32_t Message::getMsgLen()
 {
 	return m_MsgLen;
 }
 
-unsigned long Message::getLocalHost()
+uint32_t Message::getLocalHost()
 {
 	return m_LocalHost;
 }
 
-unsigned int Message::getLocalPort()
+uint32_t Message::getLocalPort()
 {
 	return m_LocalPort;
 }
 
-unsigned long Message::getRemoteHost()
+uint32_t Message::getRemoteHost()
 {
 	return m_RemoteHost;
 }
 
-unsigned int Message::getRemotePort()
+uint32_t Message::getRemotePort()
 {
 	return m_RemotePort;
 }

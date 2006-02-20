@@ -42,14 +42,14 @@ namespace nepenthes
 	class VFSFile : public VFSNode
 	{
 	public:
-		VFSFile(VFSNode *parentnode, char *name, char *data, unsigned int len);
+		VFSFile(VFSNode *parentnode, char *name, char *data, uint32_t len);
 		~VFSFile();
-		virtual unsigned int addData(char *data,unsigned int len);
+		virtual uint32_t addData(char *data,uint32_t len);
 		virtual char *getData();
-		virtual unsigned int getSize();
+		virtual uint32_t getSize();
 		void truncateFile();
 	protected:
-		int m_Size;
+		int32_t m_Size;
 		Buffer  *m_Buffer;
 
 	};

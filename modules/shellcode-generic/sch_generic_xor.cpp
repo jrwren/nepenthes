@@ -85,7 +85,7 @@ GenericXOR::~GenericXOR()
 bool GenericXOR::Init()
 {
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 
 	const char *test[]=
 	{
@@ -93,10 +93,11 @@ bool GenericXOR::Init()
 		"\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80\\x73\\x0C(.)\\x43\\xE2\\xF9(.*)$",			// rbot 265 byte
 		"\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.(.*)$",																	// generic mwcollect
 		"\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF(.*)$",		// bielefeld
+		 "\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9(.*)$",	// halle	
 		NULL
 	};
 
-	for( uint i = 0; test[i]; i++ )
+	for( uint32_t i = 0; test[i]; i++ )
 	{
 		pcre *mypcre;
 		if((mypcre = pcre_compile(test[i], PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
@@ -132,15 +133,15 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 
 	unsigned char *shellcode = (unsigned char *)(*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
-	int output[10 * 3];
+	uint32_t len = (*msg)->getMsgLen();
+	int32_t output[10 * 3];
 
 	list <pcre *>::iterator it;
-	unsigned int i;
+	uint32_t i;
 	for (it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++)
 	{
-		int result=0;
-		if((result = pcre_exec(*it, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int))) > 0)
+		int32_t result=0;
+		if((result = pcre_exec(*it, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0)
 		{
 /*			logSpam("PCRE %i %x matches %i \n",i,*it,result);
 			if (i== 3)
@@ -151,13 +152,13 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 */
 			const char *match;
 			byte key;
-			uint codesize = 0, codesizeLen, totalsize;
+			uint32_t codesize = 0, codesizeLen, totalsize;
 
 			codesizeLen = pcre_get_substring((char *) shellcode, output, result, 1, &match);
 			if( codesizeLen == 2 )
-				codesize = (uint)*((unsigned short *)match);
+				codesize = (uint32_t)*((uint16_t *)match);
 			else
-				codesize = (uint)*((byte *)match);
+				codesize = (uint32_t)*((byte *)match);
 			pcre_free_substring(match);
 
 
@@ -178,7 +179,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			if( codesize > totalsize )
 				logWarn("%s\n", "codesize > totalsize - broken shellcode?");
 
-			for( uint j = 0; j < codesize && j < totalsize; j++ )
+			for( uint32_t j = 0; j < codesize && j < totalsize; j++ )
 				decodedMessage[j] ^= key;
 
 			//g_Nepenthes->getUtilities()->hexdump(l_crit, decodedMessage, totalsize);

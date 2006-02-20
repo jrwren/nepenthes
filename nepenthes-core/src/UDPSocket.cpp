@@ -64,7 +64,7 @@ using namespace nepenthes;
 #define STDTAGS l_net | l_hlr
 
 
-UDPSocket::UDPSocket(Nepenthes *nepenthes,unsigned long localhost, unsigned long remotehost, int remoteport, time_t connectiontimeout)
+UDPSocket::UDPSocket(Nepenthes *nepenthes,uint32_t localhost, uint32_t remotehost, int32_t remoteport, time_t connectiontimeout)
 {
 	m_Nepenthes = nepenthes;
 	setLocalPort(0);
@@ -95,7 +95,7 @@ UDPSocket::UDPSocket(Nepenthes *nepenthes,unsigned long localhost, unsigned long
  * @param accepttimeout
  *                  the timeout intervall for all sockets getting acepted by this bind socket
  */
-UDPSocket::UDPSocket(Nepenthes *nepenthes, unsigned long localhost, int port, time_t bindtimeout, time_t accepttimeout)
+UDPSocket::UDPSocket(Nepenthes *nepenthes, uint32_t localhost, int32_t port, time_t bindtimeout, time_t accepttimeout)
 {
 	setLocalHost(localhost);
 	setLocalPort(port);
@@ -160,7 +160,7 @@ bool UDPSocket::bindPort()
 	}
 
 
-	int x=1;
+	int32_t x=1;
 #ifdef WIN32
 	if ( setsockopt(m_Socket,SOL_SOCKET,SO_REUSEADDR,(char *)&x,sizeof(x)) == -1 )
 #else
@@ -220,7 +220,7 @@ bool UDPSocket::connectHost()
 	m_Socket=socket(AF_INET, SOCK_DGRAM, 0);
 
 #ifdef WIN32
-	int iMode = 0;
+	int32_t iMode = 0;
 	ioctlsocket(m_Socket, FIONBIO, (u_long FAR*) &iMode);
 #else
 	fcntl(m_Socket, F_SETFL, O_NONBLOCK);
@@ -253,7 +253,7 @@ bool UDPSocket::wantSend()
 }
 
 
-int UDPSocket::doSend()
+int32_t UDPSocket::doSend()
 {
 	struct sockaddr_in addrRemote;
 
@@ -263,13 +263,13 @@ int UDPSocket::doSend()
 
 	while (m_TxPackets.size() > 0)
 	{
-		addrRemote.sin_port = htons((unsigned short)(*m_TxPackets.begin())->getPort());
-		addrRemote.sin_addr.s_addr = (unsigned long)(*m_TxPackets.begin())->getHost();
+		addrRemote.sin_port = htons((uint16_t)(*m_TxPackets.begin())->getPort());
+		addrRemote.sin_addr.s_addr = (uint32_t)(*m_TxPackets.begin())->getHost();
 
 
 		char *pszData = (char *)(*m_TxPackets.begin())->getData();
 		size_t len = (*m_TxPackets.begin())->getLength();
-//		logSpam("Sending %d %d bytes '%4x'\n",m_TxPackets.size(),len,(unsigned int)pszData);
+//		logSpam("Sending %d %d bytes '%4x'\n",m_TxPackets.size(),len,(uint32_t)pszData);
 		if ( sendto(m_Socket,pszData,len,0, (struct sockaddr *)  &addrRemote, sizeof(addrRemote)) == -1 )
 		{
 
@@ -294,18 +294,18 @@ int UDPSocket::doSend()
     return 0;
 }
 
-int UDPSocket::doRecv()
+int32_t UDPSocket::doRecv()
 {
 	char szBuffer[2048];
 	struct sockaddr_in addrRemote;
-	int iSize = sizeof(addrRemote);
+	int32_t iSize = sizeof(addrRemote);
 
-	int iLength = recvfrom(m_Socket, (char *) szBuffer, 2048, 0, (struct sockaddr *) &addrRemote, (socklen_t *) &iSize);
+	int32_t iLength = recvfrom(m_Socket, (char *) szBuffer, 2048, 0, (struct sockaddr *) &addrRemote, (socklen_t *) &iSize);
 
 	setRemotePort(ntohs(((sockaddr_in *)&addrRemote)->sin_port));
 	
 
-	Message *Msg = new Message (szBuffer,iLength,m_LocalPort,m_RemotePort,m_LocalHost,(unsigned long) addrRemote.sin_addr.s_addr,this,this);
+	Message *Msg = new Message (szBuffer,iLength,m_LocalPort,m_RemotePort,m_LocalHost,(uint32_t) addrRemote.sin_addr.s_addr,this,this);
 
 //	logSpam("Recv() %i '%s'\n",iLength,"foo");//szBuffer);
 
@@ -375,7 +375,7 @@ int UDPSocket::doRecv()
 	return iLength;
 }
 
-int UDPSocket::doWrite(char *msg, unsigned int len)
+int32_t UDPSocket::doWrite(char *msg, uint32_t len)
 {
 //	logPF();
 	if (m_CanSend == false)
@@ -388,7 +388,7 @@ int UDPSocket::doWrite(char *msg, unsigned int len)
 	return m_TxPackets.size();
 }
 
-int UDPSocket::doWriteTo(unsigned long ip, unsigned short port, char *msg, unsigned int len)
+int32_t UDPSocket::doWriteTo(uint32_t ip, uint16_t port, char *msg, uint32_t len)
 {
 //	logPF();
 	if (m_CanSend == false)
@@ -466,7 +466,7 @@ bool UDPSocket::handleTimeout()
 }
 
 
-bool UDPSocket::doRespond(char *msg, unsigned int len)
+bool UDPSocket::doRespond(char *msg, uint32_t len)
 {
 	return doWrite(msg,len);
 }

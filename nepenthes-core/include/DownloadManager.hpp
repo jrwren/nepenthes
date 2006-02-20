@@ -34,6 +34,7 @@
 
 #else
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #endif
 
 #include <string>
@@ -56,8 +57,8 @@ namespace nepenthes
 
 	typedef struct
     {
-        unsigned long m_ulAddress;
-        unsigned long m_ulMask;
+        uint32_t m_ulAddress;
+        uint32_t m_ulMask;
     } ip_range_t;
 
     struct DownloadHandlerTuple
@@ -72,10 +73,10 @@ namespace nepenthes
     public:
         DownloadManager(Nepenthes *nepenthes);
         virtual ~DownloadManager();
-		bool isLocalAddress(unsigned long ulAddress);
+		bool isLocalAddress(uint32_t ulAddress);
         virtual bool downloadUrl(Download *down);  
-        virtual bool downloadUrl(char *url, unsigned long address, char *triggerline);
-		virtual bool downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, unsigned long address);
+        virtual bool downloadUrl(char *url, uint32_t address, char *triggerline);
+		virtual bool downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address);
 
         virtual bool registerDownloadHandler(DownloadHandler * handler, const char * protocol);
         virtual void unregisterDownloadHandler(const char * protocol);

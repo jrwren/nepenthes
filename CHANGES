@@ -1,0 +1,85 @@
+Version 0.1.1
+=============
+Bugfix release/minor features.
+
+This is the first release featuring auto(conf|make|broken|whatever) support.
+Maximillian Dornseif had enough time to burn to write configure.whatever 
+and such stuff for everything so far.
+
+
+* Compile fixes for 
+	* Mac OSX	
+	* FreeBSD
+
+* Nepenthes
+	* Added functionality for -d and -l command line options (log filtering).
+	* Handle SIGINT on -f (command line) usage.
+	* -V is now version.
+	* -v is now verbose, useful for -f when debugging new shellcodehandlers.
+	* DownloadBuffer now features cutFront(unsigned int len)
+
+* Veritas Backup Exec Exploit for port 10000 added.
+	* shellcode-generic
+		* Konstanz XOR added as sch_generic_konstanz_xor.
+		* Konstanz connectback shell pattern added to shellcode-generic.conf.dist.
+	* Removed VERITASDialogue for port 10000 hexdump, added shellcodehandling.
+
+
+* shellcode-generic
+	* Fixed sch_generic_connect.
+	* Added sch_generic_connect_trans and Halle PCRE.
+	* Added sch_generic_xor Halle.
+
+* vuln-dcom
+	* Fixed oc192 PCRE.
+	* Removed SOL2k shellcode handler, as they were never seen during the last two months.
+
+* download-csend
+	* the atoi(url->path) is cut from the download buffer to be able to use csend with halle
+	
+* vuln-iis 
+	* Handle NULL if binding the socket fails in a useful manner
+	
+* vuln-pnp
+	* added
+	* handles the MS05-039 exploit by houseofdabus
+	
+* vuln-lsass 
+	* fixed some lines to work properly with vuln-pnp
+
+* Utilities
+	* sha512 added
+	
+* shellemu-wint
+	* VFSCommandCMD
+	the first command after the /c has to be readded to the StdIn queue, like we did before,
+	but we have to add a delimiter '&' so we dont break our own parsing.
+
+* Download 
+	* added SHA512 get & set methods
+
+* SubmitManager 
+	* set SHA512 for downloads
+
+* tools/rpcxmlxfer
+	* there is an early implementation of an central collection and
+	logging protocol called rpcxmlxfer in this release. The prototype is
+	implemented as an external script. Just add something like
+          */5 * * * * nobody /opt/nepenthes/bin/rpcxmlxfer-client -q
+	to your /etc/crontab to try it.
+
+* download-ftp
+	* bind to port 0 to avoid collision
+	
+* TCPSocket 
+	* set localip on accept() Sockets, so we can use this info further
+	* bind ConnectSockets before connecting, so we use the same ip for reverseconnect shells
+	
+
+* submit-xmlrpc
+	* created
+	
+
+Version 0.1.0
+=============
+Initial release.

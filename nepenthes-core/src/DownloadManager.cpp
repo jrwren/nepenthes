@@ -50,7 +50,7 @@ using namespace nepenthes;
 #define STDTAGS l_dl | l_mgr
 
 #ifdef WIN32
-#define uint32_t unsigned long
+#define uint32_t uint32_t
 #endif
 
 
@@ -92,9 +92,18 @@ bool  DownloadManager::Exit()
  * these cool makros are taken from the clamav mailing list  
  * 
  */
+#ifndef BIG_ENDIAN
+	#define SWAP_ORDER(x) (x)
+#else
+	#define SWAP_ORDER(x) ( \
+		((x & 0xff) << 24) | \
+		((x & 0xff00) << 8) | \
+		((x & 0xff0000) >> 8 ) | \
+		((x & 0xff000000) >> 24 ))
+#endif
 
-#define PACKADDR(a, b, c, d) htonl((((uint32_t)(a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
-#define MAKEMASK(bits)	htonl(((uint32_t)(0xffffffff << (32-bits))))
+#define PACKADDR(a, b, c, d) SWAP_ORDER((((uint32_t)(a) << 24) | ((b) << 16) | ((c) << 8) | (d)))
+#define MAKEMASK(bits)	SWAP_ORDER(((uint32_t)(0xffffffff << (32-bits))))
 
 ip_range_t DownloadManager::m_irLocalRanges[] =   
 {
@@ -213,7 +222,7 @@ void DownloadManager::doList()
 {
 	list <DownloadHandlerTuple>::iterator dhandler;
 	logInfo("=--- %-69s ---=\n","DownloadManager");
-	unsigned int i=0;
+	uint32_t i=0;
 	for(dhandler = m_DownloadHandlers.begin();dhandler != m_DownloadHandlers.end();dhandler++,i++)
 	{
 		logInfo("  %i) %5s %-8s %s\n",i,dhandler->m_Protocol.c_str() ,dhandler->m_Handler->getDownloadHandlerName().c_str(), dhandler->m_Handler->getDownloadHandlerDescription().c_str());
@@ -232,12 +241,12 @@ void DownloadManager::doList()
 }
 
 
-bool DownloadManager::isLocalAddress(unsigned long ulAddress)
+bool DownloadManager::isLocalAddress(uint32_t ulAddress)
 {
 	if ( !ulAddress || ulAddress == 0xFFFFFFFF )
 		return false; // not an ip
 
-	for ( unsigned int i = 0; i < sizeof(m_irLocalRanges) / sizeof(ip_range_t); i++ )
+	for ( uint32_t i = 0; i < sizeof(m_irLocalRanges) / sizeof(ip_range_t); i++ )
 		if ( (ulAddress & m_irLocalRanges[i].m_ulMask) == m_irLocalRanges[i].m_ulAddress )
 			return true;
 
@@ -265,7 +274,7 @@ bool DownloadManager::downloadUrl(Download *down)
 		return false;
 	}
 
-	unsigned long ulAddress = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	uint32_t ulAddress = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
 	logSpam("Checking Host %s for locality \n",down->getDownloadUrl()->getHost().c_str());
 	if ( ulAddress  != INADDR_NONE )
@@ -306,7 +315,7 @@ bool DownloadManager::downloadUrl(Download *down)
 */	
 			string sUrl =	down->getDownloadUrl()->getProtocol();
 			sUrl += "://";
-			unsigned long newaddr = down->getAddress();
+			uint32_t newaddr = down->getAddress();
 			sUrl += inet_ntoa(*(in_addr *)&newaddr);
 			down->getDownloadUrl()->setHost(newaddr);
 
@@ -358,7 +367,7 @@ bool DownloadManager::downloadUrl(Download *down)
  * 
  * @return returns downloadUrl(Download *) return value
  */
-bool DownloadManager::downloadUrl(char *url, unsigned long address, char *triggerline)
+bool DownloadManager::downloadUrl(char *url, uint32_t address, char *triggerline)
 {
 	Download *down = new Download(url,address,triggerline);
 	
@@ -368,7 +377,7 @@ bool DownloadManager::downloadUrl(char *url, unsigned long address, char *trigge
 
 
 
-bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, unsigned long address)
+bool DownloadManager::downloadUrl(char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address)
 {
 	string url = proto;
 	 url += "://";

@@ -109,7 +109,7 @@ bool X2::Init()
 {
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 
-	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,43,0,45,this);
+	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,10002,0,45,this);
 	return true;
 }
 
@@ -155,7 +155,7 @@ X2Dialogue::X2Dialogue(Socket *socket)
 
 	m_ConsumeLevel = CL_ASSIGN;
 
-//	m_Socket->doRespond("Welcome to dong Shell\n",strlen("Welcome to dong Shell\n"));
+	m_Socket->doRespond("Welcome to dong Shell\n",strlen("Welcome to dong Shell\n"));
 
 	m_Buffer = new Buffer(512);
 }
@@ -179,18 +179,10 @@ X2Dialogue::~X2Dialogue()
  */
 ConsumeLevel X2Dialogue::incomingData(Message *msg)
 {
-	logInfo("SYN_DI_CATE_DOMAIN %s\n",msg->getMsg());
+/*
 	m_Buffer->add(msg->getMsg(),msg->getMsgLen());
-	string reply = "domain:      ";
-	reply += (char *)m_Buffer->getData();
-	reply += "status:      free\n\n";
 
-	m_Socket->doRespond((char *)reply.c_str(),reply.size());
-	return CL_DROP;
-
-
-
-/*	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
+	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 			m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
 	if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
 	{
@@ -200,12 +192,12 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 	delete Msg;
 
 	return CL_ASSIGN;
-
+*/
 	char *message = (char *)malloc(msg->getMsgLen()+1);
 	memset(message,0,msg->getMsgLen()+1);
     memcpy(message,msg->getMsg(),msg->getMsgLen());
 
-	for(unsigned int i=0;i < strlen(message);i++)
+	for(uint32_t i=0;i < strlen(message);i++)
 	{
 		if(!isgraph(message[i]) && message[i] != ' ')
 		{
@@ -237,7 +229,6 @@ ConsumeLevel X2Dialogue::incomingData(Message *msg)
 	}
 
 //	msg->getResponder()->doRespond("deine mutter\n",strlen("deine mutter\n"));
-*/
 	return CL_ASSIGN;
 }
 
@@ -301,9 +292,9 @@ ConsumeLevel X2Dialogue::connectionShutdown(Message *msg)
 
 
 #ifdef WIN32
-extern "C" int __declspec(dllexport)  module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t __declspec(dllexport)  module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 #else
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 #endif
 
 {

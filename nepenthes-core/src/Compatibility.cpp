@@ -53,7 +53,7 @@ strsep(char **stringp, const char *delim)
 {
 	char *s;
 	const char *spanp;
-	int c, sc;
+	int32_t c, sc;
 	char *tok;
 
 	if ((s = *stringp) == NULL)
@@ -82,7 +82,7 @@ strsep(char **stringp, const char *delim)
 #include <windows.h>
 #include <sys/stat.h>
 
-int stat(const char *file_name, struct _stat *buf)
+int32_t stat(const char *file_name, struct _stat *buf)
 {
 
 	FILE *f = fopen(file_name,"r");
@@ -91,7 +91,7 @@ int stat(const char *file_name, struct _stat *buf)
 		return -1;
 	}else
 	{
-		int s = _fstat(fileno(f),(struct _stat *)buf);
+		int32_t s = _fstat(fileno(f),(struct _stat *)buf);
 		fclose(f);
 		return s;
 	}

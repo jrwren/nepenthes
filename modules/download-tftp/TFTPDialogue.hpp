@@ -41,9 +41,9 @@ namespace nepenthes
 		~TFTPDialogue();
 
 		void setDownload(Download *down);
-		void setMaxFileSize(unsigned long i);
-		void setMaxRetries(unsigned int i);
-		int setRequest(char *file);
+		void setMaxFileSize(uint32_t i);
+		void setMaxRetries(uint32_t i);
+		int32_t setRequest(char *file);
 		char *getRequest();
 
 		ConsumeLevel incomingData(Message *msg);
@@ -56,14 +56,14 @@ namespace nepenthes
 
 	protected:
 		Download *m_Download;
-		unsigned long m_MaxFileSize;
+		uint32_t m_MaxFileSize;
 
-		unsigned int m_MaxRetries;
-		unsigned int m_Retries;
+		uint32_t m_MaxRetries;
+		uint32_t m_Retries;
 
 		char 			*m_LastSendPacket;
-		unsigned int 	m_LastSendLength;
-		unsigned int	m_Blocks;
+		uint32_t 	m_LastSendLength;
+		uint32_t	m_Blocks;
 	};
 }
 

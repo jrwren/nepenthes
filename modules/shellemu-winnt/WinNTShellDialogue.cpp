@@ -74,11 +74,11 @@ WinNTShellDialogue::~WinNTShellDialogue()
 
 ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 {
-
+/*
 #ifndef NDEBUG
 	if (m_File == NULL && m_Socket != NULL )
 	{
-		unsigned long host = m_Socket->getRemoteHost();
+		uint32_t host = m_Socket->getRemoteHost();
 		string filename = "/tmp/";
 		filename += inet_ntoa(*(in_addr *)&host);
 		logInfo("trying to open file %s \n",filename.c_str());
@@ -88,7 +88,7 @@ ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 		}
 	}
 #endif
-
+*/
 	string smsg(msg->getMsg(),msg->getMsgLen());
 	string foo = m_VFS.execute(&smsg);
 
@@ -97,7 +97,7 @@ ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 		
 		m_Socket->doRespond((char *)foo.c_str(),foo.size());
 	}
-
+/*
 #ifndef NDEBUG
 	if (m_File != NULL)
 	{
@@ -105,7 +105,7 @@ ConsumeLevel WinNTShellDialogue::incomingData(Message *msg)
 		fflush(m_File);
 	}
 #endif
-
+*/
 	return CL_ASSIGN;
 }
 

@@ -75,7 +75,7 @@ bool GenericBind::Init()
 		return false;
 	}
 
-	unsigned int i = 0;
+	uint32_t i = 0;
 	while (i < sList.size())
 	{
 		const char *name = sList[i];
@@ -88,7 +88,7 @@ bool GenericBind::Init()
 		const char *pattern = sList[i];
 		logInfo("pcre is %s \n",pattern);
 		const char * pcreEerror;
-		int pcreErrorPos;
+		int32_t pcreErrorPos;
 		pcre *mypcre=NULL;
 		if((mypcre = pcre_compile(pattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 		{
@@ -122,24 +122,24 @@ sch_result GenericBind::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int output[10 * 3];
+	int32_t output[10 * 3];
 
 
 	list <PcreContext *>::iterator it;
-	unsigned int i;
+	uint32_t i;
 	for ( it=m_Pcres.begin(), i=0; it != m_Pcres.end();it++,i++ )
 	{
-		int result=0;
-		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int))) > 0 )
+		int32_t result=0;
+		if ( (result = pcre_exec((*it)->m_Pcre, 0, (char *) shellcode, len, 0, 0, output, sizeof(output)/sizeof(int32_t))) > 0 )
 		{
 			const char * match;
-			unsigned short port;
+			uint16_t port;
 
 			pcre_get_substring((char *) shellcode, output, result, 1, &match);
 
-			port = ntohs(*(unsigned long *) match);
+			port = ntohs(*(uint32_t *) match);
 			logInfo("Detected Generic listenshell shellcode #%s, :%u \n",(*it)->m_Name.c_str(), port);
 			pcre_free_substring(match);
 

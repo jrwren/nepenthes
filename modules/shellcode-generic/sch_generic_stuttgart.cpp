@@ -97,7 +97,7 @@ bool Stuttgart::Init()
 		"\\x50\\x6A\\x04\\x55\\x53\\xFF\\x55\\x2C";
 
 	const char *pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_stuttgartPattern = pcre_compile(stuttgartPattern, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("Stuttgart could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -120,15 +120,15 @@ sch_result Stuttgart::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int ovec[10 * 3];
-	int matchCount; 
+	int32_t ovec[10 * 3];
+	int32_t matchCount; 
 
-	if ((matchCount = pcre_exec(m_stuttgartPattern, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int))) > 0)
+	if ((matchCount = pcre_exec(m_stuttgartPattern, 0, (char *) shellcode, len, 0, 0, ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
 	{
-		unsigned short int netPort, port;
-		unsigned int address;
+		uint16_t netPort, port;
+		uint32_t address;
 		const char *match;
 		unsigned char authKey[4];
 

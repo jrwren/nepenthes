@@ -117,8 +117,8 @@ bool TFTPDownloadHandler::download(Download *down)
 	((TFTPDownloadHandlerDownload *)xdown)->setDownload(down);
 	socket->addDialogue(xdown);
 */	
-	int Port = down->getDownloadUrl()->getPort();
-	unsigned long Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
+	int32_t Port = down->getDownloadUrl()->getPort();
+	uint32_t Host = inet_addr(down->getDownloadUrl()->getHost().c_str());
 
 	Socket *socket = m_Nepenthes->getSocketMgr()->connectUDPHost(INADDR_ANY,Host,Port,7);
 
@@ -130,7 +130,7 @@ bool TFTPDownloadHandler::download(Download *down)
 
 	socket->addDialogue(dia);
 		// form & send request
-	int iReqLen = ((TFTPDialogue *) dia)->setRequest((char *)down->getDownloadUrl()->getFile().c_str());
+	int32_t iReqLen = ((TFTPDialogue *) dia)->setRequest((char *)down->getDownloadUrl()->getFile().c_str());
 	socket->doWrite(((TFTPDialogue *) dia)->getRequest(),iReqLen);
 
 	return true;
@@ -144,7 +144,7 @@ Dialogue *TFTPDownloadHandler::createDialogue(Socket *socket)
 
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new TFTPDownloadHandler(nepenthes);

@@ -161,7 +161,7 @@ typedef struct
 {
 	unsigned char 	m_RequestType;
 	unsigned char 	m_Flags;
-	unsigned short 	m_Length;
+	uint16_t 	m_Length;
 } smb_header;
 
 /**
@@ -191,11 +191,12 @@ ConsumeLevel SMBNameDialogue::incomingData(Message *msg)
 			if (sh->m_RequestType == 0x81)
 			{
 				m_State = SMBName_NEGOTIATE;
-				unsigned int len;
+				uint32_t len;
                 len = ntohs(sh->m_Length) + sizeof(smb_header);
 				logInfo("%i %i \n",len,sizeof(smb_header));
 				logInfo("SMB Session Request %i\n\%.*s\n",m_Buffer->getSize(),ntohs(sh->m_Length),buffer);
-				m_Buffer->cut(len);
+//				m_Buffer->cut(len);
+				m_Buffer->clear();
 			}
 			
 

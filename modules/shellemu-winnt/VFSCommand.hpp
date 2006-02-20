@@ -47,8 +47,8 @@ namespace nepenthes
 	{
 	public:
 //        virtual ~VFSCommand(){};
-//		virtual int run(string *params, VFSDir *dir)=0;
-		virtual int run(vector<string> *paramlist)=0;
+//		virtual int32_t run(string *params, VFSDir *dir)=0;
+		virtual int32_t run(vector<string> *paramlist)=0;
 	protected:
 		VFS		*m_VFS;
 	};

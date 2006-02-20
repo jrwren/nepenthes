@@ -126,7 +126,7 @@ bool X5::Exit()
  * 
  * @return return 0
  */
-unsigned int X5::handleEvent(Event *event)
+uint32_t X5::handleEvent(Event *event)
 {
 	logPF();
 	logInfo("Event %i\n",event->getType());
@@ -138,7 +138,7 @@ unsigned int X5::handleEvent(Event *event)
 
 	case EV_TIMEOUT:
 		m_Timeout = time(NULL) + rand()%23;
-		logInfo("X5 EVENT Timeout %i\n",(int)time(NULL));
+		logInfo("X5 EVENT Timeout %i\n",(int32_t)time(NULL));
 		break;
 
 	default:
@@ -148,7 +148,7 @@ unsigned int X5::handleEvent(Event *event)
 }
 
 
-extern "C" int module_init(int version, Module **module, Nepenthes *nepenthes)
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
         *module = new X5(nepenthes);

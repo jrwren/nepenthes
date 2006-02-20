@@ -90,7 +90,7 @@ bool MandragoreBind::Init()
 	logInfo("pcre is %s \n",pcre);
     
 	const char * pcreEerror;
-	int pcreErrorPos;
+	int32_t pcreErrorPos;
 	if((m_pcre = pcre_compile(pcre, PCRE_DOTALL, &pcreEerror, &pcreErrorPos, 0)) == NULL)
 	{
 		logCrit("MandragoreBind could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
@@ -118,17 +118,17 @@ sch_result MandragoreBind::handleShellcode(Message **msg)
 	logPF();
 	logSpam("Shellcode is %i bytes long \n",(*msg)->getMsgLen());
 	char *shellcode = (*msg)->getMsg();
-	unsigned int len = (*msg)->getMsgLen();
+	uint32_t len = (*msg)->getMsgLen();
 
-	int piOutput[10 * 3];
-	int iResult; 
+	int32_t piOutput[10 * 3];
+	int32_t iResult; 
 
-	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int))) > 0)
+	if ((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
         const char * pCode;
 		pcre_get_substring((char *) shellcode, piOutput, iResult, 1, &pCode);
 
-        unsigned short port = *(unsigned short *)pCode;
+        uint16_t port = *(uint16_t *)pCode;
 		port^=0xdede;
 		port = ntohs(port);
 		logInfo("Mandragore Bind %i  %i\n",port,(*msg)->getMsgLen());
