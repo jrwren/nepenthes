@@ -196,12 +196,12 @@ FTPdDialogue::~FTPdDialogue()
  */
 ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 {
-	char* s_quit 				= "221-Quit.\r\n221 Goodbye!\r\n";
-	char* s_user_ok 			= "331-User OK, Password required\r\n";
+	char* s_quit                = "221-Quit.\r\n221 Goodbye!\r\n";
+	char* s_user_ok             = "331-User OK, Password required\r\n";
 	//char* s_unknown_command  	= "500-Unknown Command\r\n";
-	char* s_server_error 		= "501-Server Error\r\n";
-	char* s_not_logged_in		= "530-You are not logged in\r\n";
-	char* s_auth_failed 		= "530-Authentication failed, sorry\r\n";
+	char* s_server_error        = "501-Server Error\r\n";
+	char* s_not_logged_in       = "530-You are not logged in\r\n";
+	char* s_auth_failed         = "530-Authentication failed, sorry\r\n";
 
 	char* cmd_user = "USER";
 	char* cmd_pass = "PASS";
@@ -229,127 +229,119 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 			switch ( m_state )
 			{
 			case FTP_NULL:
+				if ( memcmp(line.c_str(), cmd_user, sizeof(cmd_user)) == 0 )
 				{
-					if ( memcmp(line.c_str(), cmd_user, sizeof(cmd_user)) == 0 )
+					//user has sent data starting with cmd_user
+					if ( line.size() > threshold )
 					{
-						//user has sent data starting with cmd_user
-						if ( line.size() > threshold )
+						//possible exploit was found
+						logSpam("%s", "Recieved possible Exloit in USER field\n");
+
+						// identify exploit
+						identExploit(line);
+
+						m_Shellcode->add((char *)line.c_str(), line.size());
+
+
+						//logSpam ("Dump: \n %s\n", line.c_str());
+						Message *Msg = new Message((char *)line.c_str(), line.size(),
+												   m_Socket->getLocalPort(), 
+												   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
+												   m_Socket->getRemoteHost(), m_Socket, m_Socket);
+
+						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+
+						delete Msg;
+
+						if ( sch == SCH_DONE )
 						{
-							//possible exploit was found
-							logSpam("%s", "Recieved possible Exloit in USER field\n");
-
-							// identify exploit
-							identExploit(line);
-
-							m_Shellcode->add((char *)line.c_str(), line.size());
-
-
-							//logSpam ("Dump: \n %s\n", line.c_str());
-							Message *Msg = new Message((char *)line.c_str(), line.size(),
-													   m_Socket->getLocalPort(), 
-													   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
-													   m_Socket->getRemoteHost(), m_Socket, m_Socket);
-
-							sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
-
-							delete Msg;
-
-							if ( sch == SCH_DONE )
-							{
-								m_state = FTP_DONE;
-								retval =  CL_ASSIGN_AND_DONE;
-							}
-						} else
-						{
-							// username ok
-							msg->getResponder()->doRespond(s_user_ok, strlen(s_user_ok));
-							m_state = FTP_USER;
-							m_Buffer->clear();
+							m_state = FTP_DONE;
+							retval =  CL_ASSIGN_AND_DONE;
 						}
-
 					} else
 					{
-						//user has sent unusable junk
-						msg->getResponder()->doRespond(s_not_logged_in, strlen(s_not_logged_in));
-
+						// username ok
+						msg->getResponder()->doRespond(s_user_ok, strlen(s_user_ok));
+						m_state = FTP_USER;
+						m_Buffer->clear();
 					}
-					break;
-				}   
+
+				} else
+				{
+					//user has sent unusable junk
+					msg->getResponder()->doRespond(s_not_logged_in, strlen(s_not_logged_in));
+
+				}
+				break;
 
 
 
 			case FTP_USER:
+				if ( memcmp(line.c_str(), cmd_pass, sizeof(cmd_pass)) == 0 )
 				{
-					if ( memcmp(line.c_str(), cmd_pass, sizeof(cmd_pass)) == 0 )
+					//user has sent data starting with cmd_pass
+					if ( line.size() > threshold )
 					{
-						//user has sent data starting with cmd_pass
-						if ( line.size() > threshold )
+						//possible exploit was found
+						logSpam("%s", "Recieved possible Exloit in PASS field\n");
+
+						// identify exploit
+						identExploit(line);
+
+						m_Shellcode->add((char *)line.c_str(), line.size());
+
+						Message *Msg = new Message((char *)line.c_str(), line.size(),
+												   m_Socket->getLocalPort(), 
+												   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
+												   m_Socket->getRemoteHost(), m_Socket, m_Socket);
+
+						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+
+						delete Msg;
+						if ( sch == SCH_DONE )
 						{
-							//possible exploit was found
-							logSpam("%s", "Recieved possible Exloit in PASS field\n");
-
-							// identify exploit
-							identExploit(line);
-
-							m_Shellcode->add((char *)line.c_str(), line.size());
-
-							Message *Msg = new Message((char *)line.c_str(), line.size(),
-													   m_Socket->getLocalPort(), 
-													   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
-													   m_Socket->getRemoteHost(), m_Socket, m_Socket);
-
-							sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
-
-							delete Msg;
-							if ( sch == SCH_DONE )
-							{
-								m_state = FTP_DONE;
-								retval =  CL_ASSIGN_AND_DONE;
-							}
-						} else
-						{
-							// password-format ok, user does not get logged in ;)
-							msg->getResponder()->doRespond(s_auth_failed, strlen(s_auth_failed));
-							m_Buffer->clear();
-							m_state = FTP_PASS;
+							m_state = FTP_DONE;
+							retval =  CL_ASSIGN_AND_DONE;
 						}
-
 					} else
 					{
-						//user has sent unusable junk
-						msg->getResponder()->doRespond(s_not_logged_in, strlen(s_not_logged_in));
-
+						// password-format ok, user does not get logged in ;)
+						msg->getResponder()->doRespond(s_auth_failed, strlen(s_auth_failed));
+						m_Buffer->clear();
+						m_state = FTP_PASS;
 					}
-					break;
+
+				} else
+				{
+					//user has sent unusable junk
+					msg->getResponder()->doRespond(s_not_logged_in, strlen(s_not_logged_in));
+
 				}
+				break;
 
 
 
 			case FTP_PASS:
+				// User gets server errors, if he is trying to do smthg
+				if ( memcmp(line.c_str(), cmd_quit, sizeof(cmd_quit)) == 0 )
 				{
-					// User gets server errors, if he is trying to do smthg
-					if ( memcmp(line.c_str(), cmd_quit, sizeof(cmd_quit)) == 0 )
-					{
-						//user has sent data starting with cmd_quit
-						msg->getResponder()->doRespond(s_quit, strlen(s_quit));
-						m_state = FTP_DONE;
-						retval = CL_DROP;
-					} else
-					{
-						//user has sent unusable junk
-						msg->getResponder()->doRespond(s_server_error, strlen(s_server_error));
-					}
-
-					m_Buffer->clear();
-					break;
+					//user has sent data starting with cmd_quit
+					msg->getResponder()->doRespond(s_quit, strlen(s_quit));
+					m_state = FTP_DONE;
+					retval = CL_DROP;
+				} else
+				{
+					//user has sent unusable junk
+					msg->getResponder()->doRespond(s_server_error, strlen(s_server_error));
 				}
+
+				m_Buffer->clear();
+				break;
 
 
 			case FTP_DONE:
-				{
-					retval = CL_ASSIGN;
-					break;
-				}
+				retval = CL_ASSIGN;
+				break;
 			}
 		}
 
