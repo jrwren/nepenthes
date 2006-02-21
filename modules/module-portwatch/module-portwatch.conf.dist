@@ -1,7 +1,6 @@
 module-portwatch
 {
-    ports   ("21",  // FTP
-             "25",  // SMTP
+    ports   ("25",  // SMTP
              "110", // POP3
              "143", // IMAP            # Interim Mail Access P 2 and 4
              "220", // IMAP            # Interactive Mail Access

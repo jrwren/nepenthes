@@ -57,6 +57,7 @@ nepenthes
     "vulnbagle.so",                 "vuln-bagle.conf",              ""
     "vulndameware.so",              "vuln-dameware.conf",           ""    
     "vulndcom.so",                  "vuln-dcom.conf",               ""
+    "vulnftpd.so",                  "vuln-ftpd.conf",               ""
     "vulniis.so",                   "vuln-iis.conf",                ""
     "vulnkuang2.so",                "vuln-kuang2.conf",             ""
     "vulnlsass.so",                 "vuln-lsass.conf",              ""
