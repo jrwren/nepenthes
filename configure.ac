@@ -801,6 +801,7 @@ AC_CONFIG_FILES([Makefile
 		 modules/log-surfnet/Makefile		 
 		 modules/vuln-msdtc/Makefile
 		 modules/download-rcp/Makefile
+		 modules/vuln-ftpd/Makefile
 		 ])
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])
