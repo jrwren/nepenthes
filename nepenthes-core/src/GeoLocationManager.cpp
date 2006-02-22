@@ -371,7 +371,7 @@ bool GeoLocationManager::Init()
  */
 bool GeoLocationManager::Exit()
 {
-
+	return true;
 }
 
 
