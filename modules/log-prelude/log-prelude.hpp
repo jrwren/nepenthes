@@ -27,7 +27,10 @@
 
  /* $Id$ */
 
+#ifdef HAVE_LIBPRELUDE
 #include <prelude.h>
+#endif
+
 #include <string>
 
 #include "Module.hpp"
@@ -39,37 +42,13 @@
 
 using namespace std;
 
+#ifdef HAVE_LIBPRELUDE
 int32_t add_idmef_object(idmef_message_t *message, const char *object, const char *value);
 int32_t add_idmef_object(idmef_message_t *message, const char *object, int32_t i);
+#endif
 
 namespace nepenthes
 {
-
-	class SocketContext
-	{
-
-	public:
-		SocketContext(Socket *s)
-		{
-			m_Socket = s;
-		}
-		~SocketContext()
-		{
-			m_Collection.clear();
-		}
-
-		Socket *getSocket()
-		{
-			return m_Socket;
-		}
-
-		list<string> m_Collection;
-	protected:
-
-		Socket 			*m_Socket;
-		
-	};
-
 
 	class LogPrelude : public Module , public EventHandler
 	{
@@ -83,21 +62,20 @@ namespace nepenthes
 
 		void handleTCPaccept(Event *event);
 		void handleTCPclose(Event *event);
-		void handleTCPrecv(Event *event);
+		void handleDownload(Event *event);
 		void handleSubmission(Event *event);
+		void handleShellcodeDone(Event *event);
+		void handleDialogueAssignAndDone(Event *event);
+		
 	protected:
 		uint64_t generateID()
 		{
 			return ((uint64_t) time(0)) << 32 | (uint64_t) rand();
 		}
 
-		list<SocketContext *>::iterator findSocketContext(Socket *s);
-		bool addIDtoSocketContext(Socket *s,char *msgid);
-
+#ifdef HAVE_LIBPRELUDE
 		prelude_client_t *m_PreludeClient;
-
-		list <SocketContext *> m_Contexts;
-
+#endif
 	};
 
 }

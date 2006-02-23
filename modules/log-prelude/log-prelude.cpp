@@ -27,11 +27,15 @@
 
  /* $Id$ */
 
+#ifdef HAVE_LIBPRELUDE
 #include <prelude.h>
+#include <libprelude/prelude-log.h>
 #include <idmef-message-print.h>
 #include <prelude-io.h>
-#include <arpa/inet.h>
+#include <libprelude/prelude-timer.h>
+#endif
 
+#include <arpa/inet.h>
 #include "log-prelude.hpp"
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -47,13 +51,20 @@
 
 #include "Message.hpp"
 #include "Utilities.hpp"
+#include "Config.hpp"
+#include "ShellcodeHandler.hpp"
+
 
 using namespace nepenthes;
 
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
+
 #define STDTAGS l_mod | l_ev | l_hlr
+#define ANALYZER_MANUFACTURER "http://nepenthes.sf.net"
+#define NEPENTHES_VERSION "$Rev$"
+
 
 
 /**
@@ -86,11 +97,13 @@ LogPrelude::LogPrelude(Nepenthes *nepenthes)
 	m_EventHandlerName = "LogPreludeEventHandler";
 	m_EventHandlerDescription = "log events to a prelude database";
 
-	m_Timeout = time(NULL) + rand()%23;
+//	m_Timeout = time(NULL) + rand()%23;
 
 	g_Nepenthes = nepenthes;
 
+#ifdef HAVE_LIBPRELUDE
 	m_PreludeClient = NULL;
+#endif
 }
 
 
@@ -102,47 +115,13 @@ LogPrelude::~LogPrelude()
 
 }
 
-#define ANALYZER_CLASS "NIDS"
-#define ANALYZER_MODEL "Nepenthes"
-#define ANALYZER_MANUFACTURER "http://nepenthes.sf.net"
-#define DEFAULT_ANALYZER_NAME "markus.koetter"
-#define VERSION "$Rev$"
-
-
-static int32_t setup_analyzer(idmef_analyzer_t *analyzer)
-{
-        int32_t ret;
-        prelude_string_t *string;
-
-        ret = idmef_analyzer_new_model(analyzer, &string);
-        if ( ret < 0 )
-                return ret;
-        prelude_string_set_constant(string, ANALYZER_MODEL);
-
-        ret = idmef_analyzer_new_class(analyzer, &string);
-        if ( ret < 0 )
-                return ret;
-        prelude_string_set_constant(string, ANALYZER_CLASS);
-
-        ret = idmef_analyzer_new_manufacturer(analyzer, &string);
-        if ( ret < 0 )
-                return ret;
-        prelude_string_set_constant(string, ANALYZER_MANUFACTURER);
-
-        ret = idmef_analyzer_new_version(analyzer, &string);
-        if ( ret < 0 )
-                return ret;
-        prelude_string_set_constant(string, VERSION);
-
-        return 0;
-}
 
 
 /**
  * bool Module::Init()
  * setup Module specific values 
  * here:
- * - register als EventHandler
+ * - register as EventHandler
  * - set wanted events
  * 
  * @return returns true if everything was fine, else false
@@ -150,30 +129,56 @@ static int32_t setup_analyzer(idmef_analyzer_t *analyzer)
  */
 bool LogPrelude::Init()
 {
-	m_ModuleManager = m_Nepenthes->getModuleMgr();
-    m_Events.set(EV_SUBMISSION);
+	
+	if ( m_Config == NULL )
+	{
+		logCrit("%s","I need a config\n");
+		return false;
+	}
 
+	string analyzerClass;
+	string analyzerModel;
+	string analyzerName;
+
+	try
+	{
+		analyzerClass = (m_Config->getValString("log-prelude.analyzerClass"));
+		analyzerModel = m_Config->getValString("log-prelude.analyzerModel");
+		analyzerName = m_Config->getValString("log-prelude.analyzerName");
+
+	} catch ( ... )
+	{
+		logCrit("%s","Error setting needed vars, check your config\n");
+		return false;
+	}
+	
+	m_ModuleManager = m_Nepenthes->getModuleMgr();
 	m_Events.set(EV_SOCK_TCP_ACCEPT);
 	m_Events.set(EV_SOCK_TCP_CLOSE);
-	m_Events.set(EV_SOCK_TCP_RX);
+	m_Events.set(EV_DIALOGUE_ASSIGN_AND_DONE);
+	m_Events.set(EV_SHELLCODE_DONE);
 
-	m_Events.set(EV_TIMEOUT);
+	m_Events.set(EV_DOWNLOAD);
+	m_Events.set(EV_SUBMISSION);
 
 
-	int32_t ret;
     const char *profile, *config;
 
 	config = NULL;
-	profile = DEFAULT_ANALYZER_NAME;
+	profile = analyzerName.c_str();
 
-//	parse_args(args, &profile, &config);
 
+#ifdef HAVE_LIBPRELUDE
+
+	int32_t ret;
+// Initialize Prelude Library
 	ret = prelude_init(NULL, NULL);
 	if ( ret < 0 )
 		logCrit("%s: Unable to initialize the Prelude library: %s.\n",
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
 
+// generate a new Prelude client
 	ret = prelude_client_new(&m_PreludeClient, profile);
 
 	if ( ret < 0 )
@@ -181,17 +186,32 @@ bool LogPrelude::Init()
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
 
-//	ret = prelude_client_set_flags(m_PreludeClient,
-//								   (prelude_client_flags_t)
-//								   (prelude_client_get_flags(m_PreludeClient) | PRELUDE_CLIENT_FLAGS_ASYNC_SEND|PRELUDE_CLIENT_FLAGS_ASYNC_TIMER));
-//	ret = prelude_client_set_flags(m_PreludeClient,prelude_client_get_flags(m_PreludeClient) | PRELUDE_CLIENT_FLAGS_ASYNC_SEND|PRELUDE_CLIENT_FLAGS_ASYNC_TIMER);
+
+	// set options in the analyzer-part of the client
+	prelude_string_t *string;
+
+	ret = idmef_analyzer_new_model(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
-		logCrit("%s: Unable to set asynchronous send and timer: %s.\n",
-				prelude_strsource(ret), 
-				prelude_strerror(ret));
+	        return false;
+	prelude_string_set_constant(string, analyzerModel.c_str());
+	
+	ret = idmef_analyzer_new_class(prelude_client_get_analyzer(m_PreludeClient), &string);
+	if ( ret < 0 )
+	        return false;
+	prelude_string_set_constant(string, analyzerClass.c_str());
+	
+	ret = idmef_analyzer_new_manufacturer(prelude_client_get_analyzer(m_PreludeClient), &string);
+	if ( ret < 0 )
+	        return false;
+	prelude_string_set_constant(string, ANALYZER_MANUFACTURER);
+	
+	ret = idmef_analyzer_new_version(prelude_client_get_analyzer(m_PreludeClient), &string);
+	if ( ret < 0 )
+	        return false;
+	        
+	prelude_string_set_constant(string, NEPENTHES_VERSION);
 
-	setup_analyzer(prelude_client_get_analyzer(m_PreludeClient));
-
+//  start the Prelude Client
 	ret = prelude_client_start(m_PreludeClient);
 	if ( ret < 0 )
 	{
@@ -202,26 +222,45 @@ bool LogPrelude::Init()
 				   prelude_strsource(ret), prelude_strerror(ret));
 	}
 
-
+// set async Prelude Flags for the client, makes the application multithreaded
+	ret = prelude_client_set_flags(m_PreludeClient, (prelude_client_flags_t) (PRELUDE_CLIENT_FLAGS_CONNECT | PRELUDE_CLIENT_FLAGS_ASYNC_SEND | PRELUDE_CLIENT_FLAGS_ASYNC_TIMER));
+	if ( ret < 0 )
+		logCrit("%s: Unable to set asynchronous send and timer: %s.\n",
+				prelude_strsource(ret), 
+				prelude_strerror(ret));
+				
+	#endif
 	REG_EVENT_HANDLER(this);
 	return true;
 }
 
 
 /**
- * unregister as EventHandler
+ * unregister as EventHandler, destroy the Prelude Client
  * 
  * @return returns true if everything was fine
  */
 bool LogPrelude::Exit()
 {
+#ifdef HAVE_LIBPRELUDE
 	if( m_PreludeClient != NULL)
-		prelude_client_destroy(m_PreludeClient, PRELUDE_CLIENT_EXIT_STATUS_SUCCESS);
-
-//	UNREG_EVENT_HANDLER(this);
+	{
+		prelude_client_destroy(m_PreludeClient, (prelude_client_exit_status_t)(PRELUDE_CLIENT_EXIT_STATUS_SUCCESS));
+		prelude_deinit();
+	}
+#endif
+	
+	UNREG_EVENT_HANDLER(this);
 	return true;
 }
 
+
+
+/**
+ * This function adds char * idmef values into an idmef message
+ * 
+ */
+#ifdef HAVE_LIBPRELUDE
 int32_t add_idmef_object(idmef_message_t *message, const char *object, const char *value)
 {
 	int32_t ret=0;
@@ -251,6 +290,10 @@ int32_t add_idmef_object(idmef_message_t *message, const char *object, const cha
 }
 
 
+/**
+ * 
+ * This function adds int32_t idmef values into an idmef message
+ */
 int32_t add_idmef_object(idmef_message_t *message, const char *object, int32_t i)
 {
 	char value[20];
@@ -259,6 +302,7 @@ int32_t add_idmef_object(idmef_message_t *message, const char *object, int32_t i
 	return add_idmef_object(message,object,value);
 }
 
+#endif
 
 
 /**
@@ -271,7 +315,7 @@ int32_t add_idmef_object(idmef_message_t *message, const char *object, int32_t i
  */
 uint32_t LogPrelude::handleEvent(Event *event)
 {
-	logPF();
+//	logPF();
 //	logInfo("Event %i\n",event->getType());
 	switch(event->getType())
 	{
@@ -287,14 +331,18 @@ uint32_t LogPrelude::handleEvent(Event *event)
 	case EV_SUBMISSION:
 		handleSubmission(event);
 		break;
-
-	case EV_SOCK_TCP_RX:
-		handleTCPrecv(event);
+		
+	case EV_DIALOGUE_ASSIGN_AND_DONE:
+		handleDialogueAssignAndDone(event);
 		break;
-
-	case EV_TIMEOUT:
-		m_Timeout = time(NULL) + 1;
-//		prelude_timer_wakeup();
+		
+	case EV_SHELLCODE_DONE:
+		handleShellcodeDone(event);
+		break;
+		
+		
+	case EV_DOWNLOAD:
+		handleDownload(event);
 		break;
 
 	default:
@@ -306,20 +354,21 @@ uint32_t LogPrelude::handleEvent(Event *event)
 
 void LogPrelude::handleTCPaccept(Event *event)
 {
-    Socket *socket = ((SocketEvent *)event)->getSocket();
+    
 
-	SocketContext *ctx = new SocketContext(socket);
-	logInfo("Adding Socket 0x%x to Contexts\n",socket);
-	m_Contexts.push_back(ctx);
+	logInfo("%s","LogPrelude EVENT EV_SOCK_TCP_ACCEPT\n");
 
+#ifdef HAVE_LIBPRELUDE
+	Socket *socket = ((SocketEvent *)event)->getSocket();
+	
 	idmef_message_t *idmef;
 
 	int32_t ret = idmef_message_new(&idmef);
 	if ( ret < 0 )
 		return;
 
-	add_idmef_object(idmef, "alert.classification.text"						,"nepenthes::TCPSocket::acceptConnection");
-	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
+	add_idmef_object(idmef, "alert.classification.text"						,"TCP Connection established");
+//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Spoofed"						,"no");
@@ -337,12 +386,9 @@ void LogPrelude::handleTCPaccept(Event *event)
 
 	addr = socket->getLocalHost();
 	address = inet_ntoa(*(in_addr *)&addr);
-//	add_idmef_object(idmef, "alert.target(0).Node.Address(0).address"		,address.c_str());
+	add_idmef_object(idmef, "alert.target(0).Node.Address(0).address"		,address.c_str());
 
-	add_idmef_object(idmef, "alert.assessment.impact.description"			,"possible malicious connection established");
-	add_idmef_object(idmef, "alert.assessment.impact.severity"				,"low");
-    add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
-    add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+
 
 
 	idmef_time_t *time;
@@ -360,17 +406,17 @@ void LogPrelude::handleTCPaccept(Event *event)
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
 
-//	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
-//	logInfo("PreludeMessageID = %s \n",prelude_string_get_string(field));
-
-	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
-	const char *msgid = prelude_string_get_string(field);
-	logInfo("PreludeMessageID = %s \n",msgid);
-	addIDtoSocketContext(socket,(char *)msgid);
-
+	//prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
+	//const char *msgid = prelude_string_get_string(field);
+	
+	//logInfo("PreludeMessageID = %s \n",msgid);
 
 	idmef_message_destroy(idmef);
+#endif
 }
+
+
+
 
 void LogPrelude::handleTCPclose(Event *event)
 {
@@ -382,13 +428,10 @@ void LogPrelude::handleTCPclose(Event *event)
 		return;
 	}
 
-	SocketContext *ctx = *findSocketContext(socket);
-	if (ctx == NULL)
-	{
-		logCrit("ctx is %x\n",ctx);
-	}
+	logInfo("%s","LogPrelude EVENT EV_SOCK_TCP_CLOSE\n");
 
-
+#ifdef HAVE_LIBPRELUDE
+	
 	idmef_message_t *idmef;
 
 	int32_t ret = idmef_message_new(&idmef);
@@ -396,8 +439,8 @@ void LogPrelude::handleTCPclose(Event *event)
 		return;
 
 
-	add_idmef_object(idmef, "alert.classification.text"							,"nepenthes::TCPSocket::~TCPSocket");
-	add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
+	add_idmef_object(idmef, "alert.classification.text"							,"TCP Connection closed");
+//	add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Service.protocol"					,"TCP");
@@ -429,73 +472,38 @@ void LogPrelude::handleTCPclose(Event *event)
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
 
-	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
-	const char *msgid = prelude_string_get_string(field);
-	logInfo("CloseMessageID = %s \n",msgid);
-	addIDtoSocketContext(socket,(char *)msgid);
-
-
-	idmef_message_destroy(idmef);
-
-//	return;
-
-	ret = idmef_message_new(&idmef);
-	if ( ret < 0 )
-		return;
-	add_idmef_object(idmef, "alert.correlation_alert.name"						,"TCP Session");
-
-	char path[128];
-
-	list<string>::iterator it;
-	uint32_t i=0;
-
-	for (it=ctx->m_Collection.begin();it!=ctx->m_Collection.end();it++,i++)
-	{
-		memset(path,0,128);
-		snprintf(path,127,"alert.correlation_alert.alertident(%i).alertident",i);
-		add_idmef_object(idmef,path,it->c_str() );
-	}
-    
-
-	ret = idmef_time_new_from_gettimeofday(&time);
-	idmef_alert_set_create_time(idmef_message_get_alert(idmef), 
-								time);
-
-
-	// analyzer id
-	idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
-							 idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							 0);
-
-
-	prelude_client_send_idmef(m_PreludeClient, idmef);
-
-	field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
-	msgid = prelude_string_get_string(field);
-	logInfo("CorrelationMsgID = %s \n",msgid);
+//	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
+//	const char *msgid = prelude_string_get_string(field);
+	
+//	logInfo("CloseMessageID = %s \n",msgid);
 
 	idmef_message_destroy(idmef);
-
+	
+#endif
 }
 
 
-void LogPrelude::handleTCPrecv(Event *event)
+/**
+ * Send idmef message when finished with the Shellcode
+ * 
+ */
+void LogPrelude::handleShellcodeDone(Event *event)
 {
-	Message *msg = ((MessageEvent *)event)->getMessage();
-	Socket *socket = ((MessageEvent *)event)->getMessage()->getSocket();
+	logInfo("%s", "LogPrelude EVENT EV_SHELLCODE_DONE\n");
 
-	SocketContext *ctx = new SocketContext(socket);
-	logInfo("Adding Socket 0x%x to Contexts\n",socket);
-	m_Contexts.push_back(ctx);
+#ifdef HAVE_LIBPRELUDE
+
+	ShellcodeHandler *handler = ((ShellcodeEvent *)event)->getShellcodeHandler();
+	Socket *socket = ((ShellcodeEvent *)event)->getSocket();
 
 	idmef_message_t *idmef;
 
 	int32_t ret = idmef_message_new(&idmef);
 	if ( ret < 0 )
 		return;
-
-	add_idmef_object(idmef, "alert.classification.text"						,"nepenthes::TCPSocket::doRecv");
-	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
+	string shellcodeText = "Shellcode detected " + handler->getShellcodeHandlerName();
+	add_idmef_object(idmef, "alert.classification.text"						,shellcodeText.c_str());
+//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Spoofed"						,"no");
@@ -515,14 +523,12 @@ void LogPrelude::handleTCPrecv(Event *event)
 	address = inet_ntoa(*(in_addr *)&addr);
 	add_idmef_object(idmef, "alert.target(0).Node.Address(0).address"		,address.c_str());
 
-	add_idmef_object(idmef, "alert.additional_data(0).type"					,"byte-string");
 
+	add_idmef_object(idmef, "alert.assessment.impact.description"			,"possible Shellcode has been detected.");
+	add_idmef_object(idmef, "alert.assessment.impact.severity"				,"medium");
+//    add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
+    add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
 
-	unsigned char *payload = g_Nepenthes->getUtilities()->b64encode_alloc((unsigned char *)msg->getMsg(),msg->getSize());
-	add_idmef_object(idmef, "alert.additional_data(0).data"					,(char *)payload);
-	free(payload);
-	
-	add_idmef_object(idmef, "alert.additional_data(0).meaning"					,"the payload");
 
 	idmef_time_t *time;
 
@@ -539,24 +545,29 @@ void LogPrelude::handleTCPrecv(Event *event)
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
 
-	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
-	const char *msgid = prelude_string_get_string(field);
-	logInfo("RecvMessageID = %s \n",msgid);
-	addIDtoSocketContext(socket,(char *)msgid);
+//	prelude_string_t *field = idmef_alert_get_messageid(idmef_message_get_alert(idmef));
+//	const char *msgid = prelude_string_get_string(field);
+//	logInfo("RecvMessageID = %s \n",msgid);
 
 	idmef_message_destroy(idmef);
+#endif
 }
 
+
+/**
+ * 
+ * handle submitted files
+ */
 void LogPrelude::handleSubmission(Event *event)
 {
-	SubmitEvent *se = (SubmitEvent *)event;
+	 SubmitEvent *se = (SubmitEvent *)event;
 	 Download *down = se->getDownload();
 
-	 se->getType();
 	 logInfo("LogPrelude EVENT EV_SUBMISSION %s %s %i \n",down->getUrl().c_str(), 
 			 down->getMD5Sum().c_str(), 
 			 down->getDownloadBuffer()->getSize());
 
+#ifdef HAVE_LIBPRELUDE
 	 idmef_message_t *idmef;
 
 	 int32_t ret = idmef_message_new(&idmef);
@@ -564,7 +575,7 @@ void LogPrelude::handleSubmission(Event *event)
 		 return;
 
 	 // generic information
-	 add_idmef_object(idmef, "alert.classification.text"						,"nepenthes::SubmitManager::Submit");
+	 add_idmef_object(idmef, "alert.classification.text"						,"Malware submited");
 
 	 string url = "http://nepenthes.sf.net/wiki/submission/" + down->getMD5Sum();
 	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
@@ -580,16 +591,22 @@ void LogPrelude::handleSubmission(Event *event)
 	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).algorithm"	,"SHA2-512");
 	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).value"		,down->getSHA512Sum().c_str());
 
+	 uint32_t addr = down->getLocalHost();
+	 string address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.target(0).Node.Address(0).address"		,address.c_str());
+
+
 
 	 // infection host
-	 uint32_t addr = down->getAddress();
-	 string address = inet_ntoa(*(in_addr *)&addr);
-	 add_idmef_object(idmef, "alert.source(1).Node.Address(0).address"			,address.c_str());
+	 addr = down->getRemoteHost();
+	 address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.source(0).Node.Address(0).address"			,address.c_str());
 
 
 	 // download source
 	 add_idmef_object(idmef, "alert.source(0).Service.port"						,down->getDownloadUrl()->getPort());
-
+	 
+	
 	 string protocol;
 	 if (down->getDownloadUrl()->getProtocol() == "tftp" )
 		 protocol = "UDP";
@@ -600,6 +617,10 @@ void LogPrelude::handleSubmission(Event *event)
 	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
 	 add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
 
+	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"possible Malware stored for further analysis");
+	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"high");
+//     add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
+     add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
 
 	 // time
 	 idmef_time_t *time;
@@ -616,38 +637,178 @@ void LogPrelude::handleSubmission(Event *event)
 
 	 prelude_client_send_idmef(m_PreludeClient, idmef);
 	 idmef_message_destroy(idmef);
+	 
+#endif
 }
 
 
 
-
-
-list<SocketContext *>::iterator LogPrelude::findSocketContext(Socket *socket)
+/**
+ * 
+ * 
+ * 
+ */
+void LogPrelude::handleDialogueAssignAndDone(Event *event)
 {
-	list<SocketContext *>::iterator it;
-	for (it=m_Contexts.begin();it!=m_Contexts.end();it++)
-	{
-		if ((*it)->getSocket() == socket)
-		{
-			return it;
-		}
-	}
-	return NULL;
+	 logInfo("%s", "LogPrelude EVENT EV_ASSIGN_AND_DONE\n");
+
+#ifdef HAVE_LIBPRELUDE
+
+	 Dialogue *dia = ((DialogueEvent *)event)->getDialogue();
+	 Socket *socket = ((DialogueEvent *)event)->getSocket();
+	 idmef_message_t *idmef;
+
+	 int32_t ret = idmef_message_new(&idmef);
+	 if ( ret < 0 )
+		 return;
+
+	 string attack = "Exploit attempt: " + dia->getDialogueName();
+	
+	 // generic information
+	 add_idmef_object(idmef, "alert.classification.text", attack.c_str());
+//	 add_idmef_object(idmef, "alert.classification.ident", attack.c_str());
+
+	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
+
+
+//	 // file name and info
+//	 add_idmef_object(idmef, "alert.target(0).file(0).name"						,down->getDownloadUrl()->getFile().c_str());
+//	 add_idmef_object(idmef, "alert.target(0).file(0).data_size"				,down->getDownloadBuffer()->getSize());
+//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).algorithm"	,"MD5");
+//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).value"		,down->getMD5Sum().c_str());
+////			add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).category","current");
+//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).algorithm"	,"SHA2-512");
+//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).value"		,down->getSHA512Sum().c_str());
+
+
+	 // attacker
+	 uint32_t addr = socket->getRemoteHost();
+	 string address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.source(0).Node.Address(0).address", address.c_str());
+
+	 // target
+	 addr = socket->getLocalHost();
+	 address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.target(0).Node.Address(0).address", address.c_str());
+
+//	 string protocol;
+//	 if (down->getDownloadUrl()->getProtocol() == "tftp" )
+//		 protocol = "UDP";
+//	 else
+//		 protocol = "TCP";
+//
+//	 add_idmef_object(idmef, "alert.source(0).Service.protocol"					,protocol.c_str());
+//	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
+//	 add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
+
+	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"An exploit attempt is getting handled.");
+	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"low");
+//     add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
+     add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+
+
+	 // time
+	 idmef_time_t *time;
+	 ret = idmef_time_new_from_gettimeofday(&time);
+	 idmef_alert_set_create_time(idmef_message_get_alert(idmef), 
+								 time);
+
+
+	 // analyzer id
+	 idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
+							  idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
+							  0);
+
+
+	 prelude_client_send_idmef(m_PreludeClient, idmef);
+
+
+	 idmef_message_destroy(idmef);
+
+#endif
 }
 
-bool LogPrelude::addIDtoSocketContext(Socket *s,char *msgid)
+
+
+
+
+
+/**
+ * 
+ * 
+ */
+void LogPrelude::handleDownload(Event *event)
 {
-	list<SocketContext *>::iterator ctx;
-	if (( ctx = findSocketContext(s)) == NULL )
-	{
-		return false;
-	}
+	 SubmitEvent *se = (SubmitEvent *)event;
+	 Download *down = se->getDownload();
+	 string url = se->getDownload()->getUrl();
 
-    (*ctx)->m_Collection.push_back(msgid);
-//	printf("Context %x\n\t %s \n",(uint32_t)(*ctx),(*ctx)->m_Collection.c_str());
-	return true;
+	 se->getType();
+	 logInfo("LogPrelude EVENT EV_DOWNLOAD %s %s %i \n",down->getUrl().c_str(), 
+			 down->getMD5Sum().c_str(), 
+			 down->getDownloadBuffer()->getSize());
+
+#ifdef HAVE_LIBPRELUDE
+
+	 idmef_message_t *idmef;
+
+	 int32_t ret = idmef_message_new(&idmef);
+	 if ( ret < 0 )
+		 return;
+
+	 // generic information
+	 add_idmef_object(idmef, "alert.classification.text"						,"possible Malware offered");
+	 add_idmef_object(idmef, "alert.classification.ident", url.c_str());
+
+//	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
+
+
+	 // infection host
+	 uint32_t addr = down->getRemoteHost();
+	 string address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.source(0).Node.Address(0).address"			,address.c_str());
+	 //target host
+	 addr = down->getLocalHost();
+	 address = inet_ntoa(*(in_addr *)&addr);
+	 add_idmef_object(idmef, "alert.target(0).Node.Address(0).address"			,address.c_str());
+
+
+	 // download source
+	 string protocol;
+	 if (down->getDownloadUrl()->getProtocol() == "tftp" )
+		 protocol = "UDP";
+	 else
+		 protocol = "TCP";
+		 
+	 add_idmef_object(idmef, "alert.source(0).Service.port"						,down->getDownloadUrl()->getPort());
+	 add_idmef_object(idmef, "alert.source(0).Service.protocol"					,protocol.c_str());
+//	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
+//	 add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
+	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"Parsing the Shellcode has unrevealed a URL.");
+	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"medium");
+//     add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
+     add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+
+	 // time
+	 idmef_time_t *time;
+	 ret = idmef_time_new_from_gettimeofday(&time);
+	 idmef_alert_set_create_time(idmef_message_get_alert(idmef), 
+								 time);
+
+
+	 // analyzer id
+	 idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
+							  idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
+							  0);
+
+
+	 prelude_client_send_idmef(m_PreludeClient, idmef);
+
+
+	 idmef_message_destroy(idmef);
+#endif
+
 }
-
 
 
 
