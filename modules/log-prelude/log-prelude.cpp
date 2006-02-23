@@ -129,7 +129,9 @@ LogPrelude::~LogPrelude()
  */
 bool LogPrelude::Init()
 {
-	
+
+#ifdef HAVE_LIBPRELUDE
+
 	if ( m_Config == NULL )
 	{
 		logCrit("%s","I need a config\n");
@@ -168,7 +170,7 @@ bool LogPrelude::Init()
 	profile = analyzerName.c_str();
 
 
-#ifdef HAVE_LIBPRELUDE
+
 
 	int32_t ret;
 // Initialize Prelude Library
@@ -229,9 +231,14 @@ bool LogPrelude::Init()
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
 				
-	#endif
+
 	REG_EVENT_HANDLER(this);
 	return true;
+#else 
+	logCrit("%s","Module log-prelude is compiled without libprelude, this wont work, reconfigure the whole source and recompile");
+	return false;
+#endif
+
 }
 
 
@@ -248,9 +255,8 @@ bool LogPrelude::Exit()
 		prelude_client_destroy(m_PreludeClient, (prelude_client_exit_status_t)(PRELUDE_CLIENT_EXIT_STATUS_SUCCESS));
 		prelude_deinit();
 	}
-#endif
-	
 	UNREG_EVENT_HANDLER(this);
+#endif
 	return true;
 }
 

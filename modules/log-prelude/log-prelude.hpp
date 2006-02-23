@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include "config.h"
+
 #ifdef HAVE_LIBPRELUDE
 #include <prelude.h>
 #endif

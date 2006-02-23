@@ -723,6 +723,41 @@ fi
 
 
 
+
+dnl **************************************************
+dnl * libprelude Support                             *
+dnl **************************************************
+AC_ARG_ENABLE(prelude,
+  [  --enable-prelude          enable prelude support [default=auto].],
+  [ if test "$enableval" = "no"; then
+       enable_prelude="no"
+    fi ],
+  [ enable_prelude="yes" ] )
+
+if test x$enabled_prelude = xno ; then
+    AC_MSG_RESULT([no -- disabled by user])
+else
+    AC_PATH_PROG(LIBPRELUDE_CONFIG, libprelude-config, no)
+    if test "$LIBPRELUDE_CONFIG" = "no" ; then
+	AC_MSG_ERROR([libpreludes libprelude-config was not found in PATH])
+	enable_prelude=no
+    else
+        AC_DEFINE(HAVE_LIBPRELUDE, 1,[Define if you want to use libprelude]) 
+	PRELUDE_LDFLAGS=`$LIBPRELUDE_CONFIG --ldflags`
+	PRELUDE_LIBS=`$LIBPRELUDE_CONFIG --libs`
+	PRELUDE_CPPFLAGS=`$LIBPRELUDE_CONFIG --cflags`
+	
+	LIBS="$PRELUDE_LIBS $LIBS"
+	LDFLAGS="$PRELUDE_LDFLAGS $LDFLAGS"
+	CPPFLAGS="$PRELUDE_CPPFLAGS $CPPFLAGS"
+	
+    fi
+fi
+
+    
+
+
+
 AC_DEFUN([AC_DEFINE_DIR], [
   prefix_NONE=
   exec_prefix_NONE=
@@ -802,6 +837,7 @@ AC_CONFIG_FILES([Makefile
 		 modules/vuln-msdtc/Makefile
 		 modules/download-rcp/Makefile
 		 modules/vuln-ftpd/Makefile
+#		 modules/log-prelude/Makefile
 		 ])
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])
@@ -828,5 +864,8 @@ echo ""
 echo "- Support PostgreSQL          : $enable_postgre"
 echo "" 
 echo "- Support ssh                 : $enable_ssh"
+echo "" 
+echo "- Support prelude             : $enable_prelude"
+
 # echo ""
 # echo "- Support ipv6                : $enable_ipv6"
