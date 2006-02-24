@@ -734,7 +734,7 @@ AC_ARG_ENABLE(prelude,
     fi ],
   [ enable_prelude="yes" ] )
 
-if test x$enabled_prelude = xno ; then
+if test x$enable_prelude = xno ; then
     AC_MSG_RESULT([no -- disabled by user])
 else
     AC_PATH_PROG(LIBPRELUDE_CONFIG, libprelude-config, no)
