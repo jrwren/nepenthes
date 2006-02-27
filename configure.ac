@@ -728,11 +728,11 @@ dnl **************************************************
 dnl * libprelude Support                             *
 dnl **************************************************
 AC_ARG_ENABLE(prelude,
-  [  --enable-prelude          enable prelude support [default=auto].],
-  [ if test "$enableval" = "no"; then
-       enable_prelude="no"
+  [  --enable-prelude          enable prelude support [default=no].],
+  [ if test "$enableval" = "yes"; then
+       enable_prelude="yes"
     fi ],
-  [ enable_prelude="yes" ] )
+  [ enable_prelude="no" ] )
 
 if test x$enable_prelude = xno ; then
     AC_MSG_RESULT([no -- disabled by user])
@@ -837,8 +837,9 @@ AC_CONFIG_FILES([Makefile
 		 modules/vuln-msdtc/Makefile
 		 modules/download-rcp/Makefile
 		 modules/vuln-ftpd/Makefile
-#		 modules/log-prelude/Makefile
+		 modules/log-prelude/Makefile
 		 ])
+#		 modules/log-prelude/Makefile
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])
 #                modules/vuln-netbios/Makefile
