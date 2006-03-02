@@ -115,6 +115,9 @@ nepenthes
     {
         use_rawsockets              "0"; // unstable feature
 	bind_address		    "0.0.0.0";
+
+	// specify "if:ethX" to get the ip from an interface at startup,
+	// only works on linux!
     };
     
     utilities

@@ -4,7 +4,7 @@
  *
  *
  *
- * Copyright (C) 2005  Paul Baecher & Markus Koetter
+ * Copyright (C) 2005  Paul Baecher & Markus Koetter & Georg Wicherski
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,6 +59,15 @@
 #include "LogManager.hpp"
 
 #include "Config.hpp"
+
+#ifdef __linux__ // bind to interface on linux
+#include <net/if.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif // end bind to if
 
 using namespace nepenthes;
 using namespace std;
@@ -116,7 +125,36 @@ bool  SocketManager::Init()
 
 
 	try {
-		m_BindAddress = inet_addr(m_Nepenthes->getConfig()->getValString("nepenthes.socketmanager.bind_address"));
+		string bindAddressString = m_Nepenthes->getConfig()->getValString("nepenthes.socketmanager.bind_address");
+		
+		#ifdef __linux__
+		if(bindAddressString.substr(0, 3) == string("if:"))
+		{
+			const char * interfaceName = bindAddressString.substr(3).c_str();
+			int ifaceSocket = socket(AF_INET, SOCK_STREAM, 0);
+			struct ifreq interfaceRequest;
+			struct sockaddr_in addrInterface;
+				                               
+			strncpy(interfaceRequest.ifr_name, interfaceName, IFNAMSIZ - 1);
+			
+			if(ifaceSocket < 0 || ioctl(ifaceSocket, SIOCGIFADDR, &interfaceRequest) < 0)
+			{
+				logCrit("Failed to obtain address for interface %s: %s!\n", interfaceName, strerror(errno));
+			} else
+			{              
+					memcpy(&addrInterface, &(interfaceRequest.ifr_addr), sizeof(addrInterface));
+					logInfo("Obtained address of interface %s: %s\n", interfaceName, inet_ntoa(addrInterface.sin_addr));
+					m_BindAddress = addrInterface.sin_addr.s_addr;
+					
+					close(ifaceSocket);
+			}
+			
+		} else
+		#endif
+		{
+			m_BindAddress = inet_addr(bindAddressString.c_str());
+		}
+		
 		if (m_BindAddress != INADDR_ANY)
 		{
 			logInfo("Using %s as bind_address for all connections\n", inet_ntoa(*(struct in_addr *)&m_BindAddress));
