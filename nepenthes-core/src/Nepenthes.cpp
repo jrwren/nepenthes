@@ -557,15 +557,6 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 	}
 
-	if ( chRoot != NULL )
-	{
-		if ( changeRoot(chRoot) == false )
-		{
-			run = false;
-		}
-	}
-
-
 	// if we drop priviliges, we have to take care of the logfiles user/group permission
 	// if we do not drop privs, make sure the files are ours
 	// --common
@@ -674,6 +665,16 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 #endif
 	}
+
+
+	if ( run == true && chRoot != NULL )
+	{
+		if ( changeRoot(chRoot) == false )
+		{
+			run = false;
+		}
+	}
+
 
 	// change process group id
 	if ( run == true && chGroup != NULL )
