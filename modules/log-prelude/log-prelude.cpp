@@ -406,8 +406,8 @@ void LogPrelude::handleTCPaccept(Event *event)
 
 	// analyzer id
 	idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
-							 idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							 0);
+							 idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)),							 
+							 IDMEF_LIST_PREPEND);
 
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
@@ -473,7 +473,7 @@ void LogPrelude::handleTCPclose(Event *event)
 	// analyzer id
 	idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
 							 idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							 0);
+							 IDMEF_LIST_PREPEND);
 
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
@@ -546,7 +546,7 @@ void LogPrelude::handleShellcodeDone(Event *event)
 	// analyzer id
 	idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
 							 idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							 0);
+							 IDMEF_LIST_PREPEND);
 
 
 	prelude_client_send_idmef(m_PreludeClient, idmef);
@@ -638,7 +638,7 @@ void LogPrelude::handleSubmission(Event *event)
 	 // analyzer id
 	 idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
 							  idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							  0);
+							  IDMEF_LIST_PREPEND);
 
 
 	 prelude_client_send_idmef(m_PreludeClient, idmef);
@@ -723,7 +723,7 @@ void LogPrelude::handleDialogueAssignAndDone(Event *event)
 	 // analyzer id
 	 idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
 							  idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							  0);
+							  IDMEF_LIST_PREPEND);
 
 
 	 prelude_client_send_idmef(m_PreludeClient, idmef);
@@ -805,7 +805,7 @@ void LogPrelude::handleDownload(Event *event)
 	 // analyzer id
 	 idmef_alert_set_analyzer(idmef_message_get_alert(idmef), 
 							  idmef_analyzer_ref(prelude_client_get_analyzer(m_PreludeClient)), 
-							  0);
+							  IDMEF_LIST_PREPEND);
 
 
 	 prelude_client_send_idmef(m_PreludeClient, idmef);
