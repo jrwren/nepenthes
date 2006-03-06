@@ -844,6 +844,7 @@ AC_CONFIG_FILES([Makefile
                  modules/log-irc/Makefile
                  modules/module-portwatch/Makefile
                  modules/submit-file/Makefile
+                 modules/submit-gotek/Makefile
                  modules/submit-nepenthes/Makefile
                  modules/submit-norman/Makefile
                  modules/submit-xmlrpc/Makefile

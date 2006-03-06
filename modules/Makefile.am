@@ -5,7 +5,7 @@
 SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-nepenthes download-tftp download-rcp\
           upload-http \
           log-download log-irc \
-          submit-file submit-nepenthes submit-norman submit-xmlrpc \
+          submit-file submit-gotek submit-nepenthes submit-norman submit-xmlrpc \
           shellcode-generic shellemu-winnt \
           vuln-asn1 vuln-bagle vuln-dcom vuln-iis vuln-kuang2 vuln-lsass \
           vuln-msdtc vuln-msmq vuln-mssql vuln-mydoom \
