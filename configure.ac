@@ -727,6 +727,7 @@ fi
 dnl **************************************************
 dnl * libprelude Support                             *
 dnl **************************************************
+AC_MSG_CHECKING(whether to use prelude for logging)
 AC_ARG_ENABLE(prelude,
   [  --enable-prelude          enable prelude support [default=no].],
   [ if test "$enableval" = "yes"; then
@@ -754,6 +755,55 @@ else
     fi
 fi
 
+
+
+
+dnl **************************************************
+dnl * capabilities Support                           *
+dnl **************************************************
+
+AC_MSG_CHECKING(whether to use libcap to improve security)
+AC_ARG_ENABLE(capabilities, [  --enable-capabilities	Enable capabilities [default=auto]], 
+		   [enable_capabilities="$enableval"], 
+		   [enable_capabilities="no"])
+
+if test x$enable_capabilities = xno ; then
+    AC_MSG_RESULT([no -- disabled by user])
+else
+    AC_ARG_WITH(cap-include,
+	[  --with-cap-include=PATH      use libcap],
+	[cap_inc=$withval],
+	[cap_inc=no])
+	
+    AC_ARG_WITH(cap-lib,
+	[  --with-cap-lib=PATH       	use libcap],
+	[cap_lib=$withval],
+	[cap_lib=no])
+
+
+    orig_cppflags=$CPPFLAGS
+  
+    if test "x$cap_inc" != xno; then
+      CPPFLAGS="-I$cap_inc $CPPFLAGS"
+    fi
+
+    orig_ldflags=$LDFLAGS
+    if test "x$cap_lib" != "xno"; then
+        LDFLAGS="-L$cap_lib $LDFLAGS"
+    fi
+
+    AC_CHECK_LIB(cap, cap_init, 
+	[
+              AC_DEFINE(HAVE_LIBCAP, 1,[Define if libcap is available to restrict process capabilities])
+               LIBS="$LIBS -lcap"
+               enable_capabilities="yes"
+	], 
+	[
+               AC_MSG_WARN([libcap check failed])
+               enable_capabilities="no (check failed)"
+	])
+    
+fi    
     
 
 
@@ -867,6 +917,8 @@ echo ""
 echo "- Support ssh                 : $enable_ssh"
 echo "" 
 echo "- Support prelude             : $enable_prelude"
+echo "" 
+echo "- Support capabilities        : $enable_capabilities"
 
 # echo ""
 # echo "- Support ipv6                : $enable_ipv6"
