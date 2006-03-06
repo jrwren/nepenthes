@@ -10,6 +10,6 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = submitgotek.la
 
-submitgotek_la_SOURCES = gotekDATADialougue.cpp submit-gotek.cpp gotekCTRLDialougue.cpp gotekDATADialougue.hpp submit-gotek.hpp gotekCTRLDialougue.hpp submit-gotek.conf.dist
+submitgotek_la_SOURCES = gotekDATADialogue.cpp submit-gotek.cpp gotekCTRLDialogue.cpp gotekDATADialogue.hpp submit-gotek.hpp gotekCTRLDialogue.hpp submit-gotek.conf.dist
 
 submitgotek_la_LDFLAGS = -module -no-undefined -avoid-version

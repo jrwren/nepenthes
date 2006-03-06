@@ -729,7 +729,7 @@ RAWSocketReader::~RAWSocketReader()
 		logSpam("%s clearing DialogueList (%i entries)\n",getDescription().c_str(), m_Dialogues.size());
 		while( m_Dialogues.size() > 0 )
 		{
-			logSpam("\tRemoving Dialog \"%s\" \n",m_Dialogues.back()->getDialogueName().c_str());
+			logSpam("\tRemoving Dialogue\"%s\" \n",m_Dialogues.back()->getDialogueName().c_str());
 			delete m_Dialogues.back();
 			m_Dialogues.pop_back();
 		}
@@ -828,7 +828,7 @@ socket_state RAWSocketReader::doRead(char *msg,uint32_t len)
 	{
 		if ( (bAssigned == true && (*dia)->getConsumeLevel() == CL_UNSURE ) || (*dia)->getConsumeLevel() == CL_DROP )
 		{
-			logSpam("%s removing Dialog %s as Dialogue returned CL_DROP \n",getDescription().c_str(),(*dia)->getDialogueName().c_str());
+			logSpam("%s removing Dialogue %s as Dialogue returned CL_DROP \n",getDescription().c_str(),(*dia)->getDialogueName().c_str());
 			m_Dialogues.erase(dia);
 			delete *dia;
 			dia = m_Dialogues.begin();

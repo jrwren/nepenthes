@@ -34,8 +34,8 @@
 #include <time.h>
 
 #include "submit-gotek.hpp"
-#include "gotekCTRLDialougue.hpp"
-#include "gotekDATADialougue.hpp"
+#include "gotekCTRLDialogue.hpp"
+#include "gotekDATADialogue.hpp"
 
 
 #include "Download.hpp"
