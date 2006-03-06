@@ -43,9 +43,11 @@
 #include <dirent.h>
 #include <sys/utsname.h>
 
+
+#ifdef HAVE_LIBCAP
 #undef _POSIX_SOURCE
 #include <sys/capability.h>
-
+#endif
 
 #include "Nepenthes.hpp"
 #include "SocketManager.hpp"
