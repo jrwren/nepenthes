@@ -43,6 +43,10 @@
 #include <dirent.h>
 #include <sys/utsname.h>
 
+#undef _POSIX_SOURCE
+#include <sys/capability.h>
+
+
 #include "Nepenthes.hpp"
 #include "SocketManager.hpp"
 #include "EventManager.hpp"
@@ -171,6 +175,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	char *chGroup = NULL;
 	char *chRoot = NULL;
 	const char *consoleTags = 0, *diskTags = 0;
+	bool forcesetcaps=false;
 
 
 	string flpath;
@@ -187,6 +192,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		int32_t option_index = 0;
 		static struct option long_options[] = {
             { "config", 		1, 0, 'c' },
+			{ "capabilities",	0, 0, 'C' },
 			{ "disk-log", 		1, 0, 'd' },	// FIXME
 			{ "file-check",		1, 0, 'f' },	// FIXME
 			{ "group",			1, 0, 'g' },	
@@ -206,7 +212,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:d:f:g:hHikl:Lor:Ru:vVw:", long_options, (int *)&option_index);
+		int32_t c = getopt_long(argc, argv, "c:Cd:f:g:hHikl:Lor:Ru:vVw:", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
@@ -216,6 +222,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		case 'b':
 			basedir = optarg;
 			break;
+
+		case 'C':
+			forcesetcaps = true;
+			break;
+
 
 		case 'c':
 			confpath = optarg;
@@ -666,6 +677,17 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 #endif
 	}
 
+	if ( run == true  )
+	{
+		if ( setCapabilties() == false)
+		{
+			if ( forcesetcaps == true )
+			{
+				logCrit("%s","As you asked to force capabilities, this is a critical error and we will terminate right now\n");
+				run = false;
+			}
+		}
+	}
 
 	if ( run == true && chRoot != NULL )
 	{
@@ -1321,6 +1343,55 @@ bool Nepenthes::changeRoot(char *path)
 
 }
 
+
+bool Nepenthes::setCapabilties()
+{
+	logPF();
+
+#ifdef HAVE_LIBCAP
+	// set caps
+	cap_t caps = cap_init();
+	cap_value_t capList[4] =
+	{ 
+		CAP_SYS_CHROOT, 		// chroot()
+		CAP_NET_BIND_SERVICE, 	// bind() ports < 1024 
+		CAP_SETUID, 			// setuid()
+		CAP_SETGID				// setgid()
+	};
+
+	unsigned num_caps = 4;
+
+	cap_set_flag(caps, CAP_EFFECTIVE, 	num_caps, capList, CAP_SET);
+	cap_set_flag(caps, CAP_INHERITABLE, num_caps, capList, CAP_SET);
+	cap_set_flag(caps, CAP_PERMITTED, 	num_caps, capList, CAP_SET);
+
+	if ( cap_set_proc(caps) )
+	{
+		cap_free(caps);
+		logCrit("Could not set capabilities '%s'\n",strerror(errno));
+		logCrit("%s","Maybe you did not load the kernel module 'capability' ?\n");
+		logCrit("%s","Try 'modprobe capability' \n");
+		return false;
+	}
+	cap_free(caps);
+
+	// print caps
+	caps = cap_get_proc();
+	ssize_t y = 0;
+	logInfo("The process %d was given capabilities %s\n",(int) getpid(), cap_to_text(caps, &y));
+	fflush(0);
+	cap_free(caps);
+
+	return true;
+#else
+	logCrit("%s","Compiled without support for capabilities, no way to run capabilities\n");
+	return false;
+#endif	// HAVE_LIBCAP
+
+}
+
+
+
 /**
  * the signalhandler
  * 
@@ -1532,6 +1603,7 @@ void show_help(bool defaults)
 	helpstruct myopts[]=
 	{
         {"c",	"config",			"give path to Config File",				SYSCONFDIR "/nepenthes.conf"	},
+		{"C",	"capabilities",		"force kernel 'security' capabilities",	""						},
 		{"d",	"disk-log",			"disk logging tags, see -L",			"(no filter)"			},
 		{"f",	"file-check",		"check file for known shellcode rmknown,rmnonop",   ""						},
 		{"h",	"help",				"show help",							""						},

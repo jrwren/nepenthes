@@ -195,6 +195,8 @@ namespace nepenthes
 		bool changeUser();
 		bool changeGroup();
 
+		bool setCapabilties();
+
 		bool changeRoot(char *path);
     };
 }
