@@ -39,6 +39,11 @@ using namespace std;
 
 namespace nepenthes
 {
+	// wait 5 seconds before attempting reconnection the first time
+	#define GOTEK_CTRL_SHORT_WAIT (5)
+	// retry every 30 secs if the first reconnection fails
+	#define GOTEK_CTRL_LONG_WAIT (30)
+
 
 	struct GotekContext
 	{
@@ -46,6 +51,14 @@ namespace nepenthes
 		uint32_t m_FileSize;
 		unsigned char	m_SHA512Hash[64];
 		uint64_t	m_EvCID;
+	};
+	
+	enum GotekSubmitHandlerStatus
+	{
+		GSHS_RESOLVING,
+		GSHS_WAITING_SHORT,
+		GSHS_WAITING_LONG,
+		GSHS_CONNECTED,
 	};
 
 
@@ -73,6 +86,8 @@ namespace nepenthes
 
 		bool popGote();
 		bool sendGote();
+		
+		void childConnectionLost();
 
 		
 	protected:
@@ -90,6 +105,9 @@ namespace nepenthes
 		uint16_t m_GotekPort;
 
 		list <GotekContext *> m_Goten;
+		
+		GotekSubmitHandlerStatus m_ControlConnStatus;
+		uint32_t m_NextConnectionAttempt;
 	};
 
 }

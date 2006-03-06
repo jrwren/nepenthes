@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <time.h>
 
 #include "submit-gotek.hpp"
 #include "gotekCTRLDialougue.hpp"
@@ -63,7 +64,7 @@ GotekSubmitHandler::GotekSubmitHandler(Nepenthes *nepenthes)
 {
 
 	m_ModuleName        = "submit-gotek";
-	m_ModuleDescription = "send files to a gote";
+	m_ModuleDescription = "send files to a G.O.T.E.K daemon";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
@@ -85,30 +86,33 @@ bool GotekSubmitHandler::Init()
 
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("%s","No G.O.T.E.K. Configuration given!\n");
 		return false;
 	}
 
 	try
 	{
 		m_GotekHost = m_Config->getValString("submit-gotek.host");
-        m_GotekPort = (uint16_t) m_Config->getValInt("submit-gotek.port");
+	        m_GotekPort = (uint16_t) m_Config->getValInt("submit-gotek.port");
 
 		m_User = m_Config->getValString("submit-gotek.user");
 		m_CommunityKey = (unsigned char *)m_Config->getValString("submit-gotek.communitykey");
 
-    } catch ( ... )
+    	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("%s", "Could not get G.O.T.E.K. host/port/user/key from configuration!\n");
 		return false;
 	}
 
+	m_ControlConnStatus = GSHS_RESOLVING;
 	g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_GotekHost.c_str(), NULL);
     
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 	REG_SUBMIT_HANDLER(this);
 
 	m_CTRLSocket = NULL;
+	m_NextConnectionAttempt = 0;
+	
 	return true;
 }
 
@@ -122,7 +126,7 @@ void GotekSubmitHandler::Submit(Download *down)
 	logPF();
 	GotekContext *ctx = new GotekContext;
 
-	logWarn("GOTEK Submission %s \n",down->getMD5Sum().c_str());
+	logWarn("G.O.T.E.K. Submission %s \n",down->getMD5Sum().c_str());
 	ctx->m_EvCID = 0;//down->getEvCID();
 	ctx->m_FileSize = down->getDownloadBuffer()->getSize();
 	ctx->m_FileBuffer = (unsigned char *)malloc(ctx->m_FileSize);
@@ -135,7 +139,7 @@ void GotekSubmitHandler::Submit(Download *down)
 	m_Goten.push_back(ctx);
 
 
-    if (m_CTRLSocket != NULL)
+    	if (m_CTRLSocket != NULL)
 	{
 		unsigned char request[1+64+8];
 		memset(request,0,1+64+8);
@@ -147,7 +151,7 @@ void GotekSubmitHandler::Submit(Download *down)
 	}else
 	{
 		// shit happens for now
-		logCrit("CTRLSocket is %x\n",m_CTRLSocket);
+		logCrit("CTRLSocket is %x\n", m_CTRLSocket);
 	}
 
 	return;
@@ -180,13 +184,20 @@ void GotekSubmitHandler::setSessionKey(uint64_t key)
 
 bool GotekSubmitHandler::dnsResolved(DNSResult *result)
 {
-	logInfo("url %s resolved %i\n",result->getDNS().c_str(), result->getIP4List().size());
-
 	list <uint32_t> resolved = result->getIP4List();
 	uint32_t host = resolved.front();
 
-	Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,m_GotekPort,14400);
-	socket->addDialogue(new gotekCTRLDialogue(socket));
+
+	if(m_ControlConnStatus == GSHS_RESOLVING)
+	{
+		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,host,m_GotekPort,14400);
+		socket->addDialogue(new gotekCTRLDialogue(socket, result->getDNS(), this));	
+		
+		m_ControlConnStatus = GSHS_CONNECTED;
+	} else
+	{
+		m_NextConnectionAttempt = 0; // if we're already / still waiting, reresolving perhaps solved shit - retry NOW
+	}
 
 	m_GotekHostIP = host;
 	return true;
@@ -221,6 +232,37 @@ bool GotekSubmitHandler::sendGote()
 	socket->addDialogue(new gotekDATADialogue(socket,ctx));
 	popGote();
 	return true;
+}
+
+
+void GotekSubmitHandler::childConnectionLost()
+{
+	switch(m_ControlConnStatus)
+	{
+	case GSHS_RESOLVING:
+		logCrit("%s\n", "Lost child connection while resolving DNS -- impossible!\n");
+		break;
+		
+	case GSHS_WAITING_SHORT:
+		logInfo("G.O.T.E.K. reconnection attempt to \"%s\" failed, retrying in %i seconds.", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
+		
+		// first reconnection attempt failed, perhaps re-resolving helps?
+		g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_GotekHost.c_str(), NULL);
+		
+		m_ControlConnStatus = GSHS_WAITING_LONG;
+		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_LONG_WAIT;		
+		break;
+		
+	case GSHS_WAITING_LONG:
+		logInfo("G.O.T.E.K. reconnection attempts to \"%s\" still failing, retrying in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
+		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_LONG_WAIT;		
+		break;
+		
+	case GSHS_CONNECTED:
+		logCrit("G.O.T.E.K. connection to \"%s\" lost, reconnecting in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_SHORT_WAIT);
+		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_SHORT_WAIT;
+		break;
+	}
 }
 
 

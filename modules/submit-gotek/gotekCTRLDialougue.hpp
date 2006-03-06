@@ -40,7 +40,8 @@ using namespace std;
 
 namespace nepenthes
 {
-
+	class GotekSubmitHandler;
+	
 	typedef enum 
 	{
 		GCTRL_NULL,
@@ -54,7 +55,7 @@ namespace nepenthes
 	class gotekCTRLDialogue : public Dialogue
 	{
 	public:
-		gotekCTRLDialogue(Socket *socket);
+		gotekCTRLDialogue(Socket *socket, string serverHost, GotekSubmitHandler * handlingFather);
 		~gotekCTRLDialogue();
 		ConsumeLevel incomingData(Message *msg);
 		ConsumeLevel outgoingData(Message *msg);
@@ -62,8 +63,11 @@ namespace nepenthes
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
 
-	protected:
-		Buffer		*m_Buffer;
+	private:
+		Buffer * m_Buffer;
 		gdata_state m_State;
+		
+		string m_ServerHost;
+		GotekSubmitHandler * m_HandlingFather;		
 	};
 }

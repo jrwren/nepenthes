@@ -55,23 +55,27 @@ using namespace nepenthes;
 
 /**
  * Dialogue::Dialogue(Socket *)
- * construktor for the gotekCTRLDialogue, creates a new gotekCTRLDialogue
+ * constructor for the gotekCTRLDialogue, creates a new gotekCTRLDialogue
  * 
- * replies some crap to the socket
+ * does the control connection for the fabulous G.O.T.E.K. file submission
+ * protocol
  * 
  * @param socket the Socket the Dialogue has to use
  */
-gotekCTRLDialogue::gotekCTRLDialogue(Socket *socket)
+gotekCTRLDialogue::gotekCTRLDialogue(Socket *socket, string serverHost, GotekSubmitHandler * handlingFather)
 {
 	m_Socket = socket;
-    m_DialogueName = "gotekCTRLDialogue";
-	m_DialogueDescription = "eXample Dialogue";
+	m_DialogueName = "gotekCTRLDialogue";
+	m_DialogueDescription = "G.O.T.E.K. control connection dialogue";
 
 	m_ConsumeLevel = CL_ASSIGN;
 
 	m_State = GCTRL_NULL;
 
 	m_Buffer = new Buffer(128);
+	
+	m_ServerHost = serverHost;
+	m_HandlingFather = handlingFather;
 }
 
 gotekCTRLDialogue::~gotekCTRLDialogue()
@@ -82,9 +86,7 @@ gotekCTRLDialogue::~gotekCTRLDialogue()
 /**
  * Dialogue::incomingData(Message *)
  * 
- * a small and ugly shell where we can use
- * "download protocol://localction:port/path/to/file
- * to trigger a download
+ * callback called upon incoming control data from gotekd
  * 
  * @param msg the Message the Socker received.
  * 
@@ -104,17 +106,6 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 
 			unsigned char sessionkey[8];
 			memcpy((char *)sessionkey,(char *)m_Buffer->getData(),8);
-			//0xe5 d8 00 90 66 c5 64 5d
-/*			sessionkey[0] = 0xe5;
-			sessionkey[1] = 0xd8;
-			sessionkey[2] = 0x00;
-			sessionkey[3] = 0x90;
-			sessionkey[4] = 0x66;
-			sessionkey[5] = 0xc5;
-			sessionkey[6] = 0x64;
-			sessionkey[7] = 0x5d;
-*/			
-//			g_GotekSubmitHandler->setSessionKey(sessionkey);
 			g_Nepenthes->getUtilities()->hexdump(sessionkey,8);
 
 			
@@ -123,7 +114,6 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 			unsigned char username[32];
 			memset(username,0,32);
 			string user = g_GotekSubmitHandler->getUser();
-//            string key = g_GotekSubmitHandler->getCommunityKey();
 			memcpy(username,user.c_str(),user.size()); //size checked in Init()
 			m_Socket->doRespond((char *)username,32);
 
@@ -158,7 +148,7 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 		{
 			if (*(unsigned char *)m_Buffer->getData() == 0xaa)
 			{
-				logInfo("Logged into %s\n","alliance.mwcollect.org");
+				logInfo("Logged into %s\n", m_ServerHost.c_str());
 				unsigned char ctrlcon = 0x55;
 				m_Socket->doRespond((char *)&ctrlcon,1);
 				g_GotekSubmitHandler->setSocket(m_Socket);
@@ -184,7 +174,7 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 			}else
 			if ( *(unsigned char *)m_Buffer->getData() == 0xff )	// ping
 			{
-				logInfo("%s\n","Gotek PING");
+				logSpam("%s\n", "G.O.T.E.K. PING");
 				char c = 0xff;
 				m_Socket->doRespond(&c,1);
 				m_Buffer->cut(1);
@@ -234,8 +224,8 @@ ConsumeLevel gotekCTRLDialogue::handleTimeout(Message *msg)
 
 /**
  * Dialogue::connectionLost(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
+ * since the submit-gotek module now has to etablish a new connection
+ * we simply notify the father class and then get dropped
  * 
  * @param msg
  * 
@@ -243,13 +233,13 @@ ConsumeLevel gotekCTRLDialogue::handleTimeout(Message *msg)
  */
 ConsumeLevel gotekCTRLDialogue::connectionLost(Message *msg)
 {
+	m_HandlingFather->childConnectionLost();	
 	return CL_DROP;
 }
 
 /**
  * Dialogue::connectionShutdown(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
+ * does exactly the same as connectionLost by simply calling it
  * 
  * @param msg
  * 
@@ -257,6 +247,6 @@ ConsumeLevel gotekCTRLDialogue::connectionLost(Message *msg)
  */
 ConsumeLevel gotekCTRLDialogue::connectionShutdown(Message *msg)
 {
-	return CL_DROP;
+	return connectionLost(msg);
 }
 
