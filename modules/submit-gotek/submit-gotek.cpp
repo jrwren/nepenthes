@@ -126,7 +126,13 @@ void GotekSubmitHandler::Submit(Download *down)
 	logPF();
 	GotekContext *ctx = new GotekContext;
 
-	logWarn("G.O.T.E.K. Submission %s \n",down->getMD5Sum().c_str());
+	if(m_ControlConnStatus != GSHS_CONNECTED)
+	{
+		logCrit("G.O.T.E.K. Submission %s lost, not connected!\n",down->getMD5Sum().c_str()); // spool here
+		return;
+	}
+	
+	logWarn("G.O.T.E.K. Submission %s\n",down->getMD5Sum().c_str());
 	ctx->m_EvCID = 0;//down->getEvCID();
 	ctx->m_FileSize = down->getDownloadBuffer()->getSize();
 	ctx->m_FileBuffer = (unsigned char *)malloc(ctx->m_FileSize);
@@ -237,6 +243,8 @@ bool GotekSubmitHandler::sendGote()
 
 void GotekSubmitHandler::childConnectionLost()
 {
+	m_CTRLSocket = NULL;
+	
 	switch(m_ControlConnStatus)
 	{
 	case GSHS_RESOLVING:
