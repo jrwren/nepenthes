@@ -270,11 +270,13 @@ void GotekSubmitHandler::childConnectionLost()
 		
 	case GSHS_WAITING_LONG:
 		logInfo("G.O.T.E.K. reconnection attempts to \"%s\" still failing, retrying in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
+		m_ControlConnStatus = GSHS_WAITING_LONG;
 		m_Timeout = time(0) + GOTEK_CTRL_LONG_WAIT;		
 		break;
 		
 	case GSHS_CONNECTED:
 		logCrit("G.O.T.E.K. connection to \"%s\" lost, reconnecting in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_SHORT_WAIT);
+		m_ControlConnStatus = GSHS_WAITING_SHORT;
 		m_Timeout = time(0) + GOTEK_CTRL_SHORT_WAIT;
 		break;
 	}

@@ -31,7 +31,7 @@
 #include <arpa/inet.h>
 
 
-#include "gotekCTRLDialougue.hpp"
+#include "gotekCTRLDialogue.hpp"
 #include "submit-gotek.hpp"
 
 #include "Message.hpp"

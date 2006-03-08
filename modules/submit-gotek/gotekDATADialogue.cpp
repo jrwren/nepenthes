@@ -31,7 +31,7 @@
 #include <arpa/inet.h>
 
 
-#include "gotekDATADialougue.hpp"
+#include "gotekDATADialogue.hpp"
 #include "submit-gotek.hpp"
 
 #include "Message.hpp"
