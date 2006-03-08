@@ -50,6 +50,9 @@
 #include "DNSManager.hpp"
 #include "DNSResult.hpp"
 
+#include "EventManager.hpp"
+#include "EventHandler.cpp"
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 
@@ -73,6 +76,8 @@ GotekSubmitHandler::GotekSubmitHandler(Nepenthes *nepenthes)
 
 	g_Nepenthes = nepenthes;
 	g_GotekSubmitHandler = this;
+	
+	REG_EVENT_HANDLER(this);
 }
 
 GotekSubmitHandler::~GotekSubmitHandler()
@@ -111,7 +116,7 @@ bool GotekSubmitHandler::Init()
 	REG_SUBMIT_HANDLER(this);
 
 	m_CTRLSocket = NULL;
-	m_NextConnectionAttempt = 0;
+	m_Timeout = 0;
 	
 	return true;
 }
@@ -202,7 +207,7 @@ bool GotekSubmitHandler::dnsResolved(DNSResult *result)
 		m_ControlConnStatus = GSHS_CONNECTED;
 	} else
 	{
-		m_NextConnectionAttempt = 0; // if we're already / still waiting, reresolving perhaps solved shit - retry NOW
+		m_Timeout = 0; // if we're already / still waiting, reresolving perhaps solved shit - retry NOW
 	}
 
 	m_GotekHostIP = host;
@@ -245,6 +250,8 @@ void GotekSubmitHandler::childConnectionLost()
 {
 	m_CTRLSocket = NULL;
 	
+	m_Events.set(EV_TIMEOUT);
+	
 	switch(m_ControlConnStatus)
 	{
 	case GSHS_RESOLVING:
@@ -258,21 +265,38 @@ void GotekSubmitHandler::childConnectionLost()
 		g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_GotekHost.c_str(), NULL);
 		
 		m_ControlConnStatus = GSHS_WAITING_LONG;
-		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_LONG_WAIT;		
+		m_Timeout = time(0) + GOTEK_CTRL_LONG_WAIT;		
 		break;
 		
 	case GSHS_WAITING_LONG:
 		logInfo("G.O.T.E.K. reconnection attempts to \"%s\" still failing, retrying in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
-		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_LONG_WAIT;		
+		m_Timeout = time(0) + GOTEK_CTRL_LONG_WAIT;		
 		break;
 		
 	case GSHS_CONNECTED:
 		logCrit("G.O.T.E.K. connection to \"%s\" lost, reconnecting in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_SHORT_WAIT);
-		m_NextConnectionAttempt = time(0) + GOTEK_CTRL_SHORT_WAIT;
+		m_Timeout = time(0) + GOTEK_CTRL_SHORT_WAIT;
 		break;
 	}
 }
 
+uint32_t GotekSubmitHandler::handleEvent(Event * event)
+{
+	logPF();
+	m_Events.reset(EV_TIMEOUT);
+	
+	if(m_ControlConnStatus == GSHS_WAITING_SHORT || m_ControlConnStatus == GSHS_WAITING_LONG)
+	{
+		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0, m_GotekHostIP, m_GotekPort, 14400);
+		socket->addDialogue(new gotekCTRLDialogue(socket, m_GotekHost, this));
+		
+		logInfo("Reconnectiong to G.O.T.E.K. server \"%s\".", m_GotekHost.c_str());
+		
+		m_ControlConnStatus = GSHS_CONNECTED;
+	}
+	
+	return 0;
+}
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {

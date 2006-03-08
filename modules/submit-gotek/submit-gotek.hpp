@@ -33,6 +33,7 @@
 #include "Nepenthes.hpp"
 #include "SubmitHandler.hpp"
 #include "DNSCallback.hpp"
+#include "EventHandler.hpp"
 
 
 using namespace std;
@@ -64,7 +65,7 @@ namespace nepenthes
 
 	class Socket;
 
-	class GotekSubmitHandler : public Module , public SubmitHandler, public DNSCallback
+	class GotekSubmitHandler : public Module , public SubmitHandler, public DNSCallback, public EventHandler
 	{
 	public:
 		GotekSubmitHandler(Nepenthes *);
@@ -88,12 +89,10 @@ namespace nepenthes
 		bool sendGote();
 		
 		void childConnectionLost();
+		uint32_t handleEvent(Event *event);
 
 		
 	protected:
-//		string m_FilePath;
-		
-// 
 		Socket *m_CTRLSocket;
 		string m_User;
 		unsigned char *m_CommunityKey;
@@ -107,7 +106,6 @@ namespace nepenthes
 		list <GotekContext *> m_Goten;
 		
 		GotekSubmitHandlerStatus m_ControlConnStatus;
-		uint32_t m_NextConnectionAttempt;
 	};
 
 }
