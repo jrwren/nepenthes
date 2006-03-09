@@ -217,7 +217,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:Cd:f:g:hHikl:Lor:Ru:vVw:", long_options, (int *)&option_index);
+		int32_t c = getopt_long(argc, argv, "c:Cd:f:g:hHikl:Lo:r:Ru:vVw:", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
