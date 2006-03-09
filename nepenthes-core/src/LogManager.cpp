@@ -43,6 +43,8 @@ LogManager::LogManager()
 {
 	for( int32_t i = 0; i < MAX_TAGS; i++ )
 		m_Tags[i] = 0;
+
+	m_useColor = false;
 }
 
 
@@ -215,4 +217,14 @@ uint32_t LogManager::parseTagString(const char *tagString)
 
 	free(str);
 	return mask;
+}
+
+void LogManager::setColor(bool setting)
+{
+	m_useColor = setting;
+}
+
+bool LogManager::getColorSetting()
+{
+	return m_useColor;
 }

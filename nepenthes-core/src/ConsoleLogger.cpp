@@ -121,7 +121,14 @@ void ConsoleLogger::log(uint32_t mask, const char *message)
         
 
 #else
-    printf("[ \033[%d;1m%-5s\033[0m] %s",
+	if( m_LogManager->getColorSetting() )
+	{
+	    printf("[ \033[%d;1m%-5s\033[0m] %s",
 			 g_ColorMap[level], tag.c_str(), message);
+	}
+	else
+	{
+		printf("%s", message);
+	}
 #endif
 }

@@ -77,6 +77,8 @@
 
 using namespace nepenthes;
 
+enum ColorSetting { colorAuto, colorAlways, colorNever };
+
 Nepenthes *g_Nepenthes;
 /**
  * the constructor
@@ -184,6 +186,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 
 	string rlpath;	// ringlogger path, gets read from config
 	bool ringlog = false;
+	ColorSetting col = colorAuto;
 
 #ifdef WIN32
 
@@ -204,7 +207,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ "check-config", 	0, 0, 'k' },
 			{ "log", 			1, 0, 'l' },	// FIXME
 			{ "logging-help",	0, 0, 'L' },	// FIXME
-			{ "no-color", 		0, 0, 'o' },	// FIXME
+			{ "color",	 		1, 0, 'o' },
 			{ "chroot",			1, 0, 'r' }, 
 			{ "ringlog",		0, 0, 'R' }, 
 			{ "user",			1, 0, 'u' },	
@@ -281,8 +284,19 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			break;
 
 		case 'o':	// FIXME set nocolor on console
-			printf("This feature '%c' is todo\nquitting\n",c);
-			run=false;
+			if( !strcmp(optarg, "never") )
+				col = colorNever;
+			else if( !strcmp(optarg, "always") )
+				col = colorAlways;
+			else if( !strcmp(optarg, "auto") )
+				col = colorAuto;
+			else
+			{
+				fprintf(stdout, "Invalid argument for --color; must be one of\n"
+						"`never', `always' or `auto'.\n");
+				run = false;
+			}
+
 			break;
 
 		case 'r':
@@ -415,6 +429,22 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 
 	if ( run == true || confcheck == true || filecheck == true)
 	{
+		switch( col )
+		{
+			case colorAuto:
+				if( isatty(STDOUT_FILENO) )
+					m_LogManager->setColor(true);
+				else
+					m_LogManager->setColor(false);
+				break;
+			case colorNever:
+				m_LogManager->setColor(false);
+				break;
+			case colorAlways:
+				m_LogManager->setColor(true);
+				break;
+		}
+
         m_Config = new Config;
 		logInfo("Trying to load Nepenthes Configuration from %s \n",confpath);
 		try
@@ -1604,45 +1634,39 @@ void show_help(bool defaults)
 
 	helpstruct myopts[]=
 	{
-        {"c",	"config",			"give path to Config File",				SYSCONFDIR "/nepenthes.conf"	},
-		{"C",	"capabilities",		"force kernel 'security' capabilities",	""						},
-		{"d",	"disk-log",			"disk logging tags, see -L",			"(no filter)"			},
-		{"f",	"file-check",		"check file for known shellcode rmknown,rmnonop",   ""						},
-		{"h",	"help",				"show help",							""						},
-		{"H",	"large-help",		"show help with default values",		""						},
-		{"i",	"info",		   		"how to contact us",					""						},
-		{"k",	"check-config",		"check config for syntax errors",		""						},
-		{"l",	"log",				"console logging tags, see -L",			"(no filter)"			},
-		{"L",	"logging-help",		"display help for -d and -l",			""						},
-		{"o",	"no-color",			"log without colors",					"FIXME"					},
-        {"r",	"chroot",			"chroot to",							"default is not to set chroot"},
-		{"R",	"ringlog",			"use ringlogger instead of filelogger",	"default is filelogger"},
-		{"u",	"user",				"set user to switch to",				"default is not to switch"},
-		{"g",	"group",			"set group to switch to (use with -u)", "default is not to switch"},
+        {"c",	"config=FILE",		"use FILE as configuration file",				SYSCONFDIR "/nepenthes.conf"	},
+		{"C",	"capabilities",		"force kernel 'security' capabilities",	0						},
+		{"d",	"disk-log",			"disk logging tags, see -L",			0						},
+		{"f",	"file-check=OPTS",	"check file for known shellcode, OPTS can\n"
+			"                              be any combination of `rmknown' and\n"
+			"                              `rmnonop'; seperate by comma when needed",   0			},
+		{"h",	"help",				"display help",							0						},
+		{"H",	"large-help",		"display help with default values",		0						},
+		{"i",	"info",		   		"how to contact us",					0						},
+		{"k",	"check-config",		"check configuration file for syntax errors",		0			},
+		{"l",	"log",				"console logging tags, see -L",			0						},
+		{"L",	"logging-help",		"display help for -d and -l",			0						},
+		{"o",	"color=WHEN",		"control color usage. WHEN may be `never',\n"
+			"                              `always' or `auto'",					"`auto'"		},
+        {"r",	"chroot=DIR",		"chroot to DIR after startup",				"don't chroot"		},
+		{"R",	"ringlog",			"use ringlogger instead of filelogger",			"filelogger"	},
+		{"u",	"user=USER",				"switch to USER after startup",	"keep current user"},
+		{"g",	"group=GROUP",			"switch to GROUP after startup (use with -u)", "keep current group"},
 		{"v",	"version",			"show version",							""						},
-		{"w",	"workingdir",		"where shall the process live",			PREFIX					},
+		{"w",	"workingdir=DIR",		"set the process' working dir to DIR",			PREFIX		},
 	};
 	show_version();
 
-	if ( defaults == true )
+	for ( uint32_t i=0;i<sizeof(myopts)/sizeof(helpstruct);i++ )
 	{
-		for ( uint32_t i=0;i<sizeof(myopts)/sizeof(helpstruct);i++ )
+		printf("  -%s, --%-19s %s\n", myopts[i].m_shortOpt,
+			myopts[i].m_longOpt,
+			myopts[i].m_Description);
+		
+		if( defaults == true && myopts[i].m_Default )
 		{
-			printf("  -%s,\t--%-12s %-30s %s\n", myopts[i].m_shortOpt,
-				   myopts[i].m_longOpt,
-				   myopts[i].m_Description,
-				   myopts[i].m_Default);
+			printf("                              Default value/behaviour: %s\n", myopts[i].m_Default);
 		}
-	}else
-	{
-		for ( uint32_t i=0;i<sizeof(myopts)/sizeof(helpstruct);i++ )
-		{
-			printf("  -%s,\t--%-12s %-30s\n", myopts[i].m_shortOpt,
-				   myopts[i].m_longOpt,
-				   myopts[i].m_Description
-				   );
-		}
-
 	}
 }
 

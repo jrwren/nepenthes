@@ -58,10 +58,13 @@ namespace nepenthes
 		virtual void		log(uint32_t mask, const char *message);
 		virtual void		logf(uint32_t mask, const char *format, ...);
 		const char			*getTagName(uint32_t bit);
-		uint32_t		getTagId(const char *tag);
-		uint32_t		parseTagString(const char *tagString);
+		uint32_t			getTagId(const char *tag);
+		uint32_t			parseTagString(const char *tagString);
+		void				setColor(bool setting);
+		bool				getColorSetting();
 	
 	private:
+		bool				m_useColor;
 		list<LogHandlerEntry *>	m_Loggers;
 		const char			*m_Tags[MAX_TAGS]; // use vector instead?
 	};
