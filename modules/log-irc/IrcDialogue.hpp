@@ -72,6 +72,9 @@ namespace nepenthes
 
 		void 	logIrc(uint32_t mask, const char *message);
 
+		void sendNick(bool random);
+		void sendUser();
+		void sendServerPass();
 	protected:
 
 		void processBuffer();

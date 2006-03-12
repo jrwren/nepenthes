@@ -304,6 +304,11 @@ uint16_t LogIrc::getIrcPort()
 	return m_IrcPort;
 }
 
+string LogIrc::getIrcPass()
+{
+	return m_IrcPass;
+}
+
 string LogIrc::getIrcNick()
 {
 	return m_IrcNick;

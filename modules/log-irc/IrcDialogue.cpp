@@ -96,18 +96,9 @@ IrcDialogue::IrcDialogue(Socket *socket, LogIrc * logirc)
 	} else
 	{
 		m_State = IRCDIA_CONNECTED;
-		string nick = "NICK ";
-		nick += m_LogIrc->getIrcNick();
-		nick += "\r\n";
-
-		m_Socket->doRespond((char *)nick.c_str(),nick.size());
-
-		string user = "USER ";
-		user += m_LogIrc->getIrcIdent();
-		user += " 0 0 :";
-		user += m_LogIrc->getIrcUserInfo();
-		user += "\r\n";
-		m_Socket->doRespond((char *)user.c_str(),user.size());
+		sendServerPass();
+		sendNick(false);
+		sendUser();
 	}
 
 	m_Buffer = new Buffer(1024);
@@ -147,20 +138,9 @@ ConsumeLevel IrcDialogue::incomingData(Message *msg)
 			logInfo("%s","connected to ircd via tor\n");
 			m_State = IRCDIA_CONNECTED;
 
-			string nick = "NICK ";
-			nick += m_LogIrc->getIrcNick();
-			nick += "\r\n";
-
-			m_Socket->doRespond((char *)nick.c_str(),nick.size());
-
-			string user = "USER ";
-			user += m_LogIrc->getIrcIdent();
-			user += " 0 0 :";
-			user += m_LogIrc->getIrcUserInfo();
-			user += "\r\n";
-
-			m_Socket->doRespond((char *)user.c_str(),user.size());
-			
+			sendServerPass();
+			sendNick(false);
+			sendUser();
 
 		} else
 		{
@@ -273,13 +253,7 @@ void IrcDialogue::processLine(string *line)
 	}else
 	if ( words[1] == "433" )
 	{
-		string nick = "NICK ";
-		nick += m_LogIrc->getIrcNick();
-		nick += (char) ((int32_t)rand()%20 + 97);
-		nick += "\r\n";
-
-		m_Socket->doRespond((char *)nick.c_str(),nick.size());
-
+		sendNick(true);
 	}else
 	if ( words.size() >= 4 && words[1] == "PRIVMSG" && words[3] == ":!version")
 	{
@@ -423,4 +397,48 @@ void 	IrcDialogue::logIrc(uint32_t mask, const char *message)
 
 		m_Socket->doRespond((char *)line.c_str(), line.size());
 	}
+}	
+
+
+void IrcDialogue::sendNick(bool random)
+{
+	if (random)
+	{
+		string nick = "NICK ";
+		nick += m_LogIrc->getIrcNick();
+		nick += (char) ((int32_t)rand()%20 + 97);
+		nick += "\r\n";
+
+		m_Socket->doRespond((char *)nick.c_str(),nick.size());
+	}else
+	{
+		string nick = "NICK ";
+		nick += m_LogIrc->getIrcNick();
+		nick += "\r\n";
+
+		m_Socket->doRespond((char *)nick.c_str(),nick.size());
+	}
 }
+
+void IrcDialogue::sendUser()
+{
+	string user = "USER ";
+	user += m_LogIrc->getIrcIdent();
+	user += " 0 0 :";
+	user += m_LogIrc->getIrcUserInfo();
+	user += "\r\n";
+
+	m_Socket->doRespond((char *)user.c_str(),user.size());
+}
+
+void IrcDialogue::sendServerPass()
+{
+	if ( m_LogIrc->getIrcPass().size() > 0 )
+	{
+    	string pass = "PASS ";
+		pass += m_LogIrc->getIrcPass();
+		pass += "\r\n";
+		m_Socket->doRespond((char *)pass.c_str(),pass.size());
+	}
+}
+

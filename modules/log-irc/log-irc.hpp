@@ -83,6 +83,7 @@ namespace nepenthes
 		string getIrcChannel();
 		string getIrcChannelPass();
 		string getIrcUserModes();
+		string getIrcPass(); //server password
 
 
 		void setDialogue(IrcDialogue *);
