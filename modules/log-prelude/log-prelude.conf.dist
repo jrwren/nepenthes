@@ -1,0 +1,7 @@
+log-prelude
+{
+       	analyzerClass "NIDS";
+		analyzerModel "nepenthes";
+		analyzerName "nepenthes";
+        
+};
