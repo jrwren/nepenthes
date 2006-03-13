@@ -14,5 +14,5 @@ submit-gotek
 		// you can also manually place files here to submit them and
 		// restart nepenthes
 		directory =	"var/spool/nepenthes/gotek";
-	}
+	};
 };
