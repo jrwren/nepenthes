@@ -272,7 +272,7 @@ ConsumeLevel gotekDATADialogue::connectionLost(Message *msg)
  */
 ConsumeLevel gotekDATADialogue::connectionShutdown(Message *msg)
 {
-	if(m_State == GDATA_DONE)
+	if(m_State == GDATA_DONE && !m_GotekContext->m_FileName.empty())
 	{
 		if(unlink(m_GotekContext->m_FileName.c_str()) < 0)
 		{
