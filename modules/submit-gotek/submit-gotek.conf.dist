@@ -5,4 +5,14 @@ submit-gotek
 	
 	communitykey = "hexdump here";
 	user	"user.name";
+
+	spool
+	{
+		enable = 	"1";
+
+		// spool directory where submissions are saved until sent
+		// you can also manually place files here to submit them and
+		// restart nepenthes
+		directory =	"var/spool/nepenthes/gotek";
+	}
 };
