@@ -48,10 +48,14 @@ namespace nepenthes
 
 	struct GotekContext
 	{
-		unsigned char *m_FileBuffer;
-		uint32_t m_FileSize;
-		unsigned char	m_SHA512Hash[64];
+		// always available
+		string		m_FileName;
 		uint64_t	m_EvCID;
+		unsigned char	m_Hash[64];
+		uint32_t	m_Length;
+		
+		// only if spooling is disabled
+		unsigned char * m_DataBuffer;
 	};
 	
 	enum GotekSubmitHandlerStatus
@@ -89,10 +93,14 @@ namespace nepenthes
 		bool sendGote();
 		
 		void childConnectionLost();
+		void childConnectionEtablished();
+		
 		uint32_t handleEvent(Event *event);
-
 		
 	protected:
+		bool scanSpoolDirectory();
+		
+	private:
 		Socket *m_CTRLSocket;
 		string m_User;
 		unsigned char *m_CommunityKey;
@@ -106,6 +114,9 @@ namespace nepenthes
 		list <GotekContext *> m_Goten;
 		
 		GotekSubmitHandlerStatus m_ControlConnStatus;
+		
+		bool m_HandleSpool;
+		string m_SpoolDirectory;
 	};
 
 }

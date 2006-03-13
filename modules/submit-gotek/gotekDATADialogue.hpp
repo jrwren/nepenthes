@@ -55,7 +55,7 @@ namespace nepenthes
 	class gotekDATADialogue : public Dialogue
 	{
 	public:
-		gotekDATADialogue(Socket *socket, GotekContext *ctx);
+		gotekDATADialogue(GotekContext *ctx);
 		~gotekDATADialogue();
 		ConsumeLevel incomingData(Message *msg);
 		ConsumeLevel outgoingData(Message *msg);
@@ -63,10 +63,14 @@ namespace nepenthes
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
 
-	protected:
-		Buffer		*m_Buffer;
-		gctrl_state m_State;
+		void setSocket(Socket * socket) { m_Socket = socket; }
+		bool loadFile();
 
-		GotekContext *m_GotekContext;
+	protected:
+		Buffer		* m_Buffer;
+		gctrl_state	m_State;
+
+		GotekContext *	m_GotekContext;
+		unsigned char *	m_FileBuffer;
 	};
 }

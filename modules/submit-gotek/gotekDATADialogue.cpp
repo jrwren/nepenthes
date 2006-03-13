@@ -30,6 +30,17 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <assert.h>
+
 
 #include "gotekDATADialogue.hpp"
 #include "submit-gotek.hpp"
@@ -61,10 +72,9 @@ using namespace nepenthes;
  * 
  * @param socket the Socket the Dialogue has to use
  */
-gotekDATADialogue::gotekDATADialogue(Socket *socket, GotekContext *ctx)
+gotekDATADialogue::gotekDATADialogue(GotekContext *ctx)
 {
-	m_Socket = socket;
-    m_DialogueName = "gotekDATADialogue";
+    	m_DialogueName = "gotekDATADialogue";
 	m_DialogueDescription = "eXample Dialogue";
 
 	m_ConsumeLevel = CL_ASSIGN;
@@ -74,10 +84,50 @@ gotekDATADialogue::gotekDATADialogue(Socket *socket, GotekContext *ctx)
 	m_Buffer = new Buffer(128);
 
 	m_GotekContext = ctx;
+	
+	m_FileBuffer = NULL;
+}
+
+bool gotekDATADialogue::loadFile()
+{
+	logPF();
+	
+	if(!m_GotekContext->m_DataBuffer)
+	{		
+		FILE * filePointer = fopen(m_GotekContext->m_FileName.c_str(), "rb");
+		
+		m_FileBuffer = (unsigned char *) malloc(m_GotekContext->m_Length);
+		assert(m_FileBuffer != NULL);
+		
+		if(!filePointer || fread(m_FileBuffer, 1, m_GotekContext->m_Length, filePointer) != m_GotekContext->m_Length)
+		{
+			logCrit("Failed to read data from cached spool file \"%s\"!", m_GotekContext->m_FileName.c_str());
+			
+			if(filePointer)
+			{
+				fclose(filePointer);
+			}
+			
+			return false;
+		}
+		
+		fclose(filePointer);
+		
+		return true;
+	} else
+	{
+		m_FileBuffer = m_GotekContext->m_DataBuffer;
+		return true;
+	}
 }
 
 gotekDATADialogue::~gotekDATADialogue()
 {
+	if(m_FileBuffer)
+	{
+		free(m_FileBuffer);
+	}
+	
 	delete m_Buffer;
 }
 
@@ -141,22 +191,21 @@ ConsumeLevel gotekDATADialogue::incomingData(Message *msg)
 	case GDATA_AUTH:
 		if (m_Buffer->getSize() == 1)
 		{
-			if (*(unsigned char *)m_Buffer->getData() == 0xaa)
+			if (* (unsigned char *) m_Buffer->getData() == 0xaa)
 			{
-				logInfo("Logged into %s\n","alliance.mwcollect.org");
-				char ctrlcon = 0xaa;
-				m_Socket->doRespond(&ctrlcon,1);
-
-//				int64_t int32_t eventid=0;
+				assert(m_FileBuffer != NULL);
+			
+				uint32_t len = htonl(m_GotekContext->m_Length);
 				
-				m_Socket->doRespond((char *)&m_GotekContext->m_EvCID,8);
-				uint32_t len = htonl(m_GotekContext->m_FileSize);
-				m_Socket->doRespond((char *)&len,4);
-				m_Socket->doRespond((char *)m_GotekContext->m_FileBuffer,m_GotekContext->m_FileSize);
+				logDebug("Data connection to %s etablished.\n", "UNIMPLEMENTED");
+				m_Socket->doRespond("\xaa", 1);
+				
+				m_Socket->doRespond((char *) &m_GotekContext->m_EvCID, 8);
+				m_Socket->doRespond((char *) &len, 4);
+				m_Socket->doRespond((char *) m_FileBuffer, m_GotekContext->m_Length);
 
 				m_State = GDATA_DONE;
 				m_Socket->setStatus(SS_CLEANQUIT);
-				
 			}
 		}
 		break;
@@ -223,6 +272,14 @@ ConsumeLevel gotekDATADialogue::connectionLost(Message *msg)
  */
 ConsumeLevel gotekDATADialogue::connectionShutdown(Message *msg)
 {
+	if(m_State == GDATA_DONE)
+	{
+		if(unlink(m_GotekContext->m_FileName.c_str()) < 0)
+		{
+			logCrit("Deleting submitted file \"%s\" from spool failed: %s!\n", m_GotekContext->m_FileName.c_str(), strerror(errno));
+		}
+	}
+	
 	return CL_DROP;
 }
 

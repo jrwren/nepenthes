@@ -146,22 +146,28 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 	case GCTRL_AUTH:
 		if (m_Buffer->getSize() == 1)
 		{
-			if (*(unsigned char *)m_Buffer->getData() == 0xaa)
+			if (* (unsigned char *) m_Buffer->getData() == 0xaa)
 			{
-				logInfo("Logged into %s\n", m_ServerHost.c_str());
-				unsigned char ctrlcon = 0x55;
-				m_Socket->doRespond((char *)&ctrlcon,1);
+				logInfo("Logged into G.O.T.E.K. server \"%s\".\n", m_ServerHost.c_str());
+				
+				m_Socket->doRespond((char *) "\x55", 1);
 				g_GotekSubmitHandler->setSocket(m_Socket);
+				
 				m_State = GCTRL_CTRL;
 				m_Buffer->clear();
+				
+				m_HandlingFather->childConnectionEtablished();
+			} else
+			{
+				logCrit("G.O.T.E.K. authentification for \"%s\" failed!\n", m_ServerHost.c_str());
+				return CL_DROP;
 			}
-
 		}
 		break;
 
 	case GCTRL_CTRL:
 		while(m_Buffer->getSize() > 0)
-		{
+		{			
 			if (*(unsigned char *)m_Buffer->getData() == 0xaa) 		// new file
 			{
 				g_GotekSubmitHandler->sendGote();
