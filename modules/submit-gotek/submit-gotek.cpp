@@ -35,7 +35,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <errno.h>
-
+#include <assert.h>
 
 #include "submit-gotek.hpp"
 #include "gotekCTRLDialogue.hpp"
