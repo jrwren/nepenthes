@@ -49,6 +49,9 @@ install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/geolocation
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes/gotek
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/log
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/binaries
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/hexdumps
