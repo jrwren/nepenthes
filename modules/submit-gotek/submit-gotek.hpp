@@ -41,9 +41,7 @@ using namespace std;
 namespace nepenthes
 {
 	// wait 5 seconds before attempting reconnection the first time
-	#define GOTEK_CTRL_SHORT_WAIT (5)
-	// retry every 30 secs if the first reconnection fails
-	#define GOTEK_CTRL_LONG_WAIT (30)
+	#define GOTEK_CTRL_WAIT (30)
 
 
 	struct GotekContext
@@ -62,7 +60,6 @@ namespace nepenthes
 	{
 		GSHS_RESOLVING,
 		GSHS_WAITING_SHORT,
-		GSHS_WAITING_LONG,
 		GSHS_CONNECTED,
 	};
 

@@ -462,25 +462,19 @@ void GotekSubmitHandler::childConnectionLost()
 		break;
 		
 	case GSHS_WAITING_SHORT:
-		logInfo("G.O.T.E.K. reconnection attempt to \"%s\" failed, retrying in %i seconds.", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
+		logInfo("G.O.T.E.K. reconnection attempt to \"%s\" failed, retrying in %i seconds.", m_GotekHost.c_str(), GOTEK_CTRL_WAIT);
 		
 		// first reconnection attempt failed, perhaps re-resolving helps?
 		g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_GotekHost.c_str(), NULL);
 		
-		m_ControlConnStatus = GSHS_WAITING_LONG;
-		m_Timeout = time(0) + GOTEK_CTRL_LONG_WAIT;		
-		break;
-		
-	case GSHS_WAITING_LONG:
-		logInfo("G.O.T.E.K. reconnection attempts to \"%s\" still failing, retrying in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_LONG_WAIT);
-		m_ControlConnStatus = GSHS_WAITING_LONG;
-		m_Timeout = time(0) + GOTEK_CTRL_LONG_WAIT;		
+		m_ControlConnStatus = GSHS_WAITING_SHORT;
+		m_Timeout = time(0) + GOTEK_CTRL_WAIT;		
 		break;
 		
 	case GSHS_CONNECTED:
-		logCrit("G.O.T.E.K. connection to \"%s\" lost, reconnecting in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_SHORT_WAIT);
+		logCrit("G.O.T.E.K. connection to \"%s\" lost, reconnecting in %i seconds.\n", m_GotekHost.c_str(), GOTEK_CTRL_WAIT);
 		m_ControlConnStatus = GSHS_WAITING_SHORT;
-		m_Timeout = time(0) + GOTEK_CTRL_SHORT_WAIT;
+		m_Timeout = time(0) + GOTEK_CTRL_WAIT;
 		break;
 	}
 }
@@ -490,7 +484,7 @@ uint32_t GotekSubmitHandler::handleEvent(Event * event)
 	logPF();
 	m_Events.reset(EV_TIMEOUT);
 	
-	if(m_ControlConnStatus == GSHS_WAITING_SHORT || m_ControlConnStatus == GSHS_WAITING_LONG)
+	if(m_ControlConnStatus == GSHS_WAITING_SHORT)
 	{
 		Socket *socket = g_Nepenthes->getSocketMgr()->connectTCPHost(0, m_GotekHostIP, m_GotekPort, 14400);
 		socket->addDialogue(new gotekCTRLDialogue(socket, m_GotekHost, this));
