@@ -175,7 +175,7 @@ void dns_decode_name(char *name, char **buf)
  */
 ConsumeLevel X7Dialogue::incomingData(Message *msg)
 {
-	if(!(msg->getSocket()->getType() & ST_RAW_UDP))
+/*	if(!(msg->getSocket()->getType() & ST_RAW_UDP))
 	{
 		logCrit("GOT NON UDP Packet %i \n",msg->getSize());
 		return CL_DROP;
@@ -264,7 +264,7 @@ ConsumeLevel X7Dialogue::incomingData(Message *msg)
 		break;
 
 	}
-/*
+
 	int32_t j=0;
 	for (int32_t i=0;i<dns->number_questions;i++)
 	{

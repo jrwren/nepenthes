@@ -147,9 +147,11 @@ uint32_t CurlDownloadHandler::handleEvent(Event *event)
 			if ( pMessage->msg == CURLMSG_DONE )
 			{
 				Download *pDown;
+				char *cDown;
 				char * szUrl;
 
-                curl_easy_getinfo(pMessage->easy_handle, CURLINFO_PRIVATE, (char * *) &pDown);
+                curl_easy_getinfo(pMessage->easy_handle, CURLINFO_PRIVATE, (char * *) &cDown);
+                pDown = (Download *)cDown;
 				if ( pMessage->data.result )
 				{
                     logWarn("Download error %s on getting file %s \n", curl_easy_strerror(pMessage->data.result), pDown->getUrl().c_str());

@@ -57,7 +57,7 @@ namespace nepenthes
 			return m_UploadHandlerName;
 		}
 
-		virtual string UploadHandler::getUploadHandlerDescription()
+		virtual string getUploadHandlerDescription()
 		{
 			return m_UploadHandlerDescription;
 		}

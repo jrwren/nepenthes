@@ -225,9 +225,12 @@ uint32_t SubmitNorman::handleEvent(Event *event)
 			if ( pMessage->msg == CURLMSG_DONE )
 			{
 				NormanContext *norm;
+				char *cnorm;
 				char * szUrl;
 
-                curl_easy_getinfo(pMessage->easy_handle, CURLINFO_PRIVATE, (char * *) &norm);
+                curl_easy_getinfo(pMessage->easy_handle, CURLINFO_PRIVATE, (char * *) &cnorm);
+                norm = (NormanContext *)cnorm;
+                
 				if ( pMessage->data.result )
 				{
                     logInfo("Upload Error %s on getting file %s \n", curl_easy_strerror(pMessage->data.result), norm->getMD5Sum());

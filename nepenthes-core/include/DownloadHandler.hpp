@@ -64,7 +64,7 @@ namespace nepenthes
 			return m_DownloadHandlerName;
 		}
 
-		virtual string DownloadHandler::getDownloadHandlerDescription()
+		virtual string getDownloadHandlerDescription()
 		{
 			return m_DownloadHandlerDescription;
 		}
