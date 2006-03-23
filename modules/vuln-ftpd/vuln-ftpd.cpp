@@ -197,11 +197,11 @@ FTPdDialogue::~FTPdDialogue()
 ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 {
 	char* s_quit                = "221-Quit.\r\n221 Goodbye!\r\n";
-	char* s_user_ok             = "331-User OK, Password required\r\n";
+	char* s_user_ok             = "331 User OK, Password required\r\n";
 	//char* s_unknown_command  	= "500-Unknown Command\r\n";
-	char* s_server_error        = "501-Server Error\r\n";
-	char* s_not_logged_in       = "530-You are not logged in\r\n";
-	char* s_auth_failed         = "530-Authentication failed, sorry\r\n";
+	char* s_server_error        = "501 Server Error\r\n";
+	char* s_not_logged_in       = "530 You are not logged in\r\n";
+	char* s_auth_failed         = "530 Authentication failed, sorry\r\n";
 
 	char* cmd_user = "USER";
 	char* cmd_pass = "PASS";
@@ -223,12 +223,9 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 	g_Nepenthes->getUtilities()->hexdump((byte *) m_Buffer->getData(),m_Buffer->getSize());
 	while ( i < m_Buffer->getSize() )
 	{
-		printf("i %i s %i\n",i, m_Buffer->getSize());
-		printf("c = %1x",*((char *)m_Buffer->getData()+i));
 		buffercut = false;
 		if ( i > 0 && *((char *)m_Buffer->getData()+i) == '\n' )
 		{
-			printf("line found %i:%i\n",i, m_Buffer->getSize());
 			string line((char *)m_Buffer->getData(), i);
 			
 			buffercut=true;
@@ -240,7 +237,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 			switch ( m_state )
 			{
 			case FTP_NULL:
-				if ( memcmp(line.c_str(), cmd_user, sizeof(cmd_user)) == 0 )
+				if ( line.size () >  sizeof(cmd_user) && memcmp(line.c_str(), cmd_user, sizeof(cmd_user)) == 0 )
 				{
 					//user has sent data starting with cmd_user
 					if ( line.size() > threshold )
@@ -274,7 +271,6 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 						// username ok
 						msg->getResponder()->doRespond(s_user_ok, strlen(s_user_ok));
 						m_state = FTP_USER;
-						m_Buffer->clear();
 					}
 
 				} else
@@ -288,7 +284,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 
 
 			case FTP_USER:
-				if ( memcmp(line.c_str(), cmd_pass, sizeof(cmd_pass)) == 0 )
+				if ( line.size () >  sizeof(cmd_pass) && memcmp(line.c_str(), cmd_pass, sizeof(cmd_pass)) == 0 )
 				{
 					//user has sent data starting with cmd_pass
 					if ( line.size() > threshold )
@@ -318,7 +314,6 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 					{
 						// password-format ok, user does not get logged in ;)
 						msg->getResponder()->doRespond(s_auth_failed, strlen(s_auth_failed));
-						m_Buffer->clear();
 						m_state = FTP_PASS;
 					}
 
@@ -334,7 +329,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 
 			case FTP_PASS:
 				// User gets server errors, if he is trying to do smthg
-				if ( memcmp(line.c_str(), cmd_quit, sizeof(cmd_quit)) == 0 )
+				if ( line.size () >  sizeof(cmd_quit) && memcmp(line.c_str(), cmd_quit, sizeof(cmd_quit)) == 0 )
 				{
 					//user has sent data starting with cmd_quit
 					msg->getResponder()->doRespond(s_quit, strlen(s_quit));
