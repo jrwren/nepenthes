@@ -218,13 +218,24 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 	// check, if last char of the Buffer equals \n
 
 	uint32_t i = 0;
+	bool buffercut=false;
 
+	g_Nepenthes->getUtilities()->hexdump((byte *) m_Buffer->getData(),m_Buffer->getSize());
 	while ( i < m_Buffer->getSize() )
 	{
-		if ( memcmp((char *)m_Buffer->getData()+ i, "\n", 1) == 0 )
+		printf("i %i s %i\n",i, m_Buffer->getSize());
+		printf("c = %1x",*((char *)m_Buffer->getData()+i));
+		buffercut = false;
+		if ( i > 0 && *((char *)m_Buffer->getData()+i) == '\n' )
 		{
+			printf("line found %i:%i\n",i, m_Buffer->getSize());
 			string line((char *)m_Buffer->getData(), i);
-			m_Buffer->cut(i);
+			
+			buffercut=true;
+			m_Buffer->cut(i+1);
+
+			i=0;
+			
 
 			switch ( m_state )
 			{
@@ -345,9 +356,15 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 			}
 		}
 
-		i++;    
-	}
+		if (buffercut == false)
+		{
+			i++;
+		}
+		
 
+
+		
+	}
 	return retval;
 }
 
