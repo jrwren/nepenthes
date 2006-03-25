@@ -25,7 +25,7 @@
  *
  *******************************************************************************/
 
- /* $Id$ */
+/* $Id$ */
 
 #include "sch_namespace_xor.hpp"
 
@@ -38,7 +38,7 @@
 #include "parser.hpp"
 
 #ifdef STDTAGS 
-#undef STDTAGS 
+	#undef STDTAGS 
 #endif
 #define STDTAGS l_sc | l_hlr
 
@@ -51,7 +51,7 @@ NamespaceXOR::NamespaceXOR(sc_shellcode *sc)
 	m_ShellcodeHandlerName += sc->name;
 
 	m_Shellcode = sc;
-	
+
 }
 
 NamespaceXOR::~NamespaceXOR()
@@ -68,7 +68,7 @@ bool NamespaceXOR::Init()
 		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
 				m_ShellcodeHandlerName.c_str(), pcreEerror, pcreErrorPos);
 		return false;
-	}else
+	} else
 	{
 		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
 	}
@@ -94,31 +94,31 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 	int32_t matchCount; 
 
 // data before xor
-	const char  *preMatch	= 	NULL;
-	uint32_t	preSize		= 	0;
+	const char  *preMatch   =   NULL;
+	uint32_t    preSize     =   0;
 
 
 // data before xor
-	const char  *decoderMatch= 	NULL;
-	uint32_t	decoderSize	= 	0;
+	const char  *decoderMatch=  NULL;
+	uint32_t    decoderSize =   0;
 
 
 
 // key
-	const char  *keyMatch	=	NULL;
-	char 		byteKey		= 	0;
-	uint32_t 	intKey		= 	0;
-	uint32_t 	keySize		= 	0;
+	const char  *keyMatch   =   NULL;
+	char        byteKey     =   0;
+	uint32_t    intKey      =   0;
+	uint32_t    keySize     =   0;
 
 
 // 'data to xor' size
-	const char  *sizeMatch	= 	NULL;
-	uint32_t 	codeSize	= 	0;
+	const char  *sizeMatch  =   NULL;
+	uint32_t    codeSize    =   0;
 
 
 // data after xor
-	const char  *postMatch	= 	NULL;
-	uint32_t	postSize	= 	0;
+	const char  *postMatch  =   NULL;
+	uint32_t    postSize    =   0;
 
 
 
@@ -132,9 +132,9 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 			const char *match = NULL;
 			int matchSize = pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, i, &match);
 
-			switch (m_Shellcode->map[i])
+			switch ( m_Shellcode->map[i] )
 			{
-
+			
 			case sc_pre:
 				preMatch = match;
 				preSize = matchSize;
@@ -143,12 +143,12 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 			case sc_pcre:
 				decoderMatch = match;
 				decoderSize = matchSize;
-                break;
+				break;
 
 
 			case sc_size:
 				sizeMatch = match;
-                switch ( matchSize )
+				switch ( matchSize )
 				{
 				case 4:
 					codeSize = (uint32_t)*((uint32_t *)match);
@@ -161,7 +161,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 					codeSize = (uint32_t)*((byte *)match);
 					break;
 				}
-                break;
+				break;
 
 
 			case sc_sizeinvert:
@@ -176,7 +176,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 					codeSize = 256 - (uint32_t)*((byte *)match);
 					break;
 				}
-                break;
+				break;
 
 			case sc_key:
 				keyMatch = match;
@@ -192,7 +192,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 					break;
 
 				}
-                break;
+				break;
 
 			case sc_post:
 				postMatch = match;
@@ -208,21 +208,21 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 		byte *decodedMessage = (byte *)malloc(postSize);
 		memcpy(decodedMessage, postMatch, postSize);
 
-		switch (keySize)
+		switch ( keySize )
 		{
 		case 1:
-			if( codeSize > postSize )
+			if ( codeSize > postSize )
 				logWarn("codeSize (%i) > postSize (%i), maybe broken xor?\n",codeSize,postSize);
 
-			for( uint32_t j = 0; j < codeSize && j < postSize; j++ )
+			for ( uint32_t j = 0; j < codeSize && j < postSize; j++ )
 				decodedMessage[j] ^= byteKey;
 			break;
 
 		case 4:
-			if( codeSize*4 > postSize )
+			if ( codeSize*4 > postSize )
 				logWarn("codeSize*4 (%i) > postSize (%i), maybe broken xor?\n",codeSize*4,postSize);
 
-			for( uint32_t j = 0; j < codeSize && (j+1)*4 < postSize; j++ )
+			for ( uint32_t j = 0; j < codeSize && (j+1)*4 < postSize; j++ )
 				*(uint32_t *)(decodedMessage+(j*4) ) ^= intKey;
 			break;
 		}
@@ -233,16 +233,16 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 // create the same message with stripped xor decoder
 
 		// the pre section
-		memcpy(newshellcode							,preMatch		,preSize);
+		memcpy(newshellcode                         ,preMatch       ,preSize);
 
 		// the xor as 0x90 
-		memset(newshellcode+preSize					,0x90			,decoderSize);
+		memset(newshellcode+preSize                 ,0x90           ,decoderSize);
 
 		// the xor decoded data
-		memcpy(newshellcode+preSize+decoderSize		,decodedMessage	,postSize);
+		memcpy(newshellcode+preSize+decoderSize     ,decodedMessage ,postSize);
 
 		Message *newMessage = new Message((char *)newshellcode, len, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
-			   (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());
+										  (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());
 
 		delete *msg;
 
