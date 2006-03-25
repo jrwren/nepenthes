@@ -74,9 +74,7 @@ SignatureShellcodeHandler::~SignatureShellcodeHandler()
 bool SignatureShellcodeHandler::Init()
 {
 	m_ModuleManager 	= m_Nepenthes->getModuleMgr();
-
-
-	return true;
+	return loadSignaturesFromFile(string("/tmp/shellcode-signatures.sc"));
 }
 
 bool SignatureShellcodeHandler::Exit()
@@ -94,6 +92,86 @@ bool SignatureShellcodeHandler::Exit()
 	return true;
 }
 
+bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
+{
+
+	shellcode *sc,*sc_free;
+	bool load_success = true;
+
+	if ( (sc = sc_parse_file(path.c_str())) == NULL)
+	{
+		logCrit("could not parse shellcodes from file %s\n",path.c_str());
+		logCrit("error %s\n",sc_get_error());
+		return false;
+	}
+
+	sc_free = sc;
+
+
+	ShellcodeHandler *sch = NULL;
+
+	while (sc != NULL && load_success == true )
+	{
+		sch = NULL;
+
+		switch(sc->nspace)
+		{
+		case sc_xor:
+			sch = new NamespaceXOR(sc);
+			break;
+
+		case sc_linkxor:
+			break;
+
+		case sc_konstanzxor:
+			break;
+
+		case sc_leimbachxor:
+			break;
+
+		case sc_connectbackshell:
+			break;
+
+		case sc_connectbackfiletransfer:
+			break;
+
+		case sc_bindshell:
+			break;
+
+		case sc_execute:
+			break;
+
+		case sc_download:
+			break;
+
+		case sc_url:
+			break;
+
+		case sc_link:
+			break;
+
+		case sc_blink:
+			break;
+
+		}
+		
+
+		if ( sch != NULL )
+		{
+			if ( sch->Init() == false )
+			{
+				load_success = true;
+			}
+		}
+
+		sc = sc->next;
+	}
+
+	
+
+	return load_success;
+
+}
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {

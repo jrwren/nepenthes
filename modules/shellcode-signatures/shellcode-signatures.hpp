@@ -44,8 +44,11 @@ namespace nepenthes
 	public:
 		SignatureShellcodeHandler(Nepenthes *);
 		~SignatureShellcodeHandler();
+
         bool Init();
 		bool Exit();
+
+		bool loadSignaturesFromFile(string path);
 
 	protected:
 		list <ShellcodeHandler *> m_ShellcodeHandlers;

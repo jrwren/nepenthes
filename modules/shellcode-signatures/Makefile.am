@@ -14,7 +14,7 @@ pkglib_LTLIBRARIES = shellcodesignatures.la
 shellcodesignatures_la_SOURCES = shellcode-signatures.sc 
 shellcodesignatures_la_SOURCES += y.tab.c lex.yy.c
 shellcodesignatures_la_SOURCES += shellcode-signatures.cpp shellcode-signatures.hpp 
-
+shellcodesignatures_la_SOURCES += sch_namespace_xor.cpp sch_namespace_xor.hpp
 
 
 shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
