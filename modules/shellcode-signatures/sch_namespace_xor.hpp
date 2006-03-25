@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <pcre.h>
 #include "ShellcodeHandler.hpp"
-#include "parser-shared.h"
+#include "parser.hpp"
 
 namespace nepenthes
 {

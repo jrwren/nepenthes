@@ -1,14 +1,25 @@
 /* $Id$ */
 %{
-   #include "parser-shared.h"
+	#define _GNU_SOURCE
+	#include <string.h>
+	#include <stdio.h>
+	#include <memory.h>
+	
+	#include "parser.h"
 
-struct shellcode *shellcodes = NULL;
-
+	inline void string_reset();
+	inline char *string_get_buffer();
+	inline int string_get_len();
 
 	extern char *yytext;
+	extern FILE *yyin;
 
+	static struct shellcode *shellcodes = NULL;
 	extern int line_number;
 
+	static struct shellcode *init_shellcode();
+	static char *get_namespace_by_numeric(int num);
+	static char *get_mapping_by_numeric(int num);
 	
 %}
 
@@ -43,7 +54,7 @@ shellcode
 		printf("shellcode:\n");
 
 		printf("\tname               %s\n", shellcodes->name);
-		printf("\tnamespace          %s (%d) \n", get_namespace_by_numeric(shellcodes->sc_namespace), shellcodes->sc_namespace);
+		printf("\tnamespace          %s (%d) \n", get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
 //		printf("\tpattern            %s\n", shellcodes->pattern);
 		printf("\tmap-size           %d\n", shellcodes->map_items);
 		printf("\tmap                ");
@@ -71,62 +82,62 @@ identifier
 namespace
 	: SC_XOR
 	{
-		shellcodes->sc_namespace = sc_xor;
+		shellcodes->nspace = sc_xor;
 	}
 	|
 	SC_LINKXOR
 	{
-		shellcodes->sc_namespace = sc_linkxor;
+		shellcodes->nspace = sc_linkxor;
 	}
 	|
 	SC_KONSTANZXOR
 	{
-		shellcodes->sc_namespace = sc_konstanzxor;
+		shellcodes->nspace = sc_konstanzxor;
 	}
 	|
 	SC_LEIMBACHXOR
 	{
-		shellcodes->sc_namespace = sc_leimbachxor;
+		shellcodes->nspace = sc_leimbachxor;
 	}
 	|
 	SC_BIND_SHELL
 	{
-		shellcodes->sc_namespace = sc_bindshell;
+		shellcodes->nspace = sc_bindshell;
 	}
 	|
 	SC_CONNECTBACK_SHELL
 	{
-		shellcodes->sc_namespace = sc_connectbackshell;
+		shellcodes->nspace = sc_connectbackshell;
 	}
 	|
 	SC_CONNECTBACK_FILETRANSFER
 	{
-		 shellcodes->sc_namespace = sc_connectbackfiletransfer;
+		 shellcodes->nspace = sc_connectbackfiletransfer;
 	}
 	|
 	SC_EXECUTE
 	{
-		shellcodes->sc_namespace = sc_execute;
+		shellcodes->nspace = sc_execute;
 	}
 	|
 	SC_DOWNLOAD
 	{
-		shellcodes->sc_namespace = sc_download;
+		shellcodes->nspace = sc_download;
 	}
 	|
 	SC_URL
 	{
-		shellcodes->sc_namespace = sc_url;
+		shellcodes->nspace = sc_url;
 	}
 	|
 	SC_CONNECTBACK_LINK_FILETRANSFER
 	{
-		shellcodes->sc_namespace = sc_link;
+		shellcodes->nspace = sc_link;
 	}
 	| 
 	SC_BIND_LINK_FILETRANSFER
 	{
-		shellcodes->sc_namespace = sc_blink;
+		shellcodes->nspace = sc_blink;
 	}
 	;
 
@@ -225,7 +236,7 @@ strings
 	}
 
 
-	char *get_namespace_by_numeric(int num)
+	static char *get_namespace_by_numeric(int num)
 	{
 	
 		static char *namespacemapping[]=
@@ -250,7 +261,7 @@ strings
 			return namespacemapping[num];
 	}
 
-	char *get_mapping_by_numeric(int num)
+	static char *get_mapping_by_numeric(int num)
 	{
 		static char *mapmapping[]=
 		{
@@ -270,16 +281,34 @@ strings
 		
 		
 
-      int yyerror(char* s) {
-	    printf(" %s at '%s' on line %d\n", s, yytext, line_number );return 0;
-      }
+	int yyerror(char* s)
+	{
+		printf(" %s at '%s' on line %d\n", s, yytext, line_number );
+		return 0;
+	}
 
 
-      int yywrap(){ return 1; }
-/*
-      int main(int argc, char** argv){
-		  init_shellcode();
-	    yyparse();
-      }
+	int yywrap()
+	{
+		return 1;
+	}
 
-*/
+	struct shellcode *sc_parse_file(const char *filename)
+	{
+		init_shellcode();
+		
+		yyin = fopen(filename, "r");
+		
+		if( yyin == NULL )
+			return NULL;
+
+		yyparse();
+		fclose(yyin);
+		
+		return shellcodes;
+	}
+	
+	char *sc_get_error()
+	{
+		return "no idea";
+	}

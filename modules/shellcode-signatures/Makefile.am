@@ -11,14 +11,11 @@ AM_LDFLAGS = -lpcre
 pkglib_LTLIBRARIES = shellcodesignatures.la
 
 
-BUILD_SOURCES = parser.c
-
 shellcodesignatures_la_SOURCES = shellcode-signatures.sc 
-shellcodesignatures_la_SOURCES += parser.y
+shellcodesignatures_la_SOURCES += y.tab.c lex.yy.c
 shellcodesignatures_la_SOURCES += shellcode-signatures.cpp shellcode-signatures.hpp 
 
 
 
 shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
 
-CLEANFILES = parser.c

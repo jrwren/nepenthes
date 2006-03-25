@@ -1,0 +1,12 @@
+# $Id$
+
+all: y.tab.c lex.yy.c
+
+lex.yy.c: parser.l
+	lex $^
+
+y.tab.c: parser.y
+	yacc -d $^
+
+clean:
+	rm -f lex.yy.c y.tab.{c,h}

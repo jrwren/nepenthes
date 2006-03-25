@@ -1,7 +1,7 @@
 /* $Id$ */
 %{
 #include <string.h>
-#include "parser.h"
+#include "y.tab.h"
 
 inline void string_reset();
 inline char *string_get_buffer();

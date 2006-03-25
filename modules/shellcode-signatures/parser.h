@@ -1,13 +1,9 @@
-#include <string.h>
-#include <memory.h>
-
-#define MAP_MAX 8
-
-
-
+/* $Id$ */
+#ifndef PARSER_H 
+#define PARSER_H
 
 enum sc_namespace
-{
+{ 
 	sc_xor,
 	sc_linkxor,
 	sc_konstanzxor,
@@ -22,9 +18,8 @@ enum sc_namespace
 	sc_blink
 };
 
-
 enum mapping 
-{
+{ 
 	key, 
 	size, 
 	sizeinvert, 
@@ -34,6 +29,7 @@ enum mapping
 	uri
 };
 
+#define MAP_MAX 8
 struct shellcode
 {
 	char *name;
@@ -41,7 +37,7 @@ struct shellcode
 	char *reference;
 	char *pattern;
 	int pattern_size;
-	enum sc_namespace sc_namespace;
+	enum sc_namespace nspace;
 	int map_items;
 	enum mapping map[MAP_MAX];
 	int flags;
@@ -49,13 +45,7 @@ struct shellcode
 	struct shellcode *next;
 };
 
-extern struct shellcode *shellcodes;
+extern struct shellcode *sc_parse_file(const char *);
+extern char *sc_get_error();
 
-
-void string_reset();
-char *string_get_buffer();
-int string_get_len();
-struct shellcode *init_shellcode();
-char *get_namespace_by_numeric(int num);
-char *get_mapping_by_numeric(int num);
-
+#endif
