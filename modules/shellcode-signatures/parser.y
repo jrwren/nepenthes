@@ -4,6 +4,7 @@
 	#include <string.h>
 	#include <stdio.h>
 	#include <memory.h>
+	#include <errno.h>
 	
 	#include "parser.h"
 
@@ -21,6 +22,7 @@
 	static char *get_namespace_by_numeric(int num);
 	static char *get_mapping_by_numeric(int num);
 	
+	static char error_buffer[0xff];
 %}
 
 
@@ -283,7 +285,8 @@ strings
 
 	int yyerror(char* s)
 	{
-		printf(" %s at '%s' on line %d\n", s, yytext, line_number );
+		snprintf(error_buffer, sizeof(error_buffer),
+			"%s at '%s' on line %d", s, yytext, line_number);
 		return 0;
 	}
 
@@ -295,14 +298,21 @@ strings
 
 	struct shellcode *sc_parse_file(const char *filename)
 	{
-		init_shellcode();
-		
 		yyin = fopen(filename, "r");
 		
 		if( yyin == NULL )
+		{
+			snprintf(error_buffer, sizeof(error_buffer), "%s", strerror(errno));
 			return NULL;
+		}
 
-		yyparse();
+		init_shellcode();
+		if( yyparse() != 0 )
+		{
+			fclose(yyin);
+			/* TODO free partially alloc'd shellcodes */
+			return NULL;
+		}
 		fclose(yyin);
 		
 		return shellcodes;
@@ -310,5 +320,5 @@ strings
 	
 	char *sc_get_error()
 	{
-		return "no idea";
+		return error_buffer;
 	}

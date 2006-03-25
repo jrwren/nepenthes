@@ -132,6 +132,7 @@
 	#include <string.h>
 	#include <stdio.h>
 	#include <memory.h>
+	#include <errno.h>
 	
 	#include "parser.h"
 
@@ -149,6 +150,7 @@
 	static char *get_namespace_by_numeric(int num);
 	static char *get_mapping_by_numeric(int num);
 	
+	static char error_buffer[0xff];
 
 
 /* Enabling traces.  */
@@ -177,7 +179,7 @@ typedef int YYSTYPE;
 
 
 /* Line 214 of yacc.c.  */
-#line 181 "y.tab.c"
+#line 183 "y.tab.c"
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
@@ -365,10 +367,10 @@ static const yysigned_char yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned char yyrline[] =
 {
-       0,    44,    44,    46,    50,    75,    83,    88,    93,    98,
-     103,   108,   113,   118,   123,   128,   133,   138,   144,   146,
-     150,   154,   155,   156,   160,   167,   171,   174,   176,   180,
-     184,   188,   192,   196,   200,   204,   211,   219,   221
+       0,    46,    46,    48,    52,    77,    85,    90,    95,   100,
+     105,   110,   115,   120,   125,   130,   135,   140,   146,   148,
+     152,   156,   157,   158,   162,   169,   173,   176,   178,   182,
+     186,   190,   194,   198,   202,   206,   213,   221,   223
 };
 #endif
 
@@ -1105,7 +1107,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 51 "parser.y"
+#line 53 "parser.y"
     {
 		int i;
 		
@@ -1130,7 +1132,7 @@ yyreduce:
     break;
 
   case 5:
-#line 76 "parser.y"
+#line 78 "parser.y"
     {
 		shellcodes->name = strndup(string_get_buffer(), string_get_len());
 		string_reset();
@@ -1138,147 +1140,147 @@ yyreduce:
     break;
 
   case 6:
-#line 84 "parser.y"
+#line 86 "parser.y"
     {
 		shellcodes->nspace = sc_xor;
 	}
     break;
 
   case 7:
-#line 89 "parser.y"
+#line 91 "parser.y"
     {
 		shellcodes->nspace = sc_linkxor;
 	}
     break;
 
   case 8:
-#line 94 "parser.y"
+#line 96 "parser.y"
     {
 		shellcodes->nspace = sc_konstanzxor;
 	}
     break;
 
   case 9:
-#line 99 "parser.y"
+#line 101 "parser.y"
     {
 		shellcodes->nspace = sc_leimbachxor;
 	}
     break;
 
   case 10:
-#line 104 "parser.y"
+#line 106 "parser.y"
     {
 		shellcodes->nspace = sc_bindshell;
 	}
     break;
 
   case 11:
-#line 109 "parser.y"
+#line 111 "parser.y"
     {
 		shellcodes->nspace = sc_connectbackshell;
 	}
     break;
 
   case 12:
-#line 114 "parser.y"
+#line 116 "parser.y"
     {
 		 shellcodes->nspace = sc_connectbackfiletransfer;
 	}
     break;
 
   case 13:
-#line 119 "parser.y"
+#line 121 "parser.y"
     {
 		shellcodes->nspace = sc_execute;
 	}
     break;
 
   case 14:
-#line 124 "parser.y"
+#line 126 "parser.y"
     {
 		shellcodes->nspace = sc_download;
 	}
     break;
 
   case 15:
-#line 129 "parser.y"
+#line 131 "parser.y"
     {
 		shellcodes->nspace = sc_url;
 	}
     break;
 
   case 16:
-#line 134 "parser.y"
+#line 136 "parser.y"
     {
 		shellcodes->nspace = sc_link;
 	}
     break;
 
   case 17:
-#line 139 "parser.y"
+#line 141 "parser.y"
     {
 		shellcodes->nspace = sc_blink;
 	}
     break;
 
   case 24:
-#line 161 "parser.y"
+#line 163 "parser.y"
     {
 		printf("flags none...\n");
 	}
     break;
 
   case 29:
-#line 181 "parser.y"
+#line 183 "parser.y"
     {
 		shellcodes->map[shellcodes->map_items++] = key;
 	}
     break;
 
   case 30:
-#line 185 "parser.y"
+#line 187 "parser.y"
     {
 		shellcodes->map[shellcodes->map_items++] = size;
 	}
     break;
 
   case 31:
-#line 189 "parser.y"
+#line 191 "parser.y"
     {
 		shellcodes->map[shellcodes->map_items++] = sizeinvert;
 	}
     break;
 
   case 32:
-#line 193 "parser.y"
+#line 195 "parser.y"
     {	
 		 shellcodes->map[shellcodes->map_items++] = port;
 	}
     break;
 
   case 33:
-#line 197 "parser.y"
+#line 199 "parser.y"
     {
 		shellcodes->map[shellcodes->map_items++] = host;
 	}
     break;
 
   case 34:
-#line 201 "parser.y"
+#line 203 "parser.y"
     {
 		shellcodes->map[shellcodes->map_items++] = command;
 	}
     break;
 
   case 35:
-#line 205 "parser.y"
+#line 207 "parser.y"
     {
 	shellcodes->map[shellcodes->map_items++] = uri;
 	}
     break;
 
   case 36:
-#line 212 "parser.y"
+#line 214 "parser.y"
     {
 		shellcodes->pattern = strndup(string_get_buffer(), string_get_len());
 		shellcodes->pattern_size = string_get_len();
@@ -1290,7 +1292,7 @@ yyreduce:
     }
 
 /* Line 1010 of yacc.c.  */
-#line 1294 "y.tab.c"
+#line 1296 "y.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -1515,7 +1517,7 @@ yyreturn:
 }
 
 
-#line 224 "parser.y"
+#line 226 "parser.y"
 
 
 	struct shellcode *init_shellcode()
@@ -1578,7 +1580,8 @@ yyreturn:
 
 	int yyerror(char* s)
 	{
-		printf(" %s at '%s' on line %d\n", s, yytext, line_number );
+		snprintf(error_buffer, sizeof(error_buffer),
+			"%s at '%s' on line %d", s, yytext, line_number);
 		return 0;
 	}
 
@@ -1590,14 +1593,21 @@ yyreturn:
 
 	struct shellcode *sc_parse_file(const char *filename)
 	{
-		init_shellcode();
-		
 		yyin = fopen(filename, "r");
 		
 		if( yyin == NULL )
+		{
+			snprintf(error_buffer, sizeof(error_buffer), "%s", strerror(errno));
 			return NULL;
+		}
 
-		yyparse();
+		init_shellcode();
+		if( yyparse() != 0 )
+		{
+			fclose(yyin);
+			/* TODO free partially alloc'd shellcodes */
+			return NULL;
+		}
 		fclose(yyin);
 		
 		return shellcodes;
@@ -1605,6 +1615,6 @@ yyreturn:
 	
 	char *sc_get_error()
 	{
-		return "no idea";
+		return error_buffer;
 	}
 
