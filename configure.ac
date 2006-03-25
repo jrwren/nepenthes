@@ -47,6 +47,8 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
+AC_PROG_YACC
+AC_PROG_LEX
 
 # Checks for header files.
 #AC_HEADER_DIRENT
@@ -807,7 +809,6 @@ fi
     
 
 
-
 AC_DEFUN([AC_DEFINE_DIR], [
   prefix_NONE=
   exec_prefix_NONE=
@@ -889,6 +890,7 @@ AC_CONFIG_FILES([Makefile
 		 modules/download-rcp/Makefile
 		 modules/vuln-ftpd/Makefile
 		 modules/log-prelude/Makefile
+		 modules/shellcode-signatures/Makefile		 
 		 ])
 #		 modules/log-prelude/Makefile
 #                modules/module-drone/Makefile		 
