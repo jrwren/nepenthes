@@ -18,19 +18,22 @@ enum sc_namespace
 	sc_blink
 };
 
-enum mapping 
+enum sc_mapping 
 { 
-	key, 
-	size, 
-	sizeinvert, 
-	port, 
-	host,
-	command,
-	uri
+	sc_key, 
+	sc_size, 
+	sc_sizeinvert, 
+	sc_port, 
+	sc_host,
+	sc_command,
+	sc_uri,
+	sc_pcre,
+	sc_pre,
+	sc_post
 };
 
 #define MAP_MAX 8
-struct shellcode
+struct sc_shellcode
 {
 	char *name;
 	char *author;
@@ -39,13 +42,17 @@ struct shellcode
 	int pattern_size;
 	enum sc_namespace nspace;
 	int map_items;
-	enum mapping map[MAP_MAX];
+	enum sc_mapping map[MAP_MAX];
 	int flags;
 
-	struct shellcode *next;
+	struct sc_shellcode *next;
 };
 
-extern struct shellcode *sc_parse_file(const char *);
+extern struct sc_shellcode *sc_parse_file(const char *);
 extern char *sc_get_error();
+
+extern char *sc_get_namespace_by_numeric(int num);
+extern char *sc_get_mapping_by_numeric(int num);
+
 
 #endif

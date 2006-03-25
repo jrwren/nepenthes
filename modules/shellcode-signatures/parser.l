@@ -61,6 +61,9 @@ NEWLINE "\n"
 "port"								{ return SC_PORT; }
 "command"							{ return SC_COMMAND; }
 "uri"								{ return SC_URI; }
+"pcre"                        { return SC_PCRE; }
+"pre"                         { return SC_PRELOAD; }
+"post"                         { return SC_PRELOAD; }
 
 {LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, strlen(yytext)); return SC_ID; }
 

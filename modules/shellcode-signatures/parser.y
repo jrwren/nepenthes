@@ -15,12 +15,10 @@
 	extern char *yytext;
 	extern FILE *yyin;
 
-	static struct shellcode *shellcodes = NULL;
+	static struct sc_shellcode *shellcodes = NULL;
 	extern int line_number;
 
-	static struct shellcode *init_shellcode();
-	static char *get_namespace_by_numeric(int num);
-	static char *get_mapping_by_numeric(int num);
+	static struct sc_shellcode *init_shellcode();
 	
 	static char error_buffer[0xff];
 %}
@@ -37,7 +35,7 @@ SC_URL
 SC_CONNECTBACK_LINK_FILETRANSFER SC_BIND_LINK_FILETRANSFER
 SC_KEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
-
+SC_PCRE SC_PRELOAD SC_POSTLOAD
 
 %start body
 
@@ -56,14 +54,14 @@ shellcode
 		printf("shellcode:\n");
 
 		printf("\tname               %s\n", shellcodes->name);
-		printf("\tnamespace          %s (%d) \n", get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
+		printf("\tnamespace          %s (%d) \n", sc_get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
 //		printf("\tpattern            %s\n", shellcodes->pattern);
 		printf("\tmap-size           %d\n", shellcodes->map_items);
 		printf("\tmap                ");
 
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
-			printf("%s (%d) ", get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
+			printf("%s (%d) ", sc_get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
 		}
 
 		printf("\n\n");
@@ -181,33 +179,46 @@ map_value_comma_list
 map_value
 	: SC_KEY
 	{
-		shellcodes->map[shellcodes->map_items++] = key;
+		shellcodes->map[shellcodes->map_items++] = sc_key;
 	}
 	| SC_SIZE
 	{
-		shellcodes->map[shellcodes->map_items++] = size;
+		shellcodes->map[shellcodes->map_items++] = sc_size;
 	}
 	| SC_SIZEINVERT
 	{
-		shellcodes->map[shellcodes->map_items++] = sizeinvert;
+		shellcodes->map[shellcodes->map_items++] = sc_sizeinvert;
 	}
 	| SC_PORT
 	{	
-		 shellcodes->map[shellcodes->map_items++] = port;
+		 shellcodes->map[shellcodes->map_items++] = sc_port;
 	}
 	| SC_HOST
 	{
-		shellcodes->map[shellcodes->map_items++] = host;
+		shellcodes->map[shellcodes->map_items++] = sc_host;
 	}
 	| SC_COMMAND
 	{
-		shellcodes->map[shellcodes->map_items++] = command;
+		shellcodes->map[shellcodes->map_items++] = sc_command;
 	}
 	| SC_URI
-   	{
-	shellcodes->map[shellcodes->map_items++] = uri;
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_uri;
 	}
-	;
+	| SC_PCRE
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_pcre;
+	}
+	| SC_PRELOAD
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_pre;
+	}
+	| SC_POSTLOAD
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_post;
+	}
+
+   ;
 
 pattern
 	: SC_PATTERN SC_STRING strings
@@ -225,11 +236,11 @@ strings
 
 %%
 
-	struct shellcode *init_shellcode()
+	struct sc_shellcode *init_shellcode()
 	{
-		struct shellcode *s = (struct shellcode *)malloc(sizeof(struct shellcode));
+		struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
 
-		memset(s, 0, sizeof(struct shellcode));
+		memset(s, 0, sizeof(struct sc_shellcode));
 
 		s->next = shellcodes;
 		shellcodes = s;
@@ -238,7 +249,7 @@ strings
 	}
 
 
-	static char *get_namespace_by_numeric(int num)
+	char *sc_get_namespace_by_numeric(int num)
 	{
 	
 		static char *namespacemapping[]=
@@ -263,7 +274,7 @@ strings
 			return namespacemapping[num];
 	}
 
-	static char *get_mapping_by_numeric(int num)
+	char *sc_get_mapping_by_numeric(int num)
 	{
 		static char *mapmapping[]=
 		{
@@ -273,7 +284,10 @@ strings
 	                "port",
         	        "host",
                 	"command",
-	                "uri"
+	                "uri",
+                  "pcre",
+                  "pre",
+                  "post"
 		};
                 if ( num > sizeof(mapmapping)/sizeof(char *) )
                         return "unmapped";
@@ -296,7 +310,7 @@ strings
 		return 1;
 	}
 
-	struct shellcode *sc_parse_file(const char *filename)
+	struct sc_shellcode *sc_parse_file(const char *filename)
 	{
 		yyin = fopen(filename, "r");
 		

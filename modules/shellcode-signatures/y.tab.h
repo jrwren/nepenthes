@@ -61,7 +61,10 @@
      SC_HOST = 287,
      SC_PORT = 288,
      SC_COMMAND = 289,
-     SC_URI = 290
+     SC_URI = 290,
+     SC_PCRE = 291,
+     SC_PRELOAD = 292,
+     SC_POSTLOAD = 293
    };
 #endif
 #define SC_ID 258
@@ -97,6 +100,9 @@
 #define SC_PORT 288
 #define SC_COMMAND 289
 #define SC_URI 290
+#define SC_PCRE 291
+#define SC_PRELOAD 292
+#define SC_POSTLOAD 293
 
 
 

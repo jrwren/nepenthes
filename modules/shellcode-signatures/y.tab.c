@@ -85,7 +85,10 @@
      SC_HOST = 287,
      SC_PORT = 288,
      SC_COMMAND = 289,
-     SC_URI = 290
+     SC_URI = 290,
+     SC_PCRE = 291,
+     SC_PRELOAD = 292,
+     SC_POSTLOAD = 293
    };
 #endif
 #define SC_ID 258
@@ -121,6 +124,9 @@
 #define SC_PORT 288
 #define SC_COMMAND 289
 #define SC_URI 290
+#define SC_PCRE 291
+#define SC_PRELOAD 292
+#define SC_POSTLOAD 293
 
 
 
@@ -143,12 +149,10 @@
 	extern char *yytext;
 	extern FILE *yyin;
 
-	static struct shellcode *shellcodes = NULL;
+	static struct sc_shellcode *shellcodes = NULL;
 	extern int line_number;
 
-	static struct shellcode *init_shellcode();
-	static char *get_namespace_by_numeric(int num);
-	static char *get_mapping_by_numeric(int num);
+	static struct sc_shellcode *init_shellcode();
 	
 	static char error_buffer[0xff];
 
@@ -179,7 +183,7 @@ typedef int YYSTYPE;
 
 
 /* Line 213 of yacc.c.  */
-#line 183 "y.tab.c"
+#line 187 "y.tab.c"
 
 #if ! defined (yyoverflow) || YYERROR_VERBOSE
 
@@ -281,20 +285,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state. */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   43
+#define YYLAST   45
 
 /* YYNTOKENS -- Number of terminals. */
-#define YYNTOKENS  36
+#define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals. */
 #define YYNNTS  15
 /* YYNRULES -- Number of rules. */
-#define YYNRULES  38
+#define YYNRULES  41
 /* YYNRULES -- Number of states. */
-#define YYNSTATES  55
+#define YYNSTATES  58
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   290
+#define YYMAXUTOK   293
 
 #define YYTRANSLATE(YYX) 						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -331,7 +335,7 @@ static const unsigned char yytranslate[] =
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35
+      35,    36,    37,    38
 };
 
 #if YYDEBUG
@@ -342,31 +346,33 @@ static const unsigned char yyprhs[] =
        0,     0,     3,     4,     7,    13,    18,    20,    22,    24,
       26,    28,    30,    32,    34,    36,    38,    40,    42,    43,
       46,    49,    51,    53,    55,    58,    63,    66,    67,    71,
-      73,    75,    77,    79,    81,    83,    85,    89,    90
+      73,    75,    77,    79,    81,    83,    85,    87,    89,    91,
+      95,    96
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
 static const yysigned_char yyrhs[] =
 {
-      37,     0,    -1,    -1,    37,    38,    -1,    39,     6,    41,
-       7,     9,    -1,    40,    10,    10,     3,    -1,    17,    -1,
+      40,     0,    -1,    -1,    40,    41,    -1,    42,     6,    44,
+       7,     9,    -1,    43,    10,    10,     3,    -1,    17,    -1,
       18,    -1,    19,    -1,    20,    -1,    21,    -1,    22,    -1,
       23,    -1,    24,    -1,    25,    -1,    26,    -1,    27,    -1,
-      28,    -1,    -1,    42,    41,    -1,    43,     9,    -1,    49,
-      -1,    44,    -1,    45,    -1,    12,    11,    -1,    15,     4,
-      46,     5,    -1,    48,    47,    -1,    -1,     8,    48,    47,
+      28,    -1,    -1,    45,    44,    -1,    46,     9,    -1,    52,
+      -1,    47,    -1,    48,    -1,    12,    11,    -1,    15,     4,
+      49,     5,    -1,    51,    50,    -1,    -1,     8,    51,    50,
       -1,    29,    -1,    30,    -1,    31,    -1,    33,    -1,    32,
-      -1,    34,    -1,    35,    -1,    13,    16,    50,    -1,    -1,
-      16,    50,    -1
+      -1,    34,    -1,    35,    -1,    36,    -1,    37,    -1,    38,
+      -1,    13,    16,    53,    -1,    -1,    16,    53,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned char yyrline[] =
 {
-       0,    46,    46,    48,    52,    77,    85,    90,    95,   100,
-     105,   110,   115,   120,   125,   130,   135,   140,   146,   148,
-     152,   156,   157,   158,   162,   169,   173,   176,   178,   182,
-     186,   190,   194,   198,   202,   206,   213,   221,   223
+       0,    44,    44,    46,    50,    75,    83,    88,    93,    98,
+     103,   108,   113,   118,   123,   128,   133,   138,   144,   146,
+     150,   154,   155,   156,   160,   167,   171,   174,   176,   180,
+     184,   188,   192,   196,   200,   204,   208,   212,   216,   224,
+     232,   234
 };
 #endif
 
@@ -382,10 +388,10 @@ static const char *const yytname[] =
   "SC_CONNECTBACK_SHELL", "SC_CONNECTBACK_FILETRANSFER", "SC_EXECUTE",
   "SC_DOWNLOAD", "SC_URL", "SC_CONNECTBACK_LINK_FILETRANSFER",
   "SC_BIND_LINK_FILETRANSFER", "SC_KEY", "SC_SIZE", "SC_SIZEINVERT",
-  "SC_HOST", "SC_PORT", "SC_COMMAND", "SC_URI", "$accept", "body",
-  "shellcode", "identifier", "namespace", "statements", "statement",
-  "inline_statement", "flags", "mapping", "map_values",
-  "map_value_comma_list", "map_value", "pattern", "strings", 0
+  "SC_HOST", "SC_PORT", "SC_COMMAND", "SC_URI", "SC_PCRE", "SC_PRELOAD",
+  "SC_POSTLOAD", "$accept", "body", "shellcode", "identifier", "namespace",
+  "statements", "statement", "inline_statement", "flags", "mapping",
+  "map_values", "map_value_comma_list", "map_value", "pattern", "strings", 0
 };
 #endif
 
@@ -397,17 +403,18 @@ static const unsigned short int yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287,   288,   289,   290
+     285,   286,   287,   288,   289,   290,   291,   292,   293
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const unsigned char yyr1[] =
 {
-       0,    36,    37,    37,    38,    39,    40,    40,    40,    40,
-      40,    40,    40,    40,    40,    40,    40,    40,    41,    41,
-      42,    43,    43,    43,    44,    45,    46,    47,    47,    48,
-      48,    48,    48,    48,    48,    48,    49,    50,    50
+       0,    39,    40,    40,    41,    42,    43,    43,    43,    43,
+      43,    43,    43,    43,    43,    43,    43,    43,    44,    44,
+      45,    46,    46,    46,    47,    48,    49,    50,    50,    51,
+      51,    51,    51,    51,    51,    51,    51,    51,    51,    52,
+      53,    53
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -416,7 +423,8 @@ static const unsigned char yyr2[] =
        0,     2,     0,     2,     5,     4,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     0,     2,
        2,     1,     1,     1,     2,     4,     2,     0,     3,     1,
-       1,     1,     1,     1,     1,     1,     3,     0,     2
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     3,
+       0,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -427,16 +435,16 @@ static const unsigned char yydefact[] =
        2,     0,     1,     6,     7,     8,     9,    10,    11,    12,
       13,    14,    15,    16,    17,     3,     0,     0,    18,     0,
        0,     0,     0,     0,    18,     0,    22,    23,    21,     0,
-      24,    37,     0,     0,    19,    20,     5,    37,    36,    29,
-      30,    31,    33,    32,    34,    35,     0,    27,     4,    38,
-      25,     0,    26,    27,    28
+      24,    40,     0,     0,    19,    20,     5,    40,    39,    29,
+      30,    31,    33,    32,    34,    35,    36,    37,    38,     0,
+      27,     4,    41,    25,     0,    26,    27,    28
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
 static const yysigned_char yydefgoto[] =
 {
       -1,     1,    15,    16,    17,    23,    24,    25,    26,    27,
-      46,    52,    47,    28,    38
+      49,    55,    50,    28,    38
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -445,18 +453,18 @@ static const yysigned_char yydefgoto[] =
 static const yysigned_char yypact[] =
 {
      -29,     0,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,     4,     2,    -4,     3,
-       5,    -2,    11,    22,    -4,    21,   -29,   -29,   -29,    28,
-     -29,    16,   -28,    24,   -29,   -29,   -29,    16,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,    29,    27,   -29,   -29,
-     -29,   -28,   -29,    27,   -29
+     -29,   -29,   -29,   -29,   -29,   -29,     7,     5,    -1,     6,
+      18,    14,    27,    25,    -1,    24,   -29,   -29,   -29,    31,
+     -29,    19,   -28,    28,   -29,   -29,   -29,    19,   -29,   -29,
+     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,    33,
+      32,   -29,   -29,   -29,   -28,   -29,    32,   -29
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yysigned_char yypgoto[] =
 {
      -29,   -29,   -29,   -29,   -29,    12,   -29,   -29,   -29,   -29,
-     -29,   -16,   -13,   -29,     6
+     -29,   -17,   -13,   -29,     8
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -466,32 +474,32 @@ static const yysigned_char yypgoto[] =
 #define YYTABLE_NINF -1
 static const unsigned char yytable[] =
 {
-       2,    39,    40,    41,    42,    43,    44,    45,    20,    21,
-      18,    22,    19,    29,    31,    32,    30,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    14,    33,
-      35,    36,    37,    48,    50,    51,    34,    54,    53,     0,
-       0,     0,     0,    49
+       2,    39,    40,    41,    42,    43,    44,    45,    46,    47,
+      48,    20,    21,    18,    22,    19,    29,     3,     4,     5,
+       6,     7,     8,     9,    10,    11,    12,    13,    14,    30,
+      31,    32,    33,    35,    36,    37,    34,    51,    53,    57,
+      54,    56,     0,     0,     0,    52
 };
 
 static const yysigned_char yycheck[] =
 {
-       0,    29,    30,    31,    32,    33,    34,    35,    12,    13,
-       6,    15,    10,    10,    16,     4,    11,    17,    18,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,     7,
-       9,     3,    16,     9,     5,     8,    24,    53,    51,    -1,
-      -1,    -1,    -1,    37
+       0,    29,    30,    31,    32,    33,    34,    35,    36,    37,
+      38,    12,    13,     6,    15,    10,    10,    17,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,    11,
+      16,     4,     7,     9,     3,    16,    24,     9,     5,    56,
+       8,    54,    -1,    -1,    -1,    37
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const unsigned char yystos[] =
 {
-       0,    37,     0,    17,    18,    19,    20,    21,    22,    23,
-      24,    25,    26,    27,    28,    38,    39,    40,     6,    10,
-      12,    13,    15,    41,    42,    43,    44,    45,    49,    10,
-      11,    16,     4,     7,    41,     9,     3,    16,    50,    29,
-      30,    31,    32,    33,    34,    35,    46,    48,     9,    50,
-       5,     8,    47,    48,    47
+       0,    40,     0,    17,    18,    19,    20,    21,    22,    23,
+      24,    25,    26,    27,    28,    41,    42,    43,     6,    10,
+      12,    13,    15,    44,    45,    46,    47,    48,    52,    10,
+      11,    16,     4,     7,    44,     9,     3,    16,    53,    29,
+      30,    31,    32,    33,    34,    35,    36,    37,    38,    49,
+      51,     9,    53,     5,     8,    50,    51,    50
 };
 
 #if ! defined (YYSIZE_T) && defined (__SIZE_TYPE__)
@@ -1132,21 +1140,21 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 53 "parser.y"
+#line 51 "parser.y"
     {
 		int i;
 		
 		printf("shellcode:\n");
 
 		printf("\tname               %s\n", shellcodes->name);
-		printf("\tnamespace          %s (%d) \n", get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
+		printf("\tnamespace          %s (%d) \n", sc_get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
 //		printf("\tpattern            %s\n", shellcodes->pattern);
 		printf("\tmap-size           %d\n", shellcodes->map_items);
 		printf("\tmap                ");
 
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
-			printf("%s (%d) ", get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
+			printf("%s (%d) ", sc_get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
 		}
 
 		printf("\n\n");
@@ -1157,7 +1165,7 @@ yyreduce:
     break;
 
   case 5:
-#line 78 "parser.y"
+#line 76 "parser.y"
     {
 		shellcodes->name = strndup(string_get_buffer(), string_get_len());
 		string_reset();
@@ -1165,147 +1173,168 @@ yyreduce:
     break;
 
   case 6:
-#line 86 "parser.y"
+#line 84 "parser.y"
     {
 		shellcodes->nspace = sc_xor;
 	}
     break;
 
   case 7:
-#line 91 "parser.y"
+#line 89 "parser.y"
     {
 		shellcodes->nspace = sc_linkxor;
 	}
     break;
 
   case 8:
-#line 96 "parser.y"
+#line 94 "parser.y"
     {
 		shellcodes->nspace = sc_konstanzxor;
 	}
     break;
 
   case 9:
-#line 101 "parser.y"
+#line 99 "parser.y"
     {
 		shellcodes->nspace = sc_leimbachxor;
 	}
     break;
 
   case 10:
-#line 106 "parser.y"
+#line 104 "parser.y"
     {
 		shellcodes->nspace = sc_bindshell;
 	}
     break;
 
   case 11:
-#line 111 "parser.y"
+#line 109 "parser.y"
     {
 		shellcodes->nspace = sc_connectbackshell;
 	}
     break;
 
   case 12:
-#line 116 "parser.y"
+#line 114 "parser.y"
     {
 		 shellcodes->nspace = sc_connectbackfiletransfer;
 	}
     break;
 
   case 13:
-#line 121 "parser.y"
+#line 119 "parser.y"
     {
 		shellcodes->nspace = sc_execute;
 	}
     break;
 
   case 14:
-#line 126 "parser.y"
+#line 124 "parser.y"
     {
 		shellcodes->nspace = sc_download;
 	}
     break;
 
   case 15:
-#line 131 "parser.y"
+#line 129 "parser.y"
     {
 		shellcodes->nspace = sc_url;
 	}
     break;
 
   case 16:
-#line 136 "parser.y"
+#line 134 "parser.y"
     {
 		shellcodes->nspace = sc_link;
 	}
     break;
 
   case 17:
-#line 141 "parser.y"
+#line 139 "parser.y"
     {
 		shellcodes->nspace = sc_blink;
 	}
     break;
 
   case 24:
-#line 163 "parser.y"
+#line 161 "parser.y"
     {
 		printf("flags none...\n");
 	}
     break;
 
   case 29:
-#line 183 "parser.y"
+#line 181 "parser.y"
     {
-		shellcodes->map[shellcodes->map_items++] = key;
+		shellcodes->map[shellcodes->map_items++] = sc_key;
 	}
     break;
 
   case 30:
-#line 187 "parser.y"
+#line 185 "parser.y"
     {
-		shellcodes->map[shellcodes->map_items++] = size;
+		shellcodes->map[shellcodes->map_items++] = sc_size;
 	}
     break;
 
   case 31:
-#line 191 "parser.y"
+#line 189 "parser.y"
     {
-		shellcodes->map[shellcodes->map_items++] = sizeinvert;
+		shellcodes->map[shellcodes->map_items++] = sc_sizeinvert;
 	}
     break;
 
   case 32:
-#line 195 "parser.y"
+#line 193 "parser.y"
     {	
-		 shellcodes->map[shellcodes->map_items++] = port;
+		 shellcodes->map[shellcodes->map_items++] = sc_port;
 	}
     break;
 
   case 33:
-#line 199 "parser.y"
+#line 197 "parser.y"
     {
-		shellcodes->map[shellcodes->map_items++] = host;
+		shellcodes->map[shellcodes->map_items++] = sc_host;
 	}
     break;
 
   case 34:
-#line 203 "parser.y"
+#line 201 "parser.y"
     {
-		shellcodes->map[shellcodes->map_items++] = command;
+		shellcodes->map[shellcodes->map_items++] = sc_command;
 	}
     break;
 
   case 35:
-#line 207 "parser.y"
+#line 205 "parser.y"
     {
-	shellcodes->map[shellcodes->map_items++] = uri;
+	   shellcodes->map[shellcodes->map_items++] = sc_uri;
 	}
     break;
 
   case 36:
-#line 214 "parser.y"
+#line 209 "parser.y"
+    {
+	   shellcodes->map[shellcodes->map_items++] = sc_pcre;
+	}
+    break;
+
+  case 37:
+#line 213 "parser.y"
+    {
+	   shellcodes->map[shellcodes->map_items++] = sc_pre;
+	}
+    break;
+
+  case 38:
+#line 217 "parser.y"
+    {
+	   shellcodes->map[shellcodes->map_items++] = sc_post;
+	}
+    break;
+
+  case 39:
+#line 225 "parser.y"
     {
 		shellcodes->pattern = strndup(string_get_buffer(), string_get_len());
 		shellcodes->pattern_size = string_get_len();
@@ -1317,7 +1346,7 @@ yyreduce:
     }
 
 /* Line 1037 of yacc.c.  */
-#line 1321 "y.tab.c"
+#line 1350 "y.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -1545,14 +1574,14 @@ yyreturn:
 }
 
 
-#line 226 "parser.y"
+#line 237 "parser.y"
 
 
-	struct shellcode *init_shellcode()
+	struct sc_shellcode *init_shellcode()
 	{
-		struct shellcode *s = (struct shellcode *)malloc(sizeof(struct shellcode));
+		struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
 
-		memset(s, 0, sizeof(struct shellcode));
+		memset(s, 0, sizeof(struct sc_shellcode));
 
 		s->next = shellcodes;
 		shellcodes = s;
@@ -1561,7 +1590,7 @@ yyreturn:
 	}
 
 
-	static char *get_namespace_by_numeric(int num)
+	char *sc_get_namespace_by_numeric(int num)
 	{
 	
 		static char *namespacemapping[]=
@@ -1586,7 +1615,7 @@ yyreturn:
 			return namespacemapping[num];
 	}
 
-	static char *get_mapping_by_numeric(int num)
+	char *sc_get_mapping_by_numeric(int num)
 	{
 		static char *mapmapping[]=
 		{
@@ -1596,7 +1625,10 @@ yyreturn:
 	                "port",
         	        "host",
                 	"command",
-	                "uri"
+	                "uri",
+                  "pcre",
+                  "pre",
+                  "post"
 		};
                 if ( num > sizeof(mapmapping)/sizeof(char *) )
                         return "unmapped";
@@ -1619,7 +1651,7 @@ yyreturn:
 		return 1;
 	}
 
-	struct shellcode *sc_parse_file(const char *filename)
+	struct sc_shellcode *sc_parse_file(const char *filename)
 	{
 		yyin = fopen(filename, "r");
 		

@@ -40,14 +40,14 @@ namespace nepenthes
 	class NamespaceXOR : public ShellcodeHandler
 	{
 	public:
-		NamespaceXOR(shellcode *sc);
+		NamespaceXOR(sc_shellcode *sc);
 		~NamespaceXOR();
 		sch_result handleShellcode(Message **msg);
 		bool Init();
 		bool Exit();
 	private:
 		pcre 	*m_Pcre;
-		int 	m_Mapping[MAP_MAX];
+		sc_shellcode *m_Shellcode;
 	};
 }
 

@@ -95,7 +95,7 @@ bool SignatureShellcodeHandler::Exit()
 bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 {
 
-	shellcode *sc,*sc_free;
+	sc_shellcode *sc,*sc_free;
 	bool load_success = true;
 
 	if ( (sc = sc_parse_file(path.c_str())) == NULL)
@@ -112,6 +112,12 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 
 	while (sc != NULL && load_success == true )
 	{
+		if (sc->name == NULL)
+		{
+			sc = sc->next;
+        	continue;
+		}
+
 		sch = NULL;
 
 		switch(sc->nspace)
@@ -160,7 +166,10 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 		{
 			if ( sch->Init() == false )
 			{
-				load_success = true;
+				load_success = false;
+			}else
+			{
+				g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(sch);
 			}
 		}
 
