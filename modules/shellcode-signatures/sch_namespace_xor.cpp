@@ -31,7 +31,7 @@
 
 #include "Nepenthes.hpp"
 #include "Message.hpp"
-#include "Message.cpp"
+
 #include "LogManager.hpp"
 #include "Utilities.hpp"
 
@@ -125,46 +125,56 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 
 	if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
 	{
-		logCrit("MATCH %s\n",m_ShellcodeHandlerName.c_str());
+		logCrit("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_Shellcode->map_items);
 		int32_t i;
-		for ( i=0; i== m_Shellcode->map_items; i++ )
+		for ( i=0; i < m_Shellcode->map_items; i++ )
 		{
+			if (m_Shellcode->map[i] == sc_none)
+					continue;
+
+			logInfo(" i = %i map_items %i , map = %s\n",i,m_Shellcode->map_items, sc_get_mapping_by_numeric(m_Shellcode->map[i]));
 			const char *match = NULL;
 			int matchSize = pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, i, &match);
 
 			switch ( m_Shellcode->map[i] )
 			{
-			
+
 			case sc_pre:
 				preMatch = match;
 				preSize = matchSize;
+				logSpam("sc_pre %i\n",matchSize);
 				break;
 
 			case sc_pcre:
 				decoderMatch = match;
 				decoderSize = matchSize;
+				logSpam("sc_pcre %i\n",matchSize);
 				break;
 
 
 			case sc_size:
 				sizeMatch = match;
+				logSpam("sc_size %i\n",matchSize);
 				switch ( matchSize )
 				{
 				case 4:
 					codeSize = (uint32_t)*((uint32_t *)match);
-					break;
+                    break;
 
 				case 2:
 					codeSize = (uint32_t)*((uint16_t *)match);
+					break;
 
 				case 1:
 					codeSize = (uint32_t)*((byte *)match);
 					break;
 				}
+				logSpam("\tnumeric %i\n",codeSize);
 				break;
 
 
 			case sc_sizeinvert:
+				logSpam("sc_sizeinvert %i\n",matchSize);
 				sizeMatch = match;
 				switch ( matchSize )
 				{
@@ -176,33 +186,40 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 					codeSize = 256 - (uint32_t)*((byte *)match);
 					break;
 				}
+				logSpam("\tnumeric %i\n",codeSize);
 				break;
 
 			case sc_key:
+				logSpam("sc_key %i\n",matchSize);
 				keyMatch = match;
 				keySize = matchSize;
 				switch ( matchSize )
 				{
 				case 1:
 					byteKey = *((byte *)match);
+					logSpam("\tnumeric %1x\n",(unsigned int)byteKey);
 					break;
 
 				case 4:
-					intKey = *((uint32_t *)match);
+                    intKey = *((uint32_t *)match);
+					logSpam("\tnumeric %x\n",(unsigned int)intKey);
 					break;
 
 				}
 				break;
 
 			case sc_post:
+				logSpam("sc_post %i\n",matchSize);
 				postMatch = match;
 				postSize = matchSize;
 				break;
 
+
 			default:
-				logCrit("not used mapping %s\n",sc_get_mapping_by_numeric(m_Shellcode->map[i]));
+				logCrit("%s not used mapping %s\n",m_ShellcodeHandlerName.c_str(), sc_get_mapping_by_numeric(m_Shellcode->map[i]));
 			}
 		}
+
 
 // create buffer for decoding part of the message
 		byte *decodedMessage = (byte *)malloc(postSize);
@@ -240,6 +257,8 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 
 		// the xor decoded data
 		memcpy(newshellcode+preSize+decoderSize     ,decodedMessage ,postSize);
+
+		g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)newshellcode, len);			
 
 		Message *newMessage = new Message((char *)newshellcode, len, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
 										  (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());

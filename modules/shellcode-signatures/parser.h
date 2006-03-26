@@ -29,7 +29,8 @@ enum sc_mapping
 	sc_uri,
 	sc_pcre,
 	sc_pre,
-	sc_post
+	sc_post,
+	sc_none
 };
 
 #define MAP_MAX 8

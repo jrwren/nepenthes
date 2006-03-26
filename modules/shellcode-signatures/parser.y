@@ -50,7 +50,7 @@ shellcode
 	: identifier SC_LBR statements SC_RBR SC_SEMI
 	{
 		int i;
-		
+/*		
 		printf("shellcode:\n");
 
 		printf("\tname               %s\n", shellcodes->name);
@@ -65,7 +65,7 @@ shellcode
 		}
 
 		printf("\n\n");
-
+*/
 		/* prepare for the next one */
 		init_shellcode();
 	}
@@ -217,6 +217,10 @@ map_value
    {
 	   shellcodes->map[shellcodes->map_items++] = sc_post;
 	}
+	| SC_NONE
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_none;
+	}
 
    ;
 
@@ -287,7 +291,8 @@ strings
 	                "uri",
                   "pcre",
                   "pre",
-                  "post"
+                  "post",
+                  "none"
 		};
                 if ( num > sizeof(mapmapping)/sizeof(char *) )
                         return "unmapped";

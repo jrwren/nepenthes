@@ -39,10 +39,14 @@
 #include "shellcode-signatures.hpp"
 
 #include "sch_namespace_xor.hpp"
+#include "sch_namespace_bindshell.hpp"
+#include "sch_namespace_connectbackshell.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
+
+#include "Message.cpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -136,12 +140,14 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			break;
 
 		case sc_connectbackshell:
+			sch = new NamespaceConnectbackShell(sc);
 			break;
 
 		case sc_connectbackfiletransfer:
 			break;
 
 		case sc_bindshell:
+			sch = new NamespaceBindShell(sc);
 			break;
 
 		case sc_execute:

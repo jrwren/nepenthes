@@ -63,7 +63,8 @@ NEWLINE "\n"
 "uri"								{ return SC_URI; }
 "pcre"                        { return SC_PCRE; }
 "pre"                         { return SC_PRELOAD; }
-"post"                         { return SC_PRELOAD; }
+"post"                         { return SC_POSTLOAD; }
+
 
 {LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, strlen(yytext)); return SC_ID; }
 
