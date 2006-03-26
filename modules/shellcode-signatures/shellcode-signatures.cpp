@@ -43,6 +43,8 @@
 #include "sch_namespace_connectbackshell.hpp"
 #include "sch_namespace_execute.hpp"
 #include "sch_namespace_url.hpp"
+#include "sch_namespace_linkxor.hpp"
+#include "sch_namespace_connectbackfiletransfer.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
@@ -133,6 +135,7 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			break;
 
 		case sc_linkxor:
+			sch = new NamespaceLinkXOR(sc);
 			break;
 
 		case sc_konstanzxor:
@@ -146,6 +149,7 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			break;
 
 		case sc_connectbackfiletransfer:
+			sch = new NamespaceConnectbackFiletransfer(sc);
 			break;
 
 		case sc_bindshell:

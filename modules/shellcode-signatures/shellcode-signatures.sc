@@ -5,35 +5,36 @@
 [n] [+]  0) GenericXOR generic XOR decoder
 [n] [+]   1) GenericCreateProcess generic CreateProcess decoder
 [n] [+]   2) GenericUrl generic Url decoder
-[+] [ ]   3) LinkXOR  link-bot XOR decoder
+[n] [+]   3) LinkXOR  link-bot XOR decoder
 [n] [+]   4) GenericCMD generic CMD decoder
-[+] [ ]   5) LinkTrans handles linkbot/linkshellcode connectback transfers
+[n] [+]   5) LinkTrans handles linkbot/linkshellcode connectback transfers
 [+] [ ]   6) LinkBindTrans handles linkbot/linkshellcode bind transfers
-[+] [ ]   7) Stuttgart handles "stuttgart" shellcode
+[n] [+]   7) Stuttgart handles "stuttgart" shellcode
 [s] [ ]   8) Wuerzburg handles "wuerzburg" shellcode
 [n] [+]   9) GenericBind various bindshells
 [n] [+]   10) GenericConnect various bindshells
 [n] [ ]   11) KonstanzXOR Konstanz XOR decoder
-[n] [ ]   12) GenericConnectTrans various csends
+[n] [+]   12) GenericConnectTrans various csends
 [?] [ ]   13) GenericUniCode generic UniCode decoder
 [n] [+]   14) GenericWinExec generic WinExec decoder
 [n] [ ]   15) LeimbachUrlXOR generic XOR decoder
 [?] [ ]   16) Genericwget generic wget decoder
 [?] [ ]   17) ASN1IISBase64 handles oc192 dcom bindshell
 [a] [ ]   18) ASN1SMBBind handles oc192 dcom bindshell
-[s] [ ]   19) THCConnect handles thc iis connectbackshells
-[a] [ ]   20) THCBind  handles thc iis bindshells
-[s] [ ]   21) HODBind  handles oc192 dcom bindshell
-[s] [ ]   22) HODConnect handles oc192 dcom bindshell
-[s] [ ]   23) HODBind  handles house of dabus msmq bindshells
-[a] [ ]   24) HODBind  handles house of dabus netdde bindshells
-[a] [ ]   25) HODConnect handles house of dabus netdde bindshells
-[s] [ ]   26) MandragoreBind mandragore sasserftpd bondshells
-[s] [ ]   27) MandragoreConnect mandragore sasserftpd bondshells
+[n] [+]   19) THCConnect handles thc iis connectbackshells
+[ ] [ ]   20) THCBind  handles thc iis bindshells
+[n] [+]   21) HODBind  handles oc192 dcom bindshell
+[n] [+]   22) HODConnect handles oc192 dcom bindshell
+[n] [+]   23) HODBind  handles house of dabus msmq bindshells
+[n] [+]   24) HODBind  handles house of dabus netdde bindshells
+[n] [+]   25) HODConnect handles house of dabus netdde bindshells
+[n] [+]   26) MandragoreBind mandragore sasserftpd bondshells
+[n] [+]   27) MandragoreConnect mandragore sasserftpd bondshells
 [n] [+]   28) HATSQUADConnect handles hat-squad wins connect
 [n] [+]   29) HATSQUADBind handles hat-squad wins bindshell
-[s] [ ]   30) ZUCConnect handles zuc wins connect
+[+] [+]   30) ZUCConnect handles zuc wins connect ( dupe of 19))
    =--- 31 ShellcodeHandlers registerd  
+
 */
 
 // taken from shellcode-generic/sch_generic_xor.cpp
@@ -177,13 +178,16 @@ xor::leimbach
 	mapping (none,pre,pcre,size,key,post); 
 };
 
+/*
+ * too inaccurate
+ * 
 xor::mwcollect
 {
 	pattern
 	"(.*)(\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.)(.*)$";
 	mapping (none,pre,pcre,size,key,post);
 };
-
+*/
 
 xor::hod
 {
@@ -210,7 +214,7 @@ linkxor::link
  */
 	pattern
 	"\\xEB\\x15\\xB9(....)\\x81\\xF1(....)\\x5E\\x80\\x74\\x31\\xFF(.)\\xE2\\xF9\\xEB\\x05\\xE8\\xE6\\xFF\\xFF\\xFF(.*)";
-	mapping (key,key,size);
+	mapping (none,size,size,key,post);
 };
 
 // taken from shellcode-generic/sch_generic_konstanz_xor.cpp
@@ -257,7 +261,7 @@ bindshell::mainz
 	"\\x89\\x47\\x04\\x6A\\x10\\x57\\x53\\xFF\\x57\\xF0\\x6A\\x01\\x53\\xFF\\x57\\xF4\\x50\\x50\\x53\\xFF"
 	"\\x57\\xF8";
 
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::adenau
@@ -297,7 +301,7 @@ bindshell::adenau
 	"\\x57\\x51\\x53\\xFF\\x56\\x28\\x8B\\xD0\\x68\\x65\\x78\\x65\\x00\\x68\\x63\\x6D\\x64\\x2E\\x89\\x66"
 	"\\x30\\x83\\xEC\\x54\\x8D\\x3C\\x24\\x33\\xC0";
 */
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::kaltenborn
@@ -311,7 +315,7 @@ bindshell::kaltenborn
 	"\\x51\\x51\\x51\\x41\\x51\\x49\\x51\\x51\\xFF\\x76\\xC2\\x51\\xFF\\x56\\xCE\\x8B\\xCC\\x6A\\xFF\\xFF"
 	"\\x31\\xFF\\x56\\xD2\\x8B\\xC8\\xFF\\x76\\xBE\\xFF\\x56\\xD6\\xEB\\x9E\\xFF\\x56\\x14";
 
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::wackerow
@@ -325,7 +329,7 @@ bindshell::wackerow
 	"\\x50\\x56\\x53\\x53\\x53\\x6A\\x01\\x53\\x53\\xC7\\x47\\x3C\\x63\\x6D\\x64\\x00\\x8D\\x47\\x3C\\x50"
 	"\\x53\\xFF\\x57\\xE4\\x50\\xFF\\x57\\xE8";
 
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::parthenstein
@@ -339,7 +343,7 @@ bindshell::parthenstein
 	"\\x51\\x51\\x51\\x6A\\x01\\x51\\x51\\xFF\\x76\\x30\\x51\\xFF\\x56\\x10\\x8B\\xCC\\x6A\\xFF\\xFF\\x31"
 	"\\xFF\\x56\\x0C\\x8B\\xC8\\x57\\xFF\\x56\\x2C\\xFF\\x56\\x14";
 
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::schoenborn
@@ -362,7 +366,7 @@ bindshell::schoenborn
 	"\\xD0\\x68\\xAD\\xD9\\x05\\xCE\\x53\\xFF\\xD6\\x6A\\xFF\\xFF\\x37\\xFF\\xD0\\x8B\\x57\\xFC\\x83\\xC4"
 	"\\x64\\xFF\\xD6\\x52\\xFF\\xD0\\x68\\xEF\\xCE\\xE0\\x60\\x53\\xFF\\xD6\\xFF\\xD0";
 
-	mapping (port); 
+	mapping (none,port); 
 };
 
 bindshell::ravensburg
@@ -385,7 +389,7 @@ bindshell::ravensburg
 	"\\x52\\x94\\x8D\\x45\\x78\\x50\\x8D\\x45\\x88\\x50\\xB1\\x08\\x53\\x53\\x6A\\x10\\xFE\\xCE\\x52\\x53"
 	"\\x53\\x53\\x55\\xFF\\x55\\xEC\\x6A\\xFF\\xFF\\x55\\xE0";
 
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::schauenburg
@@ -402,7 +406,7 @@ bindshell::schauenburg
 	"\\x00\\x00\\x43\\x72\\x65\\x61\\x74\\x65\\x50\\x72\\x6F\\x63\\x65\\x73\\x73\\x41\\x00\\xC6\\x07\\x44"
 	"\\xC7\\x47\\x2C\\x01\\x01\\x00\\x00\\x83\\xC7\\x38\\x93\\xAB\\xAB\\xAB\\x64\\x67\\xA1\\x30\\x00\\x8B"
 	"\\x40\\x0C\\x8B\\x40\\x1C\\x8B\\x00\\xFF\\x70\\x08\\xFF\\x16\\xFF\\xD0\\xEB";
-	mapping (port);
+	mapping (none,port);
 };
 
 bindshell::hatsquad_wins
@@ -543,7 +547,7 @@ connectbackshell::bielefeld
 	pattern
 	"\\xc7\\x02\\x63\\x6d\\x64\\x00\\x52\\x50\\xff\\x57\\xe8\\xc7\\x07\\x02\\x00(..)\\xc7\\x47\\x04"
 	"(....)\\x6a\\x10\\x57\\x53\\xff\\x57\\xf8\\x53\\xff\\x57\\xfc\\x50\\xff\\x57\\xec";
-	mapping (port,host);
+	mapping (none,port,host);
 };
 
 
@@ -552,7 +556,7 @@ connectbackshell::konstanz
 	pattern
 	"\\xff\\xd0\\x68(....)\\x66\\x68(..)\\x66\\x53\\x89\\xe1\\x95\\x68\\xec\\xf9\\xaa\\x60\\x57\\xff\\xd6"
 	"\\x6a\\x10\\x51\\x55\\xff\\xd0";
-	mapping (host,port);    
+	mapping (none,host,port);    
 };  
 
 
@@ -575,7 +579,7 @@ connectbackshell::egghunter
 	"\\x6A\\x01\\x51\\x51\\x55\\x51\\xFF\\xD0\\x68\\xAD\\xD9\\x05\\xCE\\x53\\xFF\\xD6\\x6A\\xFF\\xFF\\x37"
 	"\\xFF\\xD0\\x68\\xE7\\x79\\xC6\\x79\\xFF\\x75\\x04\\xFF\\xD6\\xFF\\x77\\xFC\\xFF\\xD0\\x68\\xEF\\xCE"
 	"\\xE0\\x60\\x53\\xFF\\xD6\\xFF\\xD0";
-	mapping (host,port);    
+	mapping (none,host,port);    
 };  
 
 connectbackshell::langenfeld
@@ -593,7 +597,7 @@ connectbackshell::langenfeld
 	"\\x56\\x33\\xC0\\x50\\x50\\x50\\x6A\\x01\\x50\\x50\\x8D\\x57\\x3C\\xC7\\x02\\x63\\x6D\\x64\\x00\\x52"
 	"\\x50\\xFF\\x57\\xEC\\xC7\\x07\\x02\\x00(..)\\xC7\\x47\\x04(....)\\x6A\\x10\\x57\\x53\\xFF\\x57\\xFC"
 	"\\x50\\xFF\\x57\\xF0";
-	mapping (port,host);    
+	mapping (none,port,host);    
 };  
 
 connectbackshell::pinneberg
@@ -611,7 +615,7 @@ connectbackshell::pinneberg
 	"\\x33\\xC9\\x83\\xC1\\x15\\xAB\\xE2\\xFD\\xC6\\x44\\x24\\x10\\x44\\xFE\\x44\\x24\\x3D\\x89\\x5C\\x24"
 	"\\x48\\x89\\x5C\\x24\\x4C\\x89\\x5C\\x24\\x50\\x8D\\x44\\x24\\x10\\x54\\x50\\x51\\x51\\x51\\x6A\\x01"
 	"\\x51\\x51\\xFF\\x76\\x30\\x51\\xFF\\x56\\x08\\x53\\xFF\\x56\\x1C\\xFF\\x56\\x0C";
-	mapping (host,port);    
+	mapping (none,host,port);    
 };  
 
 
@@ -624,7 +628,7 @@ connectbackshell::lichtenfels
 	"\\xC7\\x45\\x04(....)\\x6A\\x10\\x55\\x53\\xFF\\x57\\xFC\\x85\\xC0\\x75\\x43\\x33\\xC9\\xB1\\x11\\x57"
 	"\\x8B\\xFD\\xF3\\xAB\\x5F\\xC7\\x45\\x00\\x44\\x00\\x00\\x00\\x89\\x5D\\x3C\\x89\\x5D\\x38\\x89\\x5D"
 	"\\x40\\xC7\\x45\\x2C\\x01\\x01\\x00\\x00\\x8D\\x45\\x44";
-	mapping (host,port);    
+	mapping (none,host,port);    
 };  
 
 connectbackshell::msf_win32_reverse
@@ -645,7 +649,7 @@ connectbackshell::msf_win32_reverse
 	"\\x55\\x51\\xff\\xd0\\x68\\xad\\xd9\\x05\\xce\\x53\\xff\\xd6\\x6a\\xff\\xff\\x37\\xff\\xd0\\x68\\xe7"
 	"\\x79\\xc6\\x79\\xff\\x75\\x04\\xff\\xd6\\xff\\x77\\xfc\\xff\\xd0\\x68\\xf0\\x8a\\x04\\x5f\\x53\\xff"
 	"\\xd6\\xff\\xd0";
-	mapping (host,port);
+	mapping (none,host,port);
 };  
 
 
@@ -671,7 +675,7 @@ connectbackshell::hatsquad_wins
 	"\\xAD\\xD9\\x05\\xCE\\x53\\xFF\\xD6\\x6A\\xFF\\xFF\\x37\\xFF\\xD0\\x68\\xE7\\x79"
 	"\\xC6\\x79\\xFF\\x75\\x04\\xFF\\xD6\\xFF\\x77\\xFC\\xFF\\xD0\\x68\\xEF\\xCE\\xE0"
 	"\\x60\\x53\\xFF\\xD6\\xFF\\xD0";
-	mapping (host,port);
+	mapping (none,host,port);
 };  
 
 
@@ -735,7 +739,7 @@ connectbackfiletransfer::halle
 	"\\x89\\x83\\x9B\\x00\\x00\\x00\\x53\\xE8\\xEB\\x02\\x00\\x00\\x5B\\x58\\x5F\\x5E\\xE8\\x10\\x05\\x00"
 	"\\x00\\xE8\\x9C\\xFE\\xFF\\xFF\\x00\\x00\\x00\\x00(....)(..)\\x77\\x73\\x32\\x5F\\x33\\x32\\x00\\x57"
 	"\\x53\\x41\\x53\\x74\\x61\\x72\\x74\\x75\\x70\\x00\\x73\\x6F\\x63\\x6B\\x65\\x74\\x00";
-	mapping (host,port);
+	mapping (none,host,port);
 /* 
  * the first 4 bytes of the transferr are the file size
  * ideas ?
@@ -745,7 +749,47 @@ connectbackfiletransfer::halle
 
 };
 
+// taken from shellcode-generic/sch_generic_link_trans.cpp
+connectbackfiletransfer::linktransfer
+{
+	pattern
+	".*\\x53\\x53\\x68(....)\\x68\\x02\\x00(..)\\x8B\\xD4\\x8B\\xD8\\x6A"
+//                         ^^^^->ip             ^^-> port
+	"\\x10\\x52\\x53\\xBA\\x63\\x30\\x60\\x5A\\xFF\\xD6\\x50\\xB4\\x02\\x50\\x55\\x53\\xBA"
+	"\\x00\\x58\\x60\\xE2\\xFF\\xD6\\xBF(....)\\xFF\\xE5.*";
+//                                           ^^^^-> auth key
+	mapping(none,host,port,key);
+};
 
+
+// taken from shellcode-generic/sch_generic_stuttgart.cpp
+connectbackfiletransfer::stuttgart
+{
+	pattern
+	"\\x50\\x50\\x68(....)\\x68\\x02\\x00"
+	"(..)\\x8B\\xFC\\x50\\x6A\\x01\\x6A\\x02\\xFF"
+	"\\x55\\x20\\x8B\\xD8\\x6A\\x10\\x57\\x53\\xFF\\x55"
+	"\\x24\\x85\\xC0\\x75\\x59\\xC7\\x45\\x00(....)"
+	"\\x50\\x6A\\x04\\x55\\x53\\xFF\\x55\\x2C";
+	mapping(none,host,port,key);
+};
+
+
+/*
+// taken from shellcode-generic/sch_generic_link_bind_trans.cpp
+bindfiletransfer::bindlinktransfer
+{
+	pattern
+	"\\xba\\x83\\x53\\x83\\x00\\xff\\xd6\\x53\\x53\\x53\\x68\\x02\\x00"
+	"(..)\\x8b\\xd4\\x8b\\xd8\\x6a\\x10\\x52\\x53\\xba\\x00\\x90"
+	"\\xa6\\xc2\\xff\\xd6\\x40\\x50\\x53\\xba\\x7a\\x3b\\x73\\xa1\\xff"
+	"\\xd6\\x50\\x50\\x53\\xba\\x10\\xd3\\x69\\x00\\xff\\xd6\\x8b\\xd8"
+	"\\x33\\xc0\\x50\\xb4\\x02\\x50\\x55\\x53\\xba\\x00\\x58\\x60\\xe2"
+	"\\xff\\xd6\\xbf(....)\\xff\\xe5";
+
+	mapping (none,port,key);
+};
+*/
 
 
 
@@ -776,7 +820,7 @@ execute::winexec
 	"\\x30\\x85\\xC0\\x78\\x0F\\x8B\\x40\\x0C\\x8B\\x70\\x1C\\xAD\\x8B\\x68\\x08\\xE9\\x0B\\x00\\x00\\x00"
 	"\\x8B\\x40\\x34\\x05\\x7C\\x00\\x00\\x00\\x8B\\x68\\x3C\\x5F\\x31\\xF6\\x60\\x56\\xEB\\x0D\\x68\\xEF"
 	"\\xCE\\xE0\\x60\\x68\\x98\\xFE\\x8A\\x0E\\x57\\xFF\\xE7\\xE8\\xEE\\xFF\\xFF\\xFF(.*\\x00)";
-	mapping (command);
+	mapping (none,command);
 };
 
 // taken from shellcode-generic/sch_genric_wget.cpp
@@ -789,7 +833,7 @@ download::wget
 {
 	pattern
 	".*(wget.*)$";
-	mapping(command);
+	mapping(none,command);
 };
 
 
@@ -798,7 +842,7 @@ download::curl
 {
 	pattern
 	".*(curl.*)$";
-	mapping(command);
+	mapping(none,command);
 };
 
 
@@ -807,49 +851,10 @@ url::anyurl
 {
 	pattern
 	".*((http|https|ftp):\/\/[@a-zA-Z0-9\-\/\\\.\+:]+).*";
-	mapping (uri);
+	mapping (none,uri);
 };
 
 
 
-// taken from shellcode-generic/sch_generic_link_trans.cpp
-connectbacklinkfiletransfer::linktransfer
-{
-	pattern
-	".*\\x53\\x53\\x68(....)\\x68\\x02\\x00(..)\\x8B\\xD4\\x8B\\xD8\\x6A"
-//                         ^^^^->ip             ^^-> port
-	"\\x10\\x52\\x53\\xBA\\x63\\x30\\x60\\x5A\\xFF\\xD6\\x50\\xB4\\x02\\x50\\x55\\x53\\xBA"
-	"\\x00\\x58\\x60\\xE2\\xFF\\xD6\\xBF(....)\\xFF\\xE5.*";
-//                                           ^^^^-> auth key
-	mapping(host,port,key);
-};
-
-
-// taken from shellcode-generic/sch_generic_stuttgart.cpp
-connectbacklinkfiletransfer::stuttgart
-{
-	pattern
-	"\\x50\\x50\\x68(....)\\x68\\x02\\x00"
-	"(..)\\x8B\\xFC\\x50\\x6A\\x01\\x6A\\x02\\xFF"
-	"\\x55\\x20\\x8B\\xD8\\x6A\\x10\\x57\\x53\\xFF\\x55"
-	"\\x24\\x85\\xC0\\x75\\x59\\xC7\\x45\\x00(....)"
-	"\\x50\\x6A\\x04\\x55\\x53\\xFF\\x55\\x2C";
-	mapping(host,port,key);
-};
-
-
-// taken from shellcode-generic/sch_generic_link_bind_trans.cpp
-bindlinkfiletransfer::bindlinktransfer
-{
-	pattern
-	"\\xba\\x83\\x53\\x83\\x00\\xff\\xd6\\x53\\x53\\x53\\x68\\x02\\x00"
-	"(..)\\x8b\\xd4\\x8b\\xd8\\x6a\\x10\\x52\\x53\\xba\\x00\\x90"
-	"\\xa6\\xc2\\xff\\xd6\\x40\\x50\\x53\\xba\\x7a\\x3b\\x73\\xa1\\xff"
-	"\\xd6\\x50\\x50\\x53\\xba\\x10\\xd3\\x69\\x00\\xff\\xd6\\x8b\\xd8"
-	"\\x33\\xc0\\x50\\xb4\\x02\\x50\\x55\\x53\\xba\\x00\\x58\\x60\\xe2"
-	"\\xff\\xd6\\xbf(....)\\xff\\xe5";
-
-	mapping (port,key);
-};
 
 
