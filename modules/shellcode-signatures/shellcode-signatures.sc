@@ -120,7 +120,7 @@ xor::schoenberg
 	pattern
 	"(.*)(\\x31\\xC9\\x83\\xE9(.)\\xD9\\xEE\\xD9\\x74\\x24\\xF4\\x5B\\x81\\x73\\x13(....)"
 	"\\x83\\xEB\\xFC\\xE2\\xF4)(.*)$";
-	mapping (none,pre,pcre,key,sizeinvert,post);
+	mapping (none,pre,pcre,sizeinvert,key,post);
 };
 
 xor::rosengarten
@@ -149,13 +149,15 @@ xor::lichtenfels
 	mapping (none,pre,pcre,size,key,post); 
 };
 
+
 xor::msfPexEnvSub
 {
 	pattern
 	"(.*)(\\xC9\\x83\\xE9(.)\\xD9\\xEE\\xD9\\x74\\x24\\xF4\\x5B\\x81\\x73\\x13(....)\\x83"
 	"\\xEB\\xFC\\xE2\\xF4)(.*)$";
-	mapping (none,pre,pcre,key,sizeinvert,post);
+	mapping (none,pre,pcre,sizeinvert,key,post);
 };
+
 
 xor::msfPex
 {

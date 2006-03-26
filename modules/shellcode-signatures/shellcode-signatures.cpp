@@ -41,6 +41,8 @@
 #include "sch_namespace_xor.hpp"
 #include "sch_namespace_bindshell.hpp"
 #include "sch_namespace_connectbackshell.hpp"
+#include "sch_namespace_execute.hpp"
+#include "sch_namespace_url.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
@@ -151,12 +153,14 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			break;
 
 		case sc_execute:
+			sch = new NamespaceExecute(sc);
 			break;
 
 		case sc_download:
 			break;
 
 		case sc_url:
+			sch = new NamespaceUrl(sc);
 			break;
 
 		case sc_link:

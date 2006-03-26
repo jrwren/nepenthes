@@ -285,16 +285,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state. */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   45
+#define YYLAST   43
 
 /* YYNTOKENS -- Number of terminals. */
 #define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals. */
 #define YYNNTS  15
 /* YYNRULES -- Number of rules. */
-#define YYNRULES  41
+#define YYNRULES  42
 /* YYNRULES -- Number of states. */
-#define YYNSTATES  58
+#define YYNSTATES  59
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -347,7 +347,7 @@ static const unsigned char yyprhs[] =
       26,    28,    30,    32,    34,    36,    38,    40,    42,    43,
       46,    49,    51,    53,    55,    58,    63,    66,    67,    71,
       73,    75,    77,    79,    81,    83,    85,    87,    89,    91,
-      95,    96
+      93,    97,    98
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
@@ -362,7 +362,8 @@ static const yysigned_char yyrhs[] =
       49,     5,    -1,    51,    50,    -1,    -1,     8,    51,    50,
       -1,    29,    -1,    30,    -1,    31,    -1,    33,    -1,    32,
       -1,    34,    -1,    35,    -1,    36,    -1,    37,    -1,    38,
-      -1,    13,    16,    53,    -1,    -1,    16,    53,    -1
+      -1,    11,    -1,    13,    16,    53,    -1,    -1,    16,    53,
+      -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
@@ -371,8 +372,8 @@ static const unsigned char yyrline[] =
        0,    44,    44,    46,    50,    75,    83,    88,    93,    98,
      103,   108,   113,   118,   123,   128,   133,   138,   144,   146,
      150,   154,   155,   156,   160,   167,   171,   174,   176,   180,
-     184,   188,   192,   196,   200,   204,   208,   212,   216,   224,
-     232,   234
+     184,   188,   192,   196,   200,   204,   208,   212,   216,   220,
+     228,   236,   238
 };
 #endif
 
@@ -413,8 +414,8 @@ static const unsigned char yyr1[] =
        0,    39,    40,    40,    41,    42,    43,    43,    43,    43,
       43,    43,    43,    43,    43,    43,    43,    43,    44,    44,
       45,    46,    46,    46,    47,    48,    49,    50,    50,    51,
-      51,    51,    51,    51,    51,    51,    51,    51,    51,    52,
-      53,    53
+      51,    51,    51,    51,    51,    51,    51,    51,    51,    51,
+      52,    53,    53
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -423,8 +424,8 @@ static const unsigned char yyr2[] =
        0,     2,     0,     2,     5,     4,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     0,     2,
        2,     1,     1,     1,     2,     4,     2,     0,     3,     1,
-       1,     1,     1,     1,     1,     1,     1,     1,     1,     3,
-       0,     2
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       3,     0,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -435,36 +436,36 @@ static const unsigned char yydefact[] =
        2,     0,     1,     6,     7,     8,     9,    10,    11,    12,
       13,    14,    15,    16,    17,     3,     0,     0,    18,     0,
        0,     0,     0,     0,    18,     0,    22,    23,    21,     0,
-      24,    40,     0,     0,    19,    20,     5,    40,    39,    29,
-      30,    31,    33,    32,    34,    35,    36,    37,    38,     0,
-      27,     4,    41,    25,     0,    26,    27,    28
+      24,    41,     0,     0,    19,    20,     5,    41,    40,    39,
+      29,    30,    31,    33,    32,    34,    35,    36,    37,    38,
+       0,    27,     4,    42,    25,     0,    26,    27,    28
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
 static const yysigned_char yydefgoto[] =
 {
       -1,     1,    15,    16,    17,    23,    24,    25,    26,    27,
-      49,    55,    50,    28,    38
+      50,    56,    51,    28,    38
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -29
+#define YYPACT_NINF -17
 static const yysigned_char yypact[] =
 {
-     -29,     0,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,     7,     5,    -1,     6,
-      18,    14,    27,    25,    -1,    24,   -29,   -29,   -29,    31,
-     -29,    19,   -28,    28,   -29,   -29,   -29,    19,   -29,   -29,
-     -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,   -29,    33,
-      32,   -29,   -29,   -29,   -28,   -29,    32,   -29
+     -17,     0,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,
+     -17,   -17,   -17,   -17,   -17,   -17,    -3,    -5,   -11,    -4,
+      -2,    -9,     4,     3,   -11,     2,   -17,   -17,   -17,    10,
+     -17,    -1,     1,     5,   -17,   -17,   -17,    -1,   -17,   -17,
+     -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,
+      11,    21,   -17,   -17,   -17,     1,   -17,    21,   -17
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yysigned_char yypgoto[] =
 {
-     -29,   -29,   -29,   -29,   -29,    12,   -29,   -29,   -29,   -29,
-     -29,   -17,   -13,   -29,     8
+     -17,   -17,   -17,   -17,   -17,    16,   -17,   -17,   -17,   -17,
+     -17,   -16,   -13,   -17,     6
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -474,20 +475,20 @@ static const yysigned_char yypgoto[] =
 #define YYTABLE_NINF -1
 static const unsigned char yytable[] =
 {
-       2,    39,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,    20,    21,    18,    22,    19,    29,     3,     4,     5,
-       6,     7,     8,     9,    10,    11,    12,    13,    14,    30,
-      31,    32,    33,    35,    36,    37,    34,    51,    53,    57,
-      54,    56,     0,     0,     0,    52
+       2,    20,    21,    18,    22,    19,    29,    31,    32,    30,
+      33,    35,    39,    36,    52,    37,    54,     3,     4,     5,
+       6,     7,     8,     9,    10,    11,    12,    13,    14,    55,
+      40,    41,    42,    43,    44,    45,    46,    47,    48,    49,
+      34,    58,    57,    53
 };
 
-static const yysigned_char yycheck[] =
+static const unsigned char yycheck[] =
 {
-       0,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-      38,    12,    13,     6,    15,    10,    10,    17,    18,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    11,
-      16,     4,     7,     9,     3,    16,    24,     9,     5,    56,
-       8,    54,    -1,    -1,    -1,    37
+       0,    12,    13,     6,    15,    10,    10,    16,     4,    11,
+       7,     9,    11,     3,     9,    16,     5,    17,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,     8,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      24,    57,    55,    37
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -497,9 +498,9 @@ static const unsigned char yystos[] =
        0,    40,     0,    17,    18,    19,    20,    21,    22,    23,
       24,    25,    26,    27,    28,    41,    42,    43,     6,    10,
       12,    13,    15,    44,    45,    46,    47,    48,    52,    10,
-      11,    16,     4,     7,    44,     9,     3,    16,    53,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    38,    49,
-      51,     9,    53,     5,     8,    50,    51,    50
+      11,    16,     4,     7,    44,     9,     3,    16,    53,    11,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    38,
+      49,    51,     9,    53,     5,     8,    50,    51,    50
 };
 
 #if ! defined (YYSIZE_T) && defined (__SIZE_TYPE__)
@@ -1143,7 +1144,7 @@ yyreduce:
 #line 51 "parser.y"
     {
 		int i;
-		
+/*		
 		printf("shellcode:\n");
 
 		printf("\tname               %s\n", shellcodes->name);
@@ -1158,7 +1159,7 @@ yyreduce:
 		}
 
 		printf("\n\n");
-
+*/
 		/* prepare for the next one */
 		init_shellcode();
 	}
@@ -1334,7 +1335,14 @@ yyreduce:
     break;
 
   case 39:
-#line 225 "parser.y"
+#line 221 "parser.y"
+    {
+	   shellcodes->map[shellcodes->map_items++] = sc_none;
+	}
+    break;
+
+  case 40:
+#line 229 "parser.y"
     {
 		shellcodes->pattern = strndup(string_get_buffer(), string_get_len());
 		shellcodes->pattern_size = string_get_len();
@@ -1346,7 +1354,7 @@ yyreduce:
     }
 
 /* Line 1037 of yacc.c.  */
-#line 1350 "y.tab.c"
+#line 1358 "y.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -1574,7 +1582,7 @@ yyreturn:
 }
 
 
-#line 237 "parser.y"
+#line 241 "parser.y"
 
 
 	struct sc_shellcode *init_shellcode()
@@ -1628,7 +1636,8 @@ yyreturn:
 	                "uri",
                   "pcre",
                   "pre",
-                  "post"
+                  "post",
+                  "none"
 		};
                 if ( num > sizeof(mapmapping)/sizeof(char *) )
                         return "unmapped";

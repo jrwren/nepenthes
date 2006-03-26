@@ -98,7 +98,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 	uint32_t    preSize     =   0;
 
 
-// data before xor
+// decoder
 	const char  *decoderMatch=  NULL;
 	uint32_t    decoderSize =   0;
 

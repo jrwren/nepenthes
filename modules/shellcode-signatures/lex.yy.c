@@ -1005,82 +1005,82 @@ YY_RULE_SETUP
 case 34:
 YY_RULE_SETUP
 #line 66 "parser.l"
-{ return SC_PRELOAD; }
+{ return SC_POSTLOAD; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 68 "parser.l"
+#line 69 "parser.l"
 { string_append(yytext, strlen(yytext)); return SC_ID; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 71 "parser.l"
+#line 72 "parser.l"
 { BEGIN(comment); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 72 "parser.l"
+#line 73 "parser.l"
 { }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 73 "parser.l"
+#line 74 "parser.l"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 74 "parser.l"
+#line 75 "parser.l"
 { }
 	YY_BREAK
 case 40:
 /* rule 40 can match eol */
 YY_RULE_SETUP
-#line 75 "parser.l"
+#line 76 "parser.l"
 { line_number++; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 77 "parser.l"
+#line 78 "parser.l"
 { BEGIN(string); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 78 "parser.l"
+#line 79 "parser.l"
 { BEGIN(INITIAL); return SC_STRING; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 79 "parser.l"
+#line 80 "parser.l"
 { string_append("\n", 1); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 80 "parser.l"
+#line 81 "parser.l"
 { string_append("\r", 1); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 81 "parser.l"
+#line 82 "parser.l"
 { string_append("\t", 1); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 82 "parser.l"
+#line 83 "parser.l"
 { string_append("\"", 1); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 83 "parser.l"
+#line 84 "parser.l"
 { string_append("\0", 1); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 84 "parser.l"
+#line 85 "parser.l"
 { string_append("\\", 1); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 85 "parser.l"
+#line 86 "parser.l"
 {
 	char hexval[] = {'0', 'x', *(yytext + 2), *(yytext + 3), '\0'};
 	unsigned int c;
@@ -1092,28 +1092,28 @@ YY_RULE_SETUP
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 92 "parser.l"
+#line 93 "parser.l"
 { string_append(yytext, strlen(yytext)); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 94 "parser.l"
+#line 95 "parser.l"
 { }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 96 "parser.l"
+#line 97 "parser.l"
 { }
 	YY_BREAK
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 97 "parser.l"
+#line 98 "parser.l"
 { line_number++; }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 99 "parser.l"
+#line 100 "parser.l"
 ECHO;
 	YY_BREAK
 #line 1120 "lex.yy.c"
@@ -2085,7 +2085,7 @@ void yyfree (void * ptr )
 #undef YY_DECL_IS_OURS
 #undef YY_DECL
 #endif
-#line 99 "parser.l"
+#line 100 "parser.l"
 
 
 
