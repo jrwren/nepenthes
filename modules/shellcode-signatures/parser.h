@@ -30,7 +30,10 @@ enum sc_mapping
 	sc_pcre,
 	sc_pre,
 	sc_post,
-	sc_none
+	sc_none,
+	sc_hostkey,
+	sc_portkey
+
 };
 
 #define MAP_MAX 8

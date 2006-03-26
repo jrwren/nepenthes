@@ -91,7 +91,7 @@ bool NamespaceBindShell::Exit()
 
 sch_result NamespaceBindShell::handleShellcode(Message **msg)
 {
-	logSpam("%s checking ...\n",m_ShellcodeHandlerName.c_str());
+	logSpam("%s checking %i...\n",m_ShellcodeHandlerName.c_str(), (*msg)->getSize());
 
 	char *shellcode = (*msg)->getMsg();
 	uint32_t len = (*msg)->getSize();
@@ -100,36 +100,42 @@ sch_result NamespaceBindShell::handleShellcode(Message **msg)
 	int32_t matchCount; 
 
 
-	if ((matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0)
-	 {
+	if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
+	{
 		 const char * match;
 
 // the bind port
 //		 const char *portMatch;
-		 uint16_t port;
+		 uint16_t port=0;
 
-		 pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
-		 port = ntohs(*(uint16_t *) match);
-   		 pcre_free_substring(match);
+		for ( int i=0; i < m_Shellcode->map_items; i++ )
+		{
+			if ( m_Shellcode->map[i] == sc_port )
+			{
+				pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
+				port = ntohs(*(uint16_t *) match);
+				pcre_free_substring(match);
+			}
+		}
 
-		 logInfo("%s :%u \n",m_ShellcodeHandlerName.c_str(), port);
+		logInfo("%s :%u \n",m_ShellcodeHandlerName.c_str(), port);
 
-		 Socket *socket;
-		 if ((socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,60,30)) == NULL)
-		 {
-			 logCrit("%s","Could not bind socket %u \n",port);
-			 return SCH_DONE;
-		 }
+		Socket *socket;
+		if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,60,30)) == NULL )
+		{
+			logCrit("%s","Could not bind socket %u \n",port);
+			return SCH_DONE;
+		}
 
-		 DialogueFactory *diaf;
-		 if ((diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL)
-		 {
-			 logCrit("%s","No WinNTShell DialogueFactory availible \n");
-			 return SCH_DONE;
-		 }
+		DialogueFactory *diaf;
+		if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+		{
+			logCrit("%s","No WinNTShell DialogueFactory availible \n");
+			return SCH_DONE;
+		}
 
-		 socket->addDialogueFactory(diaf);
-		 return SCH_DONE;
+		socket->addDialogueFactory(diaf);
+		return SCH_DONE;
 	 }
 
 

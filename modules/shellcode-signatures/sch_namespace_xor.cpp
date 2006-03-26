@@ -85,7 +85,7 @@ bool NamespaceXOR::Exit()
 
 sch_result NamespaceXOR::handleShellcode(Message **msg)
 {
-	logSpam("%s checking ...\n",m_ShellcodeHandlerName.c_str());
+	logSpam("%s checking %i...\n",m_ShellcodeHandlerName.c_str(), (*msg)->getSize());
 
 	char *shellcode = (*msg)->getMsg();
 	uint32_t len = (*msg)->getSize();
@@ -239,7 +239,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 			if ( codeSize*4 > postSize )
 				logWarn("codeSize*4 (%i) > postSize (%i), maybe broken xor?\n",codeSize*4,postSize);
 
-			for ( uint32_t j = 0; j < codeSize && (j+1)*4 < postSize; j++ )
+			for ( uint32_t j = 0; j < codeSize && (j)*4 < postSize; j++ )
 				*(uint32_t *)(decodedMessage+(j*4) ) ^= intKey;
 			break;
 		}

@@ -36,6 +36,7 @@ SC_CONNECTBACK_LINK_FILETRANSFER SC_BIND_LINK_FILETRANSFER
 SC_KEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
 SC_PCRE SC_PRELOAD SC_POSTLOAD
+SC_HOSTKEY SC_PORTKEY
 
 %start body
 
@@ -221,6 +222,14 @@ map_value
    {
 	   shellcodes->map[shellcodes->map_items++] = sc_none;
 	}
+	| SC_HOSTKEY
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_hostkey;
+	}
+	| SC_PORTKEY
+   {
+	   shellcodes->map[shellcodes->map_items++] = sc_portkey;
+	}
 
    ;
 
@@ -292,7 +301,9 @@ strings
                   "pcre",
                   "pre",
                   "post",
-                  "none"
+                  "none",
+                  "hostkey",
+                  "portkey"
 		};
                 if ( num > sizeof(mapmapping)/sizeof(char *) )
                         return "unmapped";

@@ -54,6 +54,9 @@ NEWLINE "\n"
 "connectbacklinkfiletransfer"		{ return SC_CONNECTBACK_LINK_FILETRANSFER; }
 "bindlinkfiletransfer"				{ return SC_BIND_LINK_FILETRANSFER; }
 
+"hostkey"                     { return SC_HOSTKEY; }
+"portkey"                     { return SC_PORTKEY; }
+
 "key"								{ return SC_KEY; }
 "size"								{ return SC_SIZE; }
 "sizeinvert"						{ return SC_SIZEINVERT; }

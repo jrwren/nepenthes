@@ -110,6 +110,13 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
 	uint16_t 	port		= 	0;
 		
 
+	const char  *hkeyMatch	=	NULL;
+	uint32_t 	hostKey 		= 	0;
+
+	// port
+	const char  *pkeyMatch	=  	NULL;
+	uint16_t 	portKey		= 	0;
+
 
 	if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
 	{
@@ -134,6 +141,14 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
 					hostMatch = match;
 					break;
 
+				case sc_hostkey:
+					hkeyMatch = match;
+					break;
+
+				case sc_portkey:
+					pkeyMatch = match;
+					break;
+
 				case sc_port:
 					portMatch = match;
 					break;
@@ -150,7 +165,22 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
 
 		host = (uint32_t)*((uint32_t *)hostMatch);
 
+		if (hkeyMatch != NULL)
+		{
+                hostKey = *((uint32_t *)hkeyMatch);
+				host = host ^ hostKey;
+				pcre_free_substring(hkeyMatch);
+		}
 
+		if (pkeyMatch != NULL)
+		{
+				portKey = *((uint16_t *)pkeyMatch);
+				port = port ^ portKey;
+				pcre_free_substring(pkeyMatch);
+		}
+
+
+		
 		pcre_free_substring(hostMatch);
 		pcre_free_substring(portMatch);
 
