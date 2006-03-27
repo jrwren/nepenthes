@@ -8,31 +8,31 @@
 [n] [+]   3) LinkXOR  link-bot XOR decoder
 [n] [+]   4) GenericCMD generic CMD decoder
 [n] [+]   5) LinkTrans handles linkbot/linkshellcode connectback transfers
-[+] [ ]   6) LinkBindTrans handles linkbot/linkshellcode bind transfers
+[n] [+]   6) LinkBindTrans handles linkbot/linkshellcode bind transfers
 [n] [+]   7) Stuttgart handles "stuttgart" shellcode
 [s] [ ]   8) Wuerzburg handles "wuerzburg" shellcode
 [n] [+]   9) GenericBind various bindshells
 [n] [+]   10) GenericConnect various bindshells
 [n] [ ]   11) KonstanzXOR Konstanz XOR decoder
 [n] [+]   12) GenericConnectTrans various csends
-[?] [ ]   13) GenericUniCode generic UniCode decoder
+[E] [ ]   13) GenericUniCode generic UniCode decoder
 [n] [+]   14) GenericWinExec generic WinExec decoder
 [n] [ ]   15) LeimbachUrlXOR generic XOR decoder
 [?] [ ]   16) Genericwget generic wget decoder
 [?] [ ]   17) ASN1IISBase64 handles oc192 dcom bindshell
-[a] [ ]   18) ASN1SMBBind handles oc192 dcom bindshell
+[n] [+]   18) ASN1SMBBind handles oc192 dcom bindshell
 [n] [+]   19) THCConnect handles thc iis connectbackshells
-[ ] [ ]   20) THCBind  handles thc iis bindshells
+[?] [ ]   20) THCBind  handles thc iis bindshells
 [n] [+]   21) HODBind  handles oc192 dcom bindshell
 [n] [+]   22) HODConnect handles oc192 dcom bindshell
-[n] [+]   23) HODBind  handles house of dabus msmq bindshells
+[s] [ ]   23) HODBind  handles house of dabus msmq bindshells
 [n] [+]   24) HODBind  handles house of dabus netdde bindshells
 [n] [+]   25) HODConnect handles house of dabus netdde bindshells
 [n] [+]   26) MandragoreBind mandragore sasserftpd bondshells
 [n] [+]   27) MandragoreConnect mandragore sasserftpd bondshells
 [n] [+]   28) HATSQUADConnect handles hat-squad wins connect
 [n] [+]   29) HATSQUADBind handles hat-squad wins bindshell
-[+] [+]   30) ZUCConnect handles zuc wins connect ( dupe of 19))
+[n] [+]   30) ZUCConnect handles zuc wins connect ( dupe of 19))
    =--- 31 ShellcodeHandlers registerd  
 
 */
@@ -201,9 +201,9 @@ xor::hod
 /*
 wuerzburgxor::wuerzburg
 {
-/* 
- * this xor chain ckecks if the value too xor is equal to the xor key to avoid zeros 
- */
+ 
+// this xor chain sucks hard
+
 	pattern
 	"(.*\\xEB\\x27......)(\\x5D\\x33\\xC9\\x66\\xB9(..)\\x8D\\x75\\x05\\x8B\\xFE\\x8A"
 	"\\x06\\x3C(.)\\x75\\x05\\x46\\x8A\\x06\\x2C(.)\\x46\\x34(.)\\x88\\x07\\x47\\xE2\\xED\\xEB\\x0A\\xE8"
@@ -831,7 +831,7 @@ connectbackfiletransfer::wuerzburg
 	mapping(none,port,host,hostkey);	
 };
 
-/*
+
 // taken from shellcode-generic/sch_generic_link_bind_trans.cpp
 bindfiletransfer::bindlinktransfer
 {
@@ -877,9 +877,9 @@ bindfiletransfer::amberg
 	"\\xff\\xd0\\x33\\xc0\\x50\\xff\\x75\\x14\\x57\\x68\\x98\\xfe\\x8a\\x0e\\xff\\xd6"
 	"\\xff\\xd0\\x57\\x68\\xef\\xce\\xe0\\x60\\xff\\xd6\\xff\\xd0";
 
-	mapping (port,key);
+	mapping (none,port);
 };
-*/
+
 
 
 
