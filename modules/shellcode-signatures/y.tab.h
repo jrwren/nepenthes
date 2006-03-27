@@ -54,19 +54,20 @@
      SC_EXECUTE = 280,
      SC_DOWNLOAD = 281,
      SC_URL = 282,
-     SC_KEY = 283,
-     SC_SUBKEY = 284,
-     SC_SIZE = 285,
-     SC_SIZEINVERT = 286,
-     SC_HOST = 287,
-     SC_PORT = 288,
-     SC_COMMAND = 289,
-     SC_URI = 290,
-     SC_PCRE = 291,
-     SC_PRELOAD = 292,
-     SC_POSTLOAD = 293,
-     SC_HOSTKEY = 294,
-     SC_PORTKEY = 295
+     SC_BASE64 = 283,
+     SC_KEY = 284,
+     SC_SUBKEY = 285,
+     SC_SIZE = 286,
+     SC_SIZEINVERT = 287,
+     SC_HOST = 288,
+     SC_PORT = 289,
+     SC_COMMAND = 290,
+     SC_URI = 291,
+     SC_PCRE = 292,
+     SC_PRELOAD = 293,
+     SC_POSTLOAD = 294,
+     SC_HOSTKEY = 295,
+     SC_PORTKEY = 296
    };
 #endif
 #define SC_ID 258
@@ -94,19 +95,20 @@
 #define SC_EXECUTE 280
 #define SC_DOWNLOAD 281
 #define SC_URL 282
-#define SC_KEY 283
-#define SC_SUBKEY 284
-#define SC_SIZE 285
-#define SC_SIZEINVERT 286
-#define SC_HOST 287
-#define SC_PORT 288
-#define SC_COMMAND 289
-#define SC_URI 290
-#define SC_PCRE 291
-#define SC_PRELOAD 292
-#define SC_POSTLOAD 293
-#define SC_HOSTKEY 294
-#define SC_PORTKEY 295
+#define SC_BASE64 283
+#define SC_KEY 284
+#define SC_SUBKEY 285
+#define SC_SIZE 286
+#define SC_SIZEINVERT 287
+#define SC_HOST 288
+#define SC_PORT 289
+#define SC_COMMAND 290
+#define SC_URI 291
+#define SC_PCRE 292
+#define SC_PRELOAD 293
+#define SC_POSTLOAD 294
+#define SC_HOSTKEY 295
+#define SC_PORTKEY 296
 
 
 
