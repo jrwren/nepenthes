@@ -51,6 +51,7 @@ nepenthes
     "shellemuwinnt.so"              "",                             ""
 
 // single shellcodehandler modules 
+    "shellcodesignatures.so",       "",				    ""
     "shellcodegeneric.so",          "shellcode-generic.conf",       ""
 
 // vulnerability modules
