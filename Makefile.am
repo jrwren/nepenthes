@@ -49,6 +49,10 @@ install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/geolocation
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/signatures
+
+	$(INSTALL_DATA) modules/shellcode-signatures/shellcode-signatures.sc $(DESTDIR)$(localstatedir)/cache/nepenthes/signatures
+	
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes/gotek

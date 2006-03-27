@@ -73,7 +73,7 @@ bool NamespaceKonstanzXOR::Init()
 		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
 	}
 
-	printf("%s\n",m_Shellcode->pattern);
+//	printf("%s\n",m_Shellcode->pattern);
 //	g_Nepenthes->getUtilities()->hexdump((byte *)m_Shellcode->pattern,m_Shellcode->pattern_size);
 	return true;
 }

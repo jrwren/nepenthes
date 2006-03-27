@@ -73,7 +73,7 @@ bool NamespaceXOR::Init()
 		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
 	}
 
-	printf("%s\n",m_Shellcode->pattern);
+//	printf("%s\n",m_Shellcode->pattern);
 //	g_Nepenthes->getUtilities()->hexdump((byte *)m_Shellcode->pattern,m_Shellcode->pattern_size);
 	return true;
 }
@@ -239,7 +239,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 			if ( codeSize*4 > postSize )
 				logWarn("codeSize*4 (%i) > postSize (%i), maybe broken xor?\n",codeSize*4,postSize);
 
-			for ( uint32_t j = 0; j < codeSize && (j)*4 < postSize; j++ )
+			for ( uint32_t j = 0; j < codeSize && (j+1)*4 < postSize; j++ )
 				*(uint32_t *)(decodedMessage+(j*4) ) ^= intKey;
 			break;
 		}

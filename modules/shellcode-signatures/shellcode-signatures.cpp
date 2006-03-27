@@ -88,7 +88,7 @@ bool SignatureShellcodeHandler::Init()
 	m_ModuleManager 	= m_Nepenthes->getModuleMgr();
 
 g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(new EngineUnicode());
-	return loadSignaturesFromFile(string("/tmp/shellcode-signatures.sc"));
+	return loadSignaturesFromFile(string("var/cache/nepenthes/signatures/shellcode-signatures.sc"));
 }
 
 bool SignatureShellcodeHandler::Exit()
@@ -108,7 +108,7 @@ bool SignatureShellcodeHandler::Exit()
 
 bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 {
-
+	logInfo("Loading signatures from file %s\n",path.c_str());
 	sc_shellcode *sc,*sc_free;
 	bool load_success = true;
 
