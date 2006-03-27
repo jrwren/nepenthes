@@ -51,22 +51,22 @@ NEWLINE "\n"
 "execute"							{ return SC_EXECUTE; }
 "download"							{ return SC_DOWNLOAD; }
 "url"								{ return SC_URL; }
-"connectbacklinkfiletransfer"		{ return SC_CONNECTBACK_LINK_FILETRANSFER; }
-"bindlinkfiletransfer"				{ return SC_BIND_LINK_FILETRANSFER; }
+"bindfiletransfer"				{ return SC_BIND_FILETRANSFER; }
 
 "hostkey"                     { return SC_HOSTKEY; }
 "portkey"                     { return SC_PORTKEY; }
 
-"key"								{ return SC_KEY; }
+"subkey"							{ return SC_SUBKEY; }
+"key" 								{ return SC_KEY; }
 "size"								{ return SC_SIZE; }
 "sizeinvert"						{ return SC_SIZEINVERT; }
 "host"								{ return SC_HOST; }
 "port"								{ return SC_PORT; }
 "command"							{ return SC_COMMAND; }
-"uri"								{ return SC_URI; }
+"uri"			   					{ return SC_URI; }
 "pcre"                        { return SC_PCRE; }
 "pre"                         { return SC_PRELOAD; }
-"post"                         { return SC_POSTLOAD; }
+"post"                        { return SC_POSTLOAD; }
 
 
 {LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, strlen(yytext)); return SC_ID; }

@@ -21,6 +21,6 @@ shellcodesignatures_la_SOURCES += sch_namespace_execute.cpp sch_namespace_execut
 shellcodesignatures_la_SOURCES += sch_namespace_url.cpp sch_namespace_url.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_linkxor.cpp sch_namespace_linkxor.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_connectbackfiletransfer.cpp sch_namespace_connectbackfiletransfer.hpp
-
+shellcodesignatures_la_SOURCES += sch_namespace_bindfiletransfer.cpp sch_namespace_bindfiletransfer.hpp
 shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
 

@@ -45,6 +45,7 @@
 #include "sch_namespace_url.hpp"
 #include "sch_namespace_linkxor.hpp"
 #include "sch_namespace_connectbackfiletransfer.hpp"
+#include "sch_namespace_bindfiletransfer.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
@@ -167,10 +168,8 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			sch = new NamespaceUrl(sc);
 			break;
 
-		case sc_link:
-			break;
-
-		case sc_blink:
+		case sc_bindfiletransfer:
+			sch = new NamespaceBindFiletransfer(sc);
 			break;
 
 		}

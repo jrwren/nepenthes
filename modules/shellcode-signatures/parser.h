@@ -14,13 +14,14 @@ enum sc_namespace
 	sc_execute,
 	sc_download,
 	sc_url,
-	sc_link,
-	sc_blink
+	sc_bindfiletransfer
+
 };
 
 enum sc_mapping 
 { 
-	sc_key, 
+	sc_key,
+	sc_subkey,
 	sc_size, 
 	sc_sizeinvert, 
 	sc_port, 

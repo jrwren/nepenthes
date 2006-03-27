@@ -28,12 +28,11 @@
 SC_XOR SC_LINKXOR SC_KONSTANZXOR SC_LEIMBACHXOR 
 SC_BIND_SHELL 
 SC_CONNECTBACK_SHELL 
-SC_CONNECTBACK_FILETRANSFER 
+SC_CONNECTBACK_FILETRANSFER SC_BIND_FILETRANSFER
 SC_EXECUTE 
 SC_DOWNLOAD 
 SC_URL 
-SC_CONNECTBACK_LINK_FILETRANSFER SC_BIND_LINK_FILETRANSFER
-SC_KEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
+SC_KEY SC_SUBKEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
 SC_PCRE SC_PRELOAD SC_POSTLOAD
 SC_HOSTKEY SC_PORTKEY
@@ -130,15 +129,10 @@ namespace
 	{
 		shellcodes->nspace = sc_url;
 	}
-	|
-	SC_CONNECTBACK_LINK_FILETRANSFER
-	{
-		shellcodes->nspace = sc_link;
-	}
 	| 
-	SC_BIND_LINK_FILETRANSFER
+	SC_BIND_FILETRANSFER
 	{
-		shellcodes->nspace = sc_blink;
+		shellcodes->nspace = sc_bindfiletransfer;
 	}
 	;
 
@@ -182,7 +176,11 @@ map_value
 	{
 		shellcodes->map[shellcodes->map_items++] = sc_key;
 	}
-	| SC_SIZE
+	| SC_SUBKEY
+	{
+		shellcodes->map[shellcodes->map_items++] = sc_subkey;
+	}
+    | SC_SIZE
 	{
 		shellcodes->map[shellcodes->map_items++] = sc_size;
 	}
@@ -249,106 +247,106 @@ strings
 
 %%
 
-	struct sc_shellcode *init_shellcode()
+struct sc_shellcode *init_shellcode()
+{
+	struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
+
+	memset(s, 0, sizeof(struct sc_shellcode));
+
+	s->next = shellcodes;
+	shellcodes = s;
+
+	return s;
+}
+
+
+char *sc_get_namespace_by_numeric(int num)
+{
+
+	static char *namespacemapping[]=
 	{
-		struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
+		"xor",
+		"linkxor",
+		"konstanzxor",
+		"leimbachxor",
+		"connectbackshell",
+		"connectbackfiletransfer",
+		"bindshell",
+		"execute",
+		"download",
+		"url",
+		"bindfiletransfer"
+	};
 
-		memset(s, 0, sizeof(struct sc_shellcode));
+	if ( num > sizeof(namespacemapping)/sizeof(char *) )
+		return "unmapped";
+	else
+		return namespacemapping[num];
+}
 
-		s->next = shellcodes;
-		shellcodes = s;
-		
-		return s;
+char *sc_get_mapping_by_numeric(int num)
+{
+	static char *mapmapping[]=
+	{
+		"key",
+        "subkey",
+		"size",
+		"sizeinvert",
+		"port",
+		"host",
+		"command",
+		"uri",
+		"pcre",
+		"pre",
+		"post",
+		"none",
+		"hostkey",
+		"portkey"
+	};
+	if ( num > sizeof(mapmapping)/sizeof(char *) )
+		return "unmapped";
+	else
+		return mapmapping[num];
+}
+
+
+
+int yyerror(char* s)
+{
+	snprintf(error_buffer, sizeof(error_buffer),
+			 "%s at '%s' on line %d", s, yytext, line_number);
+	return 0;
+}
+
+
+int yywrap()
+{
+	return 1;
+}
+
+struct sc_shellcode *sc_parse_file(const char *filename)
+{
+	yyin = fopen(filename, "r");
+
+	if ( yyin == NULL )
+	{
+		snprintf(error_buffer, sizeof(error_buffer), "%s", strerror(errno));
+		return NULL;
 	}
 
-
-	char *sc_get_namespace_by_numeric(int num)
+	init_shellcode();
+	if ( yyparse() != 0 )
 	{
-	
-		static char *namespacemapping[]=
-		{
-                	"xor",
-	                "linkxor",
-        	        "konstanzxor",
-                	"leimbachxor",
-	                "connectbackshell",
-        	        "connectbackfiletransfer",
-                	"bindshell",
-	                "execute",
-        	        "download",
-	               	"url",
-        	        "link",
-	                "blink"
-		};
-		
-		if ( num > sizeof(namespacemapping)/sizeof(char *) )
-			return "unmapped";
-		else
-			return namespacemapping[num];
-	}
-
-	char *sc_get_mapping_by_numeric(int num)
-	{
-		static char *mapmapping[]=
-		{
-	                "key",
-        	        "size",
-                	"sizeinvert",
-	                "port",
-        	        "host",
-                	"command",
-	                "uri",
-                  "pcre",
-                  "pre",
-                  "post",
-                  "none",
-                  "hostkey",
-                  "portkey"
-		};
-                if ( num > sizeof(mapmapping)/sizeof(char *) )
-                        return "unmapped";
-                else
-                        return mapmapping[num];
-	}
-		
-		
-
-	int yyerror(char* s)
-	{
-		snprintf(error_buffer, sizeof(error_buffer),
-			"%s at '%s' on line %d", s, yytext, line_number);
-		return 0;
-	}
-
-
-	int yywrap()
-	{
-		return 1;
-	}
-
-	struct sc_shellcode *sc_parse_file(const char *filename)
-	{
-		yyin = fopen(filename, "r");
-		
-		if( yyin == NULL )
-		{
-			snprintf(error_buffer, sizeof(error_buffer), "%s", strerror(errno));
-			return NULL;
-		}
-
-		init_shellcode();
-		if( yyparse() != 0 )
-		{
-			fclose(yyin);
-			/* TODO free partially alloc'd shellcodes */
-			return NULL;
-		}
 		fclose(yyin);
-		
-		return shellcodes;
+		/* TODO free partially alloc'd shellcodes */
+		return NULL;
 	}
-	
-	char *sc_get_error()
-	{
-		return error_buffer;
-	}
+	fclose(yyin);
+// taken from shellcode-generic/sch_generic_stuttgart.cpp
+	return shellcodes;
+}
+
+char *sc_get_error()
+{
+	return error_buffer;
+}
