@@ -52,6 +52,7 @@ NEWLINE "\n"
 "download"							{ return SC_DOWNLOAD; }
 "url"								{ return SC_URL; }
 "bindfiletransfer"				{ return SC_BIND_FILETRANSFER; }
+"base64"                      { return SC_BASE64; }
 
 "hostkey"                     { return SC_HOSTKEY; }
 "portkey"                     { return SC_PORTKEY; }

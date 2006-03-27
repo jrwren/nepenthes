@@ -14,7 +14,8 @@ enum sc_namespace
 	sc_execute,
 	sc_download,
 	sc_url,
-	sc_bindfiletransfer
+	sc_bindfiletransfer,
+	sc_base64
 
 };
 

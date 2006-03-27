@@ -32,6 +32,7 @@ SC_CONNECTBACK_FILETRANSFER SC_BIND_FILETRANSFER
 SC_EXECUTE 
 SC_DOWNLOAD 
 SC_URL 
+SC_BASE64
 SC_KEY SC_SUBKEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
 SC_PCRE SC_PRELOAD SC_POSTLOAD
@@ -133,6 +134,11 @@ namespace
 	SC_BIND_FILETRANSFER
 	{
 		shellcodes->nspace = sc_bindfiletransfer;
+	}
+    |
+	SC_BASE64
+	{
+		shellcodes->nspace = sc_base64;
 	}
 	;
 
@@ -275,10 +281,11 @@ char *sc_get_namespace_by_numeric(int num)
 		"execute",
 		"download",
 		"url",
-		"bindfiletransfer"
+		"bindfiletransfer",
+        "base64"
 	};
 
-	if ( num > sizeof(namespacemapping)/sizeof(char *) )
+	if ( num >= sizeof(namespacemapping)/sizeof(char *) )
 		return "unmapped";
 	else
 		return namespacemapping[num];
@@ -303,7 +310,7 @@ char *sc_get_mapping_by_numeric(int num)
 		"hostkey",
 		"portkey"
 	};
-	if ( num > sizeof(mapmapping)/sizeof(char *) )
+	if ( num >= sizeof(mapmapping)/sizeof(char *) )
 		return "unmapped";
 	else
 		return mapmapping[num];

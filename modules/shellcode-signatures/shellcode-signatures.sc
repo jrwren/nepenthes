@@ -25,7 +25,7 @@
 [?] [ ]   20) THCBind  handles thc iis bindshells
 [n] [+]   21) HODBind  handles oc192 dcom bindshell
 [n] [+]   22) HODConnect handles oc192 dcom bindshell
-[s] [ ]   23) HODBind  handles house of dabus msmq bindshells
+[n] [+]   23) HODBind  handles house of dabus msmq bindshells (xor::msfPexEnvSub & bindshell::schoenborn do the trick)
 [n] [+]   24) HODBind  handles house of dabus netdde bindshells
 [n] [+]   25) HODConnect handles house of dabus netdde bindshells
 [n] [+]   26) MandragoreBind mandragore sasserftpd bondshells
@@ -765,10 +765,10 @@ connectbackfiletransfer::linktransfer
 {
 	pattern
 	".*\\x53\\x53\\x68(....)\\x68\\x02\\x00(..)\\x8B\\xD4\\x8B\\xD8\\x6A"
-//                         ^^^^->ip             ^^-> port
+	//                 ^^^^->ip             ^^-> port
 	"\\x10\\x52\\x53\\xBA\\x63\\x30\\x60\\x5A\\xFF\\xD6\\x50\\xB4\\x02\\x50\\x55\\x53\\xBA"
 	"\\x00\\x58\\x60\\xE2\\xFF\\xD6\\xBF(....)\\xFF\\xE5.*";
-//                                           ^^^^-> auth key
+	//                                   ^^^^-> auth key
 	mapping(none,host,port,key);
 };
 
@@ -944,6 +944,13 @@ url::anyurl
 	mapping (none,uri);
 };
 
+
+base64::iis_asn1
+{
+	pattern
+	"GET.*Authorization.*Negotiate (.*)";
+	mapping (none,post);
+};
 
 
 

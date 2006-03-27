@@ -46,6 +46,9 @@
 #include "sch_namespace_linkxor.hpp"
 #include "sch_namespace_connectbackfiletransfer.hpp"
 #include "sch_namespace_bindfiletransfer.hpp"
+#include "sch_namespace_base64.hpp"
+#include "sch_engine_unicode.hpp"
+#include "sch_namespace_konstanzxor.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
@@ -83,6 +86,8 @@ SignatureShellcodeHandler::~SignatureShellcodeHandler()
 bool SignatureShellcodeHandler::Init()
 {
 	m_ModuleManager 	= m_Nepenthes->getModuleMgr();
+
+g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(new EngineUnicode());
 	return loadSignaturesFromFile(string("/tmp/shellcode-signatures.sc"));
 }
 
@@ -140,6 +145,7 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			break;
 
 		case sc_konstanzxor:
+			sch = new NamespaceKonstanzXOR(sc);
 			break;
 
 		case sc_leimbachxor:
@@ -172,6 +178,9 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 			sch = new NamespaceBindFiletransfer(sc);
 			break;
 
+		case sc_base64:
+			sch = new NamespaceBase64(sc);
+			break;
 		}
 		
 
