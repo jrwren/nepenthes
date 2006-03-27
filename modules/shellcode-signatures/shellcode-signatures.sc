@@ -237,7 +237,7 @@ konstanzxor::konstanz
  */
 	pattern
 	"\\x33\\xC9\\x66\\xB9(..)\\xE8\\xFF\\xFF\\xFF\\xFF\\xC1\\x5E\\x30\\x4C\\x0E\\x07\\xE2\\xFA(.*)";
-	mapping (key);
+	mapping (none,size,post);
 };
 
 
@@ -833,7 +833,7 @@ connectbackfiletransfer::wuerzburg
 
 
 // taken from shellcode-generic/sch_generic_link_bind_trans.cpp
-bindfiletransfer::bindlinktransfer
+bindfiletransfer::bindllinktransfer
 {
 	pattern
 	"\\xba\\x83\\x53\\x83\\x00\\xff\\xd6\\x53\\x53\\x53\\x68\\x02\\x00"
