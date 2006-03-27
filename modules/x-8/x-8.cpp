@@ -315,7 +315,7 @@ void X8Dialogue::locationSuccess(GeoLocationResult *result)
 	reply += "\n";
 
 	reply += "\t Context: ";
-	sprintf(ctx,"%x",(uint32_t)result->getObject());
+	sprintf(ctx,"%x",(uint32_t)((intptr_t)result->getObject()));
 	reply += ctx;
 	reply += "\n";
 
