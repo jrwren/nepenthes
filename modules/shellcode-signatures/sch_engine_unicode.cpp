@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include <stdint.h>
+
 #include "sch_engine_unicode.hpp"
 
 #include "Nepenthes.hpp"

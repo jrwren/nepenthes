@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include <stdint.h>
+
 #include "sch_namespace_linkxor.hpp"
 
 #include "Nepenthes.hpp"

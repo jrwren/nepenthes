@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include <stdint.h>
+
 #include "sch_namespace_base64.hpp"
 
 #include "Nepenthes.hpp"

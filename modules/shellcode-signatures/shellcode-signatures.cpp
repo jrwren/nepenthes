@@ -26,14 +26,6 @@
  *******************************************************************************/
 
 
-
-/* Additional notes:
- *
- * The pcre's and processing logic in this module is derived from mwcollect written by Georg Wicherski
- *
- */
-
- 
  /* $Id$ */
 
 #include "shellcode-signatures.hpp"
