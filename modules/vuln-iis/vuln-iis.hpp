@@ -49,9 +49,6 @@ namespace nepenthes
 		Dialogue *createDialogue(Socket *socket);
 		bool Init();
 		bool Exit();
-
-	protected:
-		list <ShellcodeHandler *> m_ShellcodeHandlers;
 	};
 }
 

@@ -10,6 +10,10 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = vulnlsass.la
 
-vulnlsass_la_SOURCES = vuln-lsass.conf.dist LSASSDialogue.hpp lsass-shellcodes.hpp sch_lsass_hod_bind.hpp sch_lsass_hod_connect.hpp vuln-lsass.hpp LSASSDialogue.cpp sch_lsass_hod_bind.cpp sch_lsass_hod_connect.cpp vuln-lsass.cpp
+vulnlsass_la_SOURCES = vuln-lsass.conf.dist lsass-shellcodes.hpp 
+vulnlsass_la_SOURCES += LSASSDialogue.hpp LSASSDialogue.cpp    
+vulnlsass_la_SOURCES += vuln-lsass.hpp    vuln-lsass.cpp       
+
+
 
 vulnlsass_la_LDFLAGS = -module -no-undefined -avoid-version

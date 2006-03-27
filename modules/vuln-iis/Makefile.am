@@ -10,6 +10,10 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = vulniis.la
 
-vulniis_la_SOURCES = vuln-iis.conf.dist iis-shellcodes.h IISDialogue.hpp sch_iis_tc_bind.hpp sch_iis_thc_bind.hpp sch_iis_thc_connect.hpp vuln-iis.hpp IISDialogue.hpp sch_iis_tc_bind.hpp sch_iis_thc_bind.hpp sch_iis_thc_connect.hpp vuln-iis.hpp IISDialogue.cpp sch_iis_tc_bind.cpp sch_iis_thc_bind.cpp sch_iis_thc_connect.cpp vuln-iis.cpp
+vulniis_la_SOURCES = vuln-iis.conf.dist iis-shellcodes.h 
+vulniis_la_SOURCES += IISDialogue.hpp IISDialogue.cpp            
+vulniis_la_SOURCES += vuln-iis.hpp    vuln-iis.cpp               
+								 
+
 
 vulniis_la_LDFLAGS = -module -no-undefined -avoid-version

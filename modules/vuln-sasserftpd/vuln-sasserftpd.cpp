@@ -32,9 +32,6 @@
 #include "SasserFTPDDialogue.hpp"
 #include "vuln-sasserftpd.hpp"
 
-#include "sch_sasserftpd_mandragore_bind.hpp"
-#include "sch_sasserftpd_mandragore_connect.hpp"
-
 #include "SocketManager.hpp"
 
 #include "DownloadManager.hpp"
@@ -135,21 +132,6 @@ bool SasserFTPDVuln::Init()
 		i++;
 	}
 
-
-	m_ShellcodeHandlers.push_back( new MandragoreBind 	(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back( new MandragoreConnect	(m_Nepenthes->getShellcodeMgr()));
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-		{
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
-	}
 
 	return true;
 }

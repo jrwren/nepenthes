@@ -43,6 +43,8 @@
 #include "Utilities.hpp"
 #include "ShellcodeManager.hpp"
 
+#include "vuln-asn1.hpp"
+
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif

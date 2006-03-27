@@ -32,8 +32,6 @@
 #include "vuln-asn1.hpp"
 #include "IISDialogue.hpp"
 #include "SMBDialogue.hpp"
-#include "sch_asn1_iis.hpp"
-#include "sch_asn1_smb_bind.hpp"
 
 #include "SocketManager.hpp"
 #include "Message.hpp"
@@ -128,21 +126,6 @@ bool ASN1Vuln::Init()
 
     m_Nepenthes->getSocketMgr()->bindTCPSocket(0,m_IISPort,0,timeout,this);
 	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,m_SMBPort,0,timeout,this);
-
-	m_ShellcodeHandlers.push_back( new ASN1IISBase64	(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back( new ASN1SMBBind		(m_Nepenthes->getShellcodeMgr()));
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-        {
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
-	}
 
 	return true;
 }

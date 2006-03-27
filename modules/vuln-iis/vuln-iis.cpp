@@ -31,8 +31,6 @@
 
 #include "vuln-iis.hpp"
 #include "IISDialogue.hpp"
-#include "sch_iis_thc_connect.hpp"
-#include "sch_iis_thc_bind.hpp"
 
 #include "SocketManager.hpp"
 #include "Message.hpp"
@@ -123,21 +121,6 @@ bool VulnIIS::Init()
 	{
 		m_Nepenthes->getSocketMgr()->bindTCPSocket(0,atoi(sList[i]),0,timeout,this);
 		i++;
-	}
-
-	m_ShellcodeHandlers.push_back( new THCConnect	(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back( new THCBind		(m_Nepenthes->getShellcodeMgr()));
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-		{
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
 	}
 
 	return true;

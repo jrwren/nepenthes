@@ -12,8 +12,6 @@ pkglib_LTLIBRARIES = vulnsasserftpd.la
 
 vulnsasserftpd_la_SOURCES = vuln-sasserftpd.conf.dist               
 vulnsasserftpd_la_SOURCES += SasserFTPDDialogue.hpp                   SasserFTPDDialogue.cpp                                             
-vulnsasserftpd_la_SOURCES += sch_sasserftpd_mandragore_bind.hpp       sch_sasserftpd_mandragore_bind.cpp                                 
-vulnsasserftpd_la_SOURCES += sch_sasserftpd_mandragore_connect.hpp    sch_sasserftpd_mandragore_connect.cpp                              
 vulnsasserftpd_la_SOURCES += vuln-sasserftpd.hpp                      vuln-sasserftpd.cpp                                                
 
 

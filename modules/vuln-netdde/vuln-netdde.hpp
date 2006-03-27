@@ -52,8 +52,6 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 
-	protected:
-		list <ShellcodeHandler *> m_ShellcodeHandlers;
 	};
 
 }

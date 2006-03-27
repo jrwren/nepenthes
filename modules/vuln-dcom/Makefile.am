@@ -10,6 +10,10 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = vulndcom.la
 
-vulndcom_la_SOURCES = vuln-dcom.conf.dist dcom-shellcodes.h DCOMDialogue.hpp sch_dcom_oc192_bind.hpp sch_dcom_sol2k_bind.hpp sch_dcom_sol2k_connect.hpp vuln-dcom.hpp DCOMDialogue.cpp sch_dcom_oc192_bind.cpp sch_dcom_sol2k_bind.cpp sch_dcom_sol2k_connect.cpp vuln-dcom.cpp
+vulndcom_la_SOURCES = vuln-dcom.conf.dist dcom-shellcodes.h 
+vulndcom_la_SOURCES += DCOMDialogue.hpp DCOMDialogue.cpp                      
+vulndcom_la_SOURCES += vuln-dcom.hpp    vuln-dcom.cpp                         
+
+
 
 vulndcom_la_LDFLAGS = -module -no-undefined -avoid-version

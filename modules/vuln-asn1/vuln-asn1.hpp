@@ -54,7 +54,6 @@ namespace nepenthes
 	protected:
 		uint16_t m_SMBPort;
 		uint16_t m_IISPort;
-		list <ShellcodeHandler *> m_ShellcodeHandlers;
 	};		
 
 }

@@ -32,9 +32,6 @@
 #include "NETDDEDialogue.hpp"
 #include "vuln-netdde.hpp"
 
-#include "sch_netdde_hod_bind.hpp"
-#include "sch_netdde_hod_connect.hpp"
-
 #include "SocketManager.hpp"
 
 #include "DownloadManager.hpp"
@@ -128,22 +125,6 @@ bool NETDDEVuln::Init()
 
 	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,0,timeout,this);
 
-
-
-	m_ShellcodeHandlers.push_back( new HODBind	 	(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back( new HODConnect	(m_Nepenthes->getShellcodeMgr()));
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-		{
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
-	}
 
 	return true;
 }

@@ -31,7 +31,6 @@
 
 #include "vuln-msmq.hpp"
 #include "MSMQDialogue.hpp"
-#include "sch_msmq_hod_bind.hpp"
 
 #include "SocketManager.hpp"
 #include "Message.hpp"
@@ -130,21 +129,6 @@ bool MSMQVuln::Init()
 
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 
-	m_ShellcodeHandlers.push_back( new HODBind		(m_Nepenthes->getShellcodeMgr()));
-//	m_ShellcodeHandlers.push_back( new HODConnect	(m_Nepenthes->getShellcodeMgr()));
-
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-		{
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
-	}
 	return true;
 }
 

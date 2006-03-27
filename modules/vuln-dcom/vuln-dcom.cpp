@@ -42,10 +42,6 @@
 #include "Config.hpp"
 
 
-#include "sch_dcom_sol2k_bind.hpp"
-#include "sch_dcom_sol2k_connect.hpp"
-#include "sch_dcom_oc192_bind.hpp"
-
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
@@ -70,11 +66,6 @@ DCOMVuln::DCOMVuln(Nepenthes *nepenthes)
 DCOMVuln::~DCOMVuln()
 {
 	logPF();
-	while (m_ShellcodeHandlers.size() > 0)
-	{
-		delete m_ShellcodeHandlers.front();
-		m_ShellcodeHandlers.pop_front();
-	}
 }
 
 bool DCOMVuln::Init()
@@ -107,40 +98,11 @@ bool DCOMVuln::Init()
 
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 
-// removed as they were not seen during the last 2 month and need a new pcre
-//	m_ShellcodeHandlers.push_back( new SOL2KBind	(m_Nepenthes->getShellcodeMgr())); 
-//	m_ShellcodeHandlers.push_back( new SOL2KConnect	(m_Nepenthes->getShellcodeMgr()));
-
-// replaced by adenau xor & Parthenstein Bind
-//	m_ShellcodeHandlers.push_back( new OC192Bind	(m_Nepenthes->getShellcodeMgr()));
-
-
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Init() == false)
-        {
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		REG_SHELLCODE_HANDLER((*handler));
-
-	}
 	return true;
 }
 
 bool DCOMVuln::Exit()
 {
-	list <ShellcodeHandler *>::iterator handler;
-	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
-	{
-		if ((*handler)->Exit() == false)
-		{
-			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
-		}
-		m_Nepenthes->getShellcodeMgr()->unregisterShellcodeHandler((*handler));
-	}
 	return true;
 }
 

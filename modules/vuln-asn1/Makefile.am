@@ -10,6 +10,13 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = vulnasn1.la
 
-vulnasn1_la_SOURCES = vuln-asn1.conf.dist asn1-shellcodes.h IISDialogue.hpp SMBDialogue.hpp sch_asn1_iis.hpp sch_asn1_smb_bind.hpp vuln-asn1.hpp IISDialogue.cpp SMBDialogue.cpp sch_asn1_iis.cpp sch_asn1_smb_bind.cpp vuln-asn1.cpp
+vulnasn1_la_SOURCES = vuln-asn1.conf.dist asn1-shellcodes.h 
+vulnasn1_la_SOURCES += vuln-asn1.hpp   vuln-asn1.cpp               
+vulnasn1_la_SOURCES += IISDialogue.hpp IISDialogue.cpp               
+vulnasn1_la_SOURCES += SMBDialogue.hpp SMBDialogue.cpp               
+
+
+
+
 
 vulnasn1_la_LDFLAGS = -module -no-undefined -avoid-version

@@ -10,6 +10,9 @@ AM_LDFLAGS = -lpcre
 
 pkglib_LTLIBRARIES = vulnwins.la
 
-vulnwins_la_SOURCES = vuln-wins.conf.dist WINSDialogue.hpp sch_wins_hs_bind.hpp sch_wins_hs_connect.hpp sch_wins_zuc_connect.hpp vuln-wins.hpp wins-shellcodes.hpp WINSDialogue.cpp sch_wins_hs_bind.cpp sch_wins_hs_connect.cpp sch_wins_zuc_connect.cpp vuln-wins.cpp
+vulnwins_la_SOURCES = vuln-wins.conf.dist 
+vulnwins_la_SOURCES += WINSDialogue.hpp 			WINSDialogue.cpp                       
+vulnwins_la_SOURCES += vuln-wins.hpp wins-shellcodes.hpp	vuln-wins.cpp                          
+
 
 vulnwins_la_LDFLAGS = -module -no-undefined -avoid-version
