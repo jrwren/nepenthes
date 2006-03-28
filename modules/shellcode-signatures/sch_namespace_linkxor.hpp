@@ -31,24 +31,16 @@
 #ifndef HAVE_NAMESPACE_LINKXOR_HPP
 #define HAVE_NAMESPACE_LINKXOR_HPP
 
-#include <stdint.h>
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
 
 namespace nepenthes
 {
-	class NamespaceLinkXOR : public ShellcodeHandler
+	class NamespaceLinkXOR : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceLinkXOR(sc_shellcode *sc);
 		~NamespaceLinkXOR();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 

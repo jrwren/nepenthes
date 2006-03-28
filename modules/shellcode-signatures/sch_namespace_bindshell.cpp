@@ -27,8 +27,6 @@
 
 /* $Id$ */
 
-#include <stdint.h>
-
 #include <sys/types.h>
 #include <netinet/in.h>
 
@@ -53,42 +51,13 @@
 
 using namespace nepenthes;
 
-NamespaceBindShell::NamespaceBindShell(sc_shellcode *sc)
+NamespaceBindShell::NamespaceBindShell(sc_shellcode *sc) : NamespaceShellcodeHandler(sc)
 {
-	m_ShellcodeHandlerName = sc_get_namespace_by_numeric(sc->nspace);
-	m_ShellcodeHandlerName += "::";
-	m_ShellcodeHandlerName += sc->name;
-
-	m_Shellcode = sc;
 }
 
 NamespaceBindShell::~NamespaceBindShell()
 {
 
-}
-
-bool NamespaceBindShell::Init()
-{
-	const char * pcreEerror;
-	int32_t pcreErrorPos;
-	if ( (m_Pcre = pcre_compile(m_Shellcode->pattern, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL )
-	{
-		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
-				m_ShellcodeHandlerName.c_str(), pcreEerror, pcreErrorPos);
-		return false;
-	} else
-	{
-		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
-	}
-
-//	printf("%s\n",m_Shellcode->pattern);
-//	g_Nepenthes->getUtilities()->hexdump((byte *)m_Shellcode->pattern,m_Shellcode->pattern_size);
-	return true;
-}
-
-bool NamespaceBindShell::Exit()
-{
-	return true;
 }
 
 sch_result NamespaceBindShell::handleShellcode(Message **msg)
@@ -110,9 +79,9 @@ sch_result NamespaceBindShell::handleShellcode(Message **msg)
 //		 const char *portMatch;
 		 uint16_t port=0;
 
-		for ( int i=0; i < m_Shellcode->map_items; i++ )
+		for ( int i=0; i < m_MapItems; i++ )
 		{
-			if ( m_Shellcode->map[i] == sc_port )
+			if ( m_Map[i] == sc_port )
 			{
 				pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
 				port = ntohs(*(uint16_t *) match);

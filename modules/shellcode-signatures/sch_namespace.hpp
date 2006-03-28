@@ -27,20 +27,37 @@
 
  /* $Id$ */
 
-#ifndef HAVE_NAMESPACE_CONNECTBACKSHELL_HPP
-#define HAVE_NAMESPACE_CONNECTBACKSHELL_HPP
 
-#include "sch_namespace.hpp"
+#ifndef HAVE_NAMESPACE_HPP
+#define HAVE_NAMESPACE_HPP
+
+#include <pcre.h>
+#include <stdint.h>
+#include "ShellcodeHandler.hpp"
+#include "parser.hpp"
+
 
 namespace nepenthes
 {
-	class NamespaceConnectbackShell : public NamespaceShellcodeHandler
+	class NamespaceShellcodeHandler : public ShellcodeHandler
 	{
 	public:
-		NamespaceConnectbackShell(sc_shellcode *sc);
-		~NamespaceConnectbackShell();
-		sch_result handleShellcode(Message **msg);
+		NamespaceShellcodeHandler(sc_shellcode *sc);
+		~NamespaceShellcodeHandler();
+		virtual sch_result handleShellcode(Message **msg)=0;
+		bool Init();
+		bool Exit();
+	protected:
+
+		pcre 	*m_Pcre;
+
+		string m_Author;
+		string m_Reference;
+		string m_Pattern;
+		int m_MapItems;
+		enum sc_mapping m_Map[MAP_MAX];
+		int flags;
+
 	};
 }
-
 #endif

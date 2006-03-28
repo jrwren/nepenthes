@@ -27,7 +27,6 @@
 
 /* $Id$ */
 
-#include <stdint.h>
 
 #include "sch_namespace_linkxor.hpp"
 
@@ -46,13 +45,8 @@
 
 using namespace nepenthes;
 
-NamespaceLinkXOR::NamespaceLinkXOR(sc_shellcode *sc)
+NamespaceLinkXOR::NamespaceLinkXOR(sc_shellcode *sc):NamespaceShellcodeHandler(sc)
 {
-	m_ShellcodeHandlerName = sc_get_namespace_by_numeric(sc->nspace);
-	m_ShellcodeHandlerName += "::";
-	m_ShellcodeHandlerName += sc->name;
-
-	m_Shellcode = sc;
 
 }
 
@@ -61,29 +55,6 @@ NamespaceLinkXOR::~NamespaceLinkXOR()
 
 }
 
-bool NamespaceLinkXOR::Init()
-{
-	const char * pcreEerror;
-	int32_t pcreErrorPos;
-	if ( (m_Pcre = pcre_compile(m_Shellcode->pattern, PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL )
-	{
-		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
-				m_ShellcodeHandlerName.c_str(), pcreEerror, pcreErrorPos);
-		return false;
-	} else
-	{
-		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
-	}
-
-//	printf("%s\n",m_Shellcode->pattern);
-//	g_Nepenthes->getUtilities()->hexdump((byte *)m_Shellcode->pattern,m_Shellcode->pattern_size);
-	return true;
-}
-
-bool NamespaceLinkXOR::Exit()
-{
-	return true;
-}
 
 sch_result NamespaceLinkXOR::handleShellcode(Message **msg)
 {
@@ -122,18 +93,18 @@ sch_result NamespaceLinkXOR::handleShellcode(Message **msg)
 
 	if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
 	{
-		logCrit("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_Shellcode->map_items);
+		logCrit("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_MapItems);
 		int32_t i;
-		for ( i=0; i < m_Shellcode->map_items; i++ )
+		for ( i=0; i < m_MapItems; i++ )
 		{
-			if (m_Shellcode->map[i] == sc_none)
+			if (m_Map[i] == sc_none)
 					continue;
 
-			logInfo(" i = %i map_items %i , map = %s\n",i,m_Shellcode->map_items, sc_get_mapping_by_numeric(m_Shellcode->map[i]));
+			logInfo(" i = %i map_items %i , map = %s\n",i,m_MapItems, sc_get_mapping_by_numeric(m_Map[i]));
 			const char *match = NULL;
 			int matchSize = pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, i, &match);
 
-			switch ( m_Shellcode->map[i] )
+			switch ( m_Map[i] )
 			{
 
 			case sc_size:
@@ -163,7 +134,7 @@ sch_result NamespaceLinkXOR::handleShellcode(Message **msg)
 
 
 			default:
-				logCrit("%s not used mapping %s\n",m_ShellcodeHandlerName.c_str(), sc_get_mapping_by_numeric(m_Shellcode->map[i]));
+				logCrit("%s not used mapping %s\n",m_ShellcodeHandlerName.c_str(), sc_get_mapping_by_numeric(m_Map[i]));
 			}
 		}
 

@@ -31,24 +31,21 @@
 #ifndef HAVE_NAMESPACE_BASE64_HPP
 #define HAVE_NAMESPACE_BASE64_HPP
 
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
 
+#include "sch_namespace.hpp"
 
 namespace nepenthes
 {
-	class NamespaceBase64 : public ShellcodeHandler
+	class NamespaceBase64 : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceBase64(sc_shellcode *sc);
 		~NamespaceBase64();
-		sch_result handleShellcode(Message **msg);
+/*
 		bool Init();
 		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
+*/
+		sch_result handleShellcode(Message **msg);
 	};
 }
 #endif

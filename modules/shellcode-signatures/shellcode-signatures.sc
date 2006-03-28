@@ -15,11 +15,11 @@
 [n] [+]   10) GenericConnect various bindshells
 [n] [ ]   11) KonstanzXOR Konstanz XOR decoder
 [n] [+]   12) GenericConnectTrans various csends
-[E] [ ]   13) GenericUniCode generic UniCode decoder
+[E] [+]   13) GenericUniCode generic UniCode decoder
 [n] [+]   14) GenericWinExec generic WinExec decoder
 [n] [ ]   15) LeimbachUrlXOR generic XOR decoder
 [?] [ ]   16) Genericwget generic wget decoder
-[?] [ ]   17) ASN1IISBase64 handles oc192 dcom bindshell
+[n] [+]   17) ASN1IISBase64 handles oc192 dcom bindshell
 [n] [+]   18) ASN1SMBBind handles oc192 dcom bindshell
 [n] [+]   19) THCConnect handles thc iis connectbackshells
 [?] [ ]   20) THCBind  handles thc iis bindshells

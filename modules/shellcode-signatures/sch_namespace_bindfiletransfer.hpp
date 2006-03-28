@@ -31,23 +31,17 @@
 #define HAVE_NAMESPACE_BINDFILETRANSFER_HPP
 
 #include <stdint.h>
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
+
 
 namespace nepenthes
 {
-	class NamespaceBindFiletransfer : public ShellcodeHandler
+	class NamespaceBindFiletransfer : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceBindFiletransfer(sc_shellcode *sc);
 		~NamespaceBindFiletransfer();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 

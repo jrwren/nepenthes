@@ -31,24 +31,17 @@
 #ifndef HAVE_NAMESPACE_EXECUTE_HPP
 #define HAVE_NAMESPACE_EXECUTE_HPP
 
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
 
 
 namespace nepenthes
 {
-	class NamespaceExecute : public ShellcodeHandler
+	class NamespaceExecute : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceExecute(sc_shellcode *sc);
 		~NamespaceExecute();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 #endif

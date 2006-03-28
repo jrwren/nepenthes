@@ -30,24 +30,16 @@
 #ifndef HAVE_NAMESPACE_XOR_HPP
 #define HAVE_NAMESPACE_XOR_HPP
 
-#include <stdint.h>
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
 
 namespace nepenthes
 {
-	class NamespaceXOR : public ShellcodeHandler
+	class NamespaceXOR : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceXOR(sc_shellcode *sc);
 		~NamespaceXOR();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 

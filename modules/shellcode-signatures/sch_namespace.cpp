@@ -27,8 +27,9 @@
 
 /* $Id$ */
 
+#include <stdint.h>
 
-#include "sch_namespace_url.hpp"
+#include "sch_namespace.hpp"
 
 #include "Nepenthes.hpp"
 #include "Message.hpp"
@@ -49,37 +50,61 @@
 
 using namespace nepenthes;
 
-NamespaceUrl::NamespaceUrl(sc_shellcode *sc):NamespaceShellcodeHandler(sc)
+NamespaceShellcodeHandler::NamespaceShellcodeHandler(sc_shellcode *sc)
 {
-}
+	m_ShellcodeHandlerName = sc_get_namespace_by_numeric(sc->nspace);
+	m_ShellcodeHandlerName += "::";
+	m_ShellcodeHandlerName += sc->name;
 
-
-NamespaceUrl::~NamespaceUrl()
-{
-}
-
-
-sch_result NamespaceUrl::handleShellcode(Message **msg)
-{
-	logSpam("%s checking ...\n",m_ShellcodeHandlerName.c_str());
-
-	char *shellcode = (*msg)->getMsg();
-	uint32_t len = (*msg)->getSize();
-
-	int32_t ovec[10 * 3];
-	int32_t matchCount; 
-	const char *match;
-
-	if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
+	int i;
+	for ( i=0;i< sc->map_items;i++ )
 	{
-		pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
-		logInfo("%s: \"%s\"\n",m_ShellcodeHandlerName.c_str(), match);
-		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)match,(*msg)->getRemoteHost(),"generic url decoder",0);
-		pcre_free_substring(match);
-		return SCH_DONE;
+		m_Map[i] = sc->map[i];
 	}
-	return SCH_NOTHING;
+	m_MapItems = sc->map_items;
+
+//	m_Author 	= sc->author;
+	m_Pattern 	= sc->pattern;
+//	m_Reference	= sc->reference;
+
+	m_Pcre = NULL;
 }
+
+
+NamespaceShellcodeHandler::~NamespaceShellcodeHandler()
+{
+
+}
+
+
+bool NamespaceShellcodeHandler::Init()
+{
+	const char * pcreEerror;
+	int32_t pcreErrorPos;
+	if ( (m_Pcre = pcre_compile(m_Pattern.c_str(), PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL )
+	{
+		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
+				m_ShellcodeHandlerName.c_str(), pcreEerror, pcreErrorPos);
+		return false;
+	} else
+	{
+		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
+	}
+
+//	printf("%s\n",m_Shellcode->pattern);
+//	g_Nepenthes->getUtilities()->hexdump((byte *)m_Shellcode->pattern,m_Shellcode->pattern_size);
+	return true;
+}
+
+bool NamespaceShellcodeHandler::Exit()
+{
+	if (m_Pcre != NULL)
+	{
+    	pcre_free(m_Pcre);
+	}
+	return true;
+}
+
 
 
 

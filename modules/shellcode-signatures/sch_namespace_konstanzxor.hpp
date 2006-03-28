@@ -30,24 +30,16 @@
 #ifndef HAVE_NAMESPACE_KONSTANZXOR_HPP
 #define HAVE_NAMESPACE_KONSTANZXOR_HPP
 
-#include <stdint.h>
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
 
 namespace nepenthes
 {
-	class NamespaceKonstanzXOR : public ShellcodeHandler
+	class NamespaceKonstanzXOR : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceKonstanzXOR(sc_shellcode *sc);
 		~NamespaceKonstanzXOR();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 

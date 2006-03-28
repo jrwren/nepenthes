@@ -31,24 +31,18 @@
 #ifndef HAVE_NAMESPACE_URL_HPP
 #define HAVE_NAMESPACE_URL_HPP
 
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+
+#include "sch_namespace.hpp"
 
 
 namespace nepenthes
 {
-	class NamespaceUrl : public ShellcodeHandler
+	class NamespaceUrl : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceUrl(sc_shellcode *sc);
 		~NamespaceUrl();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 #endif

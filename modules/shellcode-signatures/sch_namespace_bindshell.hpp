@@ -30,24 +30,16 @@
 #ifndef HAVE_NAMESPACE_BINDSHELL_HPP
 #define HAVE_NAMESPACE_BINDSHELL_HPP
 
-#include <stdint.h>
-#include <pcre.h>
-#include "ShellcodeHandler.hpp"
-#include "parser.hpp"
+#include "sch_namespace.hpp"
 
 namespace nepenthes
 {
-	class NamespaceBindShell : public ShellcodeHandler
+	class NamespaceBindShell : public NamespaceShellcodeHandler
 	{
 	public:
 		NamespaceBindShell(sc_shellcode *sc);
 		~NamespaceBindShell();
 		sch_result handleShellcode(Message **msg);
-		bool Init();
-		bool Exit();
-	private:
-		pcre 	*m_Pcre;
-		sc_shellcode *m_Shellcode;
 	};
 }
 
