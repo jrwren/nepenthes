@@ -1,12 +1,14 @@
 /* $Id$ */
 %{
-	#define _GNU_SOURCE
-	#include <string.h>
-	#include <stdio.h>
-	#include <memory.h>
-	#include <errno.h>
-	
-	#include "parser.h"
+   #define _GNU_SOURCE
+   #include <string.h>
+   #include <stdio.h>
+   #include <memory.h>
+   #include <errno.h>
+
+   #include "config.h"
+   #include "parser.h"
+    
 
 	inline void string_reset();
 	inline char *string_get_buffer();
@@ -254,16 +256,17 @@ strings
 %%
 
 #ifndef HAVE_STRNDUP
- // from http://www.unixpapa.com/incnote/string.html
- char *strndup(const char *str, size_t len)
- {
-     char *dup= (char *)malloc( len+1 );
-     if (dup) {
-         strncpy(dup,str,len);
-         dup[len]= '\0';
-     }
-     return dup;
-  }
+// from http://www.unixpapa.com/incnote/string.html
+char *strndup(const char *str, size_t len)
+{
+	char *dup= (char *)malloc( len+1 );
+	if ( dup )
+	{
+		strncpy(dup,str,len);
+		dup[len]= '\0';
+	}
+	return dup;
+}
 #endif /* HAVE_STRNDUP */
 
 
