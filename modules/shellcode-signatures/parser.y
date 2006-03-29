@@ -253,6 +253,20 @@ strings
 
 %%
 
+#ifndef HAVE_STRNDUP
+ // from http://www.unixpapa.com/incnote/string.html
+ char *strndup(const char *str, size_t len)
+ {
+     char *dup= (char *)malloc( len+1 );
+     if (dup) {
+         strncpy(dup,str,len);
+         dup[len]= '\0';
+     }
+     return dup;
+  }
+#endif /* HAVE_STRNDUP */
+
+
 struct sc_shellcode *init_shellcode()
 {
 	struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
