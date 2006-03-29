@@ -99,3 +99,17 @@ int32_t stat(const char *file_name, struct _stat *buf)
 
 #endif
 
+#ifndef HAVE_STRNDUP
+#include <string.h>
+#include <stdlib.h>
+
+char *strndup(char *str,unsigned int size)
+{
+	int len = strlen(str) > size ? size : strlen(str);
+	char *retval = (char *)malloc(len+1);
+	memset(retval,0,len+1);
+	memcpy(retval,str,len);
+	return retval;
+}
+#endif
+

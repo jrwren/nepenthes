@@ -11,5 +11,9 @@ extern char *strsep(char **stringp, const char *delim);
 extern int32_t stat(const char *file_name, struct _stat *buf);
 #endif
 
+#ifndef HAVE_STRNDUP
+extern char *strndup(char *str,int size);
+#endif 
+
 #endif 
 
