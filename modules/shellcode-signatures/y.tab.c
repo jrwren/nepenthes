@@ -1617,6 +1617,20 @@ yyreturn:
 #line 254 "parser.y"
 
 
+#ifndef HAVE_STRNDUP
+ // from http://www.unixpapa.com/incnote/string.html
+ char *strndup(const char *str, size_t len)
+ {
+     char *dup= (char *)malloc( len+1 );
+     if (dup) {
+         strncpy(dup,str,len);
+         dup[len]= '\0';
+     }
+     return dup;
+  }
+#endif /* HAVE_STRNDUP */
+
+
 struct sc_shellcode *init_shellcode()
 {
 	struct sc_shellcode *s = (struct sc_shellcode *)malloc(sizeof(struct sc_shellcode));
@@ -1629,6 +1643,27 @@ struct sc_shellcode *init_shellcode()
 	return s;
 }
 
+int free_shellcode(struct sc_shellcode *s)
+{
+	free(s->name);
+	free(s->author);
+	free(s->reference);
+	free(s->pattern);
+   return 0;
+}
+
+int sc_free_shellcodes(struct sc_shellcode *s)
+{
+   struct sc_shellcode *next = s;
+   int i=0;
+   while ((next = s->next) != NULL)
+   {
+      free_shellcode(s);
+      s = next;
+      i++;
+   }
+   return i;
+}
 
 char *sc_get_namespace_by_numeric(int num)
 {
