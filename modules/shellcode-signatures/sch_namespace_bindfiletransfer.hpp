@@ -30,7 +30,7 @@
 #ifndef HAVE_NAMESPACE_BINDFILETRANSFER_HPP
 #define HAVE_NAMESPACE_BINDFILETRANSFER_HPP
 
-#include <stdint.h>
+
 #include "sch_namespace.hpp"
 
 

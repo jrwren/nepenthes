@@ -55,6 +55,7 @@ struct sc_shellcode
 };
 
 extern struct sc_shellcode *sc_parse_file(const char *);
+extern int sc_free_shellcodes(struct sc_shellcode *s);
 extern char *sc_get_error();
 
 extern char *sc_get_namespace_by_numeric(int num);

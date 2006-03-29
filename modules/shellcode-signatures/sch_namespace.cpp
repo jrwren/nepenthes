@@ -63,9 +63,32 @@ NamespaceShellcodeHandler::NamespaceShellcodeHandler(sc_shellcode *sc)
 	}
 	m_MapItems = sc->map_items;
 
-//	m_Author 	= sc->author;
-	m_Pattern 	= sc->pattern;
-//	m_Reference	= sc->reference;
+	if (sc->pattern != NULL)
+	{
+		m_Pattern 	= sc->pattern;
+	}else
+	{
+		m_Pattern 	= "";
+	}
+	
+
+	if (sc->author != NULL)
+	{
+		m_Author 	= sc->author;
+	}else
+	{
+		m_Author 	= "unknown";
+	}
+	
+	
+
+	if (sc->reference != NULL)
+	{
+		m_Reference	= sc->reference;
+	}else
+	{
+		m_Reference = "no docs";
+	}
 
 	m_Pcre = NULL;
 }
@@ -76,11 +99,11 @@ NamespaceShellcodeHandler::~NamespaceShellcodeHandler()
 
 }
 
-
 bool NamespaceShellcodeHandler::Init()
 {
 	const char * pcreEerror;
 	int32_t pcreErrorPos;
+
 	if ( (m_Pcre = pcre_compile(m_Pattern.c_str(), PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL )
 	{
 		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
