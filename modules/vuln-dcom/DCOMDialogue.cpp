@@ -171,7 +171,6 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 				memcpy(reply+47,w2kuuid_sig,sizeof(w2kuuid_sig));
 				msg->getResponder()->doRespond(reply,364);
 				cl =  CL_ASSIGN;
-
 			}else
 			if ( m_Buffer->getSize() >= sizeof(dcom_unknown_req2)  && 
 				 memcmp(dcom_unknown_req2, m_Buffer->getData(), sizeof(dcom_unknown_req2) ) == 0 )
@@ -180,65 +179,29 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 				logSpam("Got DCOM Bindstr followup with %i %i bytes \n",sizeof(dcom_unknown_req2),m_Buffer->getSize());
 				m_Buffer->clear();
 				msg->getResponder()->doRespond(dcom_unknown_rep2,sizeof(dcom_unknown_rep2));
-				break;
 			}
 
 
-			if ( m_Buffer->getSize() < 0x10 + sizeof(uint32_t) )
+			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
+									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
+
+			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
+			delete Msg;
+
+			if ( res == SCH_DONE )
 			{
-				logSpam("Got undersized DCOM Packet! %u \n", m_Buffer->getSize());
-//				g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
-				cl = CL_UNSURE;
+				reply[2] = DCE_PKT_FAULT;
+				memcpy(reply+47,w2kuuid_sig,sizeof(w2kuuid_sig));
+				msg->getResponder()->doRespond(reply,364);
+				m_State = DCOM_DONE;
+				cl =CL_ASSIGN_AND_DONE;
+
 			}
-
-			uint32_t ulShellcodeLength = * ((uint32_t *) ( (char *)m_Buffer->getData() + 0x10)) - 964;
-
-			if ( m_Buffer->getSize() < 880 + ulShellcodeLength )
-			{
-				logSpam("Got undersized DCOM Packet: %u bytes shellcode would require %u bytes Packet, but is %u bytes long.\n", 
-						ulShellcodeLength, ulShellcodeLength + 880, m_Buffer->getSize());
-//				g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
-				cl = CL_UNSURE;
-			} else
-			{
-
-
-				logInfo("DCOM Shellcode starts at byte 0x%04X and is 0x%04X bytes long.\n", 880, ulShellcodeLength);
-
-
-
-				Message *Msg = new Message((char *)m_Buffer->getData()+880, ulShellcodeLength, msg->getLocalPort(), msg->getRemotePort(),
-										   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
-
-				sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
-				delete Msg;
-
-				if ( res == SCH_DONE )
-				{
-					reply[2] = DCE_PKT_FAULT;
-					memcpy(reply+47,w2kuuid_sig,sizeof(w2kuuid_sig));
-					msg->getResponder()->doRespond(reply,364);
-					m_State = DCOM_DONE;
-					cl =CL_ASSIGN_AND_DONE;
-
-				}
-/*
-				else
-				{
-					logDebug("Unknown DCOM Shellcode (%i bytes)\n",msg->getSize());
-					g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
-				}
-*/
-			}
-			
 		}
 		break;
 
 
 	case DCOM_SOL2k_REQUEST:
-		{
-
-		}
 		break;
 
 	case DCOM_DONE:
