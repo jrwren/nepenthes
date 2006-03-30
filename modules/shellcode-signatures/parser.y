@@ -23,6 +23,11 @@
 	static struct sc_shellcode *init_shellcode();
 	
 	static char error_buffer[0xff];
+
+#ifndef HAVE_STRNDUP
+	extern char *strndup(const char *, size_t len);	
+#endif
+	
 %}
 
 
