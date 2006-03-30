@@ -1186,7 +1186,13 @@ bool Nepenthes::reloadConfig()
 bool Nepenthes::changeUser(char *user)
 {
 	passwd * pass;                                
-    
+
+	if (isdigit(*user) != 0)
+	{
+        m_UID = atoi(user);
+		printf("User %s has uid %i\n",user,m_UID);
+		return true;
+	}else
 	if ( (pass = getpwnam(user)) == NULL )
 	{
 		printf("Could not get userid for user '%s'\n",user);
@@ -1271,6 +1277,12 @@ bool Nepenthes::changeGroup(char *gruppe)
 {
 	struct group *grp;
 
+	if (isdigit(*gruppe) != 0)
+	{
+		m_GID = atoi(gruppe);
+		printf("Group %s has gid %i\n",gruppe,m_GID);
+		return true;
+	}else
 	if ( (grp = getgrnam(gruppe)) == NULL )
 	{
 		printf("Could not get groupid for group '%s' (%s)\n",gruppe,strerror(errno));
