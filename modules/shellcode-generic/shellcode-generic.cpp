@@ -108,7 +108,7 @@ GenericShellcodeHandler::GenericShellcodeHandler(Nepenthes *nepenthes)
 
 GenericShellcodeHandler::~GenericShellcodeHandler()
 {
-	Exit();
+
 }
 /*
 struct pcremap
@@ -151,9 +151,9 @@ bool GenericShellcodeHandler::Exit()
 		if ((*handler)->Exit() == false)
 		{
 			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
 		}
 		m_Nepenthes->getShellcodeMgr()->unregisterShellcodeHandler((*handler));
+		delete *handler;
 	}
 	return true;
 }
