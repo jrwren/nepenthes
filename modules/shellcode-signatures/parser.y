@@ -1,20 +1,21 @@
 /* $Id$ */
 %{
-   #define _GNU_SOURCE
-   #include <string.h>
-   #include <stdio.h>
-   #include <memory.h>
-   #include <errno.h>
+	#define _GNU_SOURCE
+	#include <string.h>
+	#include <stdio.h>
+	#include <memory.h>
+	#include <errno.h>
 
-   #include "config.h"
-   #include "parser.h"
-    
+	#include "config.h"
+	#include "parser.h"
+	 
 
 	inline void string_reset();
 	inline char *string_get_buffer();
 	inline int string_get_len();
 
 	extern char *yytext;
+	extern int yyleng;
 	extern FILE *yyin;
 
 	static struct sc_shellcode *shellcodes = NULL;
@@ -57,15 +58,14 @@ body
 shellcode
 	: identifier SC_LBR statements SC_RBR SC_SEMI
 	{
-		int i;
 /*		
 		printf("shellcode:\n");
 
-		printf("\tname               %s\n", shellcodes->name);
-		printf("\tnamespace          %s (%d) \n", sc_get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
-//		printf("\tpattern            %s\n", shellcodes->pattern);
-		printf("\tmap-size           %d\n", shellcodes->map_items);
-		printf("\tmap                ");
+		printf("\tname					%s\n", shellcodes->name);
+		printf("\tnamespace			 %s (%d) \n", sc_get_namespace_by_numeric(shellcodes->nspace), shellcodes->nspace);
+//		printf("\tpattern				%s\n", shellcodes->pattern);
+		printf("\tmap-size			  %d\n", shellcodes->map_items);
+		printf("\tmap					 ");
 
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
@@ -82,6 +82,7 @@ shellcode
 identifier
 	: namespace SC_COLON SC_COLON SC_ID
 	{
+		shellcodes->nspace = $1;
 		shellcodes->name = strndup(string_get_buffer(), string_get_len());
 		string_reset();
 	}
@@ -90,62 +91,62 @@ identifier
 namespace
 	: SC_XOR
 	{
-		shellcodes->nspace = sc_xor;
+		$$ = sc_xor;
 	}
 	|
 	SC_LINKXOR
 	{
-		shellcodes->nspace = sc_linkxor;
+		$$ = sc_linkxor;
 	}
 	|
 	SC_KONSTANZXOR
 	{
-		shellcodes->nspace = sc_konstanzxor;
+		$$ = sc_konstanzxor;
 	}
 	|
 	SC_LEIMBACHXOR
 	{
-		shellcodes->nspace = sc_leimbachxor;
+		$$ = sc_leimbachxor;
 	}
 	|
 	SC_BIND_SHELL
 	{
-		shellcodes->nspace = sc_bindshell;
+		$$ = sc_bindshell;
 	}
 	|
 	SC_CONNECTBACK_SHELL
 	{
-		shellcodes->nspace = sc_connectbackshell;
+		$$ = sc_connectbackshell;
 	}
 	|
 	SC_CONNECTBACK_FILETRANSFER
 	{
-		 shellcodes->nspace = sc_connectbackfiletransfer;
+		$$ = sc_connectbackfiletransfer;
 	}
 	|
 	SC_EXECUTE
 	{
-		shellcodes->nspace = sc_execute;
+		$$ = sc_execute;
 	}
 	|
 	SC_DOWNLOAD
 	{
-		shellcodes->nspace = sc_download;
+		$$ = sc_download;
 	}
 	|
 	SC_URL
 	{
-		shellcodes->nspace = sc_url;
+		$$ = sc_url;
 	}
 	| 
 	SC_BIND_FILETRANSFER
 	{
-		shellcodes->nspace = sc_bindfiletransfer;
+		$$ = sc_bindfiletransfer;
 	}
-    |
+	|
 	SC_BASE64
 	{
-		shellcodes->nspace = sc_base64;
+		$$ = sc_base64;
 	}
 	;
 
@@ -182,67 +183,70 @@ map_values
 map_value_comma_list
 	: /* \epsilon */
 	| SC_COMMA map_value map_value_comma_list
+	{
+		if( shellcodes->map_items < (MAP_MAX - 1) )
+			shellcodes->map[shellcodes->map_items++] = $1;
+	}
 	;
 
 map_value
 	: SC_KEY
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_key;
+		$$ = sc_key;
 	}
 	| SC_SUBKEY
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_subkey;
+		$$ = sc_subkey;
 	}
-    | SC_SIZE
+	| SC_SIZE
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_size;
+		$$ = sc_size;
 	}
 	| SC_SIZEINVERT
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_sizeinvert;
+		$$ = sc_sizeinvert;
 	}
 	| SC_PORT
 	{	
-		 shellcodes->map[shellcodes->map_items++] = sc_port;
+		$$ = sc_port;
 	}
 	| SC_HOST
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_host;
+		$$ = sc_host;
 	}
 	| SC_COMMAND
 	{
-		shellcodes->map[shellcodes->map_items++] = sc_command;
+		$$ = sc_command;
 	}
 	| SC_URI
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_uri;
+	{
+		$$ = sc_uri;
 	}
 	| SC_PCRE
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_pcre;
+	{
+		$$ = sc_pcre;
 	}
 	| SC_PRELOAD
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_pre;
+	{
+		$$ = sc_pre;
 	}
 	| SC_POSTLOAD
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_post;
+	{
+		$$ = sc_post;
 	}
 	| SC_NONE
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_none;
+	{
+		$$ = sc_none;
 	}
 	| SC_HOSTKEY
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_hostkey;
+	{
+		$$ = sc_hostkey;
 	}
 	| SC_PORTKEY
-   {
-	   shellcodes->map[shellcodes->map_items++] = sc_portkey;
+	{
+		$$ = sc_portkey;
 	}
-
-   ;
+	;
 
 pattern
 	: SC_PATTERN SC_STRING strings
@@ -293,20 +297,20 @@ int free_shellcode(struct sc_shellcode *s)
 	free(s->author);
 	free(s->reference);
 	free(s->pattern);
-   return 0;
+	return 0;
 }
 
 int sc_free_shellcodes(struct sc_shellcode *s)
 {
-   struct sc_shellcode *next = s;
-   int i=0;
-   while ((next = s->next) != NULL)
-   {
-      free_shellcode(s);
-      s = next;
-      i++;
-   }
-   return i;
+	struct sc_shellcode *next = s;
+	int i=0;
+	while ((next = s->next) != NULL)
+	{
+		free_shellcode(s);
+		s = next;
+		i++;
+	}
+	return i;
 }
 
 char *sc_get_namespace_by_numeric(int num)
@@ -325,7 +329,7 @@ char *sc_get_namespace_by_numeric(int num)
 		"download",
 		"url",
 		"bindfiletransfer",
-        "base64"
+		"base64"
 	};
 
 	if ( num >= sizeof(namespacemapping)/sizeof(char *) )
@@ -339,7 +343,7 @@ char *sc_get_mapping_by_numeric(int num)
 	static char *mapmapping[]=
 	{
 		"key",
-        "subkey",
+		"subkey",
 		"size",
 		"sizeinvert",
 		"port",

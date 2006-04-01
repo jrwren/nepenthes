@@ -70,7 +70,7 @@ NEWLINE "\n"
 "post"                        { return SC_POSTLOAD; }
 
 
-{LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, strlen(yytext)); return SC_ID; }
+{LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, yyleng); return SC_ID; }
 
 
 "/*"								{ BEGIN(comment); }
@@ -94,7 +94,7 @@ NEWLINE "\n"
 	sscanf(hexval, "%x", &c);
 	string_append((char *)&c, 1);
 }
-<string>[^\"\\]*					{ string_append(yytext, strlen(yytext)); }
+<string>[^\"\\]*					{ string_append(yytext, yyleng); }
 
 "//"[^\n]*							{ }
 
@@ -107,15 +107,11 @@ void string_append(char *s, int len)
 {
 	while( string_len + len > string_cap )
 	{
-		printf("enlarging from %d", string_cap);
-
 		if( string_cap == 0 )
 			string_cap = 0x10;
 		else
 			string_cap *= 2;
 			
-		printf(" to %d\n", string_cap);
-		
 		string_buffer = realloc(string_buffer, string_cap);
 	}
 	
