@@ -123,6 +123,7 @@ sch_result NamespaceLinkXOR::handleShellcode(Message **msg)
 
 			case sc_key:
 				logSpam("sc_key %i\n",matchSize);
+				keyMatch = match;
 				byteKey = *(byte *)match;
 				break;
 

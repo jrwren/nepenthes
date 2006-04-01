@@ -78,22 +78,24 @@ bool SignatureShellcodeHandler::Init()
 {
 	m_ModuleManager 	= m_Nepenthes->getModuleMgr();
 
-g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(new EngineUnicode());
+	g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(new EngineUnicode());
 	return loadSignaturesFromFile(string("var/cache/nepenthes/signatures/shellcode-signatures.sc"));
 }
 
 bool SignatureShellcodeHandler::Exit()
 {
+	logPF();
 	list <ShellcodeHandler *>::iterator handler;
 	for (handler = m_ShellcodeHandlers.begin(); handler != m_ShellcodeHandlers.end(); handler++)
 	{
 		if ((*handler)->Exit() == false)
 		{
 			logCrit("ERROR %s\n",__PRETTY_FUNCTION__);
-			return false;
 		}
 		m_Nepenthes->getShellcodeMgr()->unregisterShellcodeHandler((*handler));
+		delete *handler;
 	}
+	m_ShellcodeHandlers.clear();
 	return true;
 }
 
@@ -182,7 +184,7 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 				load_success = false;
 			}else
 			{
-				g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(sch);
+				m_ShellcodeHandlers.push_front(sch);
 			}
 		}
 
@@ -192,6 +194,14 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 	int freed_shellcode = sc_free_shellcodes(sc_free);
 
 	logSpam("Free'd %i shellcodes\n",freed_shellcode); 
+
+
+	list <ShellcodeHandler *>::iterator it;
+
+	for (it = m_ShellcodeHandlers.begin(); it != m_ShellcodeHandlers.end(); it++)
+	{
+		g_Nepenthes->getShellcodeMgr()->registerShellcodeHandler(*it);
+	}
 
 	return load_success;
 
