@@ -282,18 +282,18 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
 	*yy_cp = '\0'; \
 	yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 57
-#define YY_END_OF_BUFFER 58
+#define YY_NUM_RULES 58
+#define YY_END_OF_BUFFER 59
 static yyconst short int yy_accept[219] =
     {   0,
-       55,   55,   40,   40,   53,   53,   58,   57,   55,   56,
-       44,    1,    2,    7,   57,    6,    5,   38,   38,   38,
+       56,   56,   40,   40,   53,   53,   59,   58,   56,   57,
+       44,    1,    2,    7,   58,    6,    5,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   38,   38,   38,
        38,   38,   38,    3,    4,   40,   43,   42,   53,   45,
-       57,   55,   39,   54,   38,   38,   38,   38,   38,   38,
+       54,   56,   39,   55,   38,   38,   38,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   40,   42,   41,
-       53,   49,   50,   51,   46,   47,   48,    0,   54,   38,
+       53,   49,   50,   51,   46,   47,   48,    0,   55,   38,
        38,   38,   38,   38,   38,   38,   38,   28,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   36,   38,   38,
 
@@ -1031,25 +1031,30 @@ YY_RULE_SETUP
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 99 "parser.l"
+#line 98 "parser.l"
 { }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 101 "parser.l"
+#line 100 "parser.l"
 { }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
 #line 102 "parser.l"
-{ line_number++; }
+{ }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 104 "parser.l"
+#line 103 "parser.l"
+{ line_number++; }
+	YY_BREAK
+case 58:
+YY_RULE_SETUP
+#line 105 "parser.l"
 ECHO;
 	YY_BREAK
-#line 1053 "lex.yy.c"
+#line 1058 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 case YY_STATE_EOF(string):
@@ -1932,7 +1937,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 104 "parser.l"
+#line 105 "parser.l"
 
 
 void string_append(char *s, int len)

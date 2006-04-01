@@ -95,6 +95,7 @@ NEWLINE "\n"
 	string_append((char *)&c, 1);
 }
 <string>[^\"\\]*					{ string_append(yytext, yyleng); }
+<string>"\\"						{ }
 
 "//"[^\n]*							{ }
 
