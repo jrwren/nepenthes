@@ -102,8 +102,6 @@ bool ModuleManager::Init()
         exit(-1);
     }
 
-	map< const char *, ConfigItem *, confltstr >::iterator itLevServer;
-	map< const char *, ConfigItem *, confltstr > pmLevel;
 	StringList sList;
 	sList = *m_Nepenthes->getConfig()->getValStringList("nepenthes.modules");
 
@@ -174,6 +172,7 @@ bool ModuleManager::Exit()
 	while(m_Modules.size() > 0)
 	{
 		void *handle = m_Modules.front()->getDlHandle();
+		m_Modules.front()->Exit();
 		if(m_Modules.front()->getConfig() != NULL)
         	delete m_Modules.front()->getConfig();
 		
