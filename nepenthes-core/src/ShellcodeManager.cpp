@@ -122,7 +122,17 @@ bool ShellcodeManager::registerShellcodeHandler(ShellcodeHandler *handler)
  */
 bool ShellcodeManager::unregisterShellcodeHandler(ShellcodeHandler *handler)
 {
-	return true;
+	list <ShellcodeHandler *>::iterator shandler;
+	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++)
+	{
+		if (*shandler == handler)
+		{
+			logSpam("Removing %s\n",(*shandler)->getShellcodeHandlerName().c_str());
+			m_ShellcodeHandlers.erase(shandler);
+			return true;
+		}
+	}
+	return false;
 }  
 
 
