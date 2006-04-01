@@ -102,6 +102,8 @@ NEWLINE "\n"
 {DELIM}*							{ }
 {NEWLINE}							{ line_number++; }
 
+.									{ /* catch all */ }
+
 %%
 
 void string_append(char *s, int len)

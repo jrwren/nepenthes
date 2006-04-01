@@ -282,11 +282,11 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
 	*yy_cp = '\0'; \
 	yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 58
-#define YY_END_OF_BUFFER 59
+#define YY_NUM_RULES 59
+#define YY_END_OF_BUFFER 60
 static yyconst short int yy_accept[219] =
     {   0,
-       56,   56,   40,   40,   53,   53,   59,   58,   56,   57,
+       56,   56,   40,   40,   53,   53,   60,   58,   56,   57,
        44,    1,    2,    7,   58,    6,    5,   38,   38,   38,
        38,   38,   38,   38,   38,   38,   38,   38,   38,   38,
        38,   38,   38,    3,    4,   40,   43,   42,   53,   45,
@@ -1052,9 +1052,14 @@ YY_RULE_SETUP
 case 58:
 YY_RULE_SETUP
 #line 105 "parser.l"
+{ /* catch all */ }
+	YY_BREAK
+case 59:
+YY_RULE_SETUP
+#line 107 "parser.l"
 ECHO;
 	YY_BREAK
-#line 1058 "lex.yy.c"
+#line 1063 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 case YY_STATE_EOF(string):
@@ -1937,7 +1942,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 105 "parser.l"
+#line 107 "parser.l"
 
 
 void string_append(char *s, int len)
