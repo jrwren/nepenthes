@@ -67,6 +67,7 @@ shellcode
 		printf("\tmap-size			  %d\n", shellcodes->map_items);
 		printf("\tmap					 ");
 
+      int i;
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
 			printf("%s (%d) ", sc_get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
@@ -185,7 +186,7 @@ map_value_comma_list
 	| SC_COMMA map_value map_value_comma_list
 	{
 		if( shellcodes->map_items < (MAP_MAX - 1) )
-			shellcodes->map[shellcodes->map_items++] = $1;
+			shellcodes->map[shellcodes->map_items++] = $2;
 	}
 	;
 
