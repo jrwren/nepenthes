@@ -80,6 +80,7 @@ gotekCTRLDialogue::gotekCTRLDialogue(Socket *socket, string serverHost, GotekSub
 
 gotekCTRLDialogue::~gotekCTRLDialogue()
 {
+	m_HandlingFather->childConnectionLost();	
 	delete m_Buffer;
 }
 
@@ -95,6 +96,8 @@ gotekCTRLDialogue::~gotekCTRLDialogue()
  */
 ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 {
+	logPF();
+
 	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 	switch (m_State)
@@ -170,11 +173,14 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 		{			
 			if (*(unsigned char *)m_Buffer->getData() == 0xaa) 		// new file
 			{
+				logSpam("%s\n", "G.O.T.E.K. New File");
 				g_GotekSubmitHandler->sendGote();
 				m_Buffer->cut(1);
 			}else
 			if ( *(unsigned char *)m_Buffer->getData() == 0x55 )	// file is known
 			{
+
+				logSpam("%s\n", "G.O.T.E.K. Known File");
 				g_GotekSubmitHandler->popGote();
 				m_Buffer->cut(1);
 			}else
@@ -225,6 +231,7 @@ ConsumeLevel gotekCTRLDialogue::outgoingData(Message *msg)
  */
 ConsumeLevel gotekCTRLDialogue::handleTimeout(Message *msg)
 {
+	logPF();
 	return CL_DROP;
 }
 
@@ -239,7 +246,7 @@ ConsumeLevel gotekCTRLDialogue::handleTimeout(Message *msg)
  */
 ConsumeLevel gotekCTRLDialogue::connectionLost(Message *msg)
 {
-	m_HandlingFather->childConnectionLost();	
+	logPF();
 	return CL_DROP;
 }
 
@@ -253,6 +260,7 @@ ConsumeLevel gotekCTRLDialogue::connectionLost(Message *msg)
  */
 ConsumeLevel gotekCTRLDialogue::connectionShutdown(Message *msg)
 {
-	return connectionLost(msg);
+	logPF();
+	return CL_DROP;
 }
 
