@@ -383,11 +383,11 @@ static const yysigned_char yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,    53,    53,    55,    59,    84,    93,    98,   103,   108,
-     113,   118,   123,   128,   133,   138,   143,   148,   154,   156,
-     160,   164,   165,   166,   170,   177,   181,   184,   186,   194,
-     198,   202,   206,   210,   214,   218,   222,   226,   230,   234,
-     238,   242,   246,   253,   261,   263
+       0,    53,    53,    55,    59,   100,   109,   114,   119,   124,
+     129,   134,   139,   144,   149,   154,   159,   164,   170,   172,
+     176,   180,   181,   182,   186,   193,   197,   204,   206,   214,
+     218,   222,   226,   230,   234,   238,   242,   246,   250,   254,
+     258,   262,   266,   273,   281,   283
 };
 #endif
 
@@ -1162,7 +1162,23 @@ yyreduce:
         case 4:
 #line 60 "parser.y"
     {
-/*		
+
+      int mapinverse[MAP_MAX];
+      int i,j;
+
+		for( i = 0, j=shellcodes->map_items-1; i < shellcodes->map_items; i++,j-- )
+		{
+         printf(" i = %i j = %i value %i\n",i,j,shellcodes->map[i]);
+         mapinverse[j] = shellcodes->map[i];
+      }
+
+      for( i = 0 ; i < shellcodes->map_items; i++)
+		{
+         shellcodes->map[i] = mapinverse[i];
+      }
+
+
+
 		printf("shellcode:\n");
 
 		printf("\tname					%s\n", shellcodes->name);
@@ -1171,21 +1187,21 @@ yyreduce:
 		printf("\tmap-size			  %d\n", shellcodes->map_items);
 		printf("\tmap					 ");
 
-      int i;
+      
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
 			printf("%s (%d) ", sc_get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
 		}
 
 		printf("\n\n");
-*/
+
 		/* prepare for the next one */
 		init_shellcode();
 	}
     break;
 
   case 5:
-#line 85 "parser.y"
+#line 101 "parser.y"
     {
 		shellcodes->nspace = (yyvsp[-3]);
 		shellcodes->name = strndup(string_get_buffer(), string_get_len());
@@ -1194,98 +1210,106 @@ yyreduce:
     break;
 
   case 6:
-#line 94 "parser.y"
+#line 110 "parser.y"
     {
 		(yyval) = sc_xor;
 	}
     break;
 
   case 7:
-#line 99 "parser.y"
+#line 115 "parser.y"
     {
 		(yyval) = sc_linkxor;
 	}
     break;
 
   case 8:
-#line 104 "parser.y"
+#line 120 "parser.y"
     {
 		(yyval) = sc_konstanzxor;
 	}
     break;
 
   case 9:
-#line 109 "parser.y"
+#line 125 "parser.y"
     {
 		(yyval) = sc_leimbachxor;
 	}
     break;
 
   case 10:
-#line 114 "parser.y"
+#line 130 "parser.y"
     {
 		(yyval) = sc_bindshell;
 	}
     break;
 
   case 11:
-#line 119 "parser.y"
+#line 135 "parser.y"
     {
 		(yyval) = sc_connectbackshell;
 	}
     break;
 
   case 12:
-#line 124 "parser.y"
+#line 140 "parser.y"
     {
 		(yyval) = sc_connectbackfiletransfer;
 	}
     break;
 
   case 13:
-#line 129 "parser.y"
+#line 145 "parser.y"
     {
 		(yyval) = sc_execute;
 	}
     break;
 
   case 14:
-#line 134 "parser.y"
+#line 150 "parser.y"
     {
 		(yyval) = sc_download;
 	}
     break;
 
   case 15:
-#line 139 "parser.y"
+#line 155 "parser.y"
     {
 		(yyval) = sc_url;
 	}
     break;
 
   case 16:
-#line 144 "parser.y"
+#line 160 "parser.y"
     {
 		(yyval) = sc_bindfiletransfer;
 	}
     break;
 
   case 17:
-#line 149 "parser.y"
+#line 165 "parser.y"
     {
 		(yyval) = sc_base64;
 	}
     break;
 
   case 24:
-#line 171 "parser.y"
+#line 187 "parser.y"
     {
 		printf("flags none...\n");
 	}
     break;
 
+  case 26:
+#line 198 "parser.y"
+    {
+		if( shellcodes->map_items < (MAP_MAX - 1) )
+			shellcodes->map[shellcodes->map_items++] = (yyvsp[-1]);
+	}
+    break;
+
   case 28:
-#line 187 "parser.y"
+#line 207 "parser.y"
     {
 		if( shellcodes->map_items < (MAP_MAX - 1) )
 			shellcodes->map[shellcodes->map_items++] = (yyvsp[-1]);
@@ -1293,105 +1317,105 @@ yyreduce:
     break;
 
   case 29:
-#line 195 "parser.y"
+#line 215 "parser.y"
     {
 		(yyval) = sc_key;
 	}
     break;
 
   case 30:
-#line 199 "parser.y"
+#line 219 "parser.y"
     {
 		(yyval) = sc_subkey;
 	}
     break;
 
   case 31:
-#line 203 "parser.y"
+#line 223 "parser.y"
     {
 		(yyval) = sc_size;
 	}
     break;
 
   case 32:
-#line 207 "parser.y"
+#line 227 "parser.y"
     {
 		(yyval) = sc_sizeinvert;
 	}
     break;
 
   case 33:
-#line 211 "parser.y"
+#line 231 "parser.y"
     {	
 		(yyval) = sc_port;
 	}
     break;
 
   case 34:
-#line 215 "parser.y"
+#line 235 "parser.y"
     {
 		(yyval) = sc_host;
 	}
     break;
 
   case 35:
-#line 219 "parser.y"
+#line 239 "parser.y"
     {
 		(yyval) = sc_command;
 	}
     break;
 
   case 36:
-#line 223 "parser.y"
+#line 243 "parser.y"
     {
 		(yyval) = sc_uri;
 	}
     break;
 
   case 37:
-#line 227 "parser.y"
+#line 247 "parser.y"
     {
 		(yyval) = sc_pcre;
 	}
     break;
 
   case 38:
-#line 231 "parser.y"
+#line 251 "parser.y"
     {
 		(yyval) = sc_pre;
 	}
     break;
 
   case 39:
-#line 235 "parser.y"
+#line 255 "parser.y"
     {
 		(yyval) = sc_post;
 	}
     break;
 
   case 40:
-#line 239 "parser.y"
+#line 259 "parser.y"
     {
 		(yyval) = sc_none;
 	}
     break;
 
   case 41:
-#line 243 "parser.y"
+#line 263 "parser.y"
     {
 		(yyval) = sc_hostkey;
 	}
     break;
 
   case 42:
-#line 247 "parser.y"
+#line 267 "parser.y"
     {
 		(yyval) = sc_portkey;
 	}
     break;
 
   case 43:
-#line 254 "parser.y"
+#line 274 "parser.y"
     {
 		shellcodes->pattern = strndup(string_get_buffer(), string_get_len());
 		shellcodes->pattern_size = string_get_len();
@@ -1403,7 +1427,7 @@ yyreduce:
     }
 
 /* Line 1037 of yacc.c.  */
-#line 1407 "y.tab.c"
+#line 1431 "y.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -1631,7 +1655,7 @@ yyreturn:
 }
 
 
-#line 266 "parser.y"
+#line 286 "parser.y"
 
 
 #ifndef HAVE_STRNDUP
