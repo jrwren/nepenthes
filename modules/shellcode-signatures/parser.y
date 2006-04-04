@@ -58,7 +58,23 @@ body
 shellcode
 	: identifier SC_LBR statements SC_RBR SC_SEMI
 	{
-/*		
+
+      int mapinverse[MAP_MAX];
+      int i,j;
+
+		for( i = 0, j=shellcodes->map_items-1; i < shellcodes->map_items; i++,j-- )
+		{
+//         printf(" i = %i j = %i value %i\n",i,j,shellcodes->map[i]);
+         mapinverse[j] = shellcodes->map[i];
+      }
+
+      for( i = 0 ; i < shellcodes->map_items; i++)
+		{
+         shellcodes->map[i] = mapinverse[i];
+      }
+
+
+/*
 		printf("shellcode:\n");
 
 		printf("\tname					%s\n", shellcodes->name);
@@ -67,7 +83,7 @@ shellcode
 		printf("\tmap-size			  %d\n", shellcodes->map_items);
 		printf("\tmap					 ");
 
-      int i;
+      
 		for( i = 0; i < shellcodes->map_items; i++ )
 		{
 			printf("%s (%d) ", sc_get_mapping_by_numeric(shellcodes->map[i]),shellcodes->map[i]);
@@ -179,7 +195,10 @@ mapping
 
 map_values
 	: map_value map_value_comma_list
-	;
+	{
+		shellcodes->map[shellcodes->map_items++] = $1;
+	}
+   ;
 
 map_value_comma_list
 	: /* \epsilon */
