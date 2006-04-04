@@ -116,7 +116,7 @@ sch_result NamespaceXOR::handleShellcode(Message **msg)
 				logSpam("sc_pre %i\n",matchSize);
 				break;
 
-			case sc_pcre:
+			case sc_decoder:
 				decoderMatch = match;
 				decoderSize = matchSize;
 				logSpam("sc_pcre %i\n",matchSize);

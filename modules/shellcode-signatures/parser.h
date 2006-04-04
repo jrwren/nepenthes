@@ -29,7 +29,7 @@ enum sc_mapping
 	sc_host,
 	sc_command,
 	sc_uri,
-	sc_pcre,
+	sc_decoder,
 	sc_pre,
 	sc_post,
 	sc_none,

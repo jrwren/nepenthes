@@ -43,7 +43,7 @@ xor::rbot64k
 	pattern
 	"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(.)"
 	"\\xFF\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 
@@ -53,7 +53,7 @@ xor::rbot256c
 	pattern
 	"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\xB1(.)\\x80"
 	"\\x73\\x0C(.)\\x43\\xE2\\xF9)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 xor::bielefeld
@@ -61,7 +61,7 @@ xor::bielefeld
 	pattern
 	"(.*)(\\xEB\\x10\\x5A\\x4A\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0A(.)\\xE2\\xFA"
 	"\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 xor::halle
@@ -69,7 +69,7 @@ xor::halle
 	pattern
 	"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x5B\\x31\\xC9\\x66\\xB9(..)"
 	"\\x80\\x73\\x0E(.)\\x43\\xE2\\xF9)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 
@@ -78,7 +78,7 @@ xor::adenau
 	pattern
 	"(.*)(\\xEB\\x19\\x5E\\x31\\xC9\\x81\\xE9(....)\\x81\\x36(....)\\x81\\xEE\\xFC"
 	"\\xFF\\xFF\\xFF\\xE2\\xF2\\xEB\\x05\\xE8\\xE2\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,sizeinvert,key,post);
+	mapping (none,pre,decoder,sizeinvert,key,post);
 };
 
 
@@ -88,7 +88,7 @@ xor::kaltenborn
 	pattern
 	"(.*)(\\xEB\\x03\\x5D\\xEB\\x05\\xE8\\xF8\\xFF\\xFF\\xFF\\x8B\\xC5\\x83\\xC0\\x11"
 	"\\x33\\xC9\\x66\\xB9(..)\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 xor::deggendorf
@@ -96,7 +96,7 @@ xor::deggendorf
 	pattern
 	"(.*)(\\xEB\\x10\\x5A\\x4A\\x31\\xC9\\x66\\xB9\(..)\\x80\\x34\\x0A(.)\\xE2\\xFA"
 	"\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post); 
+	mapping (none,pre,decoder,size,key,post); 
 };
 
 
@@ -105,7 +105,7 @@ xor::langenfeld
 	pattern
 	"(.*)(\\xEB\\x0F\\x5B\\x33\\xC9\\x66\\xB9(..)\\x80\\x33(.)\\x43\\xE2\\xFA\\xEB"
 	"\\x05\\xE8\\xEC\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post);     
+	mapping (none,pre,decoder,size,key,post);     
 };
 
 xor::saalfeld
@@ -113,7 +113,7 @@ xor::saalfeld
 	pattern
 	"(.*)(\\xEB\\x03\\x5D\\xEB\\x05\\xE8\\xF8\\xFF\\xFF\\xFF\\x83\\xC5\\x15\\x90\\x90"
 	"\\x90\\x8B\\xC5\\x33\\xC9\\x66\\xB9(..)\\x50\\x80\\x30(.)\\x40\\xE2\\xFA)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };  
 
 xor::schoenberg
@@ -121,7 +121,7 @@ xor::schoenberg
 	pattern
 	"(.*)(\\x31\\xC9\\x83\\xE9(.)\\xD9\\xEE\\xD9\\x74\\x24\\xF4\\x5B\\x81\\x73\\x13(....)"
 	"\\x83\\xEB\\xFC\\xE2\\xF4)(.*)$";
-	mapping (none,pre,pcre,sizeinvert,key,post);
+	mapping (none,pre,decoder,sizeinvert,key,post);
 };
 
 xor::rosengarten
@@ -129,7 +129,7 @@ xor::rosengarten
 	pattern
 	"(.*)(\\x33\\xC0\\xF7\\xD0\\x8B\\xFC\\xF2\\xAF\\x57\\x33\\xC9\\xB1(.)\\x90\\x90\\x90"
 	"\\x90\\x80\\x37(.)\\x47\\xE2\\xFA.*\\xFF\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 
 xor::schauenburg
@@ -137,7 +137,7 @@ xor::schauenburg
 	pattern
 	"(.*)(\\xEB\\x0F\\x8B\\x34\\x24\\x33\\xC9\\x80\\xC1(.)\\x80\\x36(.)\\x46\\xE2\\xFA"
 	"\\xC3\\xE8\\xEC\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post); 
+	mapping (none,pre,decoder,size,key,post); 
 };
 
 
@@ -147,7 +147,7 @@ xor::lichtenfels
 	"(.*)(\\xEB\\x02\\xEB\\x05\\xE8\\xF9\\xFF\\xFF\\xFF\\x58\\x83\\xC0\\x1B\\x8D\\xA0"
 	"\\x01\\xFC\\xFF\\xFF\\x83\\xE4\\xFC\\x8B\\xEC\\x33\\xC9\\x66\\xB9(..)\\x80\\x30(.)"
 	"\\x40\\xE2\\xFA)(.*)$";
-	mapping (none,pre,pcre,size,key,post); 
+	mapping (none,pre,decoder,size,key,post); 
 };
 
 
@@ -156,7 +156,7 @@ xor::msfPexEnvSub
 	pattern
 	"(.*)(\\xC9\\x83\\xE9(.)\\xD9\\xEE\\xD9\\x74\\x24\\xF4\\x5B\\x81\\x73\\x13(....)\\x83"
 	"\\xEB\\xFC\\xE2\\xF4)(.*)$";
-	mapping (none,pre,pcre,sizeinvert,key,post);
+	mapping (none,pre,decoder,sizeinvert,key,post);
 };
 
 
@@ -166,7 +166,7 @@ xor::msfPex
 	pattern
 	"(.*)(\\x2B\\xC9\\x83\\xE9(.)\\xE8\\xFF\\xFF\\xFF\\xFF\\xC0\\x5E\\x81\\x76\\x0E(....)"
 	"\\x83\\xEE\\xFC\\xE2\\xF4)(.*)$";
-	mapping (none,pre,pcre,sizeinvert,key,post);
+	mapping (none,pre,decoder,sizeinvert,key,post);
 };
 
 
@@ -175,7 +175,7 @@ xor::leimbach
 	pattern
 	"(.*)(\\xEB\\x0E\\x5B\\x4B\\x33\\xC9\\xB1(.)\\x80\\x34\\x0B(.)\\xE2\\xFA\\xEB\\x05\\xE8"
 	"\\xED\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,post); 
+	mapping (none,pre,decoder,size,key,post); 
 };
 
 /*
@@ -185,7 +185,7 @@ xor::mwcollect
 {
 	pattern
 	"(.*)(\\xEB.\\xEB.\\xE8.*\\xB1(.).*\\x80..(.).*\\xE2.)(.*)$";
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 */
 
@@ -194,7 +194,7 @@ xor::hod
 	pattern
 	"(.*)(\\xEB\\x10\\x5B\\x4B\\x33\\xC9\\x66\\xB9(..)\\x80\\x34\\x0B(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xEB\\xFF\\xFF\\xFF)(.*)$";
 	
-	mapping (none,pre,pcre,size,key,post);
+	mapping (none,pre,decoder,size,key,post);
 };
 	
 
@@ -208,7 +208,7 @@ wuerzburgxor::wuerzburg
 	"(.*\\xEB\\x27......)(\\x5D\\x33\\xC9\\x66\\xB9(..)\\x8D\\x75\\x05\\x8B\\xFE\\x8A"
 	"\\x06\\x3C(.)\\x75\\x05\\x46\\x8A\\x06\\x2C(.)\\x46\\x34(.)\\x88\\x07\\x47\\xE2\\xED\\xEB\\x0A\\xE8"
 	"\\xDA\\xFF\\xFF\\xFF)(.*)$";
-	mapping (none,pre,pcre,size,key,subkey,none,post);
+	mapping (none,pre,decoder,size,key,subkey,none,post);
 };
 */
 	

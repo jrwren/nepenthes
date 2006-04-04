@@ -43,7 +43,7 @@ SC_URL
 SC_BASE64
 SC_KEY SC_SUBKEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
-SC_PCRE SC_PRELOAD SC_POSTLOAD
+SC_DECODER SC_PRELOAD SC_POSTLOAD
 SC_HOSTKEY SC_PORTKEY
 
 %start body
@@ -227,9 +227,9 @@ map_value
 	{
 		$$ = sc_uri;
 	}
-	| SC_PCRE
+	| SC_DECODER
 	{
-		$$ = sc_pcre;
+		$$ = sc_decoder;
 	}
 	| SC_PRELOAD
 	{
@@ -355,7 +355,7 @@ char *sc_get_mapping_by_numeric(int num)
 		"host",
 		"command",
 		"uri",
-		"pcre",
+		"decoder",
 		"pre",
 		"post",
 		"none",

@@ -65,7 +65,7 @@ NEWLINE "\n"
 "port"								{ return SC_PORT; }
 "command"							{ return SC_COMMAND; }
 "uri"			   					{ return SC_URI; }
-"pcre"                        { return SC_PCRE; }
+"decoder"                        { return SC_DECODER; }
 "pre"                         { return SC_PRELOAD; }
 "post"                        { return SC_POSTLOAD; }
 
