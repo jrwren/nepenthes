@@ -27,11 +27,7 @@
 
 /* $Id$ */
 
-#ifdef WIN32
-
-#else
 #include <dlfcn.h>
-#endif
 
 #include "ModuleManager.hpp"
 #include "Module.hpp"
@@ -164,24 +160,18 @@ bool ModuleManager::Init()
  */
 bool ModuleManager::Exit()
 {
-/*	list<Module *>::iterator it;
-	for( it = m_Modules.begin(); it != m_Modules.end(); it++ )
-		unregisterModule(&(*it)->getModuleName());
-*/
-
-	while(m_Modules.size() > 0)
+	while ( m_Modules.size() > 0 )
 	{
 		void *handle = m_Modules.front()->getDlHandle();
 		m_Modules.front()->Exit();
-		if(m_Modules.front()->getConfig() != NULL)
+
+		if ( m_Modules.front()->getConfig() != NULL )
+		{
         	delete m_Modules.front()->getConfig();
-		
-        delete m_Modules.front();
-#ifdef WIN32
-		FreeLibrary((HINSTANCE)handle);
-#else
+		}
+
+		delete m_Modules.front();
 		dlclose(handle);
-#endif
 		m_Modules.pop_front();
 	}
 	return true;
@@ -201,39 +191,12 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
 {
 	bool retval=true;
 
-#ifdef WIN32
-	HMODULE handle;
-#else
     void *handle;
-#endif
 
     typedef int32_t (*module_init_proc)(int32_t, Module**, Nepenthes *);
     module_init_proc module_init;
 
-#ifdef WIN32
-	handle = LoadLibrary(modulepath->c_str());
-    if ( handle == NULL )
-    {
-
-		LPVOID lpMsgBuf;
-		FormatMessage( 
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM | 
-			FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL,
-			GetLastError(),
-			0, // Default language
-			(LPTSTR) &lpMsgBuf,
-			0,
-			NULL 
-		);
-        printf("LoadLibary %s\n",(char *)lpMsgBuf);
-        logCrit("%s\n","handle == NULL ");
-        return false;
-    }
-
-#else    
-	handle = dlopen (modulepath->c_str(), RTLD_NOW);
+	handle = dlopen (modulepath->c_str(), RTLD_NOW|RTLD_LOCAL);
 
     if ( handle == NULL )
     {
@@ -241,23 +204,12 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
         logCrit("%s\n","handle == NULL ");
         return false;
     }
-#endif
 
-#ifdef WIN32
-	(FARPROC&) module_init = GetProcAddress(handle, "module_init");
-#else
     module_init = (module_init_proc)dlsym(handle, "module_init");
-#endif
     if ( module_init == NULL )
     {
         logCrit("%s\n","module_init == NULL" );
-
-#ifdef WIN32
-		FreeLibrary((HMODULE) handle);
-#else
         dlclose (handle);
-#endif
-
         return false;
     }
 
@@ -266,11 +218,7 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
     {
 
         logCrit("%s\n","module_init() != 1" );
-#ifdef WIN32
-
-#else
         dlclose (handle);
-#endif
         return false;
     }
     newmodule->setDlHandle(handle);
@@ -303,11 +251,7 @@ bool ModuleManager::registerModule(string *modulepath, string *configpath)
 	{
 		logCrit("Loading Module %s failed, Module->Init() returned false\n", modulepath->c_str());
 		delete newmodule;
-#ifdef WIN32
-		
-#else
 		dlclose (handle);
-#endif
 		return false;
 	}
 

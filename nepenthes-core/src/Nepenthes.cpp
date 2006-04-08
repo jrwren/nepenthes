@@ -749,14 +749,14 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 	}
 
-	if( run == true )
-	{
-        doLoop();
-	}else
 	if (filecheck)
 	{
 		show_version();
 		fileCheckMain(filecheckarg,argc,optind,argv);
+	}
+	if( run == true )
+	{
+        doLoop();
 	}
 
 
