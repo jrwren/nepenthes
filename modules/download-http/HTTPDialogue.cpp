@@ -184,6 +184,7 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 		logSpam("FOUND HEADER (size %i)\n",end-start);
 		logSpam("%.*s",end-start,start);
 // FIXME PARSE HEADER
+/*
 		string httpheader(start,headersize);
 
 		int contentoffsetstart=0;
@@ -213,7 +214,7 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 				}
 			}
 		}
-		
+*/		
 	}
 	m_Download->getDownloadBuffer()->cutFront((uint32_t)(end-start)+2);
 
