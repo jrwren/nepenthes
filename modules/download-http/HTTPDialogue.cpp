@@ -180,11 +180,12 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 	if ( end != NULL )
 	{
 		end += 2;
-		int headersize = end-start;
+		
 		logSpam("FOUND HEADER (size %i)\n",end-start);
 		logSpam("%.*s",end-start,start);
 // FIXME PARSE HEADER
 /*
+	int headersize = end-start;
 		string httpheader(start,headersize);
 
 		int contentoffsetstart=0;
