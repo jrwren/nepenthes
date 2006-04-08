@@ -162,6 +162,18 @@ AC_FUNC_ERROR_AT_LINE
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([strndup alarm bzero gethostbyname gethostname gettimeofday inet_ntoa localtime_r memmove memset munmap select socket strcasecmp strdup strerror strncasecmp strstr strtoul setresgid setresuid])
 
+
+dnl **************************************************
+dnl * debug logging                                  *
+dnl **************************************************
+AC_ARG_ENABLE(debug-logging, [  --enable-debug-logging		spam the console and logfile with all debug information  [default=no]], 
+		    enable_debug_logging="$enableval", enable_debug_logging="no")
+
+if test x$enable_debug_logging = "xyes"; then
+	AC_DEFINE([HAVE_DEBUG_LOGGING], [1], [Define to 1 if you need debug logging])
+fi	
+
+
 # Checks for generic libraries.
 
 dnl **************************************************
@@ -903,6 +915,8 @@ AC_OUTPUT
 
 echo
 echo "*** Dumping Nepenthes Configuration ***"
+echo "- Debug Logging               : $enable_debug_logging"
+echo ""
 echo "- DNS Resolve                 "
 echo "  - Support adns              : $enable_dnsresolve_adns"
 echo ""

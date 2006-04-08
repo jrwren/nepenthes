@@ -71,36 +71,26 @@ typedef unsigned char byte;
 /* log shortcuts */
 //#define DEBUG 1
 
-#ifdef WIN32
-
-//#define __PRETTY_FUNCTION__ "FOO
 #define logWrite(mask, format, ...) g_Nepenthes->getLogMgr()->logf(mask,format, __VA_ARGS__)
 
+#ifdef HAVE_DEBUG_LOGGING
 #define logSpam(format, ...) logWrite(l_spam 	| STDTAGS , format, __VA_ARGS__)
 #define logDebug(format, ...) logWrite(l_debug	| STDTAGS , format, __VA_ARGS__)
+#else	// HAVE_DEBUG_LOGGING
+#define logSpam(format, ...) 
+#define logDebug(format, ...)
+#endif	// HAVE_DEBUG_LOGGING
+
 #define logInfo(format, ...) logWrite(l_info	| STDTAGS , format, __VA_ARGS__)
 #define logWarn(format, ...) logWrite(l_warn	| STDTAGS , format, __VA_ARGS__)
 #define logCrit(format, ...) logWrite(l_crit	| STDTAGS , format, __VA_ARGS__)
-#define logPF() logInfo("<in %s>\n", __PRETTY_FUNCTION__)
 
-
-
-#else
-
-#ifndef DEBUG
-#define logWrite(mask, format, ...) g_Nepenthes->getLogMgr()->logf(mask,format, __VA_ARGS__)
-#else
-#define logWrite(mask, format, ...) printf("%s:%i ",__FILE__,__LINE__); g_Nepenthes->getLogMgr()->logf(mask,format, __VA_ARGS__)
-#endif 
-
-#define logSpam(format, ...) logWrite(l_spam 	| STDTAGS , format, __VA_ARGS__)
-#define logDebug(format, ...) logWrite(l_debug	| STDTAGS , format, __VA_ARGS__)
-#define logInfo(format, ...) logWrite(l_info	| STDTAGS , format, __VA_ARGS__)
-#define logWarn(format, ...) logWrite(l_warn	| STDTAGS , format, __VA_ARGS__)
-#define logCrit(format, ...) logWrite(l_crit	| STDTAGS , format, __VA_ARGS__)
+#ifdef HAVE_DEBUG_LOGGING
 #define logPF() logSpam("<in %s>\n", __PRETTY_FUNCTION__)
+#else	// HAVE_DEBUG_LOGGING
+#define logPF()
+#endif // HAVE_DEBUG_LOGGING
 
-#endif
 
 namespace nepenthes
 {

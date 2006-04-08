@@ -191,7 +191,8 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 		sc = sc->next;
 	}
 
-	int freed_shellcode = sc_free_shellcodes(sc_free);
+	int freed_shellcode =0;
+	freed_shellcode = sc_free_shellcodes(sc_free);
 
 	logSpam("Free'd %i shellcodes\n",freed_shellcode); 
 

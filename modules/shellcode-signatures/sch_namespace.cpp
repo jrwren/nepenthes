@@ -111,7 +111,7 @@ bool NamespaceShellcodeHandler::Init()
 		return false;
 	} else
 	{
-		logInfo("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
+		logSpam("%s loaded ...\n",m_ShellcodeHandlerName.c_str());
 	}
 
 //	printf("%s\n",m_Pattern.c_str());
