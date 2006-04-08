@@ -277,9 +277,9 @@ bool LogIrc::dnsFailure(DNSResult *result)
 {
 	logPF();
 
-	logSpam("LogIrc DNS %s has no ip, resolve error\n", result->getDNS().c_str());
-
-	return true;
+	logWarn("LogIrc DNS %s has no ip, resolve error, retrying ... \n", result->getDNS().c_str());
+	g_Nepenthes->getDNSMgr()->addDNS(this,(char *)result->getDNS().c_str(),this);
+    return true;
 }
 
 void LogIrc::log(uint32_t mask, const char *message)
