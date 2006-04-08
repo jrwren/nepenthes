@@ -86,7 +86,7 @@ sch_result NamespaceBindFiletransfer::handleShellcode(Message **msg)
 	{
 		if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
 		{
-			logCrit("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_MapItems);
+			logSpam("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_MapItems);
 			int32_t i;
 			for ( i=0; i < m_MapItems; i++ )
 			{

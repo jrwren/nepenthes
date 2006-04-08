@@ -76,7 +76,7 @@ sch_result NamespaceExecute::handleShellcode(Message **msg)
 
 		 pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
 
-		 logInfo("%s \"%s\" \n",m_ShellcodeHandlerName.c_str(), match);
+		 logSpam("%s \"%s\" \n",m_ShellcodeHandlerName.c_str(), match);
 
 		 if (g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory") == NULL)
 		 {

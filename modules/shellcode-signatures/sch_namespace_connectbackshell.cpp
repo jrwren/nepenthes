@@ -93,7 +93,7 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
 	{
 		if ( (matchCount = pcre_exec(m_Pcre, 0, (char *) shellcode, len, 0, 0, (int *)ovec, sizeof(ovec)/sizeof(int32_t))) > 0 )
 		{
-			logCrit("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_MapItems);
+			logSpam("MATCH %s  matchCount %i map_items %i \n",m_ShellcodeHandlerName.c_str(), matchCount, m_MapItems);
 			int32_t i;
 			for ( i=0; i < m_MapItems; i++ )
 			{
@@ -101,7 +101,7 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
                 		continue;
 				
 
-				logInfo(" i = %i map_items %i , map = %s\n",i,m_MapItems, sc_get_mapping_by_numeric(m_Map[i]));
+				logSpam(" i = %i map_items %i , map = %s\n",i,m_MapItems, sc_get_mapping_by_numeric(m_Map[i]));
 				const char *match = NULL;
 				pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, i, &match);
 

@@ -80,7 +80,7 @@ sch_result NamespaceBase64::handleShellcode(Message **msg)
 			if (m_Map[i] == sc_none)
 					continue;
 
-			logInfo(" i = %i map_items %i , map = %s\n",i,m_MapItems, sc_get_mapping_by_numeric(m_Map[i]));
+			logSpam(" i = %i map_items %i , map = %s\n",i,m_MapItems, sc_get_mapping_by_numeric(m_Map[i]));
 			const char *match = NULL;
 			pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, i, &match);
 
