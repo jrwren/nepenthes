@@ -278,11 +278,7 @@ bool LogIrc::dnsFailure(DNSResult *result)
 	logPF();
 
 	logSpam("LogIrc DNS %s has no ip, resolve error\n", result->getDNS().c_str());
-/*	char *reply;
-	asprintf(&reply,"DNS '%s' could not resolve\n", result->getDNS().c_str());
-	m_Socket->doRespond(reply,strlen(reply));
-	free(reply);
-*/	
+
 	return true;
 }
 

@@ -82,7 +82,7 @@ GenericShellcodeHandler::GenericShellcodeHandler(Nepenthes *nepenthes)
 	m_Nepenthes = nepenthes;
 
 //	m_ShellcodeHandlers.push_back(new GenericXOR(m_Nepenthes->getShellcodeMgr()));
-	m_ShellcodeHandlers.push_back(new GenericCreateProcess(m_Nepenthes->getShellcodeMgr()));
+//	m_ShellcodeHandlers.push_back(new GenericCreateProcess(m_Nepenthes->getShellcodeMgr()));
 //	m_ShellcodeHandlers.push_back(new GenericUrl(m_Nepenthes->getShellcodeMgr()));
 //	m_ShellcodeHandlers.push_back(new LinkXOR(m_Nepenthes->getShellcodeMgr()));
 //	m_ShellcodeHandlers.push_back(new GenericCMD(m_Nepenthes->getShellcodeMgr()));

@@ -51,7 +51,6 @@
 #include "TCPSocket.hpp"
 #include "FILESocket.hpp"
 #include "UDPSocket.hpp"
-#include "RAWSocket.hpp"
 #include "POLLSocket.hpp"
 
 #include "Nepenthes.hpp"
@@ -113,17 +112,6 @@ SocketManager::~SocketManager()
  */
 bool  SocketManager::Init()
 {
-    try {
-        m_UseRawSockets = m_Nepenthes->getConfig()->getValInt("nepenthes.socketmanager.use_rawsockets");
-        if (m_UseRawSockets)
-        {
-            logInfo("%s","Using Rawsockets\n");
-        }
-    } catch ( ... ) {
-        logCrit("%s","Could not find nepenthes.socketmanager.use_rawsockets in config file, assuming no\n");
-    }
-
-
 	try {
 		string bindAddressString = m_Nepenthes->getConfig()->getValString("nepenthes.socketmanager.bind_address");
 		
@@ -163,224 +151,6 @@ bool  SocketManager::Init()
 		logCrit("%s","Could not find nepenthes.socketmanager.bind_address in config file, assuming no\n");
 	}
 
-
-#ifdef WIN32
-	WORD wVersionRequested;
-	WSADATA wsaData;
-	int32_t err;
- 
-	wVersionRequested = MAKEWORD( 2, 2 );
- 
-	err = WSAStartup( wVersionRequested, &wsaData );
-	if ( err != 0 ) {
-		/* Tell the user that we could not find a usable */
-		/* WinSock DLL.                                  */
-		logCrit("%s\n","Could not find good Windows Socket dll");
-		return false;
-	}else
-	{
-		logDebug("%s\n","WSAStartup worked");
-	}
-#endif
-
-
-
-    if (m_UseRawSockets == true)
-    {
-#ifdef WIN32
-        // win32 raw socket interface lookup & adding here
-        SOCKET sd = WSASocket(AF_INET, SOCK_DGRAM, 0, 0, 0, 0);
-        if (sd == SOCKET_ERROR)
-        {
-            logCrit("Failed to get a socket. Error %i\n", WSAGetLastError());
-            return false;
-        }
-
-        INTERFACE_INFO InterfaceList[20];
-        uint32_t nBytesReturned;
-        if (WSAIoctl(sd, SIO_GET_INTERFACE_LIST, 0, 0, &InterfaceList,
-                     sizeof(InterfaceList), &nBytesReturned, 0, 0) == SOCKET_ERROR)
-        {
-            logCrit("Failed calling WSAIoctl: error %i\n",WSAGetLastError());
-            return false;
-        }
-
-        int32_t nNumInterfaces = nBytesReturned / sizeof(INTERFACE_INFO);
-        logDebug("There are %i interfaces \n",nNumInterfaces);
-        int32_t i;
-        for (i = 0; i < nNumInterfaces; ++i)
-        {
-            logDebug("Interface %i \n", i);
-
-            u_long nFlags = InterfaceList[i].iiFlags;
-            if (nFlags & IFF_UP) 
-                logDebug("Iface is %s\n","up");
-            else                 
-                logDebug("Iface is %s\n","down");
-
-
-
-            sockaddr_in *pAddress;
-            pAddress = (sockaddr_in *) & (InterfaceList[i].iiAddress);
-            logDebug("\tip %s\n",inet_ntoa(pAddress->sin_addr));
-
-            pAddress = (sockaddr_in *) & (InterfaceList[i].iiBroadcastAddress);
-            logDebug("\tbcast %s\n",inet_ntoa(pAddress->sin_addr));
-
-            pAddress = (sockaddr_in *) & (InterfaceList[i].iiNetmask);
-            logDebug("\tnetmask %s\n",inet_ntoa(pAddress->sin_addr));
-
-            if (nFlags & IFF_POINTTOPOINT) 
-                logDebug("%s\n","\tis point-to-point");
-            if (nFlags & IFF_LOOPBACK)     
-                logDebug("%s\n","\tis a loopback iface");
-            
-
-            string features = "";
-            
-            if (nFlags & IFF_BROADCAST) 
-                features += "bcast ";
-            if (nFlags & IFF_MULTICAST)
-                features +=  "multicast ";
-            logDebug("\tFeatures: %s \n", features.c_str());
-        }
-
-
-        for (i = 0; i < nNumInterfaces; ++i)
-        {
-
-            sockaddr_in *pAddress;
-            pAddress = (sockaddr_in *) & (InterfaceList[i].iiAddress);
-
-            RAWSocketListener *sock = new RAWSocketListener(m_Nepenthes,*(uint32_t *)&(pAddress->sin_addr));
-            if ( sock->Init() == true )
-            {
-                m_Sockets.push_back(sock);
-            } else
-            {
-                return false;
-            }
-
-        }
-#else
-		FILE *f = fopen(PROC_NET_DEV,"r");
-		if (f== NULL)
-		{
-			logCrit("Could not open %s \n",PROC_NET_DEV);
-			return false;
-		}
-		char line[512];
-		memset(line,0,512);
-		bool ifaceline=false;
-
-		list <string> interfaces;
-
-		while (fgets(line,512,f) != NULL)
-		{
-			if (ifaceline)
-			{
-//				printf("proc line is '%s' \n",line);
-				char *ifacestopp=line;
-				char *ifacestart=line;
-				while(*ifacestopp != ':')
-					ifacestopp++;
-
-				while (*ifacestart == ' ')
-					ifacestart++;
-
-				logSpam("iface %.*s \n",ifacestopp-ifacestart,ifacestart);
-
-                interfaces.push_back(string(ifacestart,ifacestopp-ifacestart));
-
-			}else
-			if (strstr(line,"bytes") != NULL)
-			{
-				ifaceline = true;
-			}
-
-			
-
-			memset(line,0,512);
-		}
-        fclose(f);
-
-		list<string>::iterator it;
-
-		for (it=interfaces.begin();it!= interfaces.end();it++)
-		{
-			logDebug("Interface %s is availible for sniffing\n",it->c_str());
-		}
-
-		for ( it=interfaces.begin();it!= interfaces.end();it++ )
-		{
-			if (strstr(it->c_str(),"eth") == NULL)
-			{
-				logDebug("No sniffing on %s\n",it->c_str());
-				continue;
-			}
-
-
-			struct ifreq ifr;
-			memset(&ifr,0,sizeof(struct ifreq));
-//			struct ifconf ifc;
-
-			uint32_t localip=0;
-			int32_t fd = socket(AF_INET, SOCK_DGRAM, 0);
-			if ( fd >= 0 )
-			{
-				strcpy(ifr.ifr_name, it->c_str());
-				ifr.ifr_addr.sa_family = AF_INET;
-				if ( ioctl(fd, SIOCGIFADDR, &ifr) == 0 )
-				{
-					struct sockaddr_in *ssin;
-					ssin = (struct sockaddr_in *) &ifr.ifr_addr;
-					logSpam("Interface %s has ip %s \n",it->c_str(),inet_ntoa(*(in_addr *)&ssin->sin_addr.s_addr));
-
-					localip = ssin->sin_addr.s_addr;
-
-/*                    logSpam("Interface %s has ip %s \n",it->c_str(),inet_ntoa(*(in_addr *)&ifr.ifr_addr));
-					strcpy(ifr.ifr_name, it->c_str());
-					if ( ioctl(fd, SIOCGIFDSTADDR, &ifr) >= 0 )
-						logSpam("Interface %s has ... %s \n",it->c_str(),inet_ntoa(*(in_addr *)&ifr.ifr_dstaddr));
-
-					strcpy(ifr.ifr_name, it->c_str());
-					if ( ioctl(fd, SIOCGIFBRDADDR, &ifr) >= 0 )
-						logSpam("Interface %s has ... %s \n",it->c_str(),inet_ntoa(*(in_addr *)&ifr.ifr_broadaddr));
-
-					strcpy(ifr.ifr_name, it->c_str());
-					if ( ioctl(fd, SIOCGIFNETMASK, &ifr) >= 0 )
-						logSpam("Interface %s has ... %s \n",it->c_str(),inet_ntoa(*(in_addr *)&ifr.ifr_netmask));
-*/					
-				} 
-//				else
-//					memset(&ife->addr, 0, sizeof(struct sockaddr));
-			}
-
-
-			RAWSocketListener *sock;
-			sock = new RAWSocketListener(m_Nepenthes,(char *)it->c_str(), localip, IPPROTO_TCP);
-			if ( sock->Init() == true )
-			{
-				m_Sockets.push_back(sock);
-			} else
-			{
-				return false;
-			}
-			
-/*			sock = new RAWSocketListener(m_Nepenthes,(char *)it->c_str(), IPPROTO_UDP);
-			if ( sock->Init() == true )
-			{
-				m_Sockets.push_back(sock);
-			} else
-			{
-				return false;
-			}
-*/			
-		}
-		interfaces.clear();
-#endif
-		
-	}
 	return true;
 }
 
@@ -405,222 +175,6 @@ void SocketManager::doList()
 }
 
 /**
- * checks all sockets, and polls, handles the send and receive, socket timeouts, accepting new sockets, deleting dead sockets
- * 
- * @param polltimeout
- *               the polltimeout we want to use in milliseconds
- * 
- * @return returns true if something was polled
- *         else false
- */
-#ifdef WIN32
-	#error "i changed some stuff and found no reason to port it"
-	#error "to be precise, the setStatus thing for connected sockets"
-	
-bool SocketManager::doLoop(uint32_t polltimeout)
-{// FIXME ..
-	list <Socket *>::iterator itSocket;
-
-// 	check socket timeouts and remove dead sockets
-	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-	{
-		(*itSocket)->checkTimeout();
-		if ((*itSocket)->getStatus() == SS_TIMEOUT )
-		{
-			logDebug("Deleting Socket %s due to timeout \n",(*itSocket)->getDescription().c_str());
-			Socket *delsocket = *itSocket;
-			m_Sockets.erase(itSocket);
-			delete delsocket;
-
-			itSocket = m_Sockets.begin(); // FIXME ?
-			if(m_Sockets.size() == 0)
-            	return false;
-			
-
-		}
-
-		if ( (*itSocket)->getStatus() == SS_CLOSED )
-		{
-			logDebug("Deleting %s due to closed connection \n",(*itSocket)->getDescription().c_str());
-			Socket *delsocket = *itSocket;
-			m_Sockets.erase(itSocket);
-			delete delsocket;
-			itSocket = m_Sockets.begin(); // FIXME ?
-		}
-	}
-
-	fd_set rfds;
-	fd_set wfds;
-
-	FD_ZERO(&rfds);
-	FD_ZERO(&wfds);
-
-
-	int32_t i=0;
-	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-	{
-		int32_t iError = 0;
-		int32_t iSize = sizeof(iError);
-		if((*itSocket)->getType() & ST_FILE)
-		{
-			(*itSocket)->setPolled();
-		}else
-		if ((*itSocket)->getsockOpt(SOL_SOCKET, SO_ERROR, &iError,(socklen_t *) &iSize) != 0 )
-		{
-			// socket is dead
-			logSpam("Socket %s is Dead\n",(*itSocket)->getDescription().c_str());
-			(*itSocket)->unsetPolled();
-
-		} else
-		{
-			switch (iError)
-			{
-			case 0:	// der socket is soweit okay
-//				logSpam("Socket %s is OK\n",(*itSocket)->getDescription().c_str());
-				(*itSocket)->setPolled();
-				break;
-
-			case WSAEINPROGRESS: // der socket versuchts
-				(*itSocket)->unsetPolled();
-				break;
-
-			case WSAEISCONN:
-				(*itSocket)->setPolled();	// der socket ist am start
-				break;
-
-
-			default:
-				(*itSocket)->unsetPolled();		// der is defekt
-			}
-		}
-	}
-
-	i=0;
-	int32_t maxsock=-1;
-	for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-	{	
-		if ((*itSocket)->isPolled() == true )
-		{
-			if ((*itSocket)->getSocket() > maxsock)
-			{
-				maxsock = (*itSocket)->getSocket();
-			}
-
-			FD_SET((*itSocket)->getSocket(),&rfds);
-
-			if ((*itSocket)->wantSend() == true)
-			{
-				FD_SET((*itSocket)->getSocket(),&wfds);
-			}/*else
-				logSpam("polling %s readonly\n",(*itSocket)->getDescription().c_str());*/
-			i++;
-		}
-	}
-
-	struct timeval tv;
-	tv.tv_sec = 2;
-	tv.tv_usec = 500000;
-
-	int32_t iPollRet = select(maxsock,&rfds,&wfds,NULL,&tv);
-
-	if (iPollRet != 0)
-	{
-		// read sockets
-		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-		{
-			if ( (*itSocket)->isPolled() == true )
-			{
-				if ( 
-				   ( (*itSocket)->isAccept()  || (*itSocket)->isConnect() ) ||
-				   (  (*itSocket)->isBind() && (*itSocket)->getType() & ST_UDP)	  // bound udp sockets dont accept, they recvfrom
-				   )
-				{
-					if ( FD_ISSET((*itSocket)->getSocket(),&rfds) )
-					{
-						(*itSocket)->doRecv();
-					}
-				}
-				i++;
-			}
-		}
-
-		// write sockets
-		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-		{
-			if ( (*itSocket)->isPolled() == true )
-			{
-//				logSpam(" COuld write #%i\n",1);
-				// doRecv() can close sockets
-				// we need a valid way to verify we dont try to send on a closed socket, 
-				// i think wantSend() is a good option here
-				// getStatus i just a cheap fix
-//				logInfo("SSS %s \n",(*itSocket)->getDescription().c_str());
-				if (
-                    ( (*itSocket)->getStatus() == SS_CONNECTED || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
-				    (
-				     (*itSocket)->isAccept() ||
-				     (*itSocket)->isConnect() || 
-				     (
-				      (*itSocket)->isBind() && (*itSocket)->getType() & ST_UDP
-				     )
-				    )  
-				   )
-				{
-//					if ( iPollRet == 0 )
-//						continue;
-//					logSpam(" COuld write #%i\n",2);
-					if (FD_ISSET((*itSocket)->getSocket(),&wfds))
-					{
-//						logSpam(" COuld write #%i\n",3);
-						(*itSocket)->doSend();
-
-					}
-				}
-				i++;
-			}
-		}
-
-
-		// accept new, non udp clients as udp does not accept()
-		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
-		{
-				
-
-			if ( (*itSocket)->isPolled() == true )
-			{
-				if ( (*itSocket)->isBind() )
-				{
-					if ( !((*itSocket)->getType() & ST_UDP) ) // bound udp sockets dont accept, they recvfrom
-					{
-						if (FD_ISSET((*itSocket)->getSocket(),&rfds))
-						{
-							logDebug("%s could Accept a Connection\n",(*itSocket)->getDescription().c_str());
-							Socket * socket = (*itSocket)->acceptConnection();
-							if ( socket == NULL )
-							{
-								logCrit("%s","Accept returned NULL ptr \n");
-							} else
-							{
-								m_Sockets.push_back(socket);
-								logDebug("Accepted Connection %s \n%i Sockets in list\n",socket->getDescription().c_str(), m_Sockets.size());
-							}
-						}
-					}
-				}
-				i++;
-			}
-		}
-	}
-//	free(polls);
-//	sleep(1);
-	return true;
-}
-#else
-
-/**
  * poll the sockets
  * 
  * @param polltimeout
@@ -629,11 +183,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
  * @return returns true
  */
 bool SocketManager::doLoop(uint32_t polltimeout)
-{// FIXME ..
-
-
-
-
+{
 	list <Socket *>::iterator itSocket;
 
 // 	check socket timeouts and remove dead sockets
@@ -687,7 +237,6 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 			{
 			case 0:	// der socket is soweit okay
 			case EISCONN:
-//				logSpam("EISCONN State %i \n",(*itSocket)->getStatus());
 				if ((*itSocket)->getStatus() == SS_CONNECTING)
 				{
 					(*itSocket)->setStatus(SS_CONNECTED);
@@ -713,18 +262,12 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		if ((*itSocket)->isPolled() == true )
 		{
 			polls[i].fd = (*itSocket)->getSocket();
-
 			polls[i].events = POLLIN;
-
-			
 
 			if ((*itSocket)->wantSend() == true)
 			{
-//				logSpam("polling %s read|write\n",(*itSocket)->getDescription().c_str());
-					
 				polls[i].events |= POLLOUT;
-			}/*else
-				logSpam("polling %s readonly\n",(*itSocket)->getDescription().c_str());*/
+			}
 			i++;
 		}
 	}
@@ -763,12 +306,6 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		{
 			if ( (*itSocket)->isPolled() == true )
 			{
-//				logSpam(" COuld write #%i\n",1);
-				// doRecv() can close sockets
-				// we need a valid way to verify we dont try to send on a closed socket, 
-				// i think wantSend() is a good option here
-				// getStatus i just a cheap fix
-//				logDebug("SSS %s \n",(*itSocket)->getDescription().c_str());
 				if (
                     ( (*itSocket)->getStatus() == SS_CONNECTED || (*itSocket)->getStatus() == SS_CLEANQUIT ) &&  
 				    (
@@ -780,12 +317,8 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 				    )  
 				   )
 				{
-//					if ( iPollRet == 0 )
-//						continue;
-//					logSpam(" COuld write #%i\n",2);
 					if ( polls[i].revents & POLLOUT && polls[i].events & POLLOUT )
 					{
-//						logSpam(" COuld write #%i\n",3);
 						(*itSocket)->doSend();
 						iPollRet--;
 					}
@@ -831,10 +364,9 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		}
 	}
 	free(polls);
-//	sleep(1);
 	return true;
 }
-#endif
+
 
 /**
  * bind a given port to a given local ip address
@@ -1064,46 +596,4 @@ Socket *SocketManager::addPOLLSocket(POLLSocket *sock)
 	return sock;
 }
 
-Socket *SocketManager::createRAWSocketUDP(uint16_t localport, uint16_t remoteport, time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
-{
-	logSpam("createRAWPSocketUDP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
-	//RAWSocketListener *sock = NULL;
 
-	list <Socket *>::iterator socket;
-	for(socket = m_Sockets.begin();socket != m_Sockets.end(); socket++)
-	{
-		if((*socket)->getType() & ST_RAW )
-		{
-			((RAWSocketListener *)(*socket))->addListenFactory(localport,remoteport,IPPROTO_UDP,dialoguefactory);
-//			return (*socket);
-		}
-	}
-	return NULL;
-}
-
-/**
- * 
- * @param localport
- * @param remoteport
- * @param bindtimeout
- * @param accepttimeout
- * @param dialoguefactory
- * 
- * @return 
- */
-Socket *SocketManager::createRAWSocketTCP(uint16_t localport,uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *dialoguefactory)
-{
-	logSpam("createRAWPSocketTCP %i %i %i %i \n",localport,remoteport,bindtimeout,accepttimeout);
-	//RAWSocketListener *sock = NULL;
-
-	list <Socket *>::iterator socket;
-	for(socket = m_Sockets.begin();socket != m_Sockets.end(); socket++)
-	{
-		if((*socket)->getType() & ST_RAW )
-		{
-			((RAWSocketListener *)(*socket))->addListenFactory(localport,remoteport,IPPROTO_TCP,dialoguefactory);
-//			return (*socket);
-		}
-	}
-	return NULL;
-}

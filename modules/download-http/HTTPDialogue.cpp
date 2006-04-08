@@ -180,11 +180,40 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 	if ( end != NULL )
 	{
 		end += 2;
+		int headersize = end-start;
 		logSpam("FOUND HEADER (size %i)\n",end-start);
 		logSpam("%.*s",end-start,start);
 // FIXME PARSE HEADER
-//		HTTPHeader *header = new HTTPHeader(start,(uint32_t)(end-start));
-//		m_HTTPHeader = header;
+		string httpheader(start,headersize);
+
+		int contentoffsetstart=0;
+		int contentoffsetstopp=0;
+		if ( (contentoffsetstart = httpheader.find("Content-Length:",0)) != -1)
+		{
+			logInfo("FOund Content-Length on offset %i\n",contentoffsetstart);
+			if ((contentoffsetstopp = httpheader.find("\r\n",contentoffsetstart)) != -1)
+			{
+				logInfo("FOund Content-Length End on offset %i\n",contentoffsetstopp);
+				string contentline = httpheader.substr(contentoffsetstart + strlen("Content-Length:")
+													   ,contentoffsetstopp - 
+													   contentoffsetstart - 
+													   strlen("Content-Length:"));
+				printf("Content-Size = \"%s\" '%i'\n",contentline.c_str(),atoi(contentline.c_str()));
+
+				if (m_Download->getDownloadBuffer()->getSize() - ((end-start)+2) ==
+					(uint32_t)atoi(contentline.c_str())
+					)
+				{
+					logInfo("perfect day size %i matches\n",atoi(contentline.c_str()));
+				}else
+				{
+					printf("download size %i\n",m_Download->getDownloadBuffer()->getSize());
+					printf("header size %i\n",((end-start)+2));
+					printf("body size %i\n",atoi(contentline.c_str()));
+				}
+			}
+		}
+		
 	}
 	m_Download->getDownloadBuffer()->cutFront((uint32_t)(end-start)+2);
 

@@ -66,9 +66,6 @@ namespace nepenthes
 		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t remoteport,time_t connecttimeout);
 		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t localport, uint16_t remoteport,time_t connecttimeout);
 
-		virtual Socket *createRAWSocketUDP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
-		virtual Socket *createRAWSocketTCP(uint16_t localport, uint16_t remoteport,time_t bindtimeout,time_t accepttimeout, DialogueFactory *diaf);
-
 		virtual Socket *addPOLLSocket(POLLSocket *sock);
 
 		bool doLoop(uint32_t polltimeout);

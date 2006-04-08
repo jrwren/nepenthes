@@ -889,7 +889,6 @@ AC_CONFIG_FILES([Makefile
                  modules/x-4/Makefile
                  modules/x-5/Makefile                 
                  modules/x-6/Makefile
-                 modules/x-7/Makefile
                  modules/x-8/Makefile
 		 modules/geolocation-hostip/Makefile
 		 modules/geolocation-geoip/Makefile
