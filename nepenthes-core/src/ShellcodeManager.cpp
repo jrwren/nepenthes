@@ -87,13 +87,13 @@ bool  ShellcodeManager::Exit()
 void ShellcodeManager::doList()
 {
 	list <ShellcodeHandler *>::iterator shandler;
-	logInfo("=--- %-69s ---=\n","ShellcodeManager");
+	logSpam("=--- %-69s ---=\n","ShellcodeManager");
 	int32_t i=0;
 	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();shandler++,i++)
 	{
-		logInfo("  %i) %-8s %s\n",i,(*shandler)->getShellcodeHandlerName().c_str(), (*shandler)->getShellcodeHandlerDescription().c_str());
+		logSpam("  %i) %-8s %s\n",i,(*shandler)->getShellcodeHandlerName().c_str(), (*shandler)->getShellcodeHandlerDescription().c_str());
 	}
-    logInfo("=--- %2i %-66s ---=\n\n",i, "ShellcodeHandlers registerd");
+    logSpam("=--- %2i %-66s ---=\n\n",i, "ShellcodeHandlers registerd");
 
 }
 

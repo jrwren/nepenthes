@@ -106,10 +106,15 @@ void LogManager::addLogger(LogHandler *lh, uint32_t filterMask)
 		if( filterMask & (1 << i) )
 		{
 			assert(m_Tags[i]);
+			
+			#ifdef HAVE_DEBUG_LOGGING
 			printf("%s (%d) ", m_Tags[i], 1 << i);
+			#endif
 		}
-
+	
+	#ifdef HAVE_DEBUG_LOGGING
 	printf("\n");
+	#endif
 }
 
 

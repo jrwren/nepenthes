@@ -118,13 +118,13 @@ bool  EventManager::Exit()
 void EventManager::doList()
 {
 	list <EventHandler *>::iterator ehandler;
-	logInfo("=--- %-69s ---=\n","EventManager");
+	logSpam("=--- %-69s ---=\n","EventManager");
 	int32_t i=0;
 	for(ehandler = m_EventHandlers.begin();ehandler != m_EventHandlers.end();ehandler++,i++)
 	{
-		logInfo("  %i) %-8s %s\n",i,(*ehandler)->getEventHandlerName().c_str(), (*ehandler)->getEventHandlerDescription().c_str());
+		logSpam("  %i) %-8s %s\n",i,(*ehandler)->getEventHandlerName().c_str(), (*ehandler)->getEventHandlerDescription().c_str());
 	}
-    logInfo("=--- %2i %-66s ---=\n\n",i, "EventHandlers registerd");
+    logSpam("=--- %2i %-66s ---=\n\n",i, "EventHandlers registerd");
 }
 
 /**

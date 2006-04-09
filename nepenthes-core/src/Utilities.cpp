@@ -343,48 +343,14 @@ string Utilities::md5sum(char *msg, int32_t len)
 
 void Utilities::hexdump(byte *data, uint32_t len)
 {
-	char conv[] = "0123456789abcdef";
-
-	printf("=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)((intptr_t)data), len);
-	for( uint32_t i = 0; i < len; i += 0x10 )
-	{
-		printf("0x%04x  ", i);
-
-
-		uint32_t j;
-		for( j = 0; j < 0x10; j++ )
-		{
-			if( i + j < len )
-			{
-				printf("%c%c ",conv[((data[i + j] & 0xFF) >> 4)],conv[((data[i + j] & 0xff) & 0x0F)]);
-			}
-			else
-				printf("   ");
-
-			if( j == 7 )
-				printf(" ");
-		}
-
-		printf(" ");
-
-		for( j = 0; j < 0x10; j++ )
-		{
-			if( i + j < len )
-				printf("%c", isprint(data[i + j]) ? data[i + j] : '.');
-			else
-				printf(" ");
-			if( j == 7 )
-				printf(" ");
-		}
-
-		printf("\n");
-	}
-	printf("=-------------------------------------------------------------------------=\n");
+	hexdump(l_spam, data, len);
 }
 
 void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 {
+	#ifdef HAVE_DEBUG_LOGGING
 	char conv[] = "0123456789abcdef";
+	#endif
 
 	if (m_HexdumpPath.size() == 0)
 	{
@@ -399,7 +365,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 	
 	if( !len )
 	{
-		g_Nepenthes->getLogMgr()->log(mask,"=----------------[ ignoring hexdump request of 0 bytes. ]-----------------=\n");
+		g_Nepenthes->getLogMgr()->log(mask,"Ignoring zero-length hexdump.\n");
 		return;
 	}
 
@@ -408,9 +374,11 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 		fwrite((const void *)data, len, 1, f);
 		fclose(f);
 
-		g_Nepenthes->getLogMgr()->logf(mask,"=--------[ %s ]---------=\n", md5.c_str());
+		g_Nepenthes->getLogMgr()->logf(mask,"Stored Hexdump %s (0x%08x , 0x%08x).\n", md5.c_str(), (uint32_t)((intptr_t)data), len);
 	}
 
+
+	#ifdef HAVE_DEBUG_LOGGING
 	g_Nepenthes->getLogMgr()->logf(mask,"=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)((intptr_t)data), len);
 	for( uint32_t i = 0; i < len; i += 0x10 )
 	{
@@ -459,6 +427,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 		
 	}
 	g_Nepenthes->getLogMgr()->log(mask,"=-------------------------------------------------------------------------=\n");
+	#endif
 //	printf("=-------------------------------------------------------------------------=\n");
 	
 }

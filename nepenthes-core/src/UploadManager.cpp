@@ -160,11 +160,11 @@ bool UploadManager::Exit()
 void UploadManager::doList()
 {
 	list <UploadHandlerTuple>::iterator dhandler;
-	logInfo("=--- %-69s ---=\n","UploadManager");
+	logSpam("=--- %-69s ---=\n","UploadManager");
 	uint32_t i=0;
 	for(dhandler = m_UploadHandlers.begin();dhandler != m_UploadHandlers.end();dhandler++,i++)
 	{
-		logInfo("  %i) %5s %-8s %s\n",i,dhandler->m_Protocol.c_str() ,dhandler->m_Handler->getUploadHandlerName().c_str(), dhandler->m_Handler->getUploadHandlerDescription().c_str());
+		logSpam("  %i) %5s %-8s %s\n",i,dhandler->m_Protocol.c_str() ,dhandler->m_Handler->getUploadHandlerName().c_str(), dhandler->m_Handler->getUploadHandlerDescription().c_str());
 	}
-    logInfo("=--- %2i %-66s ---=\n",i, "UploadHandlers registerd");
+    logSpam("=--- %2i %-66s ---=\n",i, "UploadHandlers registerd");
 }

@@ -446,18 +446,18 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 
         m_Config = new Config;
-		logInfo("Trying to load Nepenthes Configuration from %s \n",confpath);
+		logSpam("Trying to load Nepenthes Configuration from %s \n",confpath);
 		try
 		{
 			m_Config->load(confpath);
-			logInfo("Done loading Nepenthes Configuration from %s \n",confpath);
+			logInfo("Loaded Nepenthes Configuration from \"%s\".\n",confpath);
 		} catch ( LoadError e )
 		{
-			printf("Unable to load configuration file %s: %s\n", confpath, e.getMessage());
+			printf("Unable to load configuration file \"%s\": %s\n", confpath, e.getMessage());
 			run = false;
 		} catch ( ParseError e )
 		{
-			printf("Parse error in %s on line %d: %s\n", confpath, e.getLine(), e.getMessage());
+			printf("Parse error in \"%s\" on line %d: %s\n", confpath, e.getLine(), e.getMessage());
 			run = false;
 		}
 		

@@ -105,7 +105,7 @@ bool GotekSubmitHandler::Init()
 	        m_GotekPort = (uint16_t) m_Config->getValInt("submit-gotek.port");
 
 		m_User = m_Config->getValString("submit-gotek.user");
-		m_CommunityKey = (unsigned char *)m_Config->getValString("submit-gotek.communitykey");
+		m_CommunityKey = (unsigned char *) m_Config->getValString("submit-gotek.communitykey");
 
     	} catch ( ... )
 	{

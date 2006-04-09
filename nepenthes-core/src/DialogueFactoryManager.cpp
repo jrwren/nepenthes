@@ -69,12 +69,12 @@ void DialogueFactoryManager::doList()
 {
 	list <DialogueFactory *>::iterator diaf;
 	int32_t i =0;
-	logInfo("%s","=--- DialogueFactoryManager --=\n");
+	logSpam("%s","=--- DialogueFactoryManager --=\n");
 	for (diaf = m_Factories.begin();diaf != m_Factories.end();diaf++, i++)
 	{
-		logInfo("%i %20s %s\n",i,(*diaf)->getFactoryName().c_str(),(*diaf)->getFactoryDescription().c_str());
+		logSpam("%i %20s %s\n",i,(*diaf)->getFactoryName().c_str(),(*diaf)->getFactoryDescription().c_str());
 	}
-	logInfo("=--- %i Factories --=\n", m_Factories.size());
+	logSpam("=--- %i Factories --=\n", m_Factories.size());
 
 }
 

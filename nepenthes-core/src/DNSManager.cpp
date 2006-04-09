@@ -98,15 +98,15 @@ bool DNSManager::Exit()
 void DNSManager::doList()
 {
 
-	logInfo("=--- %-69s ---=\n","DNSManager");
+	logSpam("=--- %-69s ---=\n","DNSManager");
 	if (m_DNSHandler != NULL)
 	{
-    	logInfo("  # %s\n",m_DNSHandler->getDNSHandlerName().c_str());
+    	logSpam("  # %s\n",m_DNSHandler->getDNSHandlerName().c_str());
 	}else
 	{
 		logCrit("%s","availible DNSHandler dnsresolve-adns\n");
 	}
-	logInfo("=--- %2s %-66s ---=\n","", "DNSHandler registerd");
+	logSpam("=--- %2s %-66s ---=\n","", "DNSHandler registerd");
 
 	return;
 }

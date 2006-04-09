@@ -68,13 +68,13 @@ ModuleManager::~ModuleManager()
 void ModuleManager::doList()
 {
 	list <Module *>::iterator module;
-	logInfo("=--- %-69s ---=\n","ModuleManager");
+	logSpam("=--- %-69s ---=\n","ModuleManager");
 	int32_t i=0;
 	for(module = m_Modules.begin();module != m_Modules.end();module++,i++)
 	{
-		logInfo("  %i) %-8s %s\n",i,(*module)->getModuleName().c_str(), (*module)->getModuleDescription().c_str());
+		logSpam("  %i) %-8s %s\n",i,(*module)->getModuleName().c_str(), (*module)->getModuleDescription().c_str());
 	}
-    logInfo("=--- %2i %-66s ---=\n\n",i, "Modules loaded");
+    logSpam("=--- %2i %-66s ---=\n\n",i, "Modules loaded");
 }
 
 /**

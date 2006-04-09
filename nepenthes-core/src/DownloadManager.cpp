@@ -248,22 +248,22 @@ ip_range_t DownloadManager::m_irLocalRanges[] =
 void DownloadManager::doList()
 {
 	list <DownloadHandlerTuple>::iterator dhandler;
-	logInfo("=--- %-69s ---=\n","DownloadManager");
+	logSpam("=--- %-69s ---=\n","DownloadManager");
 	uint32_t i=0;
 	for(dhandler = m_DownloadHandlers.begin();dhandler != m_DownloadHandlers.end();dhandler++,i++)
 	{
-		logInfo("  %i) %5s %-8s %s\n",i,dhandler->m_Protocol.c_str() ,dhandler->m_Handler->getDownloadHandlerName().c_str(), dhandler->m_Handler->getDownloadHandlerDescription().c_str());
+		logSpam("  %i) %5s %-8s %s\n",i,dhandler->m_Protocol.c_str() ,dhandler->m_Handler->getDownloadHandlerName().c_str(), dhandler->m_Handler->getDownloadHandlerDescription().c_str());
 	}
-    logInfo("=--- %2i %-66s ---=\n",i, "DownloadHandlers registerd");
+	logSpam("=--- %2i %-66s ---=\n",i, "DownloadHandlers registerd");
 
 	for ( i = 0; i < sizeof(m_irLocalRanges) / sizeof(ip_range_t); i++ )
 	{
 		string range= inet_ntoa(*(in_addr *)&m_irLocalRanges[i].m_ulAddress);
 		range += "/";
 		range += inet_ntoa(*(in_addr *)&m_irLocalRanges[i].m_ulMask);
-		logInfo("Ignoring %s \n", range.c_str());
+		logSpam("Ignoring %s \n", range.c_str());
 	}
-	logInfo("=--- %2i %-66s ---=\n\n",i, "Ranges ignored");
+	logSpam("=--- %2i %-66s ---=\n\n",i, "Ranges ignored");
 
 }
 
