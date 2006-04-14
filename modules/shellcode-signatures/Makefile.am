@@ -12,7 +12,7 @@ pkglib_LTLIBRARIES = shellcodesignatures.la
 
 
 shellcodesignatures_la_SOURCES = shellcode-signatures.sc 
-shellcodesignatures_la_SOURCES += y.tab.c lex.yy.c
+shellcodesignatures_la_SOURCES += y.tab.c lex.yy.c y.tab.h
 shellcodesignatures_la_SOURCES += parser.hpp parser.h
 shellcodesignatures_la_SOURCES += shellcode-signatures.cpp shellcode-signatures.hpp 
 shellcodesignatures_la_SOURCES += sch_namespace.cpp sch_namespace.hpp
