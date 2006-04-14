@@ -1,3 +1,129 @@
+Version 0.1.7-pre1
+==================
+
+
+
+Nepenthes
+        FIXES and ADDITIONS
+        -----
+        * Nepenthes
+                * default install wont spam the console, use --enable-debug-logging if you want the console spam pary
+                * --version dumps information about operating system
+                * --help is better
+                * log exit reason to file
+                * prevent crash on startup when running in changeroot
+                  without changing process user and/or group id, -> changeroot _after_ we
+                  chowned the logfiles
+                * support for linux capabilities
+
+
+        * SocketManager
+                * support for if:ethN for default bind address by interface
+                * removed RAWSocket
+
+        * GeolocatioManager
+                * add return value in Exit()
+
+        * UploadHandler
+                * g++ 4.1 fixes
+
+        * DownloadHandler
+                * g++ 4.1 fixes
+
+        * ModuleManager
+                * use dlopen() with RTLD_LOCAL, osx has RTLD_GLOBAL as default and
+                  segfaults therefore when unloading modules
+
+
+
+Modules
+        FIXES and ADDITIONS
+        -----
+        * vuln-ftpd
+                * can handle NAT for active ftp
+
+        * vuln-kuang
+                * log remote ip, not local ip
+
+        * x-6
+                * free the mallocs
+
+        * module-portwatch
+                * removed port 21 from portwatch list
+                * added 25 to portwatch list
+
+        * shellcode-generic
+                * detect wget in xmlrpc exploit attempts
+
+        * log-irc
+                * send irc server pass
+                * infinite retries to resolve server/tor domain
+
+        * x-7
+                * dropped
+
+        * dnsresolve-adns
+                * g++ 4.1 fixes
+
+        * submit-norman
+                * g++ 4.1 fixes
+
+        * download-curl
+                * g++ 4.1 fixes
+
+        * vuln-netdde
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-msmq
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-dcom
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-asn1
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-sasserftpd
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-wins
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-iis
+                * removed shellcodehandler, moved to shellcode-signatures
+
+        * vuln-lsass
+                * removed shellcodehandler, moved to shellcode-signatures
+
+
+        * vuln-mydoom
+                * use CL_ASSIGN_AND_DONE when done (for log-surfnet)
+
+        * vuln-bagle
+                * use CL_ASSIGN_AND_DONE when done (for log-surfnet)
+
+
+        NEW
+        ---
+        * submit-gotek
+		* submit files to the mwcollect alliance via the gotek 1 protocol
+		
+        * log-prelude
+                * fixed by Harald Lampesberger
+
+        * vuln-ftpd
+		* emulation for various bugs in windows ftp daemons
+                * contributed by Harald Lampesberger
+
+
+        * shellcode-signatures
+                * ported almost _all_ shellcodes from shellcode-generic
+
+
+
+
+
+
 Version 0.1.6
 =============
 
