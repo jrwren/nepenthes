@@ -41,6 +41,7 @@
 #include "sch_namespace_base64.hpp"
 #include "sch_engine_unicode.hpp"
 #include "sch_namespace_konstanzxor.hpp"
+#include "sch_namespace_alphanumericxor.hpp"
 
 #include "ShellcodeManager.hpp"
 #include "Nepenthes.hpp"
@@ -173,6 +174,10 @@ bool SignatureShellcodeHandler::loadSignaturesFromFile(string path)
 
 		case sc_base64:
 			sch = new NamespaceBase64(sc);
+			break;
+
+		case sc_alphanumericxor:
+			sch = new NamespaceAlphaNumericXOR(sc);
 			break;
 		}
 		

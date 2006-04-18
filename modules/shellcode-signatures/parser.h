@@ -15,7 +15,8 @@ enum sc_namespace
 	sc_download,
 	sc_url,
 	sc_bindfiletransfer,
-	sc_base64
+	sc_base64,
+	sc_alphanumericxor
 
 };
 
@@ -34,7 +35,8 @@ enum sc_mapping
 	sc_post,
 	sc_none,
 	sc_hostkey,
-	sc_portkey
+	sc_portkey,
+	sc_payload
 
 };
 

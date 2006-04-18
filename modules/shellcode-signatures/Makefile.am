@@ -27,5 +27,6 @@ shellcodesignatures_la_SOURCES += sch_namespace_bindfiletransfer.cpp sch_namespa
 shellcodesignatures_la_SOURCES += sch_namespace_base64.cpp sch_namespace_base64.hpp
 shellcodesignatures_la_SOURCES += sch_engine_unicode.cpp sch_engine_unicode.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_konstanzxor.cpp sch_namespace_konstanzxor.hpp
+shellcodesignatures_la_SOURCES += sch_namespace_alphanumericxor.cpp sch_namespace_alphanumericxor.hpp
 shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
 

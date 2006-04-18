@@ -53,6 +53,7 @@ NEWLINE "\n"
 "url"								{ return SC_URL; }
 "bindfiletransfer"				{ return SC_BIND_FILETRANSFER; }
 "base64"                      { return SC_BASE64; }
+"alphanumericxor"					{ return SC_ALPHANUMERICXOR; }
 
 "hostkey"                     { return SC_HOSTKEY; }
 "portkey"                     { return SC_PORTKEY; }
@@ -68,6 +69,7 @@ NEWLINE "\n"
 "decoder"                        { return SC_DECODER; }
 "pre"                         { return SC_PRELOAD; }
 "post"                        { return SC_POSTLOAD; }
+"payload"                     { return SC_PAYLOAD; }
 
 
 {LETTER}({LETTER}|{DIGIT}|"_")*		{ string_append(yytext, yyleng); return SC_ID; }

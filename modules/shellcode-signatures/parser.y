@@ -33,7 +33,7 @@
 
 
 %token SC_ID SC_LPAR SC_RPAR SC_LBR SC_RBR SC_COMMA SC_SEMI SC_COLON SC_NONE SC_FLAGS SC_PATTERN SC_TYPE SC_MAPPING SC_STRING 
-SC_XOR SC_LINKXOR SC_KONSTANZXOR SC_LEIMBACHXOR 
+SC_XOR SC_LINKXOR SC_KONSTANZXOR SC_LEIMBACHXOR SC_ALPHANUMERICXOR
 SC_BIND_SHELL 
 SC_CONNECTBACK_SHELL 
 SC_CONNECTBACK_FILETRANSFER SC_BIND_FILETRANSFER
@@ -45,6 +45,7 @@ SC_KEY SC_SUBKEY SC_SIZE SC_SIZEINVERT SC_HOST SC_PORT SC_COMMAND
 SC_URI
 SC_DECODER SC_PRELOAD SC_POSTLOAD
 SC_HOSTKEY SC_PORTKEY
+SC_PAYLOAD
 
 %start body
 
@@ -150,7 +151,12 @@ namespace
 	{
 		$$ = sc_base64;
 	}
-	;
+	|
+	SC_ALPHANUMERICXOR
+	{
+		$$ = sc_alphanumericxor;
+	}
+   ;
 
 statements
 	: /* \epsilon */
@@ -251,6 +257,10 @@ map_value
 	{
 		$$ = sc_portkey;
 	}
+   | SC_PAYLOAD
+	{
+		$$ = sc_payload;
+	}
 	;
 
 pattern
@@ -334,7 +344,8 @@ char *sc_get_namespace_by_numeric(int num)
 		"download",
 		"url",
 		"bindfiletransfer",
-		"base64"
+		"base64",
+      "alphanumericxor"
 	};
 
 	if ( num >= sizeof(namespacemapping)/sizeof(char *) )
@@ -360,7 +371,8 @@ char *sc_get_mapping_by_numeric(int num)
 		"post",
 		"none",
 		"hostkey",
-		"portkey"
+		"portkey",
+      "payload"
 	};
 	if ( num >= sizeof(mapmapping)/sizeof(char *) )
 		return "unmapped";
