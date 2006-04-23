@@ -7,7 +7,7 @@ AUTOMAKE_OPTIONS = foreign
 SUBDIRS = nepenthes-core modules 
 #tools
 
-EXTRA_DIST = configure.ac CHANGES doc/README doc/README.VFS doc/logo-shaded.svg doc/nepenthes.8 conf/nepenthes.conf.dist
+EXTRA_DIST = configure.ac CHANGES doc/README.VFS doc/logo-shaded.svg doc/nepenthes.8 conf/nepenthes.conf.dist
 
 docdir = $(prefix)/share/doc
 doc_DATA = doc/README.VFS doc/logo-shaded.svg
