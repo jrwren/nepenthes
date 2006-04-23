@@ -10,7 +10,7 @@ SUBDIRS = nepenthes-core modules
 EXTRA_DIST = configure.ac CHANGES doc/README doc/README.VFS doc/logo-shaded.svg doc/nepenthes.8 conf/nepenthes.conf.dist
 
 docdir = $(prefix)/share/doc
-doc_DATA = doc/README doc/README.VFS doc/logo-shaded.svg
+doc_DATA = doc/README.VFS doc/logo-shaded.svg
 
 #sysconf_DATA = conf/nepenthes.conf.dist
 
