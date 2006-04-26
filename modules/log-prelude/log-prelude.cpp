@@ -255,7 +255,8 @@ bool LogPrelude::Exit()
 		prelude_client_destroy(m_PreludeClient, (prelude_client_exit_status_t)(PRELUDE_CLIENT_EXIT_STATUS_SUCCESS));
 		prelude_deinit();
 	}
-	UNREG_EVENT_HANDLER(this);
+	// disabled by harald due to segfaults
+        //UNREG_EVENT_HANDLER(this);
 #endif
 	return true;
 }
@@ -374,6 +375,7 @@ void LogPrelude::handleTCPaccept(Event *event)
 		return;
 
 	add_idmef_object(idmef, "alert.classification.text"						,"TCP Connection established");
+	add_idmef_object(idmef, "alert.classification.ident", "1");
 //	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
@@ -446,6 +448,7 @@ void LogPrelude::handleTCPclose(Event *event)
 
 
 	add_idmef_object(idmef, "alert.classification.text"							,"TCP Connection closed");
+	add_idmef_object(idmef, "alert.classification.ident", "2");
 //	add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
 
@@ -507,12 +510,15 @@ void LogPrelude::handleShellcodeDone(Event *event)
 	int32_t ret = idmef_message_new(&idmef);
 	if ( ret < 0 )
 		return;
-	string shellcodeText = "Shellcode detected " + handler->getShellcodeHandlerName();
-	add_idmef_object(idmef, "alert.classification.text"						,shellcodeText.c_str());
-//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
+	string shellcodeText = "Shellcode detected: " + handler->getShellcodeHandlerName();
+	add_idmef_object(idmef, "alert.classification.text", shellcodeText.c_str());
+	// hl: added ident
+	add_idmef_object(idmef, "alert.classification.ident", "4");
+
+	//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
-	add_idmef_object(idmef, "alert.source(0).Spoofed"						,"no");
+	add_idmef_object(idmef, "alert.source(0).Spoofed"					,"no");
 	add_idmef_object(idmef, "alert.source(0).Service.protocol"				,"TCP");
 	add_idmef_object(idmef, "alert.source(0).Service.port"					,socket->getRemotePort());
 
@@ -531,9 +537,9 @@ void LogPrelude::handleShellcodeDone(Event *event)
 
 
 	add_idmef_object(idmef, "alert.assessment.impact.description"			,"possible Shellcode has been detected.");
-	add_idmef_object(idmef, "alert.assessment.impact.severity"				,"medium");
+	add_idmef_object(idmef, "alert.assessment.impact.severity"			,"medium");
 //    add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
-    add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+	add_idmef_object(idmef, "alert.assessment.impact.type"				,"other");
 
 
 	idmef_time_t *time;
@@ -581,7 +587,9 @@ void LogPrelude::handleSubmission(Event *event)
 		 return;
 
 	 // generic information
-	 add_idmef_object(idmef, "alert.classification.text"						,"Malware submited");
+	 // hl: changed submited to submitted, added ident
+	 add_idmef_object(idmef, "alert.classification.text"						,"Malware submitted");
+	 add_idmef_object(idmef, "alert.classification.ident", "6");
 
 	 string url = "http://nepenthes.sf.net/wiki/submission/" + down->getMD5Sum();
 	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
@@ -589,13 +597,22 @@ void LogPrelude::handleSubmission(Event *event)
 
 
 	 // file name and info
-	 add_idmef_object(idmef, "alert.target(0).file(0).name"						,down->getDownloadUrl()->getFile().c_str());
-	 add_idmef_object(idmef, "alert.target(0).file(0).data_size"				,down->getDownloadBuffer()->getSize());
-	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).algorithm"	,"MD5");
-	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).value"		,down->getMD5Sum().c_str());
-//			add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).category","current");
-	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).algorithm"	,"SHA2-512");
-	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).value"		,down->getSHA512Sum().c_str());
+	 // hl: changed file tags because of DTD violation
+	 add_idmef_object(idmef, "alert.target(0).file(0).name"				,down->getDownloadUrl()->getFile().c_str());
+	 add_idmef_object(idmef, "alert.target(0).file(0).path"				,down->getUrl().c_str());
+	 add_idmef_object(idmef, "alert.target(0).file(0).category"			,"current");
+	 add_idmef_object(idmef, "alert.target(0).file(0).ident"			,down->getMD5Sum().c_str());
+	 add_idmef_object(idmef, "alert.target(0).file(0).data_size"			,down->getDownloadBuffer()->getSize());
+	 
+         //hl: some debug stuff, prelude-manager doesnt write the checksums into xml 
+	 ret = add_idmef_object(idmef, "alert.target(0).file(0).checksum(0).algorithm"	,"MD5");
+	 //logInfo("LogPrelude DEBUG MD5 %i\n", ret);
+	 ret = add_idmef_object(idmef, "alert.target(0).file(0).checksum(0).value"		,down->getMD5Sum().c_str());
+         //logInfo("LogPrelude DEBUG Hash %i\n", ret);
+	 ret = add_idmef_object(idmef, "alert.target(0).file(0).checksum(1).algorithm"	,"SHA2-512");
+         //logInfo("LogPrelude DEBUG SHA %i\n", ret);
+	 ret = add_idmef_object(idmef, "alert.target(0).file(0).checksum(1).value"		,down->getSHA512Sum().c_str());
+         //logInfo("LogPrelude DEBUG Hash %i\n", ret);
 
 	 uint32_t addr = down->getLocalHost();
 	 string address = inet_ntoa(*(in_addr *)&addr);
@@ -610,9 +627,9 @@ void LogPrelude::handleSubmission(Event *event)
 
 
 	 // download source
-	 add_idmef_object(idmef, "alert.source(0).Service.port"						,down->getDownloadUrl()->getPort());
+	 add_idmef_object(idmef, "alert.source(0).Service.port", down->getDownloadUrl()->getPort());
 	 
-	
+	 /* hl: previous dirty workaround -> commented
 	 string protocol;
 	 if (down->getDownloadUrl()->getProtocol() == "tftp" )
 		 protocol = "UDP";
@@ -620,13 +637,16 @@ void LogPrelude::handleSubmission(Event *event)
 		 protocol = "TCP";
 
 	 add_idmef_object(idmef, "alert.source(0).Service.protocol"					,protocol.c_str());
+	 */
+	 
 	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
-	 add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
+	 // hl: not needed
+	 //add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
 
 	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"possible Malware stored for further analysis");
 	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"high");
 //     add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
-     add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+         add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
 
 	 // time
 	 idmef_time_t *time;
@@ -672,19 +692,10 @@ void LogPrelude::handleDialogueAssignAndDone(Event *event)
 	
 	 // generic information
 	 add_idmef_object(idmef, "alert.classification.text", attack.c_str());
-//	 add_idmef_object(idmef, "alert.classification.ident", attack.c_str());
+	 // hl: added ident field
+	 add_idmef_object(idmef, "alert.classification.ident", "3");
 
-	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
-
-
-//	 // file name and info
-//	 add_idmef_object(idmef, "alert.target(0).file(0).name"						,down->getDownloadUrl()->getFile().c_str());
-//	 add_idmef_object(idmef, "alert.target(0).file(0).data_size"				,down->getDownloadBuffer()->getSize());
-//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).algorithm"	,"MD5");
-//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).value"		,down->getMD5Sum().c_str());
-////			add_idmef_object(idmef, "alert.target(0).file(0).Checksum(0).category","current");
-//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).algorithm"	,"SHA2-512");
-//	 add_idmef_object(idmef, "alert.target(0).file(0).Checksum(1).value"		,down->getSHA512Sum().c_str());
+//	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
 
 	 // attacker
@@ -709,9 +720,14 @@ void LogPrelude::handleDialogueAssignAndDone(Event *event)
 
 	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"An exploit attempt is getting handled.");
 	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"low");
-//     add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
-     add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
+//       add_idmef_object(idmef, "alert.assessment.impact.completion"			,"succeeded");
+         add_idmef_object(idmef, "alert.assessment.impact.type"					,"other");
 
+
+	 // hl: added
+         add_idmef_object(idmef, "alert.additional_data(0).type", "string");
+         add_idmef_object(idmef, "alert.additional_data(0).meaning", "Dialogue");
+         add_idmef_object(idmef, "alert.additional_data(0).data", dia->getDialogueName().c_str());
 
 	 // time
 	 idmef_time_t *time;
@@ -763,8 +779,12 @@ void LogPrelude::handleDownload(Event *event)
 		 return;
 
 	 // generic information
-	 add_idmef_object(idmef, "alert.classification.text"						,"possible Malware offered");
-	 add_idmef_object(idmef, "alert.classification.ident", url.c_str());
+	 // hl: changed message
+	 string message = "possible Malware offered: " + down->getUrl();
+	 
+	 add_idmef_object(idmef, "alert.classification.text", message.c_str());
+         // hl: changed to ident number
+	 add_idmef_object(idmef, "alert.classification.ident", "5");
 
 //	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
@@ -780,15 +800,17 @@ void LogPrelude::handleDownload(Event *event)
 
 
 	 // download source
+	 // hl: removed protocol, added url
+	 /* 
 	 string protocol;
 	 if (down->getDownloadUrl()->getProtocol() == "tftp" )
 		 protocol = "UDP";
 	 else
 		 protocol = "TCP";
-		 
+	 */	 
 	 add_idmef_object(idmef, "alert.source(0).Service.port"						,down->getDownloadUrl()->getPort());
-	 add_idmef_object(idmef, "alert.source(0).Service.protocol"					,protocol.c_str());
-//	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
+	 //add_idmef_object(idmef, "alert.source(0).Service.protocol"					,protocol.c_str());
+	 add_idmef_object(idmef, "alert.source(0).Service.web_service.url"			,down->getUrl().c_str());
 //	 add_idmef_object(idmef, "alert.source(0).Service.web_service.http_method"	,"get");
 	 add_idmef_object(idmef, "alert.assessment.impact.description"			,"Parsing the Shellcode has unrevealed a URL.");
 	 add_idmef_object(idmef, "alert.assessment.impact.severity"				,"medium");
@@ -827,4 +849,3 @@ extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepe
         return 0;
     }
 }
-
