@@ -542,7 +542,13 @@ void LogPrelude::handleShellcodeDone(Event *event)
 	add_idmef_object(idmef, "alert.assessment.impact.type"				,"other");
 
 
-	idmef_time_t *time;
+	// hl: added for additional information
+        add_idmef_object(idmef, "alert.additional_data(0).type", "string");
+        add_idmef_object(idmef, "alert.additional_data(0).meaning", "Shellcode");
+        add_idmef_object(idmef, "alert.additional_data(0).data", handler->getShellcodeHandlerName().c_str());
+
+ 
+	 idmef_time_t *time;
 
 	ret = idmef_time_new_from_gettimeofday(&time);
 	idmef_alert_set_create_time(idmef_message_get_alert(idmef), 
