@@ -375,7 +375,7 @@ void LogPrelude::handleTCPaccept(Event *event)
 		return;
 
 	add_idmef_object(idmef, "alert.classification.text"						,"TCP Connection established");
-	add_idmef_object(idmef, "alert.classification.ident", "1");
+	add_idmef_object(idmef, "alert.classification.ident", EV_SOCK_TCP_ACCEPT);
 //	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
@@ -448,7 +448,7 @@ void LogPrelude::handleTCPclose(Event *event)
 
 
 	add_idmef_object(idmef, "alert.classification.text"							,"TCP Connection closed");
-	add_idmef_object(idmef, "alert.classification.ident", "2");
+	add_idmef_object(idmef, "alert.classification.ident", EV_SOCK_TCP_CLOSE);
 //	add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
 
@@ -513,7 +513,7 @@ void LogPrelude::handleShellcodeDone(Event *event)
 	string shellcodeText = "Shellcode detected: " + handler->getShellcodeHandlerName();
 	add_idmef_object(idmef, "alert.classification.text", shellcodeText.c_str());
 	// hl: added ident
-	add_idmef_object(idmef, "alert.classification.ident", "4");
+	add_idmef_object(idmef, "alert.classification.ident", EV_SHELLCODE_DONE);
 
 	//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
@@ -595,7 +595,7 @@ void LogPrelude::handleSubmission(Event *event)
 	 // generic information
 	 // hl: changed submited to submitted, added ident
 	 add_idmef_object(idmef, "alert.classification.text"						,"Malware submitted");
-	 add_idmef_object(idmef, "alert.classification.ident", "6");
+	 add_idmef_object(idmef, "alert.classification.ident", EV_SUBMISSION);
 
 	 string url = "http://nepenthes.sf.net/wiki/submission/" + down->getMD5Sum();
 	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
@@ -699,7 +699,7 @@ void LogPrelude::handleDialogueAssignAndDone(Event *event)
 	 // generic information
 	 add_idmef_object(idmef, "alert.classification.text", attack.c_str());
 	 // hl: added ident field
-	 add_idmef_object(idmef, "alert.classification.ident", "3");
+	 add_idmef_object(idmef, "alert.classification.ident", EV_DIALOGUE_ASSIGN_AND_DONE);
 
 //	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
@@ -790,7 +790,7 @@ void LogPrelude::handleDownload(Event *event)
 	 
 	 add_idmef_object(idmef, "alert.classification.text", message.c_str());
          // hl: changed to ident number
-	 add_idmef_object(idmef, "alert.classification.ident", "5");
+	 add_idmef_object(idmef, "alert.classification.ident", EV_DOWNLOAD);
 
 //	 add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
