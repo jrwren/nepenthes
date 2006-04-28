@@ -1,5 +1,0 @@
-submit-xmlrpc
-{
-    server    "http://malware.23.nu:4711/RPC2";
-    pipeline  "0";
-};

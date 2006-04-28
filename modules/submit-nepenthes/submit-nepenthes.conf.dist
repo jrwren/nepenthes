@@ -1,7 +1,0 @@
-submit-nepenthes
-{
-    host    "FIXME";
-    port    "45678";
-    connecttimeout  "30";
-
-};
