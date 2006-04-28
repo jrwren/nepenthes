@@ -64,8 +64,6 @@
 #include "Utilities.hpp"
 #include "DialogueFactoryManager.hpp"
 #include "DNSManager.hpp"
-#include "GeoLocationManager.hpp"
-#include "UploadManager.hpp"
 
 #include "Message.hpp"
 
@@ -96,9 +94,6 @@ Nepenthes::Nepenthes()
 	m_DNSManager = NULL;
 	m_DownloadManager   = NULL;
 	m_EventManager  = NULL;
-#ifdef HAVE_GEOLOCATION
-	m_GeoLocationManager = NULL;
-#endif
 	m_LogManager    = NULL;
 	m_ModuleManager = NULL;
 	m_ShellcodeManager  = NULL;
@@ -141,11 +136,6 @@ Nepenthes::~Nepenthes()
 
 	if (m_DialogueFactoryManager != NULL)
 		delete m_DialogueFactoryManager;
-
-#ifdef HAVE_GEOLOCATION
-	if (m_GeoLocationManager != NULL)
-		delete m_GeoLocationManager;
-#endif
 
 	if (m_DNSManager != NULL)
 		delete m_DNSManager;
@@ -411,11 +401,6 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			m_DownloadManager   = new DownloadManager(this);
 			m_EventManager      = new EventManager(this);
 
-#ifdef HAVE_GEOLOCATION
-			m_GeoLocationManager = new GeoLocationManager(this);
-#endif 
-
-			m_UploadManager		= new UploadManager(this);
 			//	m_Lua				= new Lua
 			m_ModuleManager     = new ModuleManager(this);
 			m_ShellcodeManager  = new ShellcodeManager(this);
@@ -542,23 +527,10 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			m_DNSManager->doList();
 		}
 
-#ifdef HAVE_GEOLOCATION
-		if (run == true )
-		{
-			run = m_GeoLocationManager->Init();
-		}
-#endif
-
 		if (run == true )
 		{
 			run = m_DownloadManager->Init();
 			m_DownloadManager->doList();
-		}
-
-		if (run == true )
-		{
-			run = m_UploadManager->Init();
-			m_UploadManager->doList();
 		}
 
 		if (run == true )
@@ -1115,28 +1087,6 @@ DNSManager *Nepenthes::getDNSMgr()
 }
 
 
-#ifdef HAVE_GEOLOCATION
-/**
- * get the GeoLocationManager
- * 
- * @return returns the GeoLocationManager
- */
-GeoLocationManager *Nepenthes::getGeoMgr()
-{
-	return m_GeoLocationManager;
-}
-
-#endif
-
-/**
- * get the UploadManager
- * 
- * @return returns the UploadManager
- */
-UploadManager *Nepenthes::getUploadMgr()
-{
-	return m_UploadManager;
-}
 
 /**
  * stop the nepenthes

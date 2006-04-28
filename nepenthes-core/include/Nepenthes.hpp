@@ -108,8 +108,6 @@ namespace nepenthes
 	class DialogueFactoryManager;
 	class DNSManager;
 	class Message;
-	class GeoLocationManager;
-	class UploadManager;
 
 
 /**
@@ -138,12 +136,6 @@ namespace nepenthes
 		virtual DialogueFactoryManager *getFactoryMgr();
 		virtual DNSManager 			*getDNSMgr();
 
-#ifdef HAVE_GEOLOCATION
-		virtual GeoLocationManager 	*getGeoMgr();
-#endif 
-
-		virtual UploadManager 		*getUploadMgr();
-
 		virtual bool 				doLoop();
 		virtual int32_t 				run(int32_t argc, char **argv);
 		virtual bool				stop();
@@ -155,16 +147,12 @@ namespace nepenthes
 		DownloadManager     *m_DownloadManager;
 		DNSManager          *m_DNSManager;
 		EventManager        *m_EventManager;
-#ifdef HAVE_GEOLOCATION
-		GeoLocationManager  *m_GeoLocationManager;
-#endif
 		LuaInterface        *m_Lua;
 		LogManager          *m_LogManager;
 		ModuleManager       *m_ModuleManager;
 		ShellcodeManager    *m_ShellcodeManager;
 		SubmitManager       *m_SubmitManager;
 		SocketManager       *m_SocketManager;
-		UploadManager       *m_UploadManager;
 		Utilities           *m_Utilities;
 		
 		
