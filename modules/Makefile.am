@@ -12,7 +12,7 @@ SUBDIRS = download-creceive download-csend download-curl download-ftp download-h
           vuln-sub7 vuln-upnp vuln-veritas vuln-wins vuln-dameware vuln-ssh \
           module-portwatch \
           dnsresolve-adns \
-          x-1 x-2 x-3 x-4 x-5 x-6 x-8 \
+          x-1 x-2 x-3 x-4 x-5 x-6 \
           log-surfnet vuln-ftpd \
           log-prelude shellcode-signatures
           

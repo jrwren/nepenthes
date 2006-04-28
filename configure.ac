@@ -508,158 +508,6 @@ AC_MSG_RESULT($enableval)
 
 
 dnl **************************************************
-dnl * GeoLocation Support                            *
-dnl **************************************************
-
-AC_ARG_ENABLE(geolocation, [  --enable-geolocation	Enable GeoLocation [default=no]], 
-		    enable_geolocation="$enableval", enable_geolocation="no")
-
-AC_ARG_ENABLE(geolocation_hostip, [  --enable-geolocation-hostip	Enable GeoIP [default=auto]], 
-		    enable_geolocation_hostip="$enableval", enable_geolocation_hostip="yes")
-
-AC_ARG_ENABLE(geolocation_ip2location, [  --enable-geolocation-ip2location	Enable IP2Location [default=auto]], 
-		    enable_geolocation_ip2location="$enableval", enable_geolocation_ip2location="yes")
-		    
-AC_ARG_ENABLE(geolocation_geoip, [  --enable-geolocation-geoip	Enable GeoIP [default=auto]], 
-		    enable_geolocation_geoip="$enableval", enable_geolocation_geoip="yes")
-
-
-if test x$enable_geolocation = xyes; then
-
-
-  AC_DEFINE_UNQUOTED(HAVE_GEOLOCATION, 1, [Define wether we want to use GeoLocation])
-  
-
-  AC_ARG_WITH(geoip-include,
-    [  --with-geoip-include=PATH	specify path to GeoIP include files],
-    [geoip_inc=$withval],
-    [geoip_inc=no])
-
-  AC_ARG_WITH(geoip-lib,
-    [  --with-geoip-lib=PATH	specify path to GeoIP client library],
-    [geoip_lib=$withval],
-    [geoip_lib=no])
-
-
-  AC_ARG_WITH(ip2location-include,
-    [  --with-ip2location-include=PATH	specify path to IP2Location include files],
-    [ip2location_inc=$withval],
-    [ip2location_inc=no])
-
-  AC_ARG_WITH(ip2location-lib,
-    [  --with-ip2location-lib=PATH	specify path to IP2Location client library],
-    [ip2location_lib=$withval],
-    [ip2location_lib=no])
-
-
-  dnl **************************************************
-  dnl * GeoIP Support                                  *
-  dnl **************************************************
-
-  if test x$enable_geolocation_geoip = xyes; then
-
-    dnl **************************************************
-    dnl * GeoIP headers                                  *
-    dnl **************************************************
-
-    orig_cppflags=$CPPFLAGS
-  
-    if test "x$geoip_inc" != xno; then
-      CPPFLAGS="-I$geoip_inc $CPPFLAGS"
-    fi
-  
-    AC_CHECK_HEADER(GeoIP.h, [found=yes], [found=no])
-
-    if test "x$found" != "xno"; then
-      dnl **************************************************
-      dnl * GeoIP lib                                      *
-      dnl **************************************************
-	
-      orig_ldflags=$LDFLAGS
-      if test "x$geoip_lib" != "xno"; then
-          LDFLAGS="-L$geoip_lib $LDFLAGS"
-      fi
-      AC_CHECK_LIB([GeoIP], [GeoIP_open], [found=yes], [found=no])
-    
-      if test "x$found" != "xyes"; then
-          LDFLAGS=$orig_ldflags
-      fi
-    else    
-       CPPFLAGS=$orig_cppflags
-    fi
-
-    if test "x$found" != "xyes"; then
-      enable_geolocation_geoip=no
-    else
-      AC_DEFINE(HAVE_LIBGEOIP, 1,[Define if you want to use MaxMind's GeoIP])
-      LIBS="-lGeoIP $LIBS"
-    fi
-    
-  fi  
-
-    
-  
-
-
-
-  dnl **************************************************
-  dnl * IP2Location Support                            *
-  dnl **************************************************
-
-  if test x$enable_geolocation_ip2location = xyes; then
-
-    dnl **************************************************
-    dnl * IP2location headers                            *
-    dnl **************************************************
-
-    orig_cppflags=$CPPFLAGS
-  
-    if test "x$ip2location_inc" != xno; then
-      CPPFLAGS="-I$ip2location_inc $CPPFLAGS"
-    fi
-  
-    AC_CHECK_HEADER(IP2Location.h, [found=yes], [found=no])
-
-    if test "x$found" != "xno"; then
-      dnl **************************************************
-      dnl * IP2Location lib                                *
-      dnl **************************************************
-	
-      orig_ldflags=$LDFLAGS
-
-      if test "x$ip2location_lib" != "xno"; then
-          LDFLAGS="-L$ip2location_lib -lIP2Location $LDFLAGS"
-      fi
-      
-      AC_CHECK_LIB([IP2Location], [IP2Location_open], [found=yes], [found=no])
-    
-      if test "x$found" != "xyes"; then
-          LDFLAGS=$orig_ldflags
-      fi
-    else    
-       CPPFLAGS=$orig_cppflags
-    fi
-
-    if test "x$found" != "xyes"; then
-      enable_geolocation_ip2location=no
-    else
-      AC_DEFINE(HAVE_LIBIP2LOCATION, 1,[Define if you want to use IP2Location])
-      LIBS="-lIP2Location $LIBS"
-    fi
-  
-  fi  
-  
-else   
-  enable_geolocation_hostip=no
-  enable_geolocation_geoip=no
-  enable_geolocation_ip2location=no
-
-fi
-
-
-
-
-dnl **************************************************
 dnl * dnsresolve Support                             *
 dnl **************************************************
 
@@ -851,16 +699,13 @@ AC_CONFIG_FILES([Makefile
                  modules/download-curl/Makefile
                  modules/download-ftp/Makefile
                  modules/download-link/Makefile
-                 modules/download-nepenthes/Makefile
                  modules/download-tftp/Makefile
                  modules/log-download/Makefile
                  modules/log-irc/Makefile
                  modules/module-portwatch/Makefile
                  modules/submit-file/Makefile
                  modules/submit-gotek/Makefile
-                 modules/submit-nepenthes/Makefile
                  modules/submit-norman/Makefile
-                 modules/submit-xmlrpc/Makefile
                  modules/shellcode-generic/Makefile
                  modules/shellemu-winnt/Makefile
                  modules/vuln-asn1/Makefile
@@ -889,13 +734,8 @@ AC_CONFIG_FILES([Makefile
                  modules/x-4/Makefile
                  modules/x-5/Makefile                 
                  modules/x-6/Makefile
-                 modules/x-8/Makefile
-		 modules/geolocation-hostip/Makefile
-		 modules/geolocation-geoip/Makefile
                  modules/download-http/Makefile
-		 modules/upload-http/Makefile
 		 modules/dnsresolve-adns/Makefile
-		 modules/geolocation-ip2location/Makefile
 		 modules/log-surfnet/Makefile		 
 		 modules/vuln-msdtc/Makefile
 		 modules/download-rcp/Makefile
@@ -919,11 +759,6 @@ echo ""
 echo "- DNS Resolve                 "
 echo "  - Support adns              : $enable_dnsresolve_adns"
 echo ""
-echo "- Support GeoLocation         : $enable_geolocation"
-echo "  - Support hostip            : $enable_geolocation_hostip"
-echo "  - Support GeoIP             : $enable_geolocation_geoip"
-echo "  - Support IP2Location       : $enable_geolocation_ip2location"
-echo "" 
 echo "- Support Large Filesystem    : $enable_lfs"
 echo "" 
 echo "- Support MySQL               : $enable_mysql"
