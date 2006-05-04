@@ -5,6 +5,7 @@
  *
  *
  * Copyright (C) 2005  Paul Baecher & Markus Koetter
+ * Copyright (C) 2005  Georg Wicherski
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,24 +38,25 @@
 
 using namespace std;
 
+
 namespace nepenthes
 {
-	typedef struct
+	struct SocksHeader
 	{
-		unsigned char ucVersion;
-		unsigned char ucCommand;
-		uint16_t usDestPort;
-		uint32_t ulDestAddr;
-		char szUser[1024];
+		unsigned char version;
+		unsigned char command;
+		uint16_t destPort;
+		uint32_t destAddress;
+		char user[1024];
 
-	} socks4_header_t;
+	};
 
 
-	typedef enum 
+	enum IrcDialogueState
 	{
 		IRCDIA_REQUEST_SEND,
 		IRCDIA_CONNECTED,
-	} irc_dia_state;
+	};
 
 	class LogIrc;
 	class Buffer;
@@ -64,25 +66,31 @@ namespace nepenthes
 	public:
 		IrcDialogue(Socket *socket, LogIrc * logirc);
 		~IrcDialogue();
-		ConsumeLevel incomingData(Message *msg);
-		ConsumeLevel outgoingData(Message *msg);
-		ConsumeLevel handleTimeout(Message *msg);
-		ConsumeLevel connectionLost(Message *msg);
-		ConsumeLevel connectionShutdown(Message *msg);
+		
+		ConsumeLevel incomingData(Message * msg);
+		ConsumeLevel outgoingData(Message * msg);
+		ConsumeLevel handleTimeout(Message * msg);
+		ConsumeLevel connectionLost(Message * msg);
+		ConsumeLevel connectionShutdown(Message * msg);
 
-		void 	logIrc(uint32_t mask, const char *message);
+		void logIrc(uint32_t mask, const char *message);
 
 		void sendNick(bool random);
 		void sendUser();
 		void sendServerPass();
+		
 	protected:
-
 		void processBuffer();
-		void processLine(string *line);
-		bool m_Pinged;
+		void processLine(const char *line, uint32_t lineLength);
+		
+		void loggedOn();
+		void processMessage(const char *origin, const char *target, const char *message);
+		
+		bool m_Pinged, m_LoggedOn;
+		
 		LogIrc 	*m_LogIrc;
 
-		irc_dia_state m_State;
+		IrcDialogueState m_State;
 
 		string 	m_NickName;
 

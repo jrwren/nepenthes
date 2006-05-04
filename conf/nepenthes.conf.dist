@@ -30,9 +30,6 @@ nepenthes
     "downloadtftp.so",              "download-tftp.conf",           ""
     "downloadrcp.so",	            ""			            ""
 
-// upload handler for various? protocols
-    "uploadhttp.so",               "",                             ""
-
 // submission handler
     "submitfile.so",                "submit-file.conf",             ""  // save to disk
 //  "submitnorman.so",              "submit-norman.conf",           ""

@@ -95,14 +95,14 @@ ConsumeLevel MSSQLDialogue::incomingData(Message *msg)
         Socket *socket;
 		if ((socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,31337,60,30)) == NULL)
 		{
-			logCrit("%s","Could not bind socket 31337 \n");
+			logCrit("Could not bind socket 31337 \n");
 			return CL_DROP;
 		}
 		
 		DialogueFactory *diaf;
 		if ((diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL)
 		{
-			logCrit("%s","No WinNTShell DialogueFactory availible \n");
+			logCrit("No WinNTShell DialogueFactory availible \n");
 			return CL_DROP;
 		}
 

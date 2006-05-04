@@ -160,6 +160,12 @@ ConsumeLevel TFTPDialogue::incomingData(Message *msg)
 				logInfo("Downloaded file %s %i bytes\n", m_Download->getUrl().c_str(), m_Download->getDownloadBuffer()->getSize());
 				msg->getSocket()->getNepenthes()->getSubmitMgr()->addSubmission(m_Download);
                 m_Socket->setStatus(SS_CLOSED);
+			}else
+			{
+				if( m_Download->getDownloadBuffer()->getSize() > 1024 * 1024 * 4 ) // hardcoded 4mb limit for now (tm)
+				{
+					return CL_DROP;
+				}
 			}
 		}
 		break;

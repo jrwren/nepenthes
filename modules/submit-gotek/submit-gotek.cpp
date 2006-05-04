@@ -95,7 +95,7 @@ bool GotekSubmitHandler::Init()
 
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","No G.O.T.E.K. Configuration given!\n");
+		logCrit("No G.O.T.E.K. Configuration given!\n");
 		return false;
 	}
 
@@ -109,7 +109,7 @@ bool GotekSubmitHandler::Init()
 
     	} catch ( ... )
 	{
-		logCrit("%s", "Could not get G.O.T.E.K. host/port/user/key from configuration!\n");
+		logCrit("Could not get G.O.T.E.K. host/port/user/key from configuration!\n");
 		return false;
 	}
 	
@@ -125,7 +125,7 @@ bool GotekSubmitHandler::Init()
 		}
 	} catch ( ... )
 	{
-		logCrit("%s", "Broken spool configuration, disabling.\n");
+		logCrit("Broken spool configuration, disabling.\n");
 		m_HandleSpool = false;
 	}
 
@@ -145,7 +145,7 @@ bool GotekSubmitHandler::scanSpoolDirectory()
 {
 	if(!m_HandleSpool)
 	{
-		logInfo("%s", "G.O.T.E.K. spooling disabled, not scanning spool directory.\n");
+		logInfo("G.O.T.E.K. spooling disabled, not scanning spool directory.\n");
 		return true;
 	}
 
@@ -331,7 +331,7 @@ void GotekSubmitHandler::Submit(Download *down)
 	}else
 	{
 		// shit happens for now
-		logWarn("%s", "No G.O.T.E.K. control connection, saved to spool if enabled.\n");
+		logWarn("No G.O.T.E.K. control connection, saved to spool if enabled.\n");
 	}
 
 	return;
@@ -458,7 +458,7 @@ void GotekSubmitHandler::childConnectionLost()
 	switch(m_ControlConnStatus)
 	{
 	case GSHS_RESOLVING:
-		logCrit("%s\n", "Lost child connection while resolving DNS -- impossible!\n");
+		logCrit("Lost child connection while resolving DNS -- impossible!\n\n");
 		break;
 		
 	case GSHS_WAITING_SHORT:

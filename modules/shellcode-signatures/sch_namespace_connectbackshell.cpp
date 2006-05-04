@@ -163,7 +163,7 @@ sch_result NamespaceConnectbackShell::handleShellcode(Message **msg)
 		DialogueFactory *diaf;
 		if ((diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL)
 		{
-			logCrit("%s","No WinNTShell DialogueFactory availible \n");
+			logCrit("No WinNTShell DialogueFactory availible \n");
 			return SCH_DONE;
 		}
 		sock->addDialogue(diaf->createDialogue(sock));

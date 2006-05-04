@@ -78,7 +78,7 @@ bool GenericConnectTrans::Init()
 		sList = *g_GenericShellcodeHandler->getConfig()->getValStringList("shellcode-generic.generic_connect_trans");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 

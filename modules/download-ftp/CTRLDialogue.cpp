@@ -114,7 +114,7 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 //	logDebug("RX:\n%.*s\n",msg->getSize(),msg->getMsg());
 	if (m_Download == NULL && m_State < FTP_RETR)
 	{
-		logWarn("%s","broken ftp daemon \n");
+		logWarn("broken ftp daemon \n");
 		return CL_DROP;
 	}
 
@@ -206,11 +206,11 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 			case FTP_RETR:
 				if (strncmp((char *)m_Buffer->getData() + iStart,"150 ",4) == 0)
 				{
-					logDebug("%s","RETR accepted\n");
+					logDebug("RETR accepted\n");
 				}else
 				if (strncmp((char *)m_Buffer->getData() + iStart,"226 ",4) == 0)
 				{
-					logDebug("%s","Transferr finished\n");
+					logDebug("Transferr finished\n");
 					sendQuit();
 					m_State = FTP_QUIT;
 				}
@@ -352,7 +352,7 @@ bool CTRLDialogue::parsePass(char *msg)
 {
 	if (strncmp(msg,"230 ",4) == 0)
 	{
-		logDebug("%s","Pass accepted, logged in \n");
+		logDebug("Pass accepted, logged in \n");
 		return true;
 	}else
 	{
@@ -375,7 +375,7 @@ bool CTRLDialogue::parseType(char *msg)
 {
 	if (strncmp(msg,"200 ",4) == 0)
 	{
-		logDebug("%s","Type accepted \n");
+		logDebug("Type accepted \n");
 		return true;
 	}else
 	{
@@ -387,7 +387,7 @@ bool CTRLDialogue::parseType(char *msg)
 
 void CTRLDialogue::sendPort()
 {
-	logDebug("%s","System ... \n");
+	logDebug("System ... \n");
 
 	uint32_t ip;
 	uint16_t minport;
@@ -467,7 +467,7 @@ bool CTRLDialogue::parsePort(char *msg)
 {
 	if (strncmp(msg,"200 ",4) == 0)
 	{
-		logDebug("%s","Port accepted\n");
+		logDebug("Port accepted\n");
 		return true;
 	}else
 	{
@@ -491,7 +491,7 @@ bool CTRLDialogue::parseRetr(char *msg)
 {
 	if (strncmp(msg,"150 ",4) == 0)
 	{
-		logDebug("%s","Retr accepted\n");
+		logDebug("Retr accepted\n");
 		return true;
 	}else
 	{
@@ -513,7 +513,7 @@ bool CTRLDialogue::parseQuit(char *msg)
 {
 	if (strncmp(msg,"221 ",4) == 0)
 	{
-		logDebug("%s","Quit accepted\n");
+		logDebug("Quit accepted\n");
 		return true;
 	}else
 	{
@@ -534,7 +534,7 @@ bool CTRLDialogue::parseCWD(char *msg)
 {
 	if (strncmp(msg,"250 ",4) == 0)
 	{
-		logDebug("%s","CWD accepted\n");
+		logDebug("CWD accepted\n");
 		return true;
 	}else
 	{

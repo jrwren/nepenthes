@@ -109,7 +109,7 @@ bool MSSQLVuln::Init()
 		timeout = m_Config->getValInt("vuln-mssql.accepttimeout");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 

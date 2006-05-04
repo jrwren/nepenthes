@@ -5,6 +5,7 @@
  *
  *
  * Copyright (C) 2005  Paul Baecher & Markus Koetter
+ * Copyright (C) 2006  Georg Wicherski
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +30,7 @@
 
 #include <ctype.h>
 #include <string>
+#include <string.h>
 #include <vector>
 
 #include "log-irc.hpp"
@@ -61,39 +63,31 @@ using namespace std;
 #endif
 
 
-
-
-/**
- * Dialogue::Dialogue(Socket *)
- * construktor for the IrcDialogue, creates a new IrcDialogue
- * 
- * replies some crap to the socket
- * 
- * @param socket the Socket the Dialogue has to use
- */
 IrcDialogue::IrcDialogue(Socket *socket, LogIrc * logirc)
 {
 	m_Socket = socket;
-    m_DialogueName = "IrcDialogue";
-	m_DialogueDescription = "eXample Dialogue";
+	m_DialogueName = "IrcDialogue";
+	m_DialogueDescription = "IRC logging client";
 	
 	m_ConsumeLevel = CL_ASSIGN;
 	m_LogIrc = logirc;
+	m_LoggedOn = false;
 
 	m_State = IRCDIA_REQUEST_SEND;
 
 	if ( m_LogIrc->useTor() == true )
 	{
-		socks4_header_t s4hHeader;
-		memset(&s4hHeader,0,sizeof(socks4_header_t));
+		SocksHeader torHeader;
+		memset(&torHeader, 0, sizeof(torHeader));
 
-		s4hHeader.ucVersion = 4;
-		s4hHeader.ucCommand = 1; // connect request
-		s4hHeader.usDestPort = htons(m_LogIrc->getIrcPort());
-		s4hHeader.ulDestAddr = m_LogIrc->getIrcIP();
+		torHeader.version = 4;
+		torHeader.command = 1; // connect request
+		torHeader.destPort = htons(m_LogIrc->getIrcPort());
+		torHeader.destAddress = m_LogIrc->getIrcIP();
 
-		m_Socket->doRespond((char *) &s4hHeader,8+ strlen(s4hHeader.szUser)+1 );
-	} else
+		m_Socket->doRespond((char *) &torHeader,8+strlen(torHeader.user)+1);
+	}
+	else
 	{
 		m_State = IRCDIA_CONNECTED;
 		sendServerPass();
@@ -115,330 +109,337 @@ IrcDialogue::~IrcDialogue()
 	m_LogIrc->setDialogue(NULL);
 }
 
-/**
- * Dialogue::incomingData(Message *)
- * 
- * a small and ugly shell where we can use
- * "download protocol://localction:port/path/to/file
- * to trigger a download
- * 
- * @param msg the Message the Socker received.
- * 
- * 
- * @return CL_ASSIGN
- */
 ConsumeLevel IrcDialogue::incomingData(Message *msg)
 {
-	
 	switch (m_State)
 	{
 	case IRCDIA_REQUEST_SEND:
-		if ( ((socks4_header_t *)msg->getMsg())->ucCommand == 90 )
+		if( ((SocksHeader *) msg->getMsg())->command == 90 )
 		{
-			logInfo("%s","connected to ircd via tor\n");
+			logInfo("Connected to IRC server \"%s\" through TOR proxy \"%s\"\n", m_LogIrc->getIrcServer().c_str(), m_LogIrc->getTorServer().c_str());
 			m_State = IRCDIA_CONNECTED;
 
 			sendServerPass();
 			sendNick(false);
 			sendUser();
 
-		} else
+		}
+		else
 		{
-			logWarn("%s","tor did not accept our connection \n");
+			logInfo("Relaying to IRC server \"%s\" denied by TOR proxy \"%s\"\n", m_LogIrc->getIrcServer().c_str(), m_LogIrc->getTorServer().c_str());
 			return CL_DROP;
 		}
+		
 		break;
+		
 	case IRCDIA_CONNECTED:
-		{
-			m_Buffer->add(msg->getMsg(),msg->getSize());
-			processBuffer();
-		}
+		m_Buffer->add(msg->getMsg(),msg->getSize());
+		processBuffer();
+		
 		break;
 
 	}
+	
 	return CL_ASSIGN;
 }
 
-
+//! oxff: slightly faster and definitely better readable than old implementation
 void IrcDialogue::processBuffer()
 {
-	logPF();
-	unsigned char *linestart = (unsigned char *)m_Buffer->getData();
-	unsigned char *linestopp = (unsigned char *)m_Buffer->getData();
-
-	uint32_t i=0;
-	while (i < m_Buffer->getSize())
-	{
+	uint32_t bufferLength = m_Buffer->getSize();
+	uint32_t lineLength, processedLength;
+	const char *look, *lineStart;
+	
+	if(bufferLength < 2)
+		return;
 		
-		if ( linestopp[i] == '\n')
+	processedLength = 0;
+	look = (char *) m_Buffer->getData();
+	
+	lineStart = look;
+	lineLength = 1;
+	++look;
+	
+	for(uint32_t i = 0; i < bufferLength; ++i, ++look)
+	{
+		if(* look == '\n' && * (look - 1) == '\r')
 		{
-			i++;
-//			printf("IRCLINE len %i \n'%.*s'\n",(int32_t)(linestopp+i-linestart),(int32_t)(linestopp+i-linestart),linestart);
-			string line((char *)m_Buffer->getData(),(int32_t)(linestopp+i - linestart));	
-			if (line[line.size()-1] == '\n')
-			{
-				line[line.size()-1] = '\0';
-			}
-			if (line[line.size()-2] == '\r')
-			{
-				line[line.size()-2] = '\0';
-			}
-			printf("test '%s'\n",line.c_str());
-			processLine(&line);
-			m_Buffer->cut(i);
-			i=0;
-			linestart = linestopp+i;
-		}else
-		{
-			i++;
+			// -1 cuts the already processed '\r'
+			processLine(lineStart, lineLength - 1);
+			
+			// + 1 includes the trailing '\n'
+			processedLength += lineLength + 1;
+			lineLength = 0;
+			lineStart = look + 1;
 		}
+		else
+			++lineLength;
 	}
+	
+	m_Buffer->cut(processedLength);
 }
 
-void IrcDialogue::processLine(string *line)
+//! oxff: again slightly faster and definitely better readable
+//! oxff: now splits into IRC RFC elements, not words (leaving PRIVMSG lines)
+void  IrcDialogue::processLine(const char *line, uint32_t lineLength)
 {
-	vector<string> words;
-
-	uint32_t i=0;      
-	bool haschar = false;
-	uint32_t wordstart=0;
-	uint32_t wordstopp=0;
-
-	while ( i<=line->size() )
+	vector<string> lineElements;
+	
 	{
-		if ( ( ( (*line)[i] == ' ' || (*line)[i] == '\0') && haschar == true) )
+		const char *look = line;
+		string element;
+		
+		if(* line == ':')
 		{
-			wordstopp = i;
-			string word = line->substr(wordstart,wordstopp-wordstart);
-//			logInfo("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
-			words.push_back(word);
-			haschar = false;
-		} else
-		if ( isgraph((*line)[i]) && haschar == false )
-		{
-			haschar = true;
-			wordstart = i;
+			if(!--lineLength)
+				return;
+				
+			++look;
 		}
-		i++;
+		
+		//! oxff: this is a pre-condition to the parsing loop
+		if(* look == ':')
+		{
+			logWarn("IRC Server \"%s\" sent line beginning with two colons\n", m_LogIrc->getIrcServer().c_str());
+			return;
+		}
+
+		for(uint32_t i = 0; i < lineLength; ++i, ++look)
+		{
+			if(* look == ' ')
+			{
+				lineElements.push_back(element);
+				element.erase();
+			}
+			else if(* look == ':' && * (look - 1) == ' ') // look behind allowed due to pre-condition
+			{				
+				element = string(look + 1, lineLength - i - 1);
+				lineElements.push_back(element);
+				element.erase();
+				
+				break;
+			}
+			else
+				element.push_back(* look);
+		}
+		
+		if(element.size())		
+			lineElements.push_back(element);
 	}
-
-/*
-	for (i=0;i<words.size();i++)
-	{
-		logSpam("word is '%s'\n",words[i].c_str());
-	}
-*/
-
-	if (words[0] == "PING" )
-	{
-		string reply = "PONG ";
-		reply += words[1];
-		reply += "\r\n";
-		m_Socket->doRespond((char *)reply.c_str(),reply.size());
-
-	}else
-	if ( words[1] == "376" || words[1] == "422" )
-	{
-		string reply = "JOIN ";
-		reply += m_LogIrc->getIrcChannel();
-		reply += " ";
-		reply += m_LogIrc->getIrcChannelPass();
-		reply += "\r\n";
-		m_Socket->doRespond((char *)reply.c_str(),reply.size());
-		m_LogIrc->setDialogue(this);
-	}else
-	if (words[1] == "PONG" )
-	{
-		m_Pinged = false;
-	}else
-	if ( words[1] == "433" )
-	{
+	
+	if(lineElements.empty())
+		return;
+	
+	
+	if(lineElements.size() >= 1 && lineElements[1] == "433")
 		sendNick(true);
-	}else
-	if ( words.size() >= 4 && words[1] == "PRIVMSG" && words[3] == ":!version")
+	if(lineElements[0] == "PING" && lineElements.size() == 2)
 	{
-		char *reply;
-		asprintf(&reply,"PRIVMSG %s :Nepenthes Version %s  - Compiled on %s %s with %s %s \n",words[2].c_str(),VERSION,__DATE__, __TIME__,MY_COMPILER,__VERSION__);
-		m_Socket->doRespond((char *)reply,strlen(reply));
-		free(reply);
+		string reply = "PONG " + lineElements[1] + "\r\n";
+		
+		m_Socket->doRespond((char *) reply.data(), reply.size());
 	}
-	return;
-
+	else if(lineElements[0] == "PONG")
+		m_Pinged = false;
+	else if(lineElements.size() >= 2 && (lineElements[1] == "003" ||lineElements[1] == "004" ||  lineElements[1] == "005" || lineElements[1] == "376" || lineElements[1] == "422"))
+		loggedOn();
+	else if(lineElements.size() >= 4 && (lineElements[1] == "PRIVMSG" || lineElements[1] == "NOTICE"))
+		processMessage(lineElements[0].c_str(), lineElements[2].c_str(), lineElements[3].c_str());
 }
 
-/**
- * Dialogue::outgoingData(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
- * 
- * @param msg
- * 
- * @return CL_DROP
- */
+void IrcDialogue::processMessage(const char *origin, const char *target, const char *message)
+{
+	string responseMessage = string("PRIVMSG ");
+	
+	logDebug("<%s.%s.%s> \"%s\"\n", m_LogIrc->getIrcServer().c_str(), target, origin, message);
+	
+	if(m_NickName == target)
+	{
+		string originString = origin;
+		
+		responseMessage += originString.substr(0, originString.find('!'));
+	}
+	else
+		responseMessage += target;
+		
+	if(!strcmp(message, "!version"))
+	{
+		responseMessage += " :nepenthes v" VERSION " compiled on [" __DATE__ " " __TIME__ "] with " MY_COMPILER " " __VERSION__ "\r\n";
+		m_Socket->doRespond((char *) responseMessage.data(), responseMessage.size());
+	}
+	else if(!strncmp(message, "!pattern ", 9))
+	{
+		m_LogIrc->setLogPattern(message + 9);
+		
+		responseMessage += " :Updated log pattern to \"" + string(message + 9) + "\"\r\n";
+		m_Socket->doRespond((char *) responseMessage.data(), responseMessage.size());
+	}
+	else if(!strcmp(message, "!help") && m_NickName == target)
+	{
+		static const char *helpLines[] =
+		{
+			" :nepenthes v" VERSION " log-irc control interface\r\n",
+			" :  !version - print detailed version information\r\n",
+			" :  !pattern <logtags> - set log pattern for this log-irc instance\r\n",
+			" :  !help - display this help message\r\n",
+			" : \r\n",
+			" : <http://nepenthes.mwcollect.org/>\r\n",
+		};
+		
+		for(uint32_t i = 0; i < sizeof(helpLines) / sizeof(char *); ++i)
+		{
+			string responseLine = responseMessage + helpLines[i];			
+			m_Socket->doRespond((char *) responseLine.data(), responseLine.size());
+		}
+	}
+}
+
+
+void IrcDialogue::loggedOn()
+{
+	m_LogIrc->setDialogue(this);
+	
+	if(m_LoggedOn)
+		return;
+	
+	string connectCommand = m_LogIrc->getConnectCommand();
+	
+	if(!connectCommand.empty())
+		m_Socket->doRespond((char *) connectCommand.data(), connectCommand.size());
+
+	string joinCommand = "JOIN " + m_LogIrc->getIrcChannel() + " " + m_LogIrc->getIrcChannelPass() + "\r\n";
+	m_Socket->doRespond((char *) joinCommand.data(), joinCommand.size());
+	
+	m_LoggedOn = true;
+}
+
 ConsumeLevel IrcDialogue::outgoingData(Message *msg)
 {
 	return CL_ASSIGN;
 }
 
-/**
- * Dialogue::handleTimeout(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
- * 
- * @param msg
- * 
- * @return CL_DROP
- */
 ConsumeLevel IrcDialogue::handleTimeout(Message *msg)
 {
 	if (m_Pinged == false)
 	{
 		m_Pinged = true;
-    	string ping = "PING :12356789\r\n";
-		m_Socket->doRespond((char *)ping.c_str(),ping.size());
+		
+    		string ping = "PING :12356789\r\n";
+		m_Socket->doRespond((char *) ping.data(), ping.size());
+		
 		return CL_ASSIGN;
-	}else
+	}
+	else
 	{
 		m_LogIrc->doRestart();
 		return CL_DROP;
 	}
-
 }
 
-/**
- * Dialogue::connectionLost(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
- * 
- * @param msg
- * 
- * @return CL_DROP
- */
 ConsumeLevel IrcDialogue::connectionLost(Message *msg)
 {
 	logPF();
+	
 	m_LogIrc->doRestart();
 	return CL_DROP;
 }
 
-/**
- * Dialogue::connectionShutdown(Message *)
- * as we are not interested in these socket actions 
- * we simply return CL_DROP to show the socket
- * 
- * @param msg
- * 
- * @return CL_DROP
- */
 ConsumeLevel IrcDialogue::connectionShutdown(Message *msg)
 {
 	logPF();
+	
 	m_LogIrc->doRestart();
 	return CL_DROP;
 }
 
+
+
 struct FlagMapping
 {
-	int32_t 	m_LogFlag;
+	int32_t	m_LogFlag;
 	char 	*m_ColorFlag;
 };
-
 
 const struct FlagMapping colors[] =
 {
 	{
 		l_crit,
-		"\x03\x34" // helles rot
+		"\x03\x34" // light red
 	},
 	{
 		l_warn,
-		"\x03\x36"	// lila
+		"\x03\x36" // purple
 	},
 	{
 		l_debug,
-		"\x03\x31\x33"	// pink
+		"\x03\x31\x33" // pink
 	},
 	{
 		l_info,
-		"\x03\x39" // helles gruen 
+		"\x03\x39" // light green
 	},
-    {
+	{
 		l_spam,
-		"\x03\x31\x34" // dunkel grau
-	}
+		"\x03\x31\x34" // dark grey
+	},
 };
 
 
-
-void 	IrcDialogue::logIrc(uint32_t mask, const char *message)
+// oxff: made dynamic log tag pattern
+void IrcDialogue::logIrc(uint32_t mask, const char *message)
 {
-	if (
-		((mask & l_dl || mask & l_sub) && mask & l_mgr && !(mask & l_spam)  ) ||
-		(mask & l_warn || mask & l_crit) 
-		)
+	if(m_LogIrc->logMaskMatches(mask))
 	{
 		if (strlen(message) > 450)
 			return;
-		string line ="PRIVMSG ";
-		line += m_LogIrc->getIrcChannel();
-		line += " :";
-
+			
+		string line ="PRIVMSG " + m_LogIrc->getIrcChannel() + " :";
 		uint32_t i=0;
 
-		for (i=0;i<sizeof(colors)/sizeof(struct FlagMapping);i++)
+		for (i=0; i < sizeof(colors) / sizeof(struct FlagMapping); ++i)
 		{
-			if (mask & colors[i].m_LogFlag)
+			if(mask & colors[i].m_LogFlag)
 			{
 				line += colors[i].m_ColorFlag;
+				break;
 			}
 		}
 
 		line += message;
 
-		m_Socket->doRespond((char *)line.c_str(), line.size());
+		m_Socket->doRespond((char *) line.data(), line.size());
 	}
 }	
 
 
 void IrcDialogue::sendNick(bool random)
 {
-	if (random)
+	m_NickName = m_LogIrc->getIrcNick();
+	
+	if(random)
 	{
-		string nick = "NICK ";
-		nick += m_LogIrc->getIrcNick();
-		nick += (char) ((int32_t)rand()%20 + 97);
-		nick += "\r\n";
-
-		m_Socket->doRespond((char *)nick.c_str(),nick.size());
-	}else
-	{
-		string nick = "NICK ";
-		nick += m_LogIrc->getIrcNick();
-		nick += "\r\n";
-
-		m_Socket->doRespond((char *)nick.c_str(),nick.size());
+		m_NickName += "-";
+		m_NickName += (char) ((int32_t)rand()%20 + 97);
+		m_NickName += (char) ((int32_t)rand()%20 + 97);
+		m_NickName += (char) ((int32_t)rand()%20 + 97);
 	}
+	
+	string nickCommand = "NICK " + m_NickName + "\r\n";
+	m_Socket->doRespond((char *) nickCommand.data(), nickCommand.size());
 }
 
 void IrcDialogue::sendUser()
 {
-	string user = "USER ";
-	user += m_LogIrc->getIrcIdent();
-	user += " 0 0 :";
-	user += m_LogIrc->getIrcUserInfo();
-	user += "\r\n";
-
-	m_Socket->doRespond((char *)user.c_str(),user.size());
+	string user = "USER " + m_LogIrc->getIrcIdent() + " 0 0 :" + m_LogIrc->getIrcUserInfo() + "\r\n";
+	m_Socket->doRespond((char *) user.data(), user.size());
 }
 
 void IrcDialogue::sendServerPass()
 {
 	if ( m_LogIrc->getIrcPass().size() > 0 )
 	{
-    	string pass = "PASS ";
-		pass += m_LogIrc->getIrcPass();
-		pass += "\r\n";
-		m_Socket->doRespond((char *)pass.c_str(),pass.size());
+		string pass = "PASS " + m_LogIrc->getIrcPass() + pass + "\r\n";
+		m_Socket->doRespond((char *) pass.data(), pass.size());
 	}
 }
 

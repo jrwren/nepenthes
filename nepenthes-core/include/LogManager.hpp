@@ -59,7 +59,7 @@ namespace nepenthes
 		virtual void		logf(uint32_t mask, const char *format, ...);
 		const char			*getTagName(uint32_t bit);
 		uint32_t			getTagId(const char *tag);
-		uint32_t			parseTagString(const char *tagString);
+		virtual uint32_t			parseTagString(const char *tagString);
 		void				setColor(bool setting);
 		bool				getColorSetting();
 	

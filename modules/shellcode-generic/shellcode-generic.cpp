@@ -122,7 +122,7 @@ bool GenericShellcodeHandler::Init()
 {
 	if (m_Config == NULL)
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 

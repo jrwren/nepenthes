@@ -148,7 +148,7 @@ bool  SocketManager::Init()
 			logInfo("Using %s as bind_address for all connections\n", inet_ntoa(*(struct in_addr *)&m_BindAddress));
 		}
 	} catch ( ... ) {
-		logCrit("%s","Could not find nepenthes.socketmanager.bind_address in config file, assuming no\n");
+		logCrit("Could not find nepenthes.socketmanager.bind_address in config file, assuming no\n");
 	}
 
 	return true;
@@ -349,7 +349,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 							Socket * socket = (*itSocket)->acceptConnection();
 							if ( socket == NULL )
 							{
-								logCrit("%s","Accept returned NULL ptr \n");
+								logCrit("Accept returned NULL ptr \n");
 							} else
 							{
 								m_Sockets.push_back(socket);

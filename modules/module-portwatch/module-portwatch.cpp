@@ -107,7 +107,7 @@ bool WatchModule::Init()
 	logPF();
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 
@@ -119,7 +119,7 @@ bool WatchModule::Init()
 		timeout = m_Config->getValInt("module-portwatch.accepttimeout");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 

@@ -348,9 +348,6 @@ void Utilities::hexdump(byte *data, uint32_t len)
 
 void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 {
-	#ifdef HAVE_DEBUG_LOGGING
-	char conv[] = "0123456789abcdef";
-	#endif
 
 	if (m_HexdumpPath.size() == 0)
 	{
@@ -378,7 +375,8 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 	}
 
 
-	#ifdef HAVE_DEBUG_LOGGING
+#ifdef HAVE_DEBUG_LOGGING
+	char conv[] = "0123456789abcdef";
 	g_Nepenthes->getLogMgr()->logf(mask,"=------------------[ hexdump(0x%08x , 0x%08x) ]-------------------=\n", (uint32_t)((intptr_t)data), len);
 	for( uint32_t i = 0; i < len; i += 0x10 )
 	{
@@ -427,7 +425,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 		
 	}
 	g_Nepenthes->getLogMgr()->log(mask,"=-------------------------------------------------------------------------=\n");
-	#endif
+#endif
 //	printf("=-------------------------------------------------------------------------=\n");
 	
 }

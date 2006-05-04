@@ -65,7 +65,7 @@ int32_t VFSCommandREDIR::run(vector<string> *paramlist)
 
 	if (params.size() == 0)
 	{
-		logWarn("%s","VFS Command REDIR with out arg \n");
+		logWarn("VFS Command REDIR with out arg \n");
 		return 0;
 	}
 

@@ -106,7 +106,7 @@ bool LogDownload::Init()
 	
 	if ( m_Config == NULL )
 	 {
-		 logCrit("%s","I need a config\n");
+		 logCrit("I need a config\n");
 		 return false;
 	 }
 
@@ -129,7 +129,7 @@ bool LogDownload::Init()
 
 	 } catch ( ... )
 	 {
-		 logCrit("%s","Error setting needed vars, check your config\n");
+		 logCrit("Error setting needed vars, check your config\n");
 		 return false;
 	 }
 
@@ -219,7 +219,7 @@ uint32_t LogDownload::handleEvent(Event *event)
 		break;
 
 	default:
-		logWarn("%s","this should not happen\n");
+		logWarn("this should not happen\n");
 	}
 	return 0;
 }

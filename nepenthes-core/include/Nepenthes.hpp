@@ -71,7 +71,7 @@ typedef unsigned char byte;
 /* log shortcuts */
 //#define DEBUG 1
 
-#define logWrite(mask, format, ...) g_Nepenthes->getLogMgr()->logf(mask,format, __VA_ARGS__)
+#define logWrite(mask, logformat...) g_Nepenthes->getLogMgr()->logf(mask, logformat)
 
 #ifdef HAVE_DEBUG_LOGGING
 #define logSpam(format, ...) logWrite(l_spam 	| STDTAGS , format, __VA_ARGS__)

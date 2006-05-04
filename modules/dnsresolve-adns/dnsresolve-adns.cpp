@@ -87,7 +87,7 @@ bool DNSResolverADNS::Init()
 
 	g_Nepenthes->getDNSMgr()->registerDNSHandler(this);
 	REG_EVENT_HANDLER(this);
-	logDebug("%s","adns_init() Success\n");
+	logDebug("adns_init() Success\n");
 
 	return true;
 }

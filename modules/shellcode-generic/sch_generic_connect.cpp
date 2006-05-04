@@ -75,7 +75,7 @@ bool GenericConnect::Init()
 		sList = *g_GenericShellcodeHandler->getConfig()->getValStringList("shellcode-generic.generic_connect");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 
@@ -179,7 +179,7 @@ sch_result GenericConnect::handleShellcode(Message **msg)
 			DialogueFactory *diaf;
 			if ((diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL)
 			{
-				logCrit("%s","No WinNTShell DialogueFactory availible \n");
+				logCrit("No WinNTShell DialogueFactory availible \n");
 				return SCH_DONE;
 			}
 			sock->addDialogue(diaf->createDialogue(sock));

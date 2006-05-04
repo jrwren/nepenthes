@@ -149,7 +149,7 @@ uint32_t X5::handleEvent(Event *event)
 		break;
 
 	default:
-		logWarn("%s","this should not happen\n");
+		logWarn("this should not happen\n");
 	}
 	return 0;
 }

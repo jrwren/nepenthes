@@ -84,16 +84,13 @@ SubmitManager::~SubmitManager()
  */
 bool SubmitManager::Init()
 {
-#ifdef WIN32
-#else
-	logDebug("%s\n","Creating Magic Cookie");
+	logDebug("Creating Magic Cookie\n");
 	m_MagicCookie = magic_open(MAGIC_CONTINUE|MAGIC_PRESERVE_ATIME);
 	magic_load(m_MagicCookie,NULL);
-#endif
 
 	string FilesDir;
 
-	logDebug("%s\n","Loading Config");
+	logDebug("Loading Config\n");
 	try
 	{
 		if ( m_Nepenthes->getConfig()->getValInt("nepenthes.submitmanager.strictfiletype")==1 )
@@ -102,15 +99,12 @@ bool SubmitManager::Init()
 		FilesDir = m_Nepenthes->getConfig()->getValString("nepenthes.submitmanager.filesdir");
 
     } catch ( ... ) {
-        logCrit("%s","Could not find value in config file\n");
+        logCrit("Could not find value in config file\n");
         return false;
     }
 
 
-#ifdef WIN32
-
-#else
-	logDebug("%s\n","Adding known files");
+	logDebug("Adding known files\n");
 	DIR *dirfiles = opendir(FilesDir.c_str());
 	if (dirfiles == NULL)
 	{
@@ -122,11 +116,6 @@ bool SubmitManager::Init()
     struct dirent *dent=NULL;
     for (dent = readdir(dirfiles); dent != NULL; dent = readdir(dirfiles))
     {
-#if defined(CYGWIN)  || defined(CYGWIN32) || defined(__CYGWIN__) || defined(__CYGWIN32__)  || defined(WIN32)
-		if (1)
-#else
-        if ( (int32_t)dent->d_type == DT_REG)
-#endif
         {
 			if (strlen(dent->d_name) == 32)
 			{
@@ -137,7 +126,7 @@ bool SubmitManager::Init()
 		}
 	}
 	closedir(dirfiles);
-#endif
+
 
     return true;
 }
@@ -150,14 +139,10 @@ bool SubmitManager::Init()
 bool SubmitManager::Exit()
 {
 	logPF();
-#ifdef WIN32
-#else
 	if (m_MagicCookie != NULL)
 	{
     	magic_close(m_MagicCookie);
 	}
-#endif
-
 	return true;
 }
 
@@ -199,9 +184,6 @@ void SubmitManager::addSubmission(Download *down)
 */	
 
 // check file type
-#ifdef WIN32
-
-#else
 	const char *filetype = magic_buffer(m_MagicCookie,
 										down->getDownloadBuffer()->getData(),
 										down->getDownloadBuffer()->getSize());
@@ -224,7 +206,6 @@ void SubmitManager::addSubmission(Download *down)
 			return;
 		}
 	}
-#endif
 
 	SubmitEvent se(EV_SUBMISSION,down);
 
@@ -289,3 +270,4 @@ void SubmitManager::doList()
 	}
     logSpam("=--- %2i %-66s ---=\n\n",i, "Submit Handlers registerd");
 }
+

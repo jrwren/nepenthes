@@ -171,7 +171,7 @@ sch_result Genericwget::handleShellcode(Message **msg)
 		{
 			if (isprint(url[i]) == false)
 			{
-				logWarn("%s","wget url contained unprintable chars \n");
+				logWarn("wget url contained unprintable chars \n");
 				return SCH_NOTHING;
 			}
 		}

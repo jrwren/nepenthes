@@ -134,7 +134,7 @@ bool LogPrelude::Init()
 
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 
@@ -150,7 +150,7 @@ bool LogPrelude::Init()
 
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 	
@@ -235,7 +235,7 @@ bool LogPrelude::Init()
 	REG_EVENT_HANDLER(this);
 	return true;
 #else 
-	logCrit("%s","Module log-prelude is compiled without libprelude, this wont work, reconfigure the whole source and recompile");
+	logCrit("Module log-prelude is compiled without libprelude, this wont work, reconfigure the whole source and recompile");
 	return false;
 #endif
 
@@ -353,7 +353,7 @@ uint32_t LogPrelude::handleEvent(Event *event)
 		break;
 
 	default:
-		logWarn("%s","this should not happen\n");
+		logWarn("this should not happen\n");
 	}
 	return 0;
 }
@@ -363,7 +363,7 @@ void LogPrelude::handleTCPaccept(Event *event)
 {
     
 
-	logInfo("%s","LogPrelude EVENT EV_SOCK_TCP_ACCEPT\n");
+	logInfo("LogPrelude EVENT EV_SOCK_TCP_ACCEPT\n");
 
 #ifdef HAVE_LIBPRELUDE
 	Socket *socket = ((SocketEvent *)event)->getSocket();
@@ -436,7 +436,7 @@ void LogPrelude::handleTCPclose(Event *event)
 		return;
 	}
 
-	logInfo("%s","LogPrelude EVENT EV_SOCK_TCP_CLOSE\n");
+	logInfo("LogPrelude EVENT EV_SOCK_TCP_CLOSE\n");
 
 #ifdef HAVE_LIBPRELUDE
 	
@@ -498,7 +498,7 @@ void LogPrelude::handleTCPclose(Event *event)
  */
 void LogPrelude::handleShellcodeDone(Event *event)
 {
-	logInfo("%s", "LogPrelude EVENT EV_SHELLCODE_DONE\n");
+	logInfo("LogPrelude EVENT EV_SHELLCODE_DONE\n");
 
 #ifdef HAVE_LIBPRELUDE
 
@@ -682,7 +682,7 @@ void LogPrelude::handleSubmission(Event *event)
  */
 void LogPrelude::handleDialogueAssignAndDone(Event *event)
 {
-	 logInfo("%s", "LogPrelude EVENT EV_ASSIGN_AND_DONE\n");
+	 logInfo("LogPrelude EVENT EV_ASSIGN_AND_DONE\n");
 
 #ifdef HAVE_LIBPRELUDE
 

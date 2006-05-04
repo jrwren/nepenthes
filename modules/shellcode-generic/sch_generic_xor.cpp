@@ -319,7 +319,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 			{
 			case 1:
 				if( codesize > totalsize )
-					logWarn("%s\n", "codesize > totalsize - broken shellcode?");
+					logWarn("codesize > totalsize - broken shellcode?\n");
 
             	for( uint32_t j = 0; j < codesize && j < totalsize; j++ )
 					decodedMessage[j] ^= key;
@@ -327,7 +327,7 @@ sch_result GenericXOR::handleShellcode(Message **msg)
 
 			case 4:
 				if( codesize*4 > totalsize )
-					logWarn("%s\n", "codesize > totalsize - broken shellcode?");
+					logWarn("codesize > totalsize - broken shellcode?\n");
 
 //				LogSpam("codesize %i totalsize %i", codesize, totalsize);
 

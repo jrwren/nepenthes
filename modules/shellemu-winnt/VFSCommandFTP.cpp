@@ -116,6 +116,16 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 	string path = "";
 	uint8_t	downloadflags=0;
 
+	for(it=slist.begin();it!=slist.end();it++)
+	{
+		if (*it[0] == "-" )
+		{
+			continue;
+		}else
+		{
+			host = *it;
+		}
+	}
 
 	for(it=slist.begin();it!=slist.end();it++)
 	{
@@ -246,7 +256,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 					{
 						if ( direktconnect == true )
 						{
-							logCrit("%s","VFS FTP State ERROR user\n");
+							logCrit("VFS FTP State ERROR user\n");
 						} else
 						{
 
@@ -274,7 +284,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 						{
 						case 1:
 							state = NEXT_IS_FILE;
-							logDebug("%s","get without param, next arg is filename\n");
+							logDebug("get without param, next arg is filename\n");
 							break;
 						default:
                             getfile = paramlist[1];
@@ -343,7 +353,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
                         break;
 
 					default:
-						logCrit("%s","Broken State NEXT_IS_USER\n");
+						logCrit("Broken State NEXT_IS_USER\n");
 						state = NEXT_IS_SOMETHING;
 						break;
 					}

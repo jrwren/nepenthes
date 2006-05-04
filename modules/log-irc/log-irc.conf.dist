@@ -20,7 +20,7 @@ log-irc
         {
             nick        "nep-noname";
             ident       "nepenthes";
-            userinfo    "http://nepenthes.sf.net";
+            userinfo    "http://nepenthes.mwcollect.org/";
             usermodes   "+i";
         };
 
@@ -29,5 +29,11 @@ log-irc
             name    "#nepenthesirc";
             pass    "foo";
         };
+        
+        // has to be one IRC command NOT terminated with \r\n
+        // connect-command = "PRIVMSG NickServ :IDENTIFY mypassword";
+        
+        // set the initial log tag pattern, like on cmdline; defaults sane
+        // pattern = "crit,warn,down";
     };
 };

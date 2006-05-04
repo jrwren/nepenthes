@@ -752,7 +752,7 @@ int32_t TCPSocket::doWrite(char *msg, uint32_t len)
 	logPF();
 	if (m_CanSend == false)
 	{
-		logCrit("%s","Some read only attached Module wants to write on a Socket\n");
+		logCrit("Some read only attached Module wants to write on a Socket\n");
 		return -1;
 	}
 	Packet *packet = new Packet(msg,len);

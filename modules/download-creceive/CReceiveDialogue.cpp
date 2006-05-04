@@ -105,6 +105,10 @@ ConsumeLevel CReceiveDialogue::incomingData(Message *msg)
 {
 	logSpam("... DATA ... FIXME %i bytes \n",msg->getSize());
 	m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+
+	if (m_Download->getDownloadBuffer()->getSize() > 1024 * 1024 * 4)	// hardcoded 4mb limit for now (tm)
+		return CL_DROP;
+
 	return CL_ASSIGN;
 }
 

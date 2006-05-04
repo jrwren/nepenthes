@@ -110,7 +110,7 @@ bool LogSurfNET::Init()
 
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 
@@ -129,7 +129,7 @@ bool LogSurfNET::Init()
 		db = m_Config->getValString("log-surfnet.db");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 
@@ -236,7 +236,7 @@ uint32_t LogSurfNET::handleEvent(Event *event)
 
 
 	default:
-		logWarn("%s","this should not happen\n");
+		logWarn("this should not happen\n");
 	}
 
 
@@ -283,7 +283,7 @@ uint32_t LogSurfNET::handleEvent(Event *event)
 		break;
 
 	default:
-		logWarn("%s","this should not happen\n");
+		logWarn("this should not happen\n");
 	}
 
 
@@ -317,7 +317,7 @@ uint32_t LogSurfNET::handleEvent(Event *event)
 
 
 		default:
-			logWarn("%s","this should not happen\n");
+			logWarn("this should not happen\n");
 		}
 	}
 

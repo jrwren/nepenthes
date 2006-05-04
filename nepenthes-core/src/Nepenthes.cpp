@@ -463,7 +463,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 					rlpath = m_Config->getValString("nepenthes.logmanager.ring_logging_file");
 				} catch ( ... )
 				{
-					logCrit("%s","Could not find nepenthes.logmanager.ring_logging_file in Config\n");
+					logCrit("Could not find nepenthes.logmanager.ring_logging_file in Config\n");
 					run = false;
 				}
 
@@ -486,7 +486,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 					flpath = m_Config->getValString("nepenthes.logmanager.file_logging_file");
 				} catch ( ... )
 				{
-					logCrit("%s","Could not find nepenthes.logmanager.file_logging_file in Config\n");
+					logCrit("Could not find nepenthes.logmanager.file_logging_file in Config\n");
 					run = false;
 				}
 
@@ -687,7 +687,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		{
 			if ( forcesetcaps == true )
 			{
-				logCrit("%s","As you asked to force capabilities, this is a critical error and we will terminate right now\n");
+				logCrit("As you asked to force capabilities, this is a critical error and we will terminate right now\n");
 				run = false;
 			}
 		}
@@ -1363,8 +1363,8 @@ bool Nepenthes::setCapabilties()
 	{
 		cap_free(caps);
 		logCrit("Could not set capabilities '%s'\n",strerror(errno));
-		logCrit("%s","Maybe you did not load the kernel module 'capability' ?\n");
-		logCrit("%s","Try 'modprobe capability' \n");
+		logCrit("Maybe you did not load the kernel module 'capability' ?\n");
+		logCrit("Try 'modprobe capability' \n");
 		return false;
 	}
 	cap_free(caps);
@@ -1378,7 +1378,7 @@ bool Nepenthes::setCapabilties()
 
 	return true;
 #else
-	logCrit("%s","Compiled without support for capabilities, no way to run capabilities\n");
+	logCrit("Compiled without support for capabilities, no way to run capabilities\n");
 	return false;
 #endif	// HAVE_LIBCAP
 
@@ -1397,22 +1397,22 @@ void SignalHandler(int32_t iSignal)
     switch(iSignal)
     {
 	case SIGHUP:
-		logCrit("%s\n", "Got SIGHUP\nRereading Config File!\n");
+		logCrit("Got SIGHUP\nRereading Config File!\n\n");
 		g_Nepenthes->reloadConfig();
 		break;
 
 	case SIGINT:
-		logCrit("%s\n", "Got SIGINT\nStopping NOW!\n");
+		logCrit("Got SIGINT\nStopping NOW!\n\n");
 		g_Nepenthes->stop();
 		break;
 
 	case SIGABRT:
-		logCrit("%s\n", "Unhandled Exception");
+		logCrit("Unhandled Exception\n");
 		exit(-1);
 		break;
 
 	case SIGSEGV:
-		logCrit("%s\n", "Segmentation Fault");
+		logCrit("Segmentation Fault\n");
 		exit(-1);
 		break;
 

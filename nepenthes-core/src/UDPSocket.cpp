@@ -380,7 +380,7 @@ int32_t UDPSocket::doWrite(char *msg, uint32_t len)
 //	logPF();
 	if (m_CanSend == false)
 	{
-		logCrit("%s","Some read only attached Module wants to write on a Socket\n");
+		logCrit("Some read only attached Module wants to write on a Socket\n");
 		return -1;
 	}
 	UDPPacket *packet = new UDPPacket(getRemoteHost(),getRemotePort(),msg,len);
@@ -393,7 +393,7 @@ int32_t UDPSocket::doWriteTo(uint32_t ip, uint16_t port, char *msg, uint32_t len
 //	logPF();
 	if (m_CanSend == false)
 	{
-		logCrit("%s","Some read only attached Module wants to write on a Socket\n");
+		logCrit("Some read only attached Module wants to write on a Socket\n");
 		return -1;
 	}
 	UDPPacket *packet = new UDPPacket(ip,port,msg,len);

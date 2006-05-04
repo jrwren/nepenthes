@@ -108,7 +108,7 @@ bool FTPd::Init()
 {
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 
@@ -120,7 +120,7 @@ bool FTPd::Init()
 		timeout = m_Config->getValInt("vuln-ftp.accepttimeout");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 
@@ -243,7 +243,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 					if ( line.size() > threshold )
 					{
 						//possible exploit was found
-						logSpam("%s", "Recieved possible Exloit in USER field\n");
+						logSpam("Recieved possible Exloit in USER field\n");
 
 						// identify exploit
 						identExploit(line);
@@ -290,7 +290,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 					if ( line.size() > threshold )
 					{
 						//possible exploit was found
-						logSpam("%s", "Recieved possible Exloit in PASS field\n");
+						logSpam("Recieved possible Exloit in PASS field\n");
 
 						// identify exploit
 						identExploit(line);
@@ -433,7 +433,7 @@ ftp_exploit FTPdDialogue::identExploit(string line)
 		{
 			if ( memcmp(line.c_str() + 1013, "\xeb\x06", 2) == 0 )
 			{
-				logSpam("%s", "FreeFTPd 1.08 exploit detected\n");
+				logSpam("FreeFTPd 1.08 exploit detected\n");
 				return FREEFTPD;
 			}
 		}
@@ -448,7 +448,7 @@ ftp_exploit FTPdDialogue::identExploit(string line)
 			{
 				if ( memcmp(line.c_str() + 490,opcodes[i],4) == 0 )
 				{
-					logSpam("%s", "WarFTPd 1.65 USER exploit detected\n");
+					logSpam("WarFTPd 1.65 USER exploit detected\n");
 					return WARFTPD_USER;
 				}
 			}
@@ -462,13 +462,13 @@ ftp_exploit FTPdDialogue::identExploit(string line)
 		{
 			if ( memcmp(line.c_str() + 563,"\xeb\x08\xeb\x08",4) == 0 )
 			{
-				logSpam("%s", "WarFTPd 1.65 PASS exploit detected\n");
+				logSpam("WarFTPd 1.65 PASS exploit detected\n");
 				return WARFTPD_PASS;
 			}
 		}
 
 	}
-	logSpam("%s", "UNKNOWN exploit detected\n");
+	logSpam("UNKNOWN exploit detected\n");
 
 	return UNKNOWN;
 

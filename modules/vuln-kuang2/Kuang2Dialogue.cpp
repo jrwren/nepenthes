@@ -151,7 +151,7 @@ ConsumeLevel Kuang2Dialogue::incomingData(Message *msg)
 			} else
 			if ( m_Buffer->getSize() > 128 )
 			{
-				logCrit("%s","unhandeld kuang2 command \n");
+				logCrit("unhandeld kuang2 command \n");
             	return CL_DROP;
 			}
 		}

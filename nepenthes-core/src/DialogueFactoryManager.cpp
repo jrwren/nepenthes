@@ -69,7 +69,7 @@ void DialogueFactoryManager::doList()
 {
 	list <DialogueFactory *>::iterator diaf;
 	int32_t i =0;
-	logSpam("%s","=--- DialogueFactoryManager --=\n");
+	logSpam("=--- DialogueFactoryManager --=\n");
 	for (diaf = m_Factories.begin();diaf != m_Factories.end();diaf++, i++)
 	{
 		logSpam("%i %20s %s\n",i,(*diaf)->getFactoryName().c_str(),(*diaf)->getFactoryDescription().c_str());

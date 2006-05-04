@@ -112,7 +112,7 @@ bool X2::Init()
 {
 	if ( m_Config == NULL )
 	{
-		logCrit("%s","I need a config\n");
+		logCrit("I need a config\n");
 		return false;
 	}
 
@@ -124,7 +124,7 @@ bool X2::Init()
 		timeout = m_Config->getValInt("x-2.accepttimeout");
 	} catch ( ... )
 	{
-		logCrit("%s","Error setting needed vars, check your config\n");
+		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
 

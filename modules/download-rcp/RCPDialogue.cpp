@@ -122,7 +122,7 @@ ConsumeLevel RCPDialogue::incomingData(Message *msg)
 	switch (m_State)
 	{
 	case RCP_STATE_REQUEST:
-		logSpam("%s","RCP STATE_REQUEST\n");
+		logSpam("RCP STATE_REQUEST\n");
 		m_Buffer->add(msg->getMsg(),msg->getSize());
 		if (m_Buffer->getSize() == 1 && *(char *)m_Buffer->getData() == 0)
 		{
@@ -139,7 +139,7 @@ ConsumeLevel RCPDialogue::incomingData(Message *msg)
 
 	case RCP_STATE_FILESTATS:
 		m_Buffer->add(msg->getMsg(),msg->getSize());
-		logSpam("%s","RCP STATE_FILESTATS\n");
+		logSpam("RCP STATE_FILESTATS\n");
 		{
 			// "C0644 98 7819 foo.exe\n"
 			char *buf = (char *)m_Buffer->getData();
@@ -202,6 +202,10 @@ ConsumeLevel RCPDialogue::incomingData(Message *msg)
 		}else
 		{
 			m_Download->getDownloadBuffer()->addData(msg->getMsg(),msg->getSize());
+			if ( m_Download->getDownloadBuffer()->getSize() > 1024 * 1024 * 4)	// hardcoded 4mb limit for now (tm)
+			{
+				return CL_DROP;
+			}
 		}
 		break;
 

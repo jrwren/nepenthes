@@ -99,7 +99,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 		if(m_Buffer->getSize() >= sizeof(dcom2_bindstr) && 
 		   memcmp(dcom2_bindstr, m_Buffer->getData(), sizeof(dcom2_bindstr) ) == 0)
 		{
-			logSpam("%s","Valid DCOM2 BindString.\n");
+			logSpam("Valid DCOM2 BindString.\n");
 			m_Buffer->cut(sizeof(dcom2_bindstr));
 			m_State = DCOM_STATE_BINDSTR;
 
@@ -134,7 +134,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			return CL_DROP;
 		} else
 		{
-			logInfo("%s","Unknown DCOM request, dropping\n");
+			logInfo("Unknown DCOM request, dropping\n");
 			return CL_DROP;
 /*
 
@@ -165,7 +165,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			if ( m_Buffer->getSize() >= sizeof(rpcfp_inqifids) -1  && 
 				 memcmp(sol2k_request, m_Buffer->getData(), sizeof(rpcfp_inqifids)-1 ) == 0 )
 			{
-				logDebug("%s","recognized OS version check\n");
+				logDebug("recognized OS version check\n");
 				// we have to send a valid os response reply
 				reply[2] = DCE_PKT_RESPONSE;
 				memcpy(reply+47,w2kuuid_sig,sizeof(w2kuuid_sig));

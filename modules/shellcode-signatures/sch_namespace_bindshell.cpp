@@ -94,14 +94,14 @@ sch_result NamespaceBindShell::handleShellcode(Message **msg)
 		Socket *socket;
 		if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,port,60,30)) == NULL )
 		{
-			logCrit("%s","Could not bind socket %u \n",port);
+			logCrit("Could not bind socket %u\n", port);
 			return SCH_DONE;
 		}
 
 		DialogueFactory *diaf;
 		if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
 		{
-			logCrit("%s","No WinNTShell DialogueFactory availible \n");
+			logCrit("No WinNTShell DialogueFactory availible \n");
 			return SCH_DONE;
 		}
 
