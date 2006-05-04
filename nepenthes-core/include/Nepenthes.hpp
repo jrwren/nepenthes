@@ -74,16 +74,16 @@ typedef unsigned char byte;
 #define logWrite(mask, logformat...) g_Nepenthes->getLogMgr()->logf(mask, logformat)
 
 #ifdef HAVE_DEBUG_LOGGING
-#define logSpam(format, ...) logWrite(l_spam 	| STDTAGS , format, __VA_ARGS__)
-#define logDebug(format, ...) logWrite(l_debug	| STDTAGS , format, __VA_ARGS__)
+#define logSpam(logformat...) logWrite(l_spam 	| STDTAGS , logformat)
+#define logDebug(logformat...) logWrite(l_debug	| STDTAGS , logformat)
 #else	// HAVE_DEBUG_LOGGING
-#define logSpam(format, ...) 
-#define logDebug(format, ...)
+#define logSpam(logformat...) 
+#define logDebug(logformat ...)
 #endif	// HAVE_DEBUG_LOGGING
 
-#define logInfo(format, ...) logWrite(l_info	| STDTAGS , format, __VA_ARGS__)
-#define logWarn(format, ...) logWrite(l_warn	| STDTAGS , format, __VA_ARGS__)
-#define logCrit(format, ...) logWrite(l_crit	| STDTAGS , format, __VA_ARGS__)
+#define logInfo(logformat...) logWrite(l_info	| STDTAGS , logformat)
+#define logWarn(logformat...) logWrite(l_warn	| STDTAGS , logformat)
+#define logCrit(logformat...) logWrite(l_crit	| STDTAGS , logformat)
 
 #ifdef HAVE_DEBUG_LOGGING
 #define logPF() logSpam("<in %s>\n", __PRETTY_FUNCTION__)

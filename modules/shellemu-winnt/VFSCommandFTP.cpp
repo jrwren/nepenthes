@@ -118,7 +118,7 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 
 	for(it=slist.begin();it!=slist.end();it++)
 	{
-		if (*it[0] == "-" )
+		if ((*it)[0] == '-' )
 		{
 			continue;
 		}else
