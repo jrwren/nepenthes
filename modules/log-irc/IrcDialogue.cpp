@@ -438,7 +438,7 @@ void IrcDialogue::sendServerPass()
 {
 	if ( m_LogIrc->getIrcPass().size() > 0 )
 	{
-		string pass = "PASS " + m_LogIrc->getIrcPass() + pass + "\r\n";
+		string pass = "PASS " + m_LogIrc->getIrcPass() + "\r\n";
 		m_Socket->doRespond((char *) pass.data(), pass.size());
 	}
 }
