@@ -29,6 +29,7 @@
  
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <ctype.h>
 
 #include "RCPDialogue.hpp"
 

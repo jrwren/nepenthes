@@ -140,7 +140,7 @@ int32_t VFSCommandSTART::run(vector<string> *paramlist)
 { 
 	logPF();
 	vector <string> params = *paramlist;
-	vector <string>::iterator it,jt;
+//	vector <string>::iterator it,jt;
 
 	uint32_t i;
 	string command;

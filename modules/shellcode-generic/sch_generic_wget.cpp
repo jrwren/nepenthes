@@ -38,6 +38,7 @@
  *
  */
 
+#include <ctype.h>
 
  
 #include "sch_generic_wget.hpp"

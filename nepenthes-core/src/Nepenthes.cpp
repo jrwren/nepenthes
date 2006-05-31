@@ -42,7 +42,7 @@
 #include <grp.h>
 #include <dirent.h>
 #include <sys/utsname.h>
-
+#include <ctype.h>
 
 #ifdef HAVE_LIBCAP
 #undef _POSIX_SOURCE
