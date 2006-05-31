@@ -110,22 +110,14 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 	vector <string>::iterator it;
 	string host = "nohostyet";
 	string port = "21";
-	string user = "anonymous";
-	string pass = "guest";
+	string user = "nouseryet";
+	string pass = "nopassyet";
 	string getfile = "nofileyet";
 	string path = "";
+
+	string filename = "";
 	uint8_t	downloadflags=0;
 
-	for(it=slist.begin();it!=slist.end();it++)
-	{
-		if ((*it)[0] == '-' )
-		{
-			continue;
-		}else
-		{
-			host = *it;
-		}
-	}
 
 	for(it=slist.begin();it!=slist.end();it++)
 	{
@@ -155,237 +147,244 @@ int32_t VFSCommandFTP::run(vector<string> *paramlist)
 		else
 		if (strncmp(&*it->c_str(),"-s:",3) == 0)
 		{
-			string filename = it->substr(3,it->size()-2);
-			logDebug("Filenameis %s\n",filename.c_str());
-			VFSFile *file = m_VFS->getCurrentDir()->getFile((char *)filename.c_str());
-			if (file == NULL)
+			filename = it->substr(3,it->size()-2);
+		}else
+        if (strncmp(&*it->c_str(),"-A",2) == 0)	// anonymous login
+		{
+			anonymouslogin = true;
+			user = "anonymous";
+			pass = "guest";
+		}
+		else
+			host = *it;
+	}
+
+	if (filename != "" )
+	{
+		logDebug("Filenameis %s\n",filename.c_str());
+		VFSFile *file = m_VFS->getCurrentDir()->getFile((char *)filename.c_str());
+		if (file == NULL)
+		{
+			logCrit("VFS FTP file %s not found\n",filename.c_str());
+			return 0;
+		}
+		logDebug("file content is is \n%.*s\n",file->getSize(),(char *)file->getData());
+
+		uint32_t i=0;
+		int32_t linestart=0;
+		int32_t linestopp=0;
+		vector <string> ftpcommands;
+		while(i<file->getSize())
+		{
+			if (memcmp(file->getData()+i,"\n",1) == 0)
 			{
-				logCrit("VFS FTP file %s not found\n",filename.c_str());
-				return 0;
+
+				i++;
+				linestopp = i;
+
+				logSpam(" line is '%.*s'\n",linestopp-linestart,file->getData()+linestart);
+				string command( file->getData()+linestart,linestopp-linestart-1);
+				ftpcommands.push_back(command);
+				linestart = linestopp;
 			}
-			logDebug("file content is is \n%.*s\n",file->getSize(),(char *)file->getData());
+			i++;
+		}
 
-			uint32_t i=0;
-			int32_t linestart=0;
-			int32_t linestopp=0;
-			vector <string> ftpcommands;
-			while(i<file->getSize())
+
+		vector <string>::iterator jt;
+		vector <string> paramlist;
+
+		ftp_command_state state = NEXT_IS_SOMETHING;
+
+		for ( jt=ftpcommands.begin();jt!=ftpcommands.end();jt++ )
+		{
+			string params(&*jt->c_str());
+			i=0;
+			bool haschar = false;
+			uint32_t wordstart=0;
+			uint32_t wordstopp=0;
+			paramlist.clear();
+			while ( i<=params.size() )
 			{
-				if (memcmp(file->getData()+i,"\n",1) == 0)
+				if ( ( ( params[i] == ' ' || params[i] == '\0') && haschar == true) )
 				{
-					
-					i++;
-                    linestopp = i;
-
-					logSpam(" line is '%.*s'\n",linestopp-linestart,file->getData()+linestart);
-					string command( file->getData()+linestart,linestopp-linestart-1);
-                    ftpcommands.push_back(command);
-					linestart = linestopp;
+					wordstopp = i;
+					string word = params.substr(wordstart,wordstopp-wordstart);
+					logDebug("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
+					paramlist.push_back(word);
+					haschar = false;
+				} else
+					if ( isgraph(params[i]) && haschar == false )
+				{
+					haschar = true;
+					wordstart = i;
 				}
 				i++;
 			}
 
 
-			vector <string>::iterator jt;
-			vector <string> paramlist;
 
-			ftp_command_state state = NEXT_IS_SOMETHING;
-
-			for ( jt=ftpcommands.begin();jt!=ftpcommands.end();jt++ )
+			switch (state)
 			{
-				string params(&*jt->c_str());
-				i=0;
-				bool haschar = false;
-				uint32_t wordstart=0;
-				uint32_t wordstopp=0;
-				paramlist.clear();
-				while ( i<=params.size() )
+
+			case NEXT_IS_SOMETHING:
+				if ( strncasecmp((char *)&*jt->c_str(),"open",4) == 0 )
 				{
-					if ( ( ( params[i] == ' ' || params[i] == '\0') && haschar == true) )
+					logSpam("open line %s \n",&*jt->c_str());
+					switch(paramlist.size())
 					{
-						wordstopp = i;
-						string word = params.substr(wordstart,wordstopp-wordstart);
-						logDebug("Word is %i %i '%s' \n",wordstart,wordstopp,word.c_str());
-						paramlist.push_back(word);
-						haschar = false;
-					} else
-						if ( isgraph(params[i]) && haschar == false )
-					{
-						haschar = true;
-						wordstart = i;
+					case 1:
+						state = NEXT_IS_HOST;
+						break;
+					default:
+						host = paramlist[1];
+						if ( paramlist.size() >=3 )
+							port = paramlist[2];
+						else
+							port = "21";
+
+						if(direktconnect == true && anonymouslogin == false)
+						{
+							state = NEXT_IS_USER;
+						}else
+						{
+							state = NEXT_IS_SOMETHING;
+						}
+
+						break;
+
 					}
-					i++;
-				}
 
-				
-
-				switch (state)
+					logDebug("ftp://%s:%s\n",host.c_str(),port.c_str());
+				} else
+				if ( strncasecmp((char *)&*jt->c_str(),"user",4) == 0 )
 				{
-
-				case NEXT_IS_SOMETHING:
-					if ( strncasecmp((char *)&*jt->c_str(),"open",4) == 0 )
+					if ( direktconnect == true )
 					{
-						logSpam("open line %s \n",&*jt->c_str());
-						switch(paramlist.size())
-						{
-						case 1:
-							state = NEXT_IS_HOST;
-							break;
-						default:
-							host = paramlist[1];
-							if ( paramlist.size() >=3 )
-								port = paramlist[2];
-							else
-								port = "21";
-
-							if(direktconnect == true && anonymouslogin == false)
-							{
-								state = NEXT_IS_USER;
-							}else
-							{
-								state = NEXT_IS_SOMETHING;
-							}
-
-							break;
-
-						}
-
-						logDebug("ftp://%s:%s\n",host.c_str(),port.c_str());
+						logCrit("VFS FTP State ERROR user\n");
 					} else
-					if ( strncasecmp((char *)&*jt->c_str(),"user",4) == 0 )
 					{
-						if ( direktconnect == true )
-						{
-							logCrit("VFS FTP State ERROR user\n");
-						} else
-						{
 
-							switch ( paramlist.size() )
-							{
-							case 1:
-								state = NEXT_IS_USER;
-								break;
-
-							case 2:
-								user = paramlist[1];
-								state = NEXT_IS_PASS;
-								break;
-							case 3:
-								user = paramlist[1];
-								pass = paramlist[2];
-								break;
-							}
-							logDebug("ftp://%s:%s@%s:%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str());
-						}
-					} else
-					if ( strncasecmp((char *)&*jt->c_str(),"get",3) == 0 )
-					{
-						switch(paramlist.size())
-						{
-						case 1:
-							state = NEXT_IS_FILE;
-							logDebug("get without param, next arg is filename\n");
-							break;
-						default:
-                            getfile = paramlist[1];
-//							logDebug("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
-							startDownload(host,port,user,pass,path,getfile,downloadflags);
-						}
-					}else
-					if ( strncasecmp((char *)&*jt->c_str(),"binary",6) == 0 || 
-						 strncasecmp((char *)&*jt->c_str(),"bin",3) == 0)
-					{
-						downloadflags |= DF_TYPE_BINARY;
-					}else
-					if ( strncasecmp((char *)&*jt->c_str(),"cd",2) == 0 )
-					{
 						switch ( paramlist.size() )
 						{
 						case 1:
-							state = NEXT_IS_PATH;
+							state = NEXT_IS_USER;
 							break;
 
 						case 2:
-							path = paramlist[1];
+							user = paramlist[1];
+							state = NEXT_IS_PASS;
+							break;
+						case 3:
+							user = paramlist[1];
+							pass = paramlist[2];
 							break;
 						}
-							
+						logDebug("ftp://%s:%s@%s:%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str());
 					}
-
-					break;
-
-
-
-				case NEXT_IS_HOST:
+				} else
+				if ( strncasecmp((char *)&*jt->c_str(),"get",3) == 0 )
+				{
+					switch(paramlist.size())
+					{
+					case 1:
+						state = NEXT_IS_FILE;
+						logDebug("get without param, next arg is filename\n");
+						break;
+					default:
+						getfile = paramlist[1];
+//							logDebug("ftp://%s:%s@%s:%s/%s\n",user.c_str(),pass.c_str(),host.c_str(),port.c_str(),getfile.c_str());
+						startDownload(host,port,user,pass,path,getfile,downloadflags);
+					}
+				}else
+				if ( strncasecmp((char *)&*jt->c_str(),"binary",6) == 0 || 
+					 strncasecmp((char *)&*jt->c_str(),"bin",3) == 0)
+				{
+					downloadflags |= DF_TYPE_BINARY;
+				}else
+				if ( strncasecmp((char *)&*jt->c_str(),"cd",2) == 0 )
+				{
 					switch ( paramlist.size() )
 					{
-
 					case 1:
-						host = paramlist[0];
-						port = "21";
-                        break;
+						state = NEXT_IS_PATH;
+						break;
 
 					case 2:
-						host = paramlist[0];
-						port = paramlist[1];
-                        break;
-					}
-
-					if(direktconnect == true && anonymouslogin == false )
-					{
-						state = NEXT_IS_USER;
-					}else
-					{
-						state = NEXT_IS_SOMETHING;
-					}
-					break;
-
-
-				case NEXT_IS_PORT:
-					break;
-
-				case NEXT_IS_USER:
-					switch ( paramlist.size() )
-					{
-					case 1:
-						user = paramlist[0];
-						state = NEXT_IS_PASS;
-                        break;
-
-					default:
-						logCrit("Broken State NEXT_IS_USER\n");
-						state = NEXT_IS_SOMETHING;
+						path = paramlist[1];
 						break;
 					}
-					break;
-
-				case NEXT_IS_PASS:
-					pass = paramlist[0];
-					state = NEXT_IS_SOMETHING;
-					break;
-
-
-				case NEXT_IS_FILE:
-					getfile = paramlist[0];
-					startDownload(host,port,user,pass,path,getfile,downloadflags);
-					state = NEXT_IS_SOMETHING;
-                    break;
-
-				case NEXT_IS_PATH:
-					path = paramlist[0];
-					state = NEXT_IS_SOMETHING;
-					break;
 
 				}
 
+				break;
+
+
+
+			case NEXT_IS_HOST:
+				switch ( paramlist.size() )
+				{
+
+				case 1:
+					host = paramlist[0];
+					port = "21";
+					break;
+
+				case 2:
+					host = paramlist[0];
+					port = paramlist[1];
+					break;
+				}
+
+				if(direktconnect == true && anonymouslogin == false )
+				{
+					state = NEXT_IS_USER;
+				}else
+				{
+					state = NEXT_IS_SOMETHING;
+				}
+				break;
+
+
+			case NEXT_IS_PORT:
+				break;
+
+			case NEXT_IS_USER:
+				switch ( paramlist.size() )
+				{
+				case 1:
+					user = paramlist[0];
+					state = NEXT_IS_PASS;
+					break;
+
+				default:
+					logCrit("Broken State NEXT_IS_USER\n");
+					state = NEXT_IS_SOMETHING;
+					break;
+				}
+				break;
+
+			case NEXT_IS_PASS:
+				pass = paramlist[0];
+				state = NEXT_IS_SOMETHING;
+				break;
+
+
+			case NEXT_IS_FILE:
+				getfile = paramlist[0];
+				startDownload(host,port,user,pass,path,getfile,downloadflags);
+				state = NEXT_IS_SOMETHING;
+				break;
+
+			case NEXT_IS_PATH:
+				path = paramlist[0];
+				state = NEXT_IS_SOMETHING;
+				break;
+
 			}
-		}else
-        if (strncmp(&*it->c_str(),"-A",2) == 0)	// anonymous login
-		{
-			anonymouslogin = true;
+
 		}
-		else
-			host = *it;
+
 	}
     return 0;
 }
