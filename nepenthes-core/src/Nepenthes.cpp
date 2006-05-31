@@ -110,6 +110,7 @@ Nepenthes::Nepenthes()
  */
 Nepenthes::~Nepenthes()
 {
+	logPF();
 	if ( m_SocketManager != NULL )
     	delete m_SocketManager;
 
@@ -143,6 +144,9 @@ Nepenthes::~Nepenthes()
 	if (m_LogManager != NULL)
 		delete m_LogManager;
 
+	g_Nepenthes = NULL;
+	
+	printf("Quit\n");
 }
 
 /**
@@ -1393,9 +1397,9 @@ bool Nepenthes::setCapabilties()
  */
 void SignalHandler(int32_t iSignal)
 {
-    printf("Got signal %i\n", iSignal);
-    switch(iSignal)
-    {
+	printf("Got signal %i\n", iSignal);
+	switch ( iSignal )
+	{
 	case SIGHUP:
 		logCrit("Got SIGHUP\nRereading Config File!\n\n");
 		g_Nepenthes->reloadConfig();
@@ -1412,13 +1416,23 @@ void SignalHandler(int32_t iSignal)
 		break;
 
 	case SIGSEGV:
-		logCrit("Segmentation Fault\n");
+		if ( g_Nepenthes != NULL )
+			logCrit("Segmentation Fault\n");
+		exit(-1);
+		break;
+
+	case SIGBUS:
+		if ( g_Nepenthes != NULL )
+			logCrit("Bus Error\n");
 		exit(-1);
 		break;
 
 	default:
-		logCrit("Exit 'cause of %i\n", iSignal);
-		g_Nepenthes->stop();
+		if ( g_Nepenthes != NULL )
+		{
+			logCrit("Exit 'cause of %i\n", iSignal);
+			g_Nepenthes->stop();
+		}
 	}
 }
 
@@ -1472,8 +1486,8 @@ int main(int32_t argc, char **argv)
 										// 
 	signal(SIGALRM,  SignalHandler);	//      14       Term    Timer signal from alarm(2)
 	signal(SIGTERM,  SignalHandler);	//      15       Term    Termination signal
-	signal(SIGUSR1,  SignalHandler);	//   30,10,16    Term    User-defined signal 1
-	signal(SIGUSR2,  SignalHandler);	//   31,12,17    Term    User-defined signal 2
+//	signal(SIGUSR1,  SignalHandler);	//   30,10,16    Term    User-defined signal 1
+//	signal(SIGUSR2,  SignalHandler);	//   31,12,17    Term    User-defined signal 2
 	signal(SIGCHLD,  SignalHandler);	//   20,17,18    Ign     Child stopped or terminated
 	signal(SIGCONT,  SignalHandler);	//   19,18,25            Continue if stopped
 //	signal(SIGSTOP,  SIG_IGN	  );	//   17,19,23    Stop    Stop process
@@ -1524,8 +1538,11 @@ int main(int32_t argc, char **argv)
 #endif
 #endif
 	
-	Nepenthes nepenthes;
-	return nepenthes.run(argc, argv);
+	Nepenthes *nepenthes = new Nepenthes();
+	int retval = nepenthes->run(argc, argv);
+	delete nepenthes;
+	printf("run is done %i\n",retval);
+	return retval;
 }
 
 void show_logo()
@@ -1614,7 +1631,7 @@ void show_help(bool defaults)
 		{"R",	"ringlog",			"use ringlogger instead of filelogger",			"filelogger"	},
 		{"u",	"user=USER",				"switch to USER after startup",	"keep current user"},
 		{"g",	"group=GROUP",			"switch to GROUP after startup (use with -u)", "keep current group"},
-		{"v",	"version",			"show version",							""						},
+		{"V",	"version",			"show version",							""						},
 		{"w",	"workingdir=DIR",		"set the process' working dir to DIR",			PREFIX		},
 	};
 	show_version();

@@ -33,6 +33,7 @@
 #include "LogManager.hpp"
 #include "LogHandlerEntry.hpp"
 #include "LogHandler.hpp"
+#include "Nepenthes.hpp"
 
 using namespace nepenthes;
 
@@ -53,6 +54,7 @@ LogManager::LogManager()
  */
 LogManager::~LogManager()
 {
+	logPF();
 	// unregister all loggers.
 	list<LogHandlerEntry *>::iterator it;
 
@@ -61,6 +63,8 @@ LogManager::~LogManager()
 //		delete (*it)->m_Lh;
 		delete (*it);
 	}
+	
+	m_Loggers.clear();
 }
 
 
@@ -126,6 +130,12 @@ void LogManager::addLogger(LogHandler *lh, uint32_t filterMask)
  */
 void LogManager::log(uint32_t mask, const char *message)
 {
+	if ( m_Loggers.size() == 0)
+	{
+		printf("%s",message);
+		return;
+	}
+
 	list<LogHandlerEntry *>::iterator it;
 
 	// walk all loggers and log where desired.
