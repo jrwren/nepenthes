@@ -5,6 +5,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 AM_CPPFLAGS = -I../include -I ../.. -Wall -Werror
+AM_LDFLAGS = $(LIB_MAGIC) -ldl
 
 bin_PROGRAMS = nepenthes
 

@@ -130,7 +130,7 @@ ConsumeLevel MydoomDialogue::incomingData(Message *msg)
 	case MYDOOM_FILETRANSFERR:
 		{
 			m_Download->getDownloadBuffer()->addData((char *)msg->getMsg(),msg->getSize());
-			return CL_ASSIGN_AND_DONE;
+			return CL_ASSIGN;
 		}
 		break;
 

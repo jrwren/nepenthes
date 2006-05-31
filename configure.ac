@@ -163,6 +163,30 @@ AC_TYPE_SIGNAL
 AC_CHECK_FUNCS([strndup alarm bzero gethostbyname gethostname gettimeofday inet_ntoa localtime_r memmove memset munmap select socket strcasecmp strdup strerror strncasecmp strstr strtoul setresgid setresuid])
 
 
+# libadns 
+AC_SUBST([LIB_ADNS])
+
+# libpcre
+AC_SUBST([LIB_PCRE])
+
+# libcurl
+AC_SUBST([LIB_CURL])
+
+# libcapabilities
+AC_SUBST([LIB_CAP])
+
+# libmagic
+AC_SUBST([LIB_MAGIC])
+
+# libpq
+AC_SUBST([LIB_POSTGRES])
+
+# libprelude
+AC_SUBST([LIB_PRELUDE])
+AC_SUBST([LDFLAG_PRELUDE])
+AC_SUBST([CPPFLAG_PRELUDE])
+
+
 dnl **************************************************
 dnl * debug logging                                  *
 dnl **************************************************
@@ -204,7 +228,7 @@ if test xyes = "xyes"; then
     AC_CHECK_LIB([curl], [curl_version],
              [AC_DEFINE(HAVE_LIBCURL, 1,
                        [Define if you want to use libcurl])
-              LIBS="-lcurl $LIBS"],
+             LIB_CURL="-lcurl"],
              [AC_MSG_ERROR([libcurl is missing - install it please])
              ])
 fi
@@ -239,7 +263,7 @@ if test xyes = "xyes"; then
     AC_CHECK_LIB([pcre], [pcre_compile],
              [AC_DEFINE(HAVE_LIBPCRE, 1,
                         [Define if you want to use libpcre])
-              LIBS="-lpcre $LIBS"],
+              LIB_PCRE="-lpcre"],
              [AC_MSG_ERROR([libpcre is missing - install it please])
              ])
 fi	     
@@ -274,7 +298,7 @@ if test xyes = "xyes"; then
     AC_CHECK_LIB([magic], [magic_open],
              [AC_DEFINE(HAVE_LIBMAGIC, 1,
                        [Define if you want to use libmagic])
-              LIBS="-lmagic $LIBS"],
+              LIB_MAGIC="-lmagic"],
              [AC_MSG_ERROR([libmagic is missing - install it please])
              ])
     AC_CHECK_HEADERS(magic.h)
@@ -339,7 +363,7 @@ if test x$enable_ssh = xyes; then
     enable_ssh=no
   else
     AC_DEFINE(HAVE_LIBSSH,1,[Define wether we have libssh])
-    LIBS="-lssh $LIBS"
+    LIB_SSH="-lssh"
   fi
   
 fi  
@@ -405,7 +429,7 @@ if test x$enable_mysql = xyes; then
     enable_mysql=no
   else
     AC_DEFINE(HAVE_MYSQL, 1 , [Define if we have mysql client library])
-    LIBS="-lmysqlclient $LIBS"
+    LIB_MYSQL="-lmysqlclient"
   fi
 
   AC_MSG_RESULT($enable_mysql)  
@@ -474,7 +498,7 @@ if test x$enable_postgre = xyes; then
     enable_postgre=no
   else
     AC_DEFINE(HAVE_POSTGRES, 1 , [Define if we have postgre client library])
-    LIBS="-lpq $LIBS"
+    LIB_POSTGRES="-lpq"
   fi
 
   AC_MSG_RESULT($enable_postgre)  
@@ -545,7 +569,7 @@ if test x$enable_dnsresolve_adns = xyes; then
     AC_CHECK_LIB([adns], [adns_init],
            [AC_DEFINE(HAVE_LIBADNS, 1,
                       [Define if you want to use adns])
-            LIBS="-ladns $LIBS"],
+            LIB_ADNS="-ladns"],
      enable_dnsresolve_adns=no
    )
 fi
@@ -610,9 +634,9 @@ else
 	PRELUDE_LIBS=`$LIBPRELUDE_CONFIG --libs`
 	PRELUDE_CPPFLAGS=`$LIBPRELUDE_CONFIG --cflags`
 	
-	LIBS="$PRELUDE_LIBS $LIBS"
-	LDFLAGS="$PRELUDE_LDFLAGS $LDFLAGS"
-	CPPFLAGS="$PRELUDE_CPPFLAGS $CPPFLAGS"
+	LIB_PRELUDE="$PRELUDE_LIBS"
+	LDFLAG_PRELUDE="$PRELUDE_LDFLAGS"
+	CPPFLAG="$PRELUDE_CPPFLAGS"
 	
     fi
 fi
@@ -627,7 +651,7 @@ dnl **************************************************
 AC_MSG_CHECKING(whether to use libcap to improve security)
 AC_ARG_ENABLE(capabilities, [  --enable-capabilities	Enable capabilities [default=auto]], 
 		   [enable_capabilities="$enableval"], 
-		   [enable_capabilities="no"])
+		   [enable_capabilities="yes"])
 
 if test x$enable_capabilities = xno ; then
     AC_MSG_RESULT([no -- disabled by user])
@@ -657,7 +681,7 @@ else
     AC_CHECK_LIB(cap, cap_init, 
 	[
               AC_DEFINE(HAVE_LIBCAP, 1,[Define if libcap is available to restrict process capabilities])
-               LIBS="$LIBS -lcap"
+               LIB_CAP="-lcap"
                enable_capabilities="yes"
 	], 
 	[
