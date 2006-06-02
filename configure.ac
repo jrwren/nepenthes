@@ -765,7 +765,8 @@ AC_CONFIG_FILES([Makefile
 		 modules/download-rcp/Makefile
 		 modules/vuln-ftpd/Makefile
 		 modules/log-prelude/Makefile
-		 modules/shellcode-signatures/Makefile		 
+		 modules/shellcode-signatures/Makefile
+		 modules/vuln-realvnc/Makefile
 		 ])
 #		 modules/log-prelude/Makefile
 #                modules/module-drone/Makefile		 
