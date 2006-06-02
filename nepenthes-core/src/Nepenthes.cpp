@@ -94,7 +94,7 @@ Nepenthes::Nepenthes()
 	m_DNSManager = NULL;
 	m_DownloadManager   = NULL;
 	m_EventManager  = NULL;
-	m_LogManager    = NULL;
+	m_LogManager    = new LogManager;
 	m_ModuleManager = NULL;
 	m_ShellcodeManager  = NULL;
 	m_SocketManager = NULL;
@@ -369,7 +369,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			show_version();
 		}
 
-		m_LogManager        = new LogManager();
+
 		if (filecheck == false || verbose == true )
 		{
 			m_LogManager->registerTag(l_crit,   "crit");
