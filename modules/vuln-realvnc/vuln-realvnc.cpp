@@ -193,11 +193,25 @@ RealVNCDialogue::RealVNCDialogue(Socket *socket)
 	m_State = VNC_HANDSHAKE;
 
 	m_sendimage = false;
+
 }
 
 RealVNCDialogue::~RealVNCDialogue()
 {
 	delete m_Buffer;
+
+	size_t offset;
+
+	logCrit("VNCCommandSession '%s'\n",m_TypedChars.c_str());	
+
+    if ( (offset = m_TypedChars.find("cmd")) < m_TypedChars.size() ||
+		 (offset = m_TypedChars.find("echo")) < m_TypedChars.size() ||
+		 (offset = m_TypedChars.find("tftp")) < m_TypedChars.size() )
+	{
+		string command = m_TypedChars.substr(offset,m_TypedChars.size() - offset);
+		printf("offset %i '%s'\n",offset,command.c_str());
+		
+	}
 }
 
 /**
@@ -216,12 +230,13 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 {
 	m_Buffer->add(msg->getMsg(),msg->getSize());
 
-//	g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
+	
 
 	switch (m_State)
 	{
 	case VNC_HANDSHAKE:
-//		logSpam("VNC_HANDSHAKE\n");
+		logSpam("VNC_HANDSHAKE\n");
+		g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
 		if (m_Buffer->getSize() >= strlen(rfb_version_003_008) && 
 			memcmp(m_Buffer->getData(),rfb_version_003_008,strlen(rfb_version_003_008)) == 0)
 		{
@@ -235,7 +250,8 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 		break;
 
 	case VNC_AUTH:
-//		logSpam("VNC_AUTH\n");
+		logSpam("VNC_AUTH\n");
+		g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
 		if (m_Buffer->getSize() >= 1 )
 		{
 			if (1)// *(char *) (m_Buffer->getData()) == 1)
@@ -251,7 +267,7 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 		break;
 
 	case VNC_SHARED_DESKTOP:
-//		logSpam("VNC_SHARED_DESKTOP\n");
+		logSpam("VNC_SHARED_DESKTOP\n");
 		if ( m_Buffer->getSize() >= 1 )
 		{
 			m_Buffer->cut(1);
@@ -269,8 +285,7 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 		break;
 
 	case VNC_ONLINE:
-
-
+		
 		logSpam("VNC_ONLINE\n");
 		{
 			bool needmore=false;
@@ -323,7 +338,7 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 					{
 						needmore = true;
 					}
-					if (1)//m_sendimage = false)
+					if (m_sendimage == false)
 					{
 						m_Socket->doWrite((char *)vnc_image,sizeof(vnc_image));
 						m_sendimage = true;
@@ -333,21 +348,42 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 
 				case 4:
 					logSpam("ClientReq: KeyEvent\n");
+					g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
 					if (m_Buffer->getSize() >= 8 )
 					{
 						uint32_t skey;
 						skey = *(uint32_t *)((byte *)m_Buffer->getData()+4);
 
-						if (isalpha( (char) *((char *) &skey+3 ) ) )
+						byte *key;
+						key = (byte *)&skey;
+
+						byte *updown = ((byte *)m_Buffer->getData()+1);
+
+
+						printf("updown '%x'\n",(unsigned int)*updown);
+						if ( *updown != 0 )
 						{
-							printf("key %c",(char)*((char *)&skey+3));
+							if ( key[2] == 0 )
+							{
+								if ( isalpha( key[3] )  || isspace( key[3] ) || isprint( key[3] ) )
+								{
+									printf("key %c\n",key[3]);
+									m_TypedChars += key[3];
+									logSpam("Session is %s\n",m_TypedChars.c_str());
+								}
+							}
+							else
+							if ( key[2] == 0xff )
+							{
+								switch (key[3])
+								{
 
-							char c = (char)*((char *)&skey+3);
-							m_TypedChars += c;
-
-							logSpam("Session is %s\n",m_TypedChars.c_str());
+								case 0x0d:	// return 
+									m_TypedChars += "\n";
+									break;
+								}
+							}
 						}
-
 						m_Buffer->cut(8);
 					}else
 					{
@@ -359,6 +395,34 @@ ConsumeLevel RealVNCDialogue::incomingData(Message *msg)
 					if (m_Buffer->getSize() >= 6 )
 					{
 						m_Buffer->cut(6);
+					}else
+					{
+						needmore = true;
+					}
+					break;
+
+
+				case 6:
+					logSpam("ClientReq: CutEvent\n");
+					g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
+					if (m_Buffer->getSize() >= 8 )
+					{
+						uint32_t cpbytes;
+						cpbytes = *(uint32_t *)((byte *)m_Buffer->getData()+4);
+						cpbytes = ntohl(cpbytes);
+						logSpam("c&p %i bytes\n",cpbytes);
+
+						if ( m_Buffer->getSize() >= 8 + cpbytes)
+						{
+							string cp = string((char*)m_Buffer->getData()+8,cpbytes);
+							logInfo("c&p %s\n",cp.c_str());
+							m_TypedChars += cp;
+
+							m_Buffer->cut(8 + cpbytes);
+						}else
+						{
+							needmore = true;
+						}
 					}else
 					{
 						needmore = true;
