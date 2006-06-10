@@ -215,9 +215,35 @@ bool UDPSocket::Exit()
 
 bool UDPSocket::connectHost()
 {
-	logInfo("UDP 'connecting' %s:%i \n",inet_ntoa(* (in_addr *)&m_RemoteHost), m_RemotePort);
+	string localhost, remotehost;
+	localhost = inet_ntoa(* (in_addr *)&m_LocalHost);
+	remotehost = inet_ntoa(* (in_addr *)&m_RemoteHost);
+	logDebug("UDP 'connecting' %s:%i -> %s:%i \n",localhost.c_str(),m_LocalPort, remotehost.c_str(), m_RemotePort);
 	
 	m_Socket=socket(AF_INET, SOCK_DGRAM, 0);
+
+	if(m_Socket < 0)
+	{
+		logCrit("Error creating Socket %s \n",strerror(errno));
+		return false;
+	}
+
+	struct sockaddr_in addrBind;
+	addrBind.sin_family = AF_INET;
+
+	addrBind.sin_addr.s_addr = getLocalHost();
+	addrBind.sin_port = htons(getLocalPort());
+
+	if ( bind(m_Socket, (struct sockaddr *) &addrBind, sizeof(addrBind)) < 0 )
+	{
+		logCrit("Could not Bind Socket for (udp) connectHost %i\n%s\n", m_LocalPort,strerror(errno));
+		return false;
+	}
+
+	int32_t iSize = sizeof(addrBind);
+	getsockname(m_Socket, (struct sockaddr *) &addrBind, (socklen_t *) &iSize);
+	m_LocalPort = ntohs( ( (sockaddr_in *)&addrBind)->sin_port ) ;
+
 
 #ifdef WIN32
 	int32_t iMode = 0;
@@ -226,18 +252,9 @@ bool UDPSocket::connectHost()
 	fcntl(m_Socket, F_SETFL, O_NONBLOCK);
 #endif
 
-
-	sockaddr_in ssin; 
-
-	ssin.sin_family=AF_INET;
-	ssin.sin_port=htons(m_RemotePort);
-	ssin.sin_addr.s_addr=m_RemoteHost;
     m_LastAction = time(NULL);
 
-	if(m_Socket > 0)
-		return true;
-	logCrit("Error creating Socket %s \n",strerror(errno));
-	return false;
+	return true;
 }
 
 Socket * UDPSocket::acceptConnection()
