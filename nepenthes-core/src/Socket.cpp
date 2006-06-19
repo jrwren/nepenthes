@@ -491,3 +491,56 @@ string Socket::getDescription()
 
 	return sDesc;
 }
+
+bool Socket::getRemoteHWA(string *address)
+{
+	if ( !(m_Type & ST_TCP) && !(m_Type & ST_UDP) )
+	{
+		return false;
+	}
+
+/*
+ *
+ * borrowed from arp.c in net-tools 
+ *
+ */
+
+#define _PATH_PROCNET_ARP               "/proc/net/arp"
+	char ip[100];
+	char hwa[100];
+	char mask[100];
+	char line[200];
+	char dev[100];
+	int type, flags;
+	FILE *fp;
+
+	/* Open the PROCps kernel table. */
+	if ( (fp = fopen(_PATH_PROCNET_ARP, "r")) == NULL )
+	{
+		logCrit("Could not open %s\n",_PATH_PROCNET_ARP);
+	}
+
+	/* Bypass header -- read until newline */
+	if ( fgets(line, sizeof(line), fp) != (char *) NULL )
+	{
+		strcpy(mask, "-");
+		strcpy(dev, "-");
+		/* Read the ARP cache entries. */
+		for ( ; fgets(line, sizeof(line), fp); )
+		{
+			int num = sscanf(line, "%s 0x%x 0x%x %100s %100s %100s\n",
+							 ip, &type, &flags, hwa, mask, dev);
+			if ( num < 4 )
+				break;
+
+			if ( inet_addr(ip) == m_RemoteHost )
+			{
+//				logSpam("ip:%s type:0x%x flags:0x%x hwa:%s mask:%s dev:%s\n",ip, type, flags, hwa, mask, dev);
+				*address = hwa;
+				fclose(fp);
+				return true;
+			}
+		}
+	}
+	return false;
+}

@@ -148,7 +148,8 @@ namespace nepenthes
         virtual void          setRemoteHost(uint32_t i);
         virtual void          setLocalHost(uint32_t i);
         virtual uint32_t getLocalHost();
-        virtual uint32_t getRemoteHost();
+		virtual uint32_t getRemoteHost();
+		virtual bool getRemoteHWA(string *address);
         virtual list <DialogueFactory *>   * getFactories();
         virtual list <Dialogue *>          * getDialogst();
 
