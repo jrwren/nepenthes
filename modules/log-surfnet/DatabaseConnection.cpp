@@ -148,7 +148,7 @@ int32_t DatabaseConnection::getSensorID(uint32_t ip)
 
 }
 
-int32_t DatabaseConnection::addAttack(int32_t severity, uint32_t attackerip, uint16_t attackerport, uint32_t decoyip, uint16_t decoyport, int32_t sensorid)
+int32_t DatabaseConnection::addAttack(int32_t severity, uint32_t attackerip, uint16_t attackerport, uint32_t decoyip, uint16_t decoyport, string hwa, int32_t sensorid)
 {
 #ifdef HAVE_POSTGRES
 	logPF();
@@ -161,9 +161,17 @@ int32_t DatabaseConnection::addAttack(int32_t severity, uint32_t attackerip, uin
 	string attackerhost = inet_ntoa(*(in_addr *)&attackerip);
 	string decoyhost = inet_ntoa(*(in_addr *)&decoyip);
 
-	querysize = asprintf(&query,"INSERT INTO attacks (severity,timestamp,dest,dport,source,sport,sensorid) VALUES ('%i','%i','%s','%i','%s','%i','%i')",
-						 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, sensorid);
+	if ( hwa != "" )
+	{
+		querysize = asprintf(&query,"INSERT INTO attacks (severity,timestamp,dest,dport,source,sport,sensorid) VALUES ('%i','%i','%s','%i','%s','%i','%i')",
+							 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, sensorid);
+	}
+	else
+	{
+		querysize = asprintf(&query,"INSERT INTO attacks (severity,timestamp,dest,dport,source,sport,sensorid,src_mac) VALUES ('%i','%i','%s','%i','%s','%i','%i','%s')",
+							 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, hwa.c_str(),sensorid);
 
+	}
 
 
 	printf("%s",query);

@@ -51,7 +51,7 @@ namespace nepenthes
 		bool Exit();
 
 		int32_t getSensorID(uint32_t ip);
-		int32_t addAttack(int32_t severity, uint32_t attackerip, uint16_t attackerport, uint32_t decoyip, uint16_t decoyport, int32_t sensorid);
+		int32_t addAttack(int32_t severity, uint32_t attackerip, uint16_t attackerport, uint32_t decoyip, uint16_t decoyport, string hwa, int32_t sensorid);
 
 		void updateAttackSeverity(int32_t attackid, int32_t newseverity);
 		void addDetail(int32_t attackid, int32_t sensorid, int32_t detailtype , const char *text);

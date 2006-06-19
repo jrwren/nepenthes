@@ -331,10 +331,14 @@ void LogSurfNET::handleTCPAccept(Socket *socket)
 			"\tSocket 0x%x\n",
 			(uint32_t) ((intptr_t)socket));
 
+	string hwa = "";
+	socket->getRemoteHWA(&hwa);
+
     int32_t sensorid = m_DB->getSensorID(socket->getLocalHost());
-	int32_t attackid = m_DB->addAttack(AS_POSSIBLE_MALICIOUS_CONNECTION, socket->getRemoteHost(), socket->getRemotePort(), socket->getLocalHost(), socket->getLocalPort(),sensorid);
+	int32_t attackid = m_DB->addAttack(AS_POSSIBLE_MALICIOUS_CONNECTION, socket->getRemoteHost(), socket->getRemotePort(), socket->getLocalHost(), socket->getLocalPort(),hwa,sensorid);
 
 	m_SocketTracker[(uintptr_t)socket] = attackid;
+
 }
 
 void LogSurfNET::handleTCPclose(Socket *socket, uint32_t attackid)
@@ -386,15 +390,19 @@ void LogSurfNET::handleShellcodeDone(Socket *socket, ShellcodeHandler *handler, 
 
 void LogSurfNET::handleDownloadOffer(uint32_t localhost, uint32_t remotehost,const char *url)
 {
+	string hwa = "";
+
 	int32_t sensorid = m_DB->getSensorID(localhost);
-	int32_t attackid = m_DB->addAttack(AS_DOWNLOAD_OFFER, remotehost, 0, localhost, 0,sensorid);
+	int32_t attackid = m_DB->addAttack(AS_DOWNLOAD_OFFER, remotehost, 0, localhost, 0,hwa,sensorid);
     m_DB->addDetail(attackid, sensorid, DT_DOWNLOAD_URL, url);
 }
 
 void LogSurfNET::handleDownloadSuccess(uint32_t localhost, uint32_t remotehost, const char *url, const char *md5hash)
 {
+	string hwa = "";
+
 	int32_t sensorid = m_DB->getSensorID(localhost);
-	int32_t attackid = m_DB->addAttack(AS_DOWNLOAD_SUCCESS, remotehost, 0, localhost, 0,sensorid);
+	int32_t attackid = m_DB->addAttack(AS_DOWNLOAD_SUCCESS, remotehost, 0, localhost, 0, hwa, sensorid);
 
     m_DB->addDetail(attackid, sensorid, DT_DOWNLOAD_URL, url);
 	m_DB->addDetail(attackid, sensorid, DT_DOWNLOAD_HASH, md5hash);
