@@ -161,7 +161,7 @@ int32_t DatabaseConnection::addAttack(int32_t severity, uint32_t attackerip, uin
 	string attackerhost = inet_ntoa(*(in_addr *)&attackerip);
 	string decoyhost = inet_ntoa(*(in_addr *)&decoyip);
 
-	if ( hwa != "" )
+	if ( hwa == "" )
 	{
 		querysize = asprintf(&query,"INSERT INTO attacks (severity,timestamp,dest,dport,source,sport,sensorid) VALUES ('%i','%i','%s','%i','%s','%i','%i')",
 							 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, sensorid);
@@ -169,7 +169,7 @@ int32_t DatabaseConnection::addAttack(int32_t severity, uint32_t attackerip, uin
 	else
 	{
 		querysize = asprintf(&query,"INSERT INTO attacks (severity,timestamp,dest,dport,source,sport,sensorid,src_mac) VALUES ('%i','%i','%s','%i','%s','%i','%i','%s')",
-							 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, hwa.c_str(),sensorid);
+							 severity,(int)time(NULL),decoyhost.c_str(), decoyport, attackerhost.c_str(), attackerport, sensorid, hwa.c_str());
 
 	}
 
