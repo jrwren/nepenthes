@@ -186,6 +186,22 @@ AC_SUBST([LIB_PRELUDE])
 AC_SUBST([LDFLAG_PRELUDE])
 AC_SUBST([CPPFLAG_PRELUDE])
 
+# libipq
+AC_SUBST([LIB_IPQ])
+
+# libpcap
+AC_SUBST([LIB_PCAP])
+
+# libnet
+AC_SUBST([LIB_LIBNET])
+
+
+dnl **************************************************
+dnl * libipq support                                 *
+dnl **************************************************
+
+
+
 
 dnl **************************************************
 dnl * debug logging                                  *
@@ -767,7 +783,9 @@ AC_CONFIG_FILES([Makefile
 		 modules/log-prelude/Makefile
 		 modules/shellcode-signatures/Makefile
 		 modules/vuln-realvnc/Makefile
+		 modules/module-honeytrap/Makefile
 		 ])
+#		 modules/module-upnp/Makefile		 
 #		 modules/log-prelude/Makefile
 #                modules/module-drone/Makefile		 
 #		 modules/log-surfnet/Makefile])
