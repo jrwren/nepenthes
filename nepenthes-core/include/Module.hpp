@@ -28,13 +28,13 @@
 /* $Id$ */
 
 #ifndef HAVE_MODULE_HPP
-#define HAVE_MODULE_HPP
+	#define HAVE_MODULE_HPP
 
-#include <string>
+	#include <string>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
+	#ifdef WIN32
+		#include <windows.h>
+	#endif
 
 using namespace std;
 
@@ -50,67 +50,69 @@ namespace nepenthes
 	/**
 	 * quite everything in nepenthes is a module, are you?
 	 */
-    class Module 
-    {
-    public:
-        virtual ~Module(){};
-        virtual bool Init()=0;
-        virtual bool Exit()=0;
+	class Module 
+	{
+	public:
+		virtual ~Module()
+		{
+		};
+		virtual bool Init()=0;
+		virtual bool Exit()=0;
 
-virtual void setConfig(Config *config)
-{
-	m_Config = config;
-}
+		virtual void setConfig(Config *config)
+		{
+			m_Config = config;
+		}
 
 
 #ifdef WIN32
-virtual void setDlHandle(HMODULE handle)
-{
-	m_DlHandle = handle;
-}
+		virtual void setDlHandle(HMODULE handle)
+		{
+			m_DlHandle = handle;
+		}
 #else
-virtual void setDlHandle(void *handle)
-{
-	m_DlHandle = handle;
-}
+		virtual void setDlHandle(void *handle)
+		{
+			m_DlHandle = handle;
+		}
 #endif
 
 
 #ifdef WIN32
-virtual HMODULE getDlHandle()
-{
-	return m_DlHandle;
-}
+		virtual HMODULE getDlHandle()
+		{
+			return m_DlHandle;
+		}
 #else
-virtual void *getDlHandle()
-{
-	return m_DlHandle;
-}
+		virtual void *getDlHandle()
+		{
+			return m_DlHandle;
+		}
 #endif
 
 
-virtual Config *getConfig()
-{
-	return m_Config;
-}
+		virtual Config *getConfig()
+		{
+			return m_Config;
+		}
 
-virtual string getModuleDescription()
-{
-	return m_ModuleDescription;
-}
+		virtual string getModuleDescription()
+		{
+			return m_ModuleDescription;
+		}
 
-virtual string getModuleName()
-{
-	return m_ModuleName;
-}
-    protected:
+		virtual string getModuleName()
+		{
+			return m_ModuleName;
+		}
+	protected:
 
 		ModuleManager *m_ModuleManager;
-		Nepenthes 	  *m_Nepenthes;
+		Nepenthes     *m_Nepenthes;
 
-        string  m_ModuleName;
-        string  m_ModuleDescription;
-        string  m_ModuleRevision;
+		string  m_ModuleName;
+		string  m_ModuleDescription;
+		string  m_ModuleRevision;
 
 #ifdef WIN32
 		HMODULE m_DlHandle;
@@ -119,11 +121,11 @@ virtual string getModuleName()
 		 * the dlopen handle we get when opening the file with dlopen 
 		 * and we need to dlcose() the module
 		 */
-        void    *m_DlHandle;
+		void    *m_DlHandle;
 #endif
 
-        Config  *m_Config;
-    };
+		Config  *m_Config;
+	};
 
 
 }

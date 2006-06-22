@@ -1691,6 +1691,12 @@ void show_help(bool defaults)
 
 #if defined(__alpha__) || defined(__alpha) || defined(_M_ALPHA)
 #  define MY_ARCH "Alpha"
+#elif defined(__arm__)
+#  if defined(__ARMEB__)
+#    define MY_ARCH "ARMeb"
+#  else 
+#    define MY_ARCH "ARM"
+#  endif 
 #elif defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(_X86_) || defined(__THW_INTEL)
 #  define MY_ARCH "x86"
 #elif defined(__x86_64__) || defined(__amd64__)
@@ -1698,7 +1704,11 @@ void show_help(bool defaults)
 #elif defined(__ia64__) || defined(_IA64) || defined(__IA64__) || defined(_M_IA64)
 #  define MY_ARCH "Intel Architecture-64"
 #elif defined(__mips__) || defined(__mips) || defined(__MIPS__)
-#  define MY_ARCH "MIPS"
+#  if defined(__mips32__) || defined(__mips32)
+#    define MY_ARCH "MIPS32"
+#  else 
+#    define MY_ARCH "MIPS"
+#  endif 
 #elif defined(__hppa__) || defined(__hppa)
 #  define MY_ARCH "PA RISC"
 #elif defined(__powerpc) || defined(__powerpc__) || defined(__POWERPC__) || defined(__ppc__) || defined(_M_PPC) || defined(__PPC) || defined(__PPC__)
