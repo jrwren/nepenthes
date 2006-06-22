@@ -1,0 +1,4 @@
+module-honeytrap
+{
+	listen_mode 	"ipq";	// valid values are ipq and pcap
+};
