@@ -60,6 +60,16 @@
 using namespace nepenthes;
 
 
+/*
+ * This module is derived from honeytrap (honeytrap.sf.net) by Werner Tillmann
+ *
+ * The idea is really good, and it as it was easy to make a nepenthes module of it, we stole it
+ *
+ */ 
+
+
+
+
 /**
  * as we may need a global pointer to our Nepenthes in our modules,
  * and cant access the cores global pointer to nepenthes
@@ -70,35 +80,31 @@ Nepenthes *g_Nepenthes;
 
 /**
  * The Constructor
- * creates a new X2 Module, 
- * X2 is an example for binding a socket & setting up the Dialogue & DialogueFactory
- * 
- * 
- * it can be used as a shell emu to allow trigger commands 
- * 
- * 
- * sets the following values:
- * - m_DialogueFactoryName
- * - m_DialogueFactoryDescription
+ * creates a new ModuleHoneyTrap Module, 
  * 
  * @param nepenthes the pointer to our Nepenthes
  */
-X2::X2(Nepenthes *nepenthes)
+ModuleHoneyTrap::ModuleHoneyTrap(Nepenthes *nepenthes)
 {
-	m_ModuleName        = "x-2";
-	m_ModuleDescription = "eXample Module 2 -binding sockets & setting up a dialogue example-";
+	m_ModuleName        = "module-honeytrap";
+	m_ModuleDescription = "open closed ports to accept connections - idea from http://honeytrap.sf.net ";
 	m_ModuleRevision    = "$Rev$";
 	m_Nepenthes = nepenthes;
 
 	g_Nepenthes = nepenthes;
-	m_RawListener = NULL;
 
+#ifdef HAVE_PCAP
+	m_RawListener = NULL;
+#endif
+
+#ifdef HAVE_IPQ
 	m_IPQHandle = NULL;
+#endif 
 
 	m_HTType = HT_IPQ;
 }
 
-X2::~X2()
+ModuleHoneyTrap::~ModuleHoneyTrap()
 {
 
 }
@@ -107,14 +113,23 @@ X2::~X2()
 /**
  * Module::Init()
  * 
- * binds the port, adds the DialogueFactory to the Socket
  * 
  * @return returns true if everything was fine, else false
  *         false indicates a fatal error
  */
-bool X2::Init()
+bool ModuleHoneyTrap::Init()
 {
+	string isupport = "";
 
+#ifdef HAVE_PCAP
+	isupport += "pcap,";
+#endif
+
+#ifdef HAVE_IPQ
+	isupport += "ipq";
+#endif
+
+	logInfo("ModuleHoneyTrap compiled with support for %s\n",isupport.c_str());
 
 	if ( m_Config == NULL )
 	{
@@ -136,15 +151,18 @@ bool X2::Init()
 	if (mode == "pcap")
 	{
 		m_HTType = HT_PCAP;
+		
 	}else
 	if (mode == "ipq")
 	{
 		m_HTType = HT_IPQ;
 	}else
 	{
-		logCrit("Invlaid mode %s for module-honeytrap\n",mode.c_str());
+		logCrit("Invalid mode %s for module-honeytrap\n",mode.c_str());
 		return false;
 	}
+
+	logInfo("ModuleHoneyTrap mode %s\n",mode.c_str());
 
 	bool retval = false;
 	switch ( m_HTType )
@@ -171,7 +189,7 @@ bool X2::Init()
 
 }
 
-bool X2::Init_IPQ()
+bool ModuleHoneyTrap::Init_IPQ()
 {
 #ifdef HAVE_IPQ
 	if ( (m_IPQHandle = ipq_create_handle(0, PF_INET)) == NULL )
@@ -191,7 +209,7 @@ bool X2::Init_IPQ()
 	return true;
 }
 
-bool X2::Init_PCAP()
+bool ModuleHoneyTrap::Init_PCAP()
 {
 
 #ifdef HAVE_PCAP
@@ -247,7 +265,7 @@ bool X2::Init_PCAP()
 	return true;
 }
 
-bool X2::Exit()
+bool ModuleHoneyTrap::Exit()
 {
 	bool retval = false;
 	switch ( m_HTType )
@@ -263,7 +281,7 @@ bool X2::Exit()
 	return retval;
 }
 
-bool X2::Exit_PCAP()
+bool ModuleHoneyTrap::Exit_PCAP()
 {
 #ifdef HAVE_PCAP
 	if ( m_RawListener != NULL )
@@ -291,7 +309,7 @@ bool X2::Exit_PCAP()
 	return true;
 }
 
-bool X2::Exit_IPQ()
+bool ModuleHoneyTrap::Exit_IPQ()
 {
 #ifdef HAVE_IPQ
 	if ( m_IPQHandle != NULL )
@@ -305,19 +323,19 @@ bool X2::Exit_IPQ()
 
 
 
-bool X2::wantSend()
+bool ModuleHoneyTrap::wantSend()
 {
 
 	return false;
 }
 
-int32_t X2::doSend()
+int32_t ModuleHoneyTrap::doSend()
 {
 
 	return 1;
 }
 
-int32_t X2::doRecv()
+int32_t ModuleHoneyTrap::doRecv()
 {
 
 	int retval = 1;
@@ -334,7 +352,7 @@ int32_t X2::doRecv()
 	return retval;
 }
 
-int32_t X2::doRecv_PCAP()
+int32_t ModuleHoneyTrap::doRecv_PCAP()
 {
 
 	logPF();
@@ -357,7 +375,7 @@ int32_t X2::doRecv_PCAP()
 			return 0;
 		logInfo("Got RST packet from localhost:%i %i\n",ntohs(tcp->th_sport),tcp->th_sport);
 
-		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_sport),0,60);
+		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_sport),600,60);
 		if ( sock != NULL )
 		{
 
@@ -380,7 +398,7 @@ int32_t X2::doRecv_PCAP()
 	return 1;
 }
 
-int32_t X2::doRecv_IPQ()
+int32_t ModuleHoneyTrap::doRecv_IPQ()
 {
 	logPF();
 #ifdef HAVE_IPQ
@@ -471,7 +489,7 @@ int32_t X2::doRecv_IPQ()
 					{
 						logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
 
-						Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),0,60);
+						Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
 						if ( sock != NULL )
 						{
 
@@ -503,7 +521,7 @@ int32_t X2::doRecv_IPQ()
 	return 1;
 }
 
-int32_t X2::getSocket()
+int32_t ModuleHoneyTrap::getSocket()
 {
 	switch ( m_HTType )
 	{
@@ -522,13 +540,13 @@ int32_t X2::getSocket()
 	return -1;
 }
 
-int32_t X2::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
+int32_t ModuleHoneyTrap::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
 	return getsockopt(getSocket(), level, optname, optval, optlen);
 }
 
 
-bool X2::isPortListening(uint16_t localport, uint32_t localhost)
+bool ModuleHoneyTrap::isPortListening(uint16_t localport, uint32_t localhost)
 {
 	logSpam("looking for %s:%i\n",inet_ntoa(*(struct in_addr *)&localhost),localport);
 	unsigned long rxq, txq, time_len, retr, inode;
@@ -536,6 +554,11 @@ bool X2::isPortListening(uint16_t localport, uint32_t localhost)
 	char rem_addr[128], local_addr[128], more[512];
 	char line[512];
 	struct sockaddr_in localaddr; //, remaddr;
+
+	/*
+	 * parsing logic basically taken from netstat.c tcp_do_one() in net-tools 
+	 *
+	 */
 
 	FILE *fp;
 	if ( (fp = fopen("/proc/net/tcp", "r")) == NULL )
@@ -589,7 +612,7 @@ extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepe
 {
 	if ( version == MODULE_IFACE_VERSION )
 	{
-		*module = new X2(nepenthes);
+		*module = new ModuleHoneyTrap(nepenthes);
 		return 1;
 	}
 	else
@@ -597,3 +620,4 @@ extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepe
 		return 0;
 	}
 }
+

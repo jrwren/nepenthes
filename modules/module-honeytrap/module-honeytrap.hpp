@@ -141,11 +141,11 @@ namespace nepenthes
 		HT_IPQ
 	} honeytrap_type;
 
-	class X2 : public Module, public POLLSocket //, public DialogueFactory
+	class ModuleHoneyTrap : public Module, public POLLSocket //, public DialogueFactory
 	{
 	public:
-		X2(Nepenthes *);
-		~X2();
+		ModuleHoneyTrap(Nepenthes *);
+		~ModuleHoneyTrap();
 //		Dialogue *createDialogue(Socket *socket);
 		bool Init();
 		bool Init_PCAP();
@@ -169,12 +169,16 @@ namespace nepenthes
 		bool isPortListening(uint16_t localport, uint32_t localhost);
 
 	protected:
+#ifdef HAVE_PCAP
 		pcap_t	*m_RawListener;
-		Nepenthes *m_Nepenthes;
+#endif
+ 
+#ifdef HAVE_IPQ
 		struct ipq_handle *m_IPQHandle;
+#endif
 
+		Nepenthes *m_Nepenthes;
 		honeytrap_type m_HTType;
-
 	};
 
 }
