@@ -30,7 +30,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <netpacket/packet.h>
+//#include <netpacket/packet.h>
 #include <net/ethernet.h>     /* the L2 protocols */
 #include <netinet/in.h>
 
@@ -355,7 +355,7 @@ bool ModuleHoneyTrap::Init_PCAP()
 */
 				break;
 
-			case AF_PACKET:
+//			case AF_PACKET:
 /*				logSpam("\t\tAF_PACKET\n");
 				logSpam("\t\t\ttype %i %i\n",((struct sockaddr_ll*)addr->addr)->sll_family,AF_PACKET);
 				{
@@ -374,7 +374,7 @@ bool ModuleHoneyTrap::Init_PCAP()
 
 
 */
-				break;
+//				break;
 
 
 			default:
@@ -699,15 +699,49 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
 	int len;
 	char buf[2024];
 
+//	bzero(&m_DivertSin,sizeof(struct sockaddr_in));
+	m_DivertSinLen = sizeof(m_DivertSin);
 	if ( (len = recvfrom(m_DivertSocket, buf, sizeof(buf), 0,(struct sockaddr *)&m_DivertSin, &m_DivertSinLen)) == -1 )
 	{
 		logWarn("recvfrom() on divert socket failed %s\n",strerror(errno));
 		return 1;
 	}
 
+
+                                const struct libnet_ipv4_hdr* ip;
+
+                                ip = (struct libnet_ipv4_hdr*)buf;
+
+                                int hlen = ip->ip_hl * 4;
+
+                                const struct libnet_tcp_hdr* tcp;
+                                tcp = (struct libnet_tcp_hdr*) ((u_char *)buf+hlen);
+
+                                                                                                                                                                
 	// I'll add processing once i have access on a fbsd box with divert sockets enabled
-	logWarn("You are too early, the processing logic for data from divert sockets is a todo");
-	
+//	logWarn("You are too early, the processing logic for data from divert sockets is a todo");
+//	g_Nepenthes->getUtilities()->hexdump((byte *)buf,len);
+	printIPpacket((unsigned char *)buf,len);
+
+                                        if ( isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
+                                        {
+                                                logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
+
+                                                Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
+                                                if ( sock != NULL )
+                                                {
+
+                                                        DialogueFactory *diaf;
+                                                        if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+                                                        {
+                                                                logCrit("No WinNTShell DialogueFactory availible \n");
+                                                                return 1;
+                                                        }
+
+                                                        sock->addDialogueFactory(diaf);
+                                                }
+                                        }
+
 
 	if ( sendto(m_DivertSocket, buf, len, 0,(struct sockaddr *)&m_DivertSin, m_DivertSinLen) == -1 )
 	{

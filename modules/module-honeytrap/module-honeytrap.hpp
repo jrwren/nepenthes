@@ -28,7 +28,9 @@
  /* $Id$ */
 
 #define HAVE_PCAP
-#define HAVE_IPQ
+//#define HAVE_IPQ
+
+#define HAVE_IPFW
 
 #ifdef HAVE_PCAP
 #include <pcap.h>
