@@ -1,4 +1,17 @@
 module-honeytrap
 {
-	listen_mode 	"ipq";	// valid values are ipq and pcap
+	listen_mode 	"ipq";	// valid values are ipq pcap and divert
+
+
+	pcap
+	{
+		device	"any";	// any should be valid always
+	};
+	
+	divert
+	{
+		port	"4711";
+	};
+	
+	
 };

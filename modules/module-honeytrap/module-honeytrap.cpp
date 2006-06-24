@@ -27,8 +27,14 @@
 
 /* $Id$ */
 
-#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netpacket/packet.h>
+#include <net/ethernet.h>     /* the L2 protocols */
 #include <netinet/in.h>
+
+
 
 #include "module-honeytrap.hpp"
 
@@ -37,7 +43,7 @@
 #include "DownloadManager.hpp"
 #include "LogManager.hpp"
 #include "DialogueFactoryManager.hpp"
-
+#include "Utilities.hpp"
 
 #include "Buffer.hpp"
 #include "Buffer.cpp"
@@ -101,7 +107,11 @@ ModuleHoneyTrap::ModuleHoneyTrap(Nepenthes *nepenthes)
 	m_IPQHandle = NULL;
 #endif 
 
-	m_HTType = HT_IPQ;
+#ifdef HAVE_IPFW
+	m_DivertSocket = -1;
+#endif
+
+	m_HTType = HT_NONE;
 }
 
 ModuleHoneyTrap::~ModuleHoneyTrap()
@@ -126,7 +136,11 @@ bool ModuleHoneyTrap::Init()
 #endif
 
 #ifdef HAVE_IPQ
-	isupport += "ipq";
+	isupport += "ipq,";
+#endif
+
+#ifdef HAVE_IPFW
+	isupport += "ipfw";
 #endif
 
 	logInfo("ModuleHoneyTrap compiled with support for %s\n",isupport.c_str());
@@ -148,15 +162,29 @@ bool ModuleHoneyTrap::Init()
 		return false;
 	}
 
+#ifdef HAVE_PCAP
 	if (mode == "pcap")
 	{
 		m_HTType = HT_PCAP;
-		
-	}else
+	}
+#endif 
+
+#ifdef HAVE_IPQ
 	if (mode == "ipq")
 	{
 		m_HTType = HT_IPQ;
-	}else
+	}
+#endif 
+
+#ifdef HAVE_IPFW
+	if (mode == "ipfw")
+	{
+		m_HTType = HT_IPFW;
+	}
+#endif 
+
+
+	if (m_HTType == HT_NONE)
 	{
 		logCrit("Invalid mode %s for module-honeytrap\n",mode.c_str());
 		return false;
@@ -174,6 +202,14 @@ bool ModuleHoneyTrap::Init()
 	case HT_IPQ:
 		retval = Init_IPQ();
 		break;
+
+	case HT_IPFW:
+		retval = Init_IPFW();
+		break;
+
+	default:
+		logCrit("Invalid mode for module-honeytrap\n");
+
 	}
 
 
@@ -209,6 +245,34 @@ bool ModuleHoneyTrap::Init_IPQ()
 	return true;
 }
 
+bool ModuleHoneyTrap::Init_IPFW()
+{
+#ifdef HAVE_IPFW
+    if ((m_DivertSocket = socket(PF_INET, SOCK_RAW, IPPROTO_DIVERT)) == -1) 
+    {
+        logCrit("Could not create divert socket for ipfw %s\n",strerror(errno));
+        return false;
+    }
+    bzero(&m_DivertSin, sizeof(m_DivertSin));
+	m_DivertSin.sin_port = htons(4711);	// FIXME
+    m_DivertSin.sin_family = PF_INET;
+    m_DivertSin.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(m_DivertSocket, (struct sockaddr *)&m_DivertSin, sizeof(m_DivertSin)) == -1) 
+    {
+        logCrit("Could not bind divert socket %s\n",strerror(errno));
+        return false;
+    }
+	logInfo("Bound divert socket on port %i\n",4711);	//FIXME
+	return true;
+#else
+	logCrit("IPFW not supported, check your plattform\n");
+	return false;
+#endif // HAVE_IPFW
+
+}
+
+
 bool ModuleHoneyTrap::Init_PCAP()
 {
 
@@ -216,19 +280,124 @@ bool ModuleHoneyTrap::Init_PCAP()
 	char errbuf[PCAP_ERRBUF_SIZE];
 
 	logInfo("Using pcap %s\n",pcap_lib_version());
+	m_PcapDevice = m_Config->getValString("module-honeytrap.pcap.device");
 
-	if ( (m_RawListener = pcap_open_live("any", 1500, 1, 0, errbuf)) == NULL )
+
+
+	if ( (m_RawListener = pcap_open_live(m_PcapDevice.c_str(), 1500, 1, 0, errbuf)) == NULL )
 	{
-		logCrit("Could not open raw listener '%s'\n",errbuf);
+		logCrit("Could not open raw listener on device %s '%s'\n",m_PcapDevice.c_str(),errbuf);
 		return false;
 	}
 
+	string bpf_filter_string = "tcp[tcpflags] & tcp-rst != 0 ";
 
+	pcap_if_t *alldevsp = NULL;
+	
+	if( pcap_findalldevs(&alldevsp,errbuf) == -1)
+	{
+		logCrit("pcap_findalldevs failed %s\n",errbuf);
+		return false;
+
+	}
+
+	string bpf_filter_string_addition;
+
+	for(pcap_if_t *alldev = alldevsp;alldev != NULL;alldev = alldev->next)
+	{
+		if (m_PcapDevice != "any" &&  alldev->name != m_PcapDevice)
+			continue;
+
+		if (alldev->name)
+			logSpam("name %s\n",alldev->name);
+		if (alldev->description)
+			logSpam("\tdescription %s\n",alldev->description);
+
+		logSpam("\tflags %i\n",alldev->flags);
+
+		
+//		char inet6addr[64];
+
+		for (pcap_addr_t *addr = alldev->addresses; addr != NULL; addr = addr->next)
+		{
+			switch(addr->addr->sa_family)
+			{
+			case AF_INET:
+				logSpam("\t\tAF_INET\n");
+				if (addr->addr)
+                	logSpam("\t\t\taddr %s\n",inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr)));
+				if (addr->netmask)
+					logSpam("\t\t\tnetmask %s\n",inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->netmask)->sin_addr)));
+				if (addr->broadaddr)
+					logSpam("\t\t\tbcast %s\n",inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->broadaddr)->sin_addr)));
+				if (addr->dstaddr )
+					logSpam("\t\t\tdstaddr %s\n",inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->dstaddr)->sin_addr)));
+
+				if (bpf_filter_string_addition == "")
+				{
+                				bpf_filter_string_addition += 	string("src host ") + 
+										string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
+										string(" ");
+				}else
+				{
+					bpf_filter_string_addition += 	string("or src host ") + 
+							string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
+							string(" ");
+				}
+				
+				break;
+
+			case AF_INET6:
+/*				logSpam("\t\tAF_INET6\n");
+				const char *inet_ntop(int af, const void *src,char *dst, socklen_t cnt);
+				logSpam("\t\t\taddr %s\n",inet_ntop(AF_INET6, (const void *) &((struct sockaddr_in6 *)addr->addr)->sin6_addr,(char *)&inet6addr,64));
+*/
+				break;
+
+			case AF_PACKET:
+/*				logSpam("\t\tAF_PACKET\n");
+				logSpam("\t\t\ttype %i %i\n",((struct sockaddr_ll*)addr->addr)->sll_family,AF_PACKET);
+				{
+					unsigned char *hwa = ((struct sockaddr_ll*)addr->addr)->sll_addr;
+					char  hexbyte[8];
+					string mac_rep;
+					for (int i=0;i<8;i++)
+					{
+						if (i>0)
+							mac_rep += ":";
+						snprintf(hexbyte,8,"%02x",hwa[i]);
+						mac_rep += hexbyte;
+					}
+					logSpam("\t\t\taddr %s\n",mac_rep.c_str());
+				}
+
+
+*/
+				break;
+
+
+			default:
+				logSpam("\t\tAF_UNKNOWN %i\n",addr->addr->sa_family);
+
+			}
+			logSpam("\n");
+
+			
+		}
+	}
+
+	pcap_freealldevs(alldevsp);
+
+	if (bpf_filter_string_addition != "")
+	{
+		bpf_filter_string += "and (" + bpf_filter_string_addition + ")";
+	}
 
 	struct bpf_program filter;
 
+	logInfo("BPF Filter is %s\n",bpf_filter_string.c_str());
 	// int pcap_compile(pcap_t *p, struct bpf_program *fp, char *str, int optimize, bpf_u_int32 netmask)
-	if ( pcap_compile(m_RawListener, &filter,  "tcp[tcpflags] & tcp-rst != 0", 0, 0) == -1 )
+	if ( pcap_compile(m_RawListener, &filter,  (char *)bpf_filter_string.c_str(), 0, 0) == -1 )
 	//	if ( pcap_compile(m_RawListener, &filter,  "host 192.168.53.20", 0, 0) == -1 )
 	{
 		logCrit("Invalid BPF string: %s.\n", pcap_geterr(m_RawListener));
@@ -261,8 +430,31 @@ bool ModuleHoneyTrap::Init_PCAP()
 		logInfo("RawListener NonBlockingMode is %i\n",i);
 	}
 
-#endif // HAVE_PCAP
+	int dll = pcap_datalink(m_RawListener);
+	switch( dll )
+	{
+	case DLT_LINUX_SLL:
+		logInfo("DataLinkLayer %s %s\n",pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
+		m_LinkLayerHeaderLength = 16;
+		break;
+
+
+	case DLT_EN10MB:
+		logInfo("DataLinkLayer %s %s\n",pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
+		m_LinkLayerHeaderLength = 14;
+		break;
+		
+	default:
+		logCrit("DataLink %i %s %s unknown, please file a bug\n",dll,pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
+		return false;
+	}
+		
 	return true;
+#else
+	logCrit("pcap not supported, hit the docs\n");
+	return false;
+#endif // HAVE_PCAP
+	
 }
 
 bool ModuleHoneyTrap::Exit()
@@ -277,6 +469,13 @@ bool ModuleHoneyTrap::Exit()
 	case HT_IPQ:
 		retval = Exit_IPQ();
 		break;
+
+	case HT_IPFW:
+		retval = Exit_IPFW();
+		break;
+
+	default:
+		logCrit("Invalid mode for module-honeytrap\n");
 	}
 	return retval;
 }
@@ -320,6 +519,16 @@ bool ModuleHoneyTrap::Exit_IPQ()
 	return true;
 }
 
+bool ModuleHoneyTrap::Exit_IPFW()
+{
+#ifdef HAVE_IPFW
+	if (m_DivertSocket != -1)
+	{
+		close(m_DivertSocket);
+	}
+#endif
+	return true;
+}
 
 
 
@@ -348,6 +557,14 @@ int32_t ModuleHoneyTrap::doRecv()
 	case HT_IPQ:
 		retval = doRecv_IPQ();
 		break;
+
+	case HT_IPFW:
+		retval = doRecv_IPFW();
+		break;
+
+
+	default:
+		logCrit("Invalid mode for module-honeytrap\n");
 	}
 	return retval;
 }
@@ -366,12 +583,14 @@ int32_t ModuleHoneyTrap::doRecv_PCAP()
 
 	if ( retval == 1 )
 	{
+//		g_Nepenthes->getUtilities()->hexdump((byte *)pkt_data,52);
+		
 
-		struct ip_header *ip = (struct ip_header *) (pkt_data + ETHER_HDRLEN);
-		struct tcp_header *tcp = (struct tcp_header *) (pkt_data + ETHER_HDRLEN + ip->ip_hl * 4);
+		struct libnet_ipv4_hdr *ip = (struct libnet_ipv4_hdr *) (pkt_data + m_LinkLayerHeaderLength);
+		struct libnet_tcp_hdr *tcp = (struct libnet_tcp_hdr *) (pkt_data + m_LinkLayerHeaderLength + ip->ip_hl * 4);
 
 		/* new connections are welcome */
-		if ( ntohl(tcp->th_seqno) != 0 )
+		if ( ntohl(tcp->th_seq) != 0 )
 			return 0;
 		logInfo("Got RST packet from localhost:%i %i\n",ntohs(tcp->th_sport),tcp->th_sport);
 
@@ -432,58 +651,7 @@ int32_t ModuleHoneyTrap::doRecv_IPQ()
 				if ( tcp->th_flags & TH_SYN && !(tcp->th_flags & TH_ACK) )
 				{
 
-
-					logSpam("-- IP v%d, ID = %d, Header Length = %d, Total Length = %d\n",
-							ip->ip_v,
-							ip->ip_id,
-							ip->ip_hl * 4,
-							ntohs(ip->ip_len) );
-
-					logSpam("  | %s --> " , 
-							inet_ntoa(ip->ip_src) );
-
-					logSpam("%s \n" , 
-							inet_ntoa(ip->ip_dst) );
-
-					logSpam("  |- Bits: %s %s, Offset : %d, checksum = %.4x, TTL = %d\n", 
-							ntohs(ip->ip_off) & IP_DF? "DF":"", 
-							ntohs(ip->ip_off) & IP_MF? "MF":"", 
-							ntohs(ip->ip_off) & IP_OFFMASK, 
-							ntohs(ip->ip_sum),
-							ip->ip_ttl);   
-
-					logSpam("  |- proto = %d : \n", 
-							ip->ip_p  );
-
-
-					logSpam("  `-- TCP, Header Length = %d Payload Length = %d\n",
-							tcp->th_off *4,
-							m->data_len); // <- this number is wrong
-
-					logSpam("     |- port Source = %d --> port Destination = %d\n",
-							ntohs(tcp->th_sport),
-							ntohs(tcp->th_dport));
-
-					logSpam("     |- Seq nb = %.4x ,Acknowledgement nb:%.4x\n",
-							ntohs(tcp->th_seq),
-							ntohs(tcp->th_ack));
-
-					logSpam("     |- bits %s %s %s %s %s %s %s %s\n",
-							(tcp->th_flags) & TH_FIN?"FIN":"", 
-							(tcp->th_flags) & TH_SYN?"SYN":"",
-							(tcp->th_flags) & TH_RST?"RST":"",
-							(tcp->th_flags) & TH_PUSH?"PUSH":"",
-							(tcp->th_flags) & TH_ACK?"ACK":"",
-							(tcp->th_flags) & TH_URG?"URG":"",
-							(tcp->th_flags) & TH_ECE?"ECE":"",
-							(tcp->th_flags) & TH_CWR?"CWR":""
-						   );
-
-					logSpam("     `- checksum = %.4x, windows = %.4x, urgent = %.4x\n", 
-							ntohs(tcp->th_sum),
-							ntohs(tcp->th_win), 
-							ntohs(tcp->th_urp) );
-
+					printIPpacket(m->payload,m->data_len);
 
 					if ( isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
 					{
@@ -521,6 +689,34 @@ int32_t ModuleHoneyTrap::doRecv_IPQ()
 	return 1;
 }
 
+int32_t ModuleHoneyTrap::doRecv_IPFW()
+{
+	logPF();
+#ifdef HAVE_IPFW
+	int len;
+	char buf[2024];
+
+	if ( (len = recvfrom(m_DivertSocket, buf, sizeof(buf), 0,(struct sockaddr *)&m_DivertSin, &m_DivertSinLen)) == -1 )
+	{
+		logWarn("recvfrom() on divert socket failed %s\n",strerror(errno));
+		return 1;
+	}
+
+	// I'll add processing once i have access on a fbsd box with divert sockets enabled
+	logWarn("You are too early, the processing logic for data from divert sockets is a todo");
+	
+
+	if ( sendto(m_DivertSocket, buf, len, 0,(struct sockaddr *)&m_DivertSin, m_DivertSinLen) == -1 )
+	{
+		logWarn("Writing packet back to divert socket failed %s\n",strerror(errno));
+	}
+
+
+#endif
+	return 1;
+}
+
+
 int32_t ModuleHoneyTrap::getSocket()
 {
 	switch ( m_HTType )
@@ -535,7 +731,16 @@ int32_t ModuleHoneyTrap::getSocket()
 #ifdef HAVE_IPQ
 		return m_IPQHandle->fd;
 #endif
+
+	case HT_IPFW:
+#ifdef HAVE_IPFW
+		return m_DivertSocket;
+#endif
 		break;
+
+
+	default:
+		logCrit("Invalid mode for module-honeytrap\n");
 	}
 	return -1;
 }
@@ -606,6 +811,70 @@ bool ModuleHoneyTrap::isPortListening(uint16_t localport, uint32_t localhost)
 
 	fclose(fp);
 	return port_is_listening;
+}
+
+void ModuleHoneyTrap::printIPpacket(unsigned char *buf, uint32_t len)
+{
+	const struct libnet_ipv4_hdr* ip;
+
+	ip = (struct libnet_ipv4_hdr*)(buf);
+
+	int hlen = ip->ip_hl * 4;
+
+	const struct libnet_tcp_hdr* tcp;
+	tcp = (struct libnet_tcp_hdr*) ((u_char *)buf+hlen);
+
+
+	logSpam("-- IP v%d, ID = %d, Header Length = %d, Total Length = %d\n",
+			ip->ip_v,
+			ip->ip_id,
+			ip->ip_hl * 4,
+			ntohs(ip->ip_len) );
+
+	logSpam("  | %s --> " , 
+			inet_ntoa(ip->ip_src) );
+
+	logSpam("%s \n" , 
+			inet_ntoa(ip->ip_dst) );
+
+	logSpam("  |- Bits: %s %s, Offset : %d, checksum = %.4x, TTL = %d\n", 
+			ntohs(ip->ip_off) & IP_DF? "DF":"", 
+			ntohs(ip->ip_off) & IP_MF? "MF":"", 
+			ntohs(ip->ip_off) & IP_OFFMASK, 
+			ntohs(ip->ip_sum),
+			ip->ip_ttl);   
+
+	logSpam("  |- proto = %d : \n", 
+			ip->ip_p  );
+
+
+	logSpam("  `-- TCP, Header Length = %d Payload Length = %d\n",
+			tcp->th_off *4,
+			len); // <- this number is wrong
+
+	logSpam("     |- port Source = %d --> port Destination = %d\n",
+			ntohs(tcp->th_sport),
+			ntohs(tcp->th_dport));
+
+	logSpam("     |- Seq nb = %.4x ,Acknowledgement nb:%.4x\n",
+			ntohs(tcp->th_seq),
+			ntohs(tcp->th_ack));
+
+	logSpam("     |- bits %s %s %s %s %s %s %s %s\n",
+			(tcp->th_flags) & TH_FIN?"FIN":"", 
+			(tcp->th_flags) & TH_SYN?"SYN":"",
+			(tcp->th_flags) & TH_RST?"RST":"",
+			(tcp->th_flags) & TH_PUSH?"PUSH":"",
+			(tcp->th_flags) & TH_ACK?"ACK":"",
+			(tcp->th_flags) & TH_URG?"URG":"",
+			(tcp->th_flags) & TH_ECE?"ECE":"",
+			(tcp->th_flags) & TH_CWR?"CWR":""
+		   );
+
+	logSpam("     `- checksum = %.4x, windows = %.4x, urgent = %.4x\n", 
+			ntohs(tcp->th_sum),
+			ntohs(tcp->th_win), 
+			ntohs(tcp->th_urp) );
 }
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
