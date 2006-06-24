@@ -708,39 +708,36 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
 	}
 
 
-                                const struct libnet_ipv4_hdr* ip;
-
-                                ip = (struct libnet_ipv4_hdr*)buf;
-
-                                int hlen = ip->ip_hl * 4;
-
-                                const struct libnet_tcp_hdr* tcp;
-                                tcp = (struct libnet_tcp_hdr*) ((u_char *)buf+hlen);
+	const struct libnet_ipv4_hdr* ip = (struct libnet_ipv4_hdr*)buf;
+	int hlen = ip->ip_hl * 4;
+	const struct libnet_tcp_hdr* tcp = (struct libnet_tcp_hdr*) ((u_char *)buf+hlen);
 
                                                                                                                                                                 
-	// I'll add processing once i have access on a fbsd box with divert sockets enabled
-//	logWarn("You are too early, the processing logic for data from divert sockets is a todo");
-//	g_Nepenthes->getUtilities()->hexdump((byte *)buf,len);
 	printIPpacket((unsigned char *)buf,len);
 
-                                        if ( isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
-                                        {
-                                                logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
+	if (1) // isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
+	/*
+	 * FreeBSD got no /proc/net/tcp and the code to retrieve the data from the kvm or sys*whatever* is pretty cruel
+	 * http://cvsup.pt.freebsd.org/cgi-bin/cvsweb/cvsweb.cgi/src/usr.bin/systat/netstat.c?rev=1.25&content-type=text/x-cvsweb-markup
+	 * I hope to replace this someday with a real check, to avoid all the crit warnings when trying to bind a already bound port
+	 */
+	{
+//		logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
 
-                                                Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
-                                                if ( sock != NULL )
-                                                {
+		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
+		if ( sock != NULL && (sock->getDialogst()->size() == 0 && sock->getFactories()->size() == 0) )
+		{
 
-                                                        DialogueFactory *diaf;
-                                                        if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
-                                                        {
-                                                                logCrit("No WinNTShell DialogueFactory availible \n");
-                                                                return 1;
-                                                        }
+			DialogueFactory *diaf;
+			if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+			{
+				logCrit("No WinNTShell DialogueFactory availible \n");
+				return 1;
+			}
 
-                                                        sock->addDialogueFactory(diaf);
-                                                }
-                                        }
+			sock->addDialogueFactory(diaf);
+		}
+	}
 
 
 	if ( sendto(m_DivertSocket, buf, len, 0,(struct sockaddr *)&m_DivertSin, m_DivertSinLen) == -1 )
