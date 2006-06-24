@@ -715,7 +715,7 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
                                                                                                                                                                 
 
 
-	if (1 && ( tcp->th_flags & TH_SYN && !(tcp->th_flags & TH_ACK) ) // isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
+	if (1 && ( tcp->th_flags & TH_SYN && !(tcp->th_flags & TH_ACK) ) ) // isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
 	/*
 	 * FreeBSD got no /proc/net/tcp and the code to retrieve the data from the kvm or sys*whatever* is pretty cruel
 	 * http://cvsup.pt.freebsd.org/cgi-bin/cvsweb/cvsweb.cgi/src/usr.bin/systat/netstat.c?rev=1.25&content-type=text/x-cvsweb-markup
