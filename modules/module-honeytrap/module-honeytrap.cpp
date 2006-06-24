@@ -248,7 +248,7 @@ bool ModuleHoneyTrap::Init_IPQ()
 bool ModuleHoneyTrap::Init_IPFW()
 {
 #ifdef HAVE_IPFW
-    if ((m_DivertSocket = socket(PF_INET, SOCK_RAW, IPPROTO_IPFW)) == -1) 
+    if ((m_DivertSocket = socket(PF_INET, SOCK_RAW, IPPROTO_DIVERT)) == -1) 
     {
         logCrit("Could not create divert socket for ipfw %s\n",strerror(errno));
         return false;
@@ -713,9 +713,9 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
 	const struct libnet_tcp_hdr* tcp = (struct libnet_tcp_hdr*) ((u_char *)buf+hlen);
 
                                                                                                                                                                 
-	printIPpacket((unsigned char *)buf,len);
 
-	if (1) // isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
+
+	if (1 && ( tcp->th_flags & TH_SYN && !(tcp->th_flags & TH_ACK) ) // isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
 	/*
 	 * FreeBSD got no /proc/net/tcp and the code to retrieve the data from the kvm or sys*whatever* is pretty cruel
 	 * http://cvsup.pt.freebsd.org/cgi-bin/cvsweb/cvsweb.cgi/src/usr.bin/systat/netstat.c?rev=1.25&content-type=text/x-cvsweb-markup
@@ -723,6 +723,8 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
 	 */
 	{
 //		logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
+
+		printIPpacket((unsigned char *)buf,len);
 
 		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
 		if ( sock != NULL && (sock->getDialogst()->size() == 0 && sock->getFactories()->size() == 0) )
