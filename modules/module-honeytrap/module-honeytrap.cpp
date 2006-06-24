@@ -248,7 +248,7 @@ bool ModuleHoneyTrap::Init_IPQ()
 bool ModuleHoneyTrap::Init_IPFW()
 {
 #ifdef HAVE_IPFW
-    if ((m_DivertSocket = socket(PF_INET, SOCK_RAW, IPPROTO_DIVERT)) == -1) 
+    if ((m_DivertSocket = socket(PF_INET, SOCK_RAW, IPPROTO_IPFW)) == -1) 
     {
         logCrit("Could not create divert socket for ipfw %s\n",strerror(errno));
         return false;
@@ -290,7 +290,7 @@ bool ModuleHoneyTrap::Init_PCAP()
 		return false;
 	}
 
-	string bpf_filter_string = "tcp[tcpflags] & tcp-rst != 0 ";
+	string bpf_filter_string = "tcp[tcpflags] & tcp-rst != 0 and tcp[4:4] = 0 ";
 
 	pcap_if_t *alldevsp = NULL;
 	
@@ -333,16 +333,17 @@ bool ModuleHoneyTrap::Init_PCAP()
 				if (addr->dstaddr )
 					logSpam("\t\t\tdstaddr %s\n",inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->dstaddr)->sin_addr)));
 
-				if (bpf_filter_string_addition == "")
+				if ( bpf_filter_string_addition == "" )
 				{
-                				bpf_filter_string_addition += 	string("src host ") + 
-										string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
-										string(" ");
-				}else
+					bpf_filter_string_addition +=   string("src host ") + 
+													string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
+													string(" ");
+				}
+				else
 				{
-					bpf_filter_string_addition += 	string("or src host ") + 
-							string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
-							string(" ");
+					bpf_filter_string_addition +=   string("or src host ") + 
+													string(inet_ntoa(*(struct in_addr*) &(((struct sockaddr_in *)addr->addr)->sin_addr))) + 
+													string(" ");
 				}
 				
 				break;
@@ -390,7 +391,7 @@ bool ModuleHoneyTrap::Init_PCAP()
 
 	if (bpf_filter_string_addition != "")
 	{
-		bpf_filter_string += "and (" + bpf_filter_string_addition + ")";
+		bpf_filter_string += "and ( " + bpf_filter_string_addition + ")";
 	}
 
 	struct bpf_program filter;
@@ -592,7 +593,9 @@ int32_t ModuleHoneyTrap::doRecv_PCAP()
 		/* new connections are welcome */
 		if ( ntohl(tcp->th_seq) != 0 )
 			return 0;
+
 		logInfo("Got RST packet from localhost:%i %i\n",ntohs(tcp->th_sport),tcp->th_sport);
+		printIPpacket((unsigned char *)ip,ip->ip_len);
 
 		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_sport),600,60);
 		if ( sock != NULL )
@@ -831,10 +834,10 @@ void ModuleHoneyTrap::printIPpacket(unsigned char *buf, uint32_t len)
 			ip->ip_hl * 4,
 			ntohs(ip->ip_len) );
 
-	logSpam("  | %s --> " , 
+	logSpam("  |- Source       %s \n" , 
 			inet_ntoa(ip->ip_src) );
 
-	logSpam("%s \n" , 
+	logSpam("  |- Destionation %s \n" , 
 			inet_ntoa(ip->ip_dst) );
 
 	logSpam("  |- Bits: %s %s, Offset : %d, checksum = %.4x, TTL = %d\n", 
