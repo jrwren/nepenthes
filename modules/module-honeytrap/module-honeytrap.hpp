@@ -27,10 +27,8 @@
 
  /* $Id$ */
 
-#define HAVE_PCAP
-//#define HAVE_IPQ
 
-#define HAVE_IPFW
+#include "config.h"
 
 #ifdef HAVE_PCAP
 #include <pcap.h>
