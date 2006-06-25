@@ -200,7 +200,93 @@ dnl **************************************************
 dnl * libipq support                                 *
 dnl **************************************************
 
+enable_ipq="yes"
 
+AC_ARG_ENABLE(ipq, [  --enable-ipq	enable support for libipq],
+		    [enable_ipq="$enableval"],[enable_ipq="yes"])
+
+AC_ARG_WITH(ipq-include,
+                      [  --with-ipq-include=DIR  libipq include dir],
+                      [ipq_inc="$withval"],[ipq_inc=no])
+AC_ARG_WITH(ipq-lib,
+                      [  --with-ipq-lib=DIR  libipq library dir],
+                      [ipq_lib="$withval"],[ipq_lib=no])
+
+
+if test x$enable_ipq = "xyes" ; then
+        if test x$ipq_inc != "xno"; then
+		CPPFLAGS="${CPPFLAGS} -I${ipq_inc}"
+	fi
+	
+	AC_CHECK_HEADER(libipq.h,[enable_ipq=yes],[enable_ipq=no])
+	
+	if test x$enable_ipq = "xyes" ; then
+		if test x$ipq_lib != "xno"; then
+			LDFLAGS="${LDFLAGS}  -L${ipq_lib}"
+		fi
+
+		AC_CHECK_LIB([ipq],[ipq_set_mode],enable_ipq="yes", enable_ipq="no")
+
+		if test x$enable_ipq = "xyes" ; then
+			LIB_IPQ="-lipq"
+			AC_DEFINE([HAVE_IPQ], [1], [Define to 1 if you have ip queue on linux])
+		fi
+	fi
+fi
+
+
+dnl **************************************************
+dnl * pcap support                                   *
+dnl **************************************************
+
+AC_ARG_ENABLE(pcap, [  --enable-pcap	enable support for packet capture library],
+		    [enable_pcap="$enableval"],[enable_pcap="yes"])
+
+
+AC_ARG_WITH(pcap_include,
+	[  --with-pcap-include=DIR  pcap include directory],
+	[pcap_inc="$withval"],[pcap_inc=no])
+
+AC_ARG_WITH(pcap_lib,
+	[  --with-pcap-lib=DIR  pcap library directory],
+	[pcap_lib="$withval"],[pcap_lib=no])
+
+if test x$enable_pcap = xyes; then
+	if test "$pcap_inc" != "no"; then
+	   CPPFLAGS="${CPPFLAGS} -I${pcap_inc}"
+	fi
+
+	AC_CHECK_HEADER(pcap.h,[enable_pcap=yes],[enable_pcap=no])
+
+	if test x$enable_pcap != "xno"; then
+
+		if test "$pcap_lib" != "no"; then
+			LDFLAGS="${LDFLAGS}  -L${pcap_lib}"
+		fi
+
+		AC_CHECK_LIB([pcap],[pcap_open_live],enable_pcap="yes", enable_pcap="no")
+		if test x$enable_pcap = "xyes" ; then
+			LIB_PCAP="-lpcap"
+			AC_DEFINE([HAVE_PCAP], [1], [Define to 1 if you have packet capture library])
+		fi
+	fi
+	
+fi	
+
+
+
+dnl **************************************************
+dnl * ipfw support                                   *
+dnl **************************************************
+
+AC_ARG_ENABLE(ipfw,
+[  --enable-ipfw            enable support for ipfw Divert on FreeBSD],
+                enable_ipfw="$enableval", enable_ipfw=no)
+
+if test x$enable_ipfw = "xyes"; then
+	AC_DEFINE([HAVE_IPFW], [1], [Define to 1 if you want ipfw divert on FreeBSD])
+fi	
+		
 
 
 dnl **************************************************
@@ -813,6 +899,11 @@ echo ""
 echo "- Support prelude             : $enable_prelude"
 echo "" 
 echo "- Support capabilities        : $enable_capabilities"
+echo ""
+echo "- Packet Monitoring/Sniffing"
+echo "  - linux ip_queue (ipq)      : $enable_ipq"
+echo "  - FBSD ipfw Divert sockets  : $enable_ipfw"
+echo "  - Packet Capture Lib (pcap) : $enable_pcap"
 
 # echo ""
 # echo "- Support ipv6                : $enable_ipv6"
