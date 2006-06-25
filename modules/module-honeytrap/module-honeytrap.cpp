@@ -284,7 +284,7 @@ bool ModuleHoneyTrap::Init_PCAP()
 
 
 
-	if ( (m_RawListener = pcap_open_live(m_PcapDevice.c_str(), 1500, 1, 0, errbuf)) == NULL )
+	if ( (m_RawListener = pcap_open_live(m_PcapDevice.c_str(), 1500, 1, 50, errbuf)) == NULL )
 	{
 		logCrit("Could not open raw listener on device %s '%s'\n",m_PcapDevice.c_str(),errbuf);
 		return false;
@@ -488,6 +488,7 @@ bool ModuleHoneyTrap::Exit_PCAP()
 	{
 //		int pcap_stats(pcap_t *p, struct pcap_stat *ps)
 		struct pcap_stat ps;
+		memset(&ps,0,sizeof(struct pcap_stat));
 		if ( pcap_stats(m_RawListener, &ps) != 0 )
 		{
 			logWarn("Could not obtain statistics information from pcap RawListener %s\n",pcap_geterr(m_RawListener));
@@ -783,7 +784,11 @@ int32_t ModuleHoneyTrap::getSocket()
 
 int32_t ModuleHoneyTrap::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
+#if defined(linux) || defined(__linux)	
 	return getsockopt(getSocket(), level, optname, optval, optlen);
+#else
+	return 0;	
+#endif
 }
 
 
