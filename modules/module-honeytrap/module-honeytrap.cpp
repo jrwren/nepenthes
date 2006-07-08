@@ -27,12 +27,11 @@
 
 /* $Id$ */
 
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-//#include <netpacket/packet.h>
-#include <net/ethernet.h>     /* the L2 protocols */
-#include <netinet/in.h>
+
 
 
 
@@ -431,25 +430,34 @@ bool ModuleHoneyTrap::Init_PCAP()
 		logInfo("RawListener NonBlockingMode is %i\n",i);
 	}
 
-	int dll = pcap_datalink(m_RawListener);
-	switch( dll )
+	m_PcapDataLinkType = pcap_datalink(m_RawListener);
+
+	switch ( m_PcapDataLinkType )
 	{
-	case DLT_LINUX_SLL:
-		logInfo("DataLinkLayer %s %s\n",pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
-		m_LinkLayerHeaderLength = 16;
-		break;
-
-
+	case DLT_NULL:
 	case DLT_EN10MB:
-		logInfo("DataLinkLayer %s %s\n",pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
-		m_LinkLayerHeaderLength = 14;
+	case DLT_PPP:
+	case DLT_RAW:
+	case DLT_PPP_ETHER:
+
+#ifdef DLT_LINUX_SLL
+	case DLT_LINUX_SLL:
+#endif
+		logInfo("DataLinkLayer %s %s\n",
+				pcap_datalink_val_to_name(m_PcapDataLinkType),
+				pcap_datalink_val_to_description(m_PcapDataLinkType));
 		break;
-		
+
 	default:
-		logCrit("DataLink %i %s %s unknown, please file a bug\n",dll,pcap_datalink_val_to_name(dll),pcap_datalink_val_to_description(dll));
+		logCrit("DataLinkLayer  %s %s not supported\n",
+				pcap_datalink_val_to_name(m_PcapDataLinkType),
+				pcap_datalink_val_to_description(m_PcapDataLinkType));
 		return false;
 	}
-		
+
+
+	
+
 	return true;
 #else
 	logCrit("pcap not supported, hit the docs\n");
@@ -586,10 +594,51 @@ int32_t ModuleHoneyTrap::doRecv_PCAP()
 	if ( retval == 1 )
 	{
 //		g_Nepenthes->getUtilities()->hexdump((byte *)pkt_data,52);
-		
 
-		struct libnet_ipv4_hdr *ip = (struct libnet_ipv4_hdr *) (pkt_data + m_LinkLayerHeaderLength);
-		struct libnet_tcp_hdr *tcp = (struct libnet_tcp_hdr *) (pkt_data + m_LinkLayerHeaderLength + ip->ip_hl * 4);
+		int offset=0;
+
+		switch ( m_PcapDataLinkType )
+		{
+
+		case DLT_NULL:
+			offset = 4;
+			break;
+
+		case DLT_EN10MB:
+			offset = 14;
+			break;
+
+
+		case DLT_PPP:
+			/*	PPP; if the first 2 bytes are 0xff and 0x03, 
+			* it's PPP in HDLC-like framing, with the PPP header following  those  two  bytes,  
+			* otherwise it's PPP without framing, and the packet begins with the PPP header.
+			*/              
+			offset = 4;
+			static char hldc_frame[] = { 0xff, 0x03 };
+			if (memcmp(pkt_data,hldc_frame,2) == 0)
+				offset += 2;
+			break;
+
+
+		case DLT_RAW:
+			offset = 0;
+			break;
+
+
+		case DLT_PPP_ETHER:
+			offset = 6;
+			break;
+
+#ifdef DLT_LINUX_SLL
+		case DLT_LINUX_SLL:
+			offset = 16;
+			break;
+#endif
+		}
+
+		struct libnet_ipv4_hdr *ip = (struct libnet_ipv4_hdr *) (pkt_data + offset);
+		struct libnet_tcp_hdr *tcp = (struct libnet_tcp_hdr *) (pkt_data + offset + ip->ip_hl * 4);
 
 		/* new connections are welcome */
 		if ( ntohl(tcp->th_seq) != 0 )
@@ -797,7 +846,7 @@ bool ModuleHoneyTrap::isPortListening(uint16_t localport, uint32_t localhost)
 	logSpam("looking for %s:%i\n",inet_ntoa(*(struct in_addr *)&localhost),localport);
 	unsigned long rxq, txq, time_len, retr, inode;
 	int num, local_port, rem_port, d, state, uid, timer_run, timeout;
-	char rem_addr[128], local_addr[128], more[512];
+	char rem_addr[128], local_addr[128], more[513];
 	char line[512];
 	struct sockaddr_in localaddr; //, remaddr;
 
@@ -930,4 +979,8 @@ extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepe
 		return 0;
 	}
 }
+
+
+
+
 

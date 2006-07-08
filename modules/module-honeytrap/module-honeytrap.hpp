@@ -72,6 +72,9 @@ namespace nepenthes
 #define IPQ_PACKET_BUFSIZE 2048
 #define LIBNET_LIL_ENDIAN 1
 
+#ifndef ETHERTYPE_IP
+#define ETHERTYPE_IP            0x0800  /* IP protocol */
+#endif
 
 
 
@@ -251,8 +254,8 @@ struct libnet_tcp_hdr
 	protected:
 #ifdef HAVE_PCAP
 		pcap_t	*m_RawListener;
-		int 	m_LinkLayerHeaderLength;
 		string 	m_PcapDevice;
+		int m_PcapDataLinkType;
 #endif
  
 #ifdef HAVE_IPQ
