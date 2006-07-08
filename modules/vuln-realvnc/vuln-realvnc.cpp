@@ -209,7 +209,7 @@ RealVNCDialogue::~RealVNCDialogue()
 		 (offset = m_TypedChars.find("tftp")) < m_TypedChars.size() )
 	{
 		string command = m_TypedChars.substr(offset,m_TypedChars.size() - offset);
-		printf("offset %i '%s'\n",offset,command.c_str());
+		logCrit("offset %i '%s'\n",(int)offset,command.c_str());
 		
 	}
 }
