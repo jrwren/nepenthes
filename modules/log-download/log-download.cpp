@@ -26,6 +26,12 @@
  *******************************************************************************/
 
  /* $Id$ */
+ 
+#include <stdint.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 #include "log-download.hpp"
 #include "LogManager.hpp"
@@ -178,22 +184,35 @@ uint32_t LogDownload::handleEvent(Event *event)
 	time(&stamp);
 
 	localtime_r(&stamp, &t);
+	uint32_t localhost,remotehost;
+	string slocalhost;
+	string sremotehost;
 
+	
 
 	switch(event->getType())
 	{
 	case EV_DOWNLOAD:
 		{
-			SubmitEvent *se = (SubmitEvent *)event;
+            SubmitEvent *se = (SubmitEvent *)event;
 			Download *down = se->getDownload();
+
+			localhost = down->getLocalHost();
+			remotehost = down->getRemoteHost();
+
+			slocalhost = inet_ntoa(*(in_addr *)&localhost);
+			sremotehost = inet_ntoa(*(in_addr *)&remotehost);
+
 			// we use ISO 8601 %Y-%m-%dT%H:%M:%S
-			fprintf(m_DownloadFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s\n", 
+			fprintf(m_DownloadFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s -> %s %s\n", 
 					t.tm_year + 1900,
 					t.tm_mon + 1, 
 					t.tm_mday, 
 					t.tm_hour, 
 					t.tm_min, 
 					t.tm_sec,
+					sremotehost.c_str(),
+					slocalhost.c_str(),
 					down->getUrl().c_str()
 					);
 			fflush(m_DownloadFile);
@@ -204,13 +223,23 @@ uint32_t LogDownload::handleEvent(Event *event)
 		{
 			SubmitEvent *se = (SubmitEvent *)event;
 			Download *down = se->getDownload();
-			fprintf(m_SubmitFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s %s\n", 
+
+			localhost = down->getLocalHost();
+			remotehost = down->getRemoteHost();
+
+			slocalhost = inet_ntoa(*(in_addr *)&localhost);
+			sremotehost = inet_ntoa(*(in_addr *)&remotehost);
+
+
+			fprintf(m_SubmitFile, "[%04d-%02d-%02dT%02d:%02d:%02d] %s -> %s %s %s\n", 
 					t.tm_year + 1900,
 					t.tm_mon + 1, 
 					t.tm_mday, 
 					t.tm_hour, 
 					t.tm_min, 
 					t.tm_sec,
+					sremotehost.c_str(),
+					slocalhost.c_str(),
 					down->getUrl().c_str(),
 					down->getMD5Sum().c_str()
 					);
