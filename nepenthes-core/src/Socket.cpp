@@ -506,11 +506,11 @@ bool Socket::getRemoteHWA(string *address)
  */
 
 #define _PATH_PROCNET_ARP               "/proc/net/arp"
-	char ip[100];
-	char hwa[100];
-	char mask[100];
+	char ip[101];
+	char hwa[101];
+	char mask[101];
 	char line[200];
-	char dev[100];
+	char dev[101];
 	int type, flags;
 	FILE *fp;
 

@@ -329,6 +329,9 @@ bool TCPSocket::bindPort()
 	m_LocalPort = ntohs( ( (sockaddr_in *)&addrBind)->sin_port ) ;
 	logDebug("Success binding Port %i\n", m_LocalPort);
 
+	SocketEvent sEvent(this,EV_SOCK_TCP_BIND);
+	g_Nepenthes->getEventMgr()->handleEvent(&sEvent);
+
     return true;
 }
 
