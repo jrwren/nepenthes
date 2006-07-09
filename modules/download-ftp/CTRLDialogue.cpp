@@ -425,6 +425,10 @@ void CTRLDialogue::sendPort()
 
 	for (uint16_t i =minport; i<maxport;i++)
 	{
+		/* workaround buggy PORT calculation in 'some' worm families */
+		if ( ((i >> 4) & 0xf) == 0 )
+			continue;
+
 		if ( (socket = g_Nepenthes->getSocketMgr()->bindTCPSocket(0,i,60,30)) != NULL )
 		{
 			if ( socket->getDialogst()->size() == 0 && socket->getFactories()->size() == 0 )
