@@ -9,11 +9,14 @@ AM_CXXFLAGS = -Wall -Werror
 AM_CFLAGS = -Wall
 AM_LDFLAGS = $(LIB_PCRE)
 
+YACC += -d
+LEX  += -d
+
 pkglib_LTLIBRARIES = shellcodesignatures.la
 
 
 shellcodesignatures_la_SOURCES = shellcode-signatures.sc 
-shellcodesignatures_la_SOURCES += y.tab.c lex.nepenthes_shellcodesignatures_yy.c y.tab.h
+shellcodesignatures_la_SOURCES += signature_parser.y signature_scanner.l  
 shellcodesignatures_la_SOURCES += parser.hpp parser.h
 shellcodesignatures_la_SOURCES += shellcode-signatures.cpp shellcode-signatures.hpp 
 shellcodesignatures_la_SOURCES += sch_namespace.cpp sch_namespace.hpp
@@ -29,5 +32,6 @@ shellcodesignatures_la_SOURCES += sch_namespace_base64.cpp sch_namespace_base64.
 shellcodesignatures_la_SOURCES += sch_engine_unicode.cpp sch_engine_unicode.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_konstanzxor.cpp sch_namespace_konstanzxor.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_alphanumericxor.cpp sch_namespace_alphanumericxor.hpp
-shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
+
+shellcodesignatures_la_LDFLAGS = @LEXLIB@ -module -no-undefined -avoid-version
 

@@ -14,9 +14,9 @@
 	inline char *string_get_buffer();
 	inline int string_get_len();
 
-	extern char *nepenthes_shellcodesignatures_yytext;
-	extern int nepenthes_shellcodesignatures_yyleng;
-	extern FILE *nepenthes_shellcodesignatures_yyin;
+	extern char *yytext;
+	extern int yyleng;
+	extern FILE *yyin;
 
 	static struct sc_shellcode *shellcodes = NULL;
 	extern int line_number;
@@ -382,37 +382,37 @@ char *sc_get_mapping_by_numeric(int num)
 
 
 
-int nepenthes_shellcodesignatures_yyerror(char* s)
+int yyerror(char* s)
 {
 	snprintf(error_buffer, sizeof(error_buffer),
-			 "%s at '%s' on line %d", s, nepenthes_shellcodesignatures_yytext, line_number);
+			 "%s at '%s' on line %d", s, yytext, line_number);
 	return 0;
 }
 
 
-int nepenthes_shellcodesignatures_yywrap()
+int yywrap()
 {
 	return 1;
 }
 
 struct sc_shellcode *sc_parse_file(const char *filename)
 {
-	nepenthes_shellcodesignatures_yyin = fopen(filename, "r");
+	yyin = fopen(filename, "r");
 
-	if ( nepenthes_shellcodesignatures_yyin == NULL )
+	if ( yyin == NULL )
 	{
 		snprintf(error_buffer, sizeof(error_buffer), "%s", strerror(errno));
 		return NULL;
 	}
 
 	init_shellcode();
-	if ( nepenthes_shellcodesignatures_yyparse() != 0 )
+	if ( yyparse() != 0 )
 	{
-		fclose(nepenthes_shellcodesignatures_yyin);
+		fclose(yyin);
 		/* TODO free partially alloc'd shellcodes */
 		return NULL;
 	}
-	fclose(nepenthes_shellcodesignatures_yyin);
+	fclose(yyin);
 // taken from shellcode-generic/sch_generic_stuttgart.cpp
 	return shellcodes;
 }
