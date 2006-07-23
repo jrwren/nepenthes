@@ -7,10 +7,10 @@ AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-core/src -pipe -D _GNU_SOURCE
 AM_CXXFLAGS = -Wall -Werror
 AM_CFLAGS = -Wall
-AM_LDFLAGS = $(LIB_PCRE)
+AM_LDFLAGS = $(LIB_PCRE) @LEXLIB@ -ly
 
 YACC += -d
-LEX  += -d
+
 
 pkglib_LTLIBRARIES = shellcodesignatures.la
 
@@ -33,5 +33,5 @@ shellcodesignatures_la_SOURCES += sch_engine_unicode.cpp sch_engine_unicode.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_konstanzxor.cpp sch_namespace_konstanzxor.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_alphanumericxor.cpp sch_namespace_alphanumericxor.hpp
 
-shellcodesignatures_la_LDFLAGS = @LEXLIB@ -module -no-undefined -avoid-version
+shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
 
