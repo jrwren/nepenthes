@@ -518,6 +518,7 @@ bool Socket::getRemoteHWA(string *address)
 	if ( (fp = fopen(_PATH_PROCNET_ARP, "r")) == NULL )
 	{
 		logCrit("Could not open %s\n",_PATH_PROCNET_ARP);
+		return false;
 	}
 
 	/* Bypass header -- read until newline */
@@ -542,5 +543,7 @@ bool Socket::getRemoteHWA(string *address)
 			}
 		}
 	}
+
+	fclose(fp);
 	return false;
 }
