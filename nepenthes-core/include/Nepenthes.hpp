@@ -108,6 +108,7 @@ namespace nepenthes
 	class DialogueFactoryManager;
 	class DNSManager;
 	class Message;
+	class SQLManager;
 
 
 /**
@@ -135,6 +136,7 @@ namespace nepenthes
 		virtual Utilities			*getUtilities();
 		virtual DialogueFactoryManager *getFactoryMgr();
 		virtual DNSManager 			*getDNSMgr();
+		virtual SQLManager			*getSQLMgr();
 
 		virtual bool 				doLoop();
 		virtual int32_t 				run(int32_t argc, char **argv);
@@ -154,7 +156,7 @@ namespace nepenthes
 		SubmitManager       *m_SubmitManager;
 		SocketManager       *m_SocketManager;
 		Utilities           *m_Utilities;
-		
+		SQLManager 			*m_SQLManager;
 		
 		
 		

@@ -20,4 +20,5 @@ EXTRA_DIST += SocketManager.hpp Socket.hpp TCPSocket.hpp UDPSocket.hpp POLLSocke
 EXTRA_DIST += ShellcodeManager.hpp ShellcodeHandler.hpp 
 EXTRA_DIST += Packet.hpp
 EXTRA_DIST += SubmitManager.hpp SubmitHandler.hpp 
+EXTRA_DIST += SQLCallback.hpp SQLHandlerFactory.hpp SQLHandler.hpp SQLManager.hpp SQLQuery.hpp SQLResult.hpp
 EXTRA_DIST += Utilities.hpp

@@ -26,6 +26,7 @@ nepenthes_SOURCES += SocketManager.cpp Socket.cpp TCPSocket.cpp UDPSocket.cpp PO
 nepenthes_SOURCES += Responder.cpp
 nepenthes_SOURCES += ShellcodeManager.cpp ShellcodeHandler.cpp 
 nepenthes_SOURCES += SubmitManager.cpp SubmitHandler.cpp 
+nepenthes_SOURCES += SQLCallback.cpp SQLHandler.cpp SQLManager.cpp SQLQuery.cpp SQLResult.cpp
 nepenthes_SOURCES += Utilities.cpp
 
 

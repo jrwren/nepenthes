@@ -65,6 +65,8 @@
 #include "DialogueFactoryManager.hpp"
 #include "DNSManager.hpp"
 
+#include "SQLManager.hpp"
+
 #include "Message.hpp"
 
 
@@ -100,6 +102,8 @@ Nepenthes::Nepenthes()
 	m_SocketManager = NULL;
 	m_SubmitManager = NULL;
 	m_Utilities = NULL;
+
+	m_SQLManager = NULL;
 
 	m_UID = 0;
 	m_GID = 0;
@@ -412,6 +416,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			m_SubmitManager     = new SubmitManager(this);
 			m_Utilities         = new Utilities();
 			m_DNSManager        = new DNSManager(this);
+			m_SQLManager 		= new SQLManager(this);
 		}
 	}
 
@@ -561,6 +566,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		if (run == true )
 		{
 			m_DialogueFactoryManager->doList();
+		}
+
+		if (run == true)
+		{
+			m_SQLManager->doList();
 		}
 
 
@@ -730,7 +740,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		show_version();
 		fileCheckMain(filecheckarg,argc,optind,argv);
 	}
-	if( run == true )
+	if( true )//run == true )
 	{
         doLoop();
 	}
@@ -1091,6 +1101,15 @@ DNSManager *Nepenthes::getDNSMgr()
 }
 
 
+/**
+ * get the SQLManager
+ * 
+ * @return returns the SQLManager
+ */
+SQLManager *Nepenthes::getSQLMgr()
+{
+	return m_SQLManager;
+}
 
 /**
  * stop the nepenthes
