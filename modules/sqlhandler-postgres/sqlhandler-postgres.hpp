@@ -27,41 +27,69 @@
 
  /* $Id$ */
 
+#include "config.h"
+
+#ifdef HAVE_POSTGRES
 #include <libpq-fe.h>
+#endif 
 
 #include "Module.hpp"
 #include "ModuleManager.hpp"
-#include "Library.hpp"
+#include "Nepenthes.hpp"
 #include "Dialogue.hpp"
 #include "Socket.hpp"
 
 #include "SQLHandler.hpp"
+#include "SQLHandlerFactory.hpp"
 
 #include "POLLSocket.hpp"
 #include "POLLSocket.cpp"
 #include "Socket.cpp"
+
 #include "SQLResult.hpp"
 #include "SQLResult.cpp"
 
+#include "SQLQuery.hpp"
+#include "SQLQuery.cpp"
+
 using namespace std;
 
-namespace library
+namespace nepenthes
 {
 
 	class Buffer;
 
-	class SQLHandlerPostgres : public Module , public SQLHandler , public POLLSocket
+
+	class SQLHandlerFactoryPostgres : public Module , public SQLHandlerFactory
 	{
+
 	public:
-		SQLHandlerPostgres(Library *);
+		SQLHandlerFactoryPostgres(Nepenthes *nepenthes);
+		~SQLHandlerFactoryPostgres();
+
+		bool Init();
+		bool Exit();
+
+		SQLHandler * createSQLHandler(string server, string user, string passwd, string table, string options);
+
+	};
+
+#ifdef HAVE_POSTGRES
+	class SQLHandlerPostgres : public SQLHandler , public POLLSocket 
+	{
+    public:
+		SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options);
 		~SQLHandlerPostgres();
+
+		bool Init();
+		bool Exit();
+
+
 		bool runQuery(SQLQuery *query);
 		string escapeString(string *str);
 		string escapeBinary(string *str);
 		string unescapeBinary(string *str);
 
-		bool Init();
-		bool Exit();
 
 		bool wantSend();
 
@@ -70,9 +98,10 @@ namespace library
 		int32_t getSocket();
 		int32_t   getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen);
 
+
 	private:
 		PGconn *m_PGConnection;
-		Library	*m_Library;
+		Nepenthes	*m_Nepenthes;
 
 		bool 	m_LockSend;
 
@@ -112,6 +141,8 @@ namespace library
 		}
 
 	};
+#endif // HAVE_POSTGRES
 
 }
-extern library::Library *g_Library;
+
+extern nepenthes::Nepenthes *g_Nepenthes;

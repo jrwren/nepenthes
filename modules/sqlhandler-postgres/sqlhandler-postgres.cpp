@@ -1,5 +1,5 @@
 /********************************************************************************
- *                              Library
+ *                              Nepenthes
  *                        - finest collection -
  *
  *
@@ -21,10 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * 
  * 
- *             contact librarydev@users.sourceforge.net  
+ *             contact nepenthesdev@users.sourceforge.net  
  *
  *******************************************************************************/
-
+ 
  /* $Id$ */
 
 #include <ctype.h>
@@ -37,7 +37,7 @@
 #include "SQLManager.hpp"
 #include "LogManager.hpp"
 
-#include "SQLQuery.hpp"
+
 #include "SQLCallback.hpp"
 #include "SQLResult.hpp"
 
@@ -48,43 +48,70 @@
 #endif
 #define STDTAGS l_mod
 
-using namespace library;
+using namespace nepenthes;
 
 
-/**
- * as we may need a global pointer to our Library in our modules,
- * and cant access the cores global pointer to library
- * we have to use a own global pointer to library per module
- * we need this pointer for logInfo() etc
- */
-Library *g_Library;
+Nepenthes *g_Nepenthes;
 
-/**
- * The Constructor
- * creates a new SQLHandlerPostgres Module, 
- * SQLHandlerPostgres is an example for binding a socket & setting up the Dialogue & DialogueFactory
- * 
- * 
- * it can be used as a shell emu to allow trigger commands 
- * 
- * 
- * sets the following values:
- * - m_DialogueFactoryName
- * - m_DialogueFactoryDescription
- * 
- * @param library the pointer to our Library
- */
-SQLHandlerPostgres::SQLHandlerPostgres(Library *library)
+SQLHandlerFactoryPostgres::SQLHandlerFactoryPostgres(Nepenthes *nepenthes)
 {
 	m_ModuleName        = "sqlhandler-postgres";
-	m_ModuleDescription = "use postgres async interface";
+	m_ModuleDescription = "use postgres' async socket interface for smooth queries";
 	m_ModuleRevision    = "$Rev$";
+
+
+	m_Nepenthes = nepenthes;
+	g_Nepenthes = nepenthes;
+
+	m_DBType = "postgres";
+}
+
+SQLHandlerFactoryPostgres::~SQLHandlerFactoryPostgres()
+{
+
+}
+
+bool SQLHandlerFactoryPostgres::Init()
+{
+#ifdef HAVE_POSTGRES
+	g_Nepenthes->getSQLMgr()->registerSQLHandlerFactory(this);
+	return true;
+#else
+	logCrit("Could not load module, compiled without support for postgres\n");
+	return false;
+#endif
+}
+
+bool SQLHandlerFactoryPostgres::Exit()
+{
+
+		return true;
+}
+
+SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string user, string passwd, string table, string options)
+{
+#ifdef HAVE_POSTGRES
+	return new SQLHandlerPostgres(m_Nepenthes, server, user, passwd, table, options);
+#else
+	return NULL;
+#endif
+
+}
+
+
+#ifdef HAVE_POSTGRES
+SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options)
+{
+
 	m_SQLHandlerName	= "sqlhandler-postgres";
-
-	m_Library = library;
-
-	g_Library = library;
+	m_Nepenthes = nepenthes;
 	m_LockSend = false;
+
+
+	m_PGServer	= server;
+	m_PGTable	= table;
+	m_PGUser	= user;
+	m_PGPass	= passwd;
 }
 
 SQLHandlerPostgres::~SQLHandlerPostgres()
@@ -96,27 +123,19 @@ SQLHandlerPostgres::~SQLHandlerPostgres()
 /**
  * Module::Init()
  * 
- * binds the port, adds the DialogueFactory to the Socket
  * 
  * @return returns true if everything was fine, else false
  *         false indicates a fatal error
  */
 bool SQLHandlerPostgres::Init()
 {
-	try
-	{
-		m_PGServer= g_Library->getConfig()->getValString("library.database.server");   
-		m_PGTable= g_Library->getConfig()->getValString("library.database.table");    
-		m_PGUser= g_Library->getConfig()->getValString("library.database.user");     
-		m_PGPass= g_Library->getConfig()->getValString("library.database.pass");
-	}catch (...)
-	{
-		logCrit("%s","Error setting needed vars, check your config\n");
-		return false;
-	}
 
 	string ConnectString;
-	ConnectString = "hostaddr = '" + m_PGServer + "' dbname = '" + m_PGTable + "' user = '" + m_PGUser + "' password = '" + m_PGPass +"'";
+	ConnectString = 
+		"hostaddr = '" + m_PGServer + 
+		"' dbname = '" + m_PGTable + 
+		"' user = '" + m_PGUser + 
+		"' password = '" + m_PGPass +"'";
 
 	m_PGConnection = PQconnectdb(ConnectString.c_str());
 
@@ -127,22 +146,22 @@ bool SQLHandlerPostgres::Init()
 	} else
 		logDebug("%s Connected PostgreSQL Database \n", __PRETTY_FUNCTION__);
 
-	g_Library->getSQLMgr()->setSQLHandler(this);
 	PQsetnonblocking(m_PGConnection,1);
-
-	g_Library->getSocketMgr()->addPOLLSocket(this);
-
+	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
 	return true;
 }
+
 
 bool SQLHandlerPostgres::Exit()
 {
 	return true;
 }
 
+
 bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 {
+
 	logPF();
 	m_Queries.push_back(query);
 	if (PQisBusy(m_PGConnection) == 0 && m_LockSend == false)
@@ -152,6 +171,7 @@ bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 		if (ret != 1)
 			logCrit("ERROR %i %s\n",ret,PQerrorMessage(m_PGConnection));
 	}
+
 	return true;
 }
 
@@ -229,8 +249,10 @@ int32_t SQLHandlerPostgres::doRecv()
 //		logCrit("README %i %x %x\n",foo,res,sqlquery);
 		switch ( PQresultStatus(res) )
 		{
+
 		case PGRES_COMMAND_OK:
 			break;
+
 		case PGRES_TUPLES_OK:
 			if ( sqlquery->getCallback() != NULL )
 			{
@@ -307,10 +329,12 @@ int32_t SQLHandlerPostgres::getsockOpt(int32_t level, int32_t optname,void *optv
         return getsockopt(getSocket(), level, optname, optval, optlen);
 }
 
-extern "C" int32_t module_init(int32_t version, Module **module, Library *library)
+#endif // HAVE_POSTGRES
+
+extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
 	if (version == MODULE_IFACE_VERSION) {
-        *module = new SQLHandlerPostgres(library);
+        *module = new SQLHandlerFactoryPostgres(nepenthes);
         return 1;
     } else {
         return 0;
