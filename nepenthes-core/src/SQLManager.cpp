@@ -87,7 +87,7 @@ void SQLManager::unregisterSQLHandlerFactory(const char *dbtype)
 	return;
 }
 
-SQLHandler *SQLManager::createSQLHandler(const char *dbtype, string user, string passwd, string table, string options)
+SQLHandler *SQLManager::createSQLHandler(const char *dbtype, string server, string user, string passwd, string table, string options)
 {
 	list <SQLHandlerFactory *>::iterator it;
 	int i=0;
@@ -95,8 +95,14 @@ SQLHandler *SQLManager::createSQLHandler(const char *dbtype, string user, string
 	{
 		if (dbtype == (*it)->getDBType())
 		{
-			SQLHandler *sqlh =  (*it)->createSQLHandler(user,passwd,table,options);
-			return sqlh;
+			SQLHandler *sqlh =  (*it)->createSQLHandler(server, user,passwd,table,options);
+			if (sqlh->Init() == true)
+			{
+				return sqlh;
+			}else
+			{
+				return NULL;
+			}
 		}
 	}
 	return NULL;

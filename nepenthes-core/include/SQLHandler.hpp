@@ -43,8 +43,11 @@ namespace nepenthes
 
 	class SQLHandler
 	{
-		public:
+	public:
 		virtual ~SQLHandler(){};
+
+		virtual bool Init()=0;
+		virtual bool Exit()=0;
 
 		virtual bool runQuery(SQLQuery *query)=0;
 		virtual string escapeString(string *str)=0;

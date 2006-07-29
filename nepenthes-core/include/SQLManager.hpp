@@ -57,7 +57,7 @@ namespace nepenthes
 
 		virtual bool registerSQLHandlerFactory(SQLHandlerFactory * handlerfactory);
 		virtual void unregisterSQLHandlerFactory(const char *dbtype);
-		virtual SQLHandler *createSQLHandler(const char *dbtype, string user, string passwd, string table, string options);
+		virtual SQLHandler *createSQLHandler(const char *dbtype, string server, string user, string passwd, string table, string options);
 
 	private:
 		list<SQLHandlerFactory *>  m_SQLHandlerFactories;

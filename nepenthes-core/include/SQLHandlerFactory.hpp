@@ -49,7 +49,7 @@ namespace nepenthes
 			return m_DBType;
 		}
 
-		virtual SQLHandler *createSQLHandler(string user, string passwd, string table, string options)=0;
+		virtual SQLHandler *createSQLHandler(string server, string user, string passwd, string table, string options)=0;
 		
 	protected:
 		string m_SQLHandlerFactoryName;
