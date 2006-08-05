@@ -147,6 +147,7 @@ bool SQLHandlerPostgres::Init()
 
 bool SQLHandlerPostgres::Exit()
 {
+	PQfinish(m_PGConnection);
 	return true;
 }
 
@@ -263,10 +264,27 @@ int32_t SQLHandlerPostgres::doRecv()
 		{
 
 			if ( PQconsumeInput(m_PGConnection) != 1 )
+			{
+				logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+				PQresetStart(m_PGConnection);
 				return 1;
+			}
 
 			if ( PQisBusy(m_PGConnection) != 0 )
 				return 1;
+
+			if ( PQstatus(m_PGConnection) == CONNECTION_BAD )
+			{
+				logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+				PQresetStart(m_PGConnection);
+				return 1;
+			}
+
+			if ( m_Queries.size() == 0 )
+			{
+				logCrit("Why did I end up here? %s:%i\n",__FILE__,__LINE__);
+				return 1;
+			}
 
 			PGresult   *res=NULL;
 			PGSQLResult *sqlresult = NULL;
