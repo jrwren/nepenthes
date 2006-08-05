@@ -98,9 +98,18 @@ namespace nepenthes
 		int32_t getSocket();
 		int32_t   getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen);
 
+		bool checkTimeout();
+		bool handleTimeout();
+
+		void disconnected();
+		void reconnect();
+		void connected();
 
 	private:
 		PGconn *m_PGConnection;
+
+		ConnStatusType	m_ConnStatusType;
+
 		Nepenthes	*m_Nepenthes;
 
 		bool 	m_LockSend;

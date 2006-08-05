@@ -116,7 +116,8 @@ SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, stri
 
 SQLHandlerPostgres::~SQLHandlerPostgres()
 {
-
+	logPF();
+	Exit();
 }
 
 
@@ -141,13 +142,24 @@ bool SQLHandlerPostgres::Init()
 
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
+
+	m_TimeoutIntervall = 1;
+	m_ConnStatusType = CONNECTION_BAD;
+
+	m_Polled = false;
+
 	return true;
 }
 
 
 bool SQLHandlerPostgres::Exit()
 {
-	PQfinish(m_PGConnection);
+	logPF();
+	if (m_PGConnection != NULL)
+	{
+		PQfinish(m_PGConnection);
+	}
+//	g_Nepenthes->getSocketMgr()->removePOLLSocket(this);
 	return true;
 }
 
@@ -214,15 +226,13 @@ bool SQLHandlerPostgres::wantSend()
 		break;
 
 	case CONNECTION_BAD:
-		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-		PQresetStart(m_PGConnection);
+		disconnected();
 		return false;
 		break;
 
 	default:
 		if ( PQconnectPoll(m_PGConnection) == PGRES_POLLING_WRITING )
 			return true;
-
 	}
 	return false;
 }
@@ -238,14 +248,18 @@ int32_t SQLHandlerPostgres::doSend()
 		break;
 
 	case CONNECTION_BAD:
-		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-		PQresetStart(m_PGConnection);
+		disconnected();
 		break;
 
 	default:
 		PQconnectPoll(m_PGConnection);
+		if (PQstatus(m_PGConnection) == CONNECTION_OK )
+		{
+			connected();
+		}
 	}
 
+	m_LastAction = time(NULL);
 	return 1;
 }
 
@@ -255,9 +269,7 @@ int32_t SQLHandlerPostgres::doRecv()
 	switch ( PQstatus(m_PGConnection) )
 	{
 	case CONNECTION_BAD:
-		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-		PQresetStart(m_PGConnection);
-
+		disconnected();
 		break;
 
 	case CONNECTION_OK:
@@ -265,8 +277,7 @@ int32_t SQLHandlerPostgres::doRecv()
 
 			if ( PQconsumeInput(m_PGConnection) != 1 )
 			{
-				logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-				PQresetStart(m_PGConnection);
+				disconnected();
 				return 1;
 			}
 
@@ -275,14 +286,13 @@ int32_t SQLHandlerPostgres::doRecv()
 
 			if ( PQstatus(m_PGConnection) == CONNECTION_BAD )
 			{
-				logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-				PQresetStart(m_PGConnection);
+				disconnected();
 				return 1;
 			}
 
 			if ( m_Queries.size() == 0 )
 			{
-				logCrit("Why did I end up here? %s:%i\n",__FILE__,__LINE__);
+//				logCrit("Why did I end up here %s:%i?\n status %i \n message %s? \n",__FILE__,__LINE__, PQstatus(m_PGConnection),PQerrorMessage(m_PGConnection));
 				return 1;
 			}
 
@@ -380,20 +390,105 @@ int32_t SQLHandlerPostgres::doRecv()
 
 	default:
 		PQconnectPoll(m_PGConnection);
+		if (PQstatus(m_PGConnection) == CONNECTION_OK)
+			connected();
+
 
 	}
+
+	m_LastAction = time(NULL);
 	return 1;
 }
 
 int32_t SQLHandlerPostgres::getSocket()
 {
-	return PQsocket(m_PGConnection);
+	if ( PQstatus(m_PGConnection) != CONNECTION_BAD )
+	{
+		return PQsocket(m_PGConnection);
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 int32_t SQLHandlerPostgres::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
-	return getsockopt(getSocket(), level, optname, optval, optlen);
+   	return getsockopt(getSocket(), level, optname, optval, optlen);
 }
+
+
+void SQLHandlerPostgres::disconnected()
+{
+	logPF();
+	if ( PQstatus(m_PGConnection) == CONNECTION_BAD )
+	{
+		logWarn("PostgreSQL Server disconnected - %i queries in queue - reconnecting in %i seconds\n",
+				m_Queries.size(),
+				m_TimeoutIntervall);
+		m_ConnStatusType = CONNECTION_BAD;
+		m_LastAction = time(NULL);
+	}
+}
+
+void SQLHandlerPostgres::reconnect()
+{
+	logPF();
+	PQresetStart(m_PGConnection);
+	m_LastAction = time(NULL);
+}
+
+
+void SQLHandlerPostgres::connected()
+{
+	logPF();
+	if (PQstatus(m_PGConnection) == CONNECTION_OK)
+	{
+		m_ConnStatusType = CONNECTION_OK;
+
+		logInfo("Connected %s:%s@%s:%s DB %s BackendPID %i ServerVersion %i ProtocolVersion %i\n",
+				PQuser(m_PGConnection),
+				PQpass(m_PGConnection),
+				PQhost(m_PGConnection) ? m_PGServer.c_str() : m_PGServer.c_str(),
+				PQport(m_PGConnection),
+				PQdb(m_PGConnection),
+				PQbackendPID(m_PGConnection),
+				PQserverVersion(m_PGConnection),
+				PQprotocolVersion(m_PGConnection));
+		m_LastAction = time(NULL);
+
+
+
+		if ( m_Queries.size() > 0 )
+		{
+			logInfo("sending query %s\n",m_Queries.front()->getQuery().c_str());
+			int ret = PQsendQuery(m_PGConnection, m_Queries.front()->getQuery().c_str());
+			if ( ret != 1 )
+				logCrit("ERROR %i %s\n",ret,PQerrorMessage(m_PGConnection));
+		}
+
+	}
+
+}
+
+bool SQLHandlerPostgres::checkTimeout()
+{
+	if (PQstatus(m_PGConnection) == CONNECTION_BAD &&
+		m_LastAction + m_TimeoutIntervall < time(NULL) )
+	{
+//		logSpam("TIMEOUTDEBUG %i %i %i %i \n",m_LastAction,m_TimeoutIntervall,m_LastAction + m_TimeoutIntervall, time(NULL) );
+		handleTimeout();
+	}
+	return false;
+}
+
+bool SQLHandlerPostgres::handleTimeout()
+{
+	logPF();
+	reconnect();
+	return false;
+}
+
 
 
 #endif // HAVE_POSTGRES
