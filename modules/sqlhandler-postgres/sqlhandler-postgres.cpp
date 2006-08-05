@@ -24,8 +24,8 @@
  *             contact nepenthesdev@users.sourceforge.net  
  *
  *******************************************************************************/
- 
- /* $Id$ */
+
+/* $Id$ */
 
 #include <ctype.h>
 
@@ -44,7 +44,7 @@
 #include "Config.hpp"
 
 #ifdef STDTAGS 
-#undef STDTAGS 
+	#undef STDTAGS 
 #endif
 #define STDTAGS l_mod
 
@@ -85,7 +85,7 @@ bool SQLHandlerFactoryPostgres::Init()
 bool SQLHandlerFactoryPostgres::Exit()
 {
 
-		return true;
+	return true;
 }
 
 SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string user, string passwd, string table, string options)
@@ -103,15 +103,15 @@ SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string us
 SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options)
 {
 
-	m_SQLHandlerName	= "sqlhandler-postgres";
+	m_SQLHandlerName    = "sqlhandler-postgres";
 	m_Nepenthes = nepenthes;
 	m_LockSend = false;
 
 
-	m_PGServer	= server;
-	m_PGTable	= table;
-	m_PGUser	= user;
-	m_PGPass	= passwd;
+	m_PGServer  = server;
+	m_PGTable   = table;
+	m_PGUser    = user;
+	m_PGPass    = passwd;
 }
 
 SQLHandlerPostgres::~SQLHandlerPostgres()
@@ -132,25 +132,13 @@ bool SQLHandlerPostgres::Init()
 
 	string ConnectString;
 	ConnectString = 
-		"hostaddr = '" + m_PGServer + 
-		"' dbname = '" + m_PGTable + 
-		"' user = '" + m_PGUser + 
-		"' password = '" + m_PGPass +"'";
+	"hostaddr = '" + m_PGServer + 
+	"' dbname = '" + m_PGTable + 
+	"' user = '" + m_PGUser + 
+	"' password = '" + m_PGPass +"'";
 
 	m_PGConnection = PQconnectStart(ConnectString.c_str());
 
-/*	if ( PQstatus(m_PGConnection) != CONNECTION_OK )
-	{
-		logCrit("Could not connect to PostgreSQL Database: %s!\n", PQerrorMessage(m_PGConnection));
-		return false;
-	} else
-		logDebug("%s Connected PostgreSQL Database \n", __PRETTY_FUNCTION__);
-
-
-	PQsetnonblocking(m_PGConnection,1);
-*/
-
-	
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
 	return true;
@@ -168,11 +156,11 @@ bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 
 	logPF();
 	m_Queries.push_back(query);
-	if (PQstatus(m_PGConnection) == CONNECTION_OK && PQisBusy(m_PGConnection) == 0 && m_LockSend == false)
+	if ( PQstatus(m_PGConnection) == CONNECTION_OK && PQisBusy(m_PGConnection) == 0 && m_LockSend == false )
 	{
 		logInfo("sending query %s\n",m_Queries.front()->getQuery().c_str());
 		int ret = PQsendQuery(m_PGConnection, m_Queries.front()->getQuery().c_str());
-		if (ret != 1)
+		if ( ret != 1 )
 			logCrit("ERROR %i %s\n",ret,PQerrorMessage(m_PGConnection));
 	}
 
@@ -191,7 +179,7 @@ string SQLHandlerPostgres::escapeString(string *str)
 
 string SQLHandlerPostgres::escapeBinary(string *str)
 {
-	
+
 	unsigned char *res;
 	size_t size;
 	res = PQescapeBytea((const unsigned char *)str->c_str(),str->size(),&size);
@@ -215,30 +203,24 @@ string SQLHandlerPostgres::unescapeBinary(string *str)
 bool SQLHandlerPostgres::wantSend()
 {
 //	logPF();
-	switch (PQstatus(m_PGConnection))
+	switch ( PQstatus(m_PGConnection) )
 	{
 	case CONNECTION_OK:
-		{
-			if ( PQflush(m_PGConnection) == 1 )
-				return true;
-			else
-				return false;
-		}
+		if ( PQflush(m_PGConnection) == 1 )
+			return true;
+		else
+			return false;
 		break;
 
 	case CONNECTION_BAD:
-		{
-			logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
-			PQresetStart(m_PGConnection);
-			return false;
-		}
+		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+		PQresetStart(m_PGConnection);
+		return false;
 		break;
 
 	default:
-		if (PQconnectPoll(m_PGConnection) == PGRES_POLLING_WRITING)
-		{
+		if ( PQconnectPoll(m_PGConnection) == PGRES_POLLING_WRITING )
 			return true;
-		}
 
 	}
 	return false;
@@ -400,11 +382,14 @@ int32_t SQLHandlerPostgres::getsockOpt(int32_t level, int32_t optname,void *optv
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
-	if (version == MODULE_IFACE_VERSION) {
-        *module = new SQLHandlerFactoryPostgres(nepenthes);
-        return 1;
-    } else {
-        return 0;
-    }
+	if ( version == MODULE_IFACE_VERSION )
+	{
+		*module = new SQLHandlerFactoryPostgres(nepenthes);
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
