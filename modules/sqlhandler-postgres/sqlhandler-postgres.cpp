@@ -137,16 +137,20 @@ bool SQLHandlerPostgres::Init()
 		"' user = '" + m_PGUser + 
 		"' password = '" + m_PGPass +"'";
 
-	m_PGConnection = PQconnectdb(ConnectString.c_str());
+	m_PGConnection = PQconnectStart(ConnectString.c_str());
 
-	if ( PQstatus(m_PGConnection) != CONNECTION_OK )
+/*	if ( PQstatus(m_PGConnection) != CONNECTION_OK )
 	{
 		logCrit("Could not connect to PostgreSQL Database: %s!\n", PQerrorMessage(m_PGConnection));
 		return false;
 	} else
 		logDebug("%s Connected PostgreSQL Database \n", __PRETTY_FUNCTION__);
 
+
 	PQsetnonblocking(m_PGConnection,1);
+*/
+
+	
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
 	return true;
@@ -164,7 +168,7 @@ bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 
 	logPF();
 	m_Queries.push_back(query);
-	if (PQisBusy(m_PGConnection) == 0 && m_LockSend == false)
+	if (PQstatus(m_PGConnection) == CONNECTION_OK && PQisBusy(m_PGConnection) == 0 && m_LockSend == false)
 	{
 		logInfo("sending query %s\n",m_Queries.front()->getQuery().c_str());
 		int ret = PQsendQuery(m_PGConnection, m_Queries.front()->getQuery().c_str());
@@ -191,14 +195,14 @@ string SQLHandlerPostgres::escapeBinary(string *str)
 	unsigned char *res;
 	size_t size;
 	res = PQescapeBytea((const unsigned char *)str->c_str(),str->size(),&size);
-	string result((char *)res,(int)size);
+	string result((char *)res,(int)size-1);
 	PQfreemem(res);
 	return result;
 }
 
 string SQLHandlerPostgres::unescapeBinary(string *str)
 {
-	
+	logPF();
 	unsigned char *res;
 	size_t size;
 	res = PQunescapeBytea((unsigned char *)str->c_str(),&size);
@@ -211,110 +215,172 @@ string SQLHandlerPostgres::unescapeBinary(string *str)
 bool SQLHandlerPostgres::wantSend()
 {
 //	logPF();
-	if (PQflush(m_PGConnection) == 1)
-		return true;
-	else
-		return false;
+	switch (PQstatus(m_PGConnection))
+	{
+	case CONNECTION_OK:
+		{
+			if ( PQflush(m_PGConnection) == 1 )
+				return true;
+			else
+				return false;
+		}
+		break;
+
+	case CONNECTION_BAD:
+		{
+			logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+			PQresetStart(m_PGConnection);
+			return false;
+		}
+		break;
+
+	default:
+		if (PQconnectPoll(m_PGConnection) == PGRES_POLLING_WRITING)
+		{
+			return true;
+		}
+
+	}
+	return false;
 }
 
 
 int32_t SQLHandlerPostgres::doSend()
 {
 	logPF();
-	PQflush(m_PGConnection);
+	switch ( PQstatus(m_PGConnection) )
+	{
+	case CONNECTION_OK:
+		PQflush(m_PGConnection);
+		break;
+
+	case CONNECTION_BAD:
+		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+		PQresetStart(m_PGConnection);
+		break;
+
+	default:
+		PQconnectPoll(m_PGConnection);
+	}
+
 	return 1;
 }
 
 int32_t SQLHandlerPostgres::doRecv()
 {
 	logPF();
-	if ( PQconsumeInput(m_PGConnection) != 1 )
-		return 1;
+	switch ( PQstatus(m_PGConnection) )
+	{
+	case CONNECTION_BAD:
+		logCrit("DATABASE ERROR '%s'\n",PQerrorMessage(m_PGConnection));
+		PQresetStart(m_PGConnection);
 
-	if ( PQisBusy(m_PGConnection) != 0 )
-		return 1;
+		break;
 
-	PGresult   *res=NULL;
-	PGSQLResult *sqlresult = NULL;
-	SQLQuery *sqlquery = m_Queries.front();
-	m_Queries.pop_front();
+	case CONNECTION_OK:
+		{
+
+			if ( PQconsumeInput(m_PGConnection) != 1 )
+				return 1;
+
+			if ( PQisBusy(m_PGConnection) != 0 )
+				return 1;
+
+			PGresult   *res=NULL;
+			PGSQLResult *sqlresult = NULL;
+			SQLQuery *sqlquery = m_Queries.front();
+			m_Queries.pop_front();
 
 //	int foo = rand()%1024;
 
-	vector< map<string,string> >        result;
-	bool broken_query=false;
+			vector< map<string,string> >        result;
+			bool broken_query=false;
 
-	while ( (res = PQgetResult(m_PGConnection)) != NULL )
-	{
-//		logCrit("README %i %x %x\n",foo,res,sqlquery);
-		switch ( PQresultStatus(res) )
-		{
-
-		case PGRES_COMMAND_OK:
-			break;
-
-		case PGRES_TUPLES_OK:
-			if ( sqlquery->getCallback() != NULL )
+			while ( (res = PQgetResult(m_PGConnection)) != NULL )
 			{
-				int i,j;
-				for ( j = 0;  j < PQntuples(res); j++ )
+//		logCrit("README %i %x %x\n",foo,res,sqlquery);
+				switch ( PQresultStatus(res) )
 				{
-					map<string,string> foo;
-					for ( i=0;i<PQnfields(res);i++ )
+				
+				case PGRES_COMMAND_OK:
+					break;
+
+				case PGRES_TUPLES_OK:
+					if ( sqlquery->getCallback() != NULL )
 					{
-						if ( PQfformat(res,i) == 0 )
+						int i,j;
+						for ( j = 0;  j < PQntuples(res); j++ )
 						{
-							foo[PQfname(res,i)] = PQgetvalue(res, j, i);
-						} else
-						{
-							string bar = PQgetvalue(res, j, i);
-							foo[PQfname(res,i)] = unescapeBinary(&bar);
+							map<string,string> foo;
+							string bar;
+							string baz;
+
+							for ( i=0;i<PQnfields(res);i++ )
+							{
+								switch ( PQftype(res,i) )
+								{
+								case 17: // BYTEAOID
+									bar = PQgetvalue(res, j, i);
+									baz = unescapeBinary(&bar);
+									foo[PQfname(res,i)] = string(baz.data(),baz.size());
+									break;
+
+								default:
+									foo[PQfname(res,i)] = PQgetvalue(res, j, i);
+								}
+							}
+							result.push_back(foo);
 						}
 					}
-					result.push_back(foo);
+					break;
+
+				default:
+					logCrit("Query failure. Query'%s' Error '%s' ('%s')\n",
+							sqlquery->getQuery().c_str(),
+							PQresStatus(PQresultStatus(res)),
+							PQresultErrorMessage(res));
+					broken_query = true;
 				}
+
+				PQclear(res);
+
 			}
-			break;
+			if ( sqlquery->getCallback() != NULL )
+			{
+				m_LockSend = true;
 
-		default:
-			logCrit("Query failure. Query'%s' Error '%s' ('%s')\n",
-					sqlquery->getQuery().c_str(),
-					PQresStatus(PQresultStatus(res)),
-					PQresultErrorMessage(res));
-			broken_query = true;
+				sqlresult = new PGSQLResult(&result,sqlquery->getQuery(),sqlquery->getObject());
+				if ( broken_query == true )
+				{
+					sqlquery->getCallback()->sqlFailure(sqlresult);
+				}
+				else
+				{
+					sqlquery->getCallback()->sqlSuccess(sqlresult);
+				}
+
+				delete sqlresult;
+				m_LockSend = false;
+
+			}
+
+			delete sqlquery;
+
+
+
+			if ( m_Queries.size() > 0 )
+			{
+				logInfo("sending query %s\n",m_Queries.front()->getQuery().c_str());
+				int ret = PQsendQuery(m_PGConnection, m_Queries.front()->getQuery().c_str());
+				if ( ret != 1 )
+					logCrit("ERROR %i %s\n",ret,PQerrorMessage(m_PGConnection));
+			}
 		}
+		break;
 
-		PQclear(res);
+	default:
+		PQconnectPoll(m_PGConnection);
 
-	}
-	if ( sqlquery->getCallback() != NULL )
-	{
-		m_LockSend = true;
-
-		sqlresult = new PGSQLResult(&result,sqlquery->getQuery(),sqlquery->getObject());
-		if (broken_query == true)
-		{
-			sqlquery->getCallback()->sqlFailure(sqlresult);
-		}else
-		{
-			sqlquery->getCallback()->sqlSuccess(sqlresult);
-		}
-		
-		delete sqlresult;
-		m_LockSend = false;
-
-	}
-
-	delete sqlquery;
-
-
-
-	if ( m_Queries.size() > 0 )
-	{
-		logInfo("sending query %s\n",m_Queries.front()->getQuery().c_str());
-		int ret = PQsendQuery(m_PGConnection, m_Queries.front()->getQuery().c_str());
-		if ( ret != 1 )
-			logCrit("ERROR %i %s\n",ret,PQerrorMessage(m_PGConnection));
 	}
 	return 1;
 }
@@ -326,8 +392,9 @@ int32_t SQLHandlerPostgres::getSocket()
 
 int32_t SQLHandlerPostgres::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
-        return getsockopt(getSocket(), level, optname, optval, optlen);
+	return getsockopt(getSocket(), level, optname, optval, optlen);
 }
+
 
 #endif // HAVE_POSTGRES
 
