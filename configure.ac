@@ -870,6 +870,9 @@ AC_CONFIG_FILES([Makefile
 		 modules/shellcode-signatures/Makefile
 		 modules/vuln-realvnc/Makefile
 		 modules/module-honeytrap/Makefile
+		 modules/sqlhandler-postgres/Makefile
+		 modules/x-9/Makefile
+		 modules/submit-postgres/Makefile
 		 ])
 #		 modules/module-upnp/Makefile		 
 #		 modules/log-prelude/Makefile
