@@ -228,7 +228,7 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		if ((*itSocket)->getsockOpt(SOL_SOCKET, SO_ERROR, &iError,(socklen_t *) &iSize) != 0 )
 		{
 			// socket is dead
-			logSpam("Socket %s is Dead\n",(*itSocket)->getDescription().c_str());
+			logSpam("Socket %i %s is Dead\n",(*itSocket)->getSocket(), (*itSocket)->getDescription().c_str());
 			(*itSocket)->unsetPolled();
 
 		} else
@@ -596,4 +596,24 @@ Socket *SocketManager::addPOLLSocket(POLLSocket *sock)
 	return sock;
 }
 
+bool SocketManager::removePOLLSocket(POLLSocket *sock)
+{
+	logPF();
+	list <Socket *>::iterator it;
+	for ( it = m_Sockets.begin();it != m_Sockets.end(); it++ )
+	{
+		if (sock == (*it))
+		{
+			/* this is really *bad*
+			 * as it may change the order of pollfd's
+			 * we should replace the socket to remove with a dead dummy socket who shares the same poll flags instead, and 
+			 * let the poll loop remove the socket instead
+			 * but this works for now, and does not make any problem, so ...
+			 */
+			m_Sockets.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
 

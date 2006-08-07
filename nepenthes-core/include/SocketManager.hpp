@@ -67,6 +67,7 @@ namespace nepenthes
 		virtual Socket *connectTCPHost(uint32_t localHost, uint32_t remotehost, uint16_t localport, uint16_t remoteport,time_t connecttimeout);
 
 		virtual Socket *addPOLLSocket(POLLSocket *sock);
+		virtual bool removePOLLSocket(POLLSocket *sock);
 
 		bool doLoop(uint32_t polltimeout);
 
