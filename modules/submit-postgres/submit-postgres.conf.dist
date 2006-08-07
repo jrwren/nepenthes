@@ -1,0 +1,9 @@
+submit-postgres
+{
+	server	"127.0.0.1";	// use ips, domains/hostnames won't work!
+	user	"username";	// db user
+	pass	"pass";		// db pass
+	db 	"mwcollect";	// which database to use
+	options	"";		// not sure if options already work (ssl is an option)
+};
+	
