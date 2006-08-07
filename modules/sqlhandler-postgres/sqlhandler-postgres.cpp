@@ -121,6 +121,18 @@ SQLHandlerPostgres::~SQLHandlerPostgres()
 }
 
 
+void SQLHandlerPostgres::defaultNoticeProcessor(void * arg, const char * message)
+{
+	PGconn *conn = (PGconn *)arg;
+    logWarn("%s@%s:%s db %s: %s\n",
+			PQuser(conn),
+			PQhost(conn),
+			PQport(conn),
+			PQdb(conn),
+			message);
+}
+
+
 /**
  * Module::Init()
  * 
@@ -139,7 +151,7 @@ bool SQLHandlerPostgres::Init()
 	"' password = '" + m_PGPass +"'";
 
 	m_PGConnection = PQconnectStart(ConnectString.c_str());
-
+	PQsetNoticeProcessor(m_PGConnection, SQLHandlerPostgres::defaultNoticeProcessor, (void *)m_PGConnection);
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
 
@@ -158,8 +170,10 @@ bool SQLHandlerPostgres::Exit()
 	if (m_PGConnection != NULL)
 	{
 		PQfinish(m_PGConnection);
+		m_PGConnection = NULL;
+		g_Nepenthes->getSocketMgr()->removePOLLSocket(this);
 	}
-//	g_Nepenthes->getSocketMgr()->removePOLLSocket(this);
+	
 	return true;
 }
 

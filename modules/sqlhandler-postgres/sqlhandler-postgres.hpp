@@ -81,6 +81,8 @@ namespace nepenthes
 		SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options);
 		~SQLHandlerPostgres();
 
+		static void defaultNoticeProcessor(void * arg, const char * message);
+
 		bool Init();
 		bool Exit();
 
