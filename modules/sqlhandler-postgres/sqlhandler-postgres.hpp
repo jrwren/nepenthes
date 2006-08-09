@@ -112,7 +112,8 @@ namespace nepenthes
 	private:
 		PGconn *m_PGConnection;
 
-		ConnStatusType	m_ConnStatusType;
+		ConnStatusType				m_ConnStatusType;
+		PostgresPollingStatusType	m_PollingStatusType;
 
 		Nepenthes	*m_Nepenthes;
 

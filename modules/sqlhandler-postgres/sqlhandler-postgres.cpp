@@ -152,6 +152,8 @@ bool SQLHandlerPostgres::Init()
 	"' password = '" + m_PGPass +"'";
 
 	m_PGConnection = PQconnectStart(ConnectString.c_str());
+	m_PollingStatusType = PGRES_POLLING_ACTIVE;
+
 	PQsetNoticeProcessor(m_PGConnection, SQLHandlerPostgres::defaultNoticeProcessor, (void *)m_PGConnection);
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
 
@@ -246,8 +248,13 @@ bool SQLHandlerPostgres::wantSend()
 		break;
 
 	default:
-		if ( PQconnectPoll(m_PGConnection) == PGRES_POLLING_WRITING )
+		if (m_PollingStatusType == PGRES_POLLING_WRITING)
 			return true;
+
+		if (m_PollingStatusType == PGRES_POLLING_ACTIVE)
+			if ( (m_PollingStatusType = PQconnectPoll(m_PGConnection)) == PGRES_POLLING_WRITING )
+				return true;
+
 	}
 	return false;
 }
@@ -267,10 +274,13 @@ int32_t SQLHandlerPostgres::doSend()
 		break;
 
 	default:
-		PQconnectPoll(m_PGConnection);
-		if (PQstatus(m_PGConnection) == CONNECTION_OK )
+		if (m_PollingStatusType == PGRES_POLLING_WRITING)
 		{
-			connected();
+        		m_PollingStatusType = PQconnectPoll(m_PGConnection);
+				if (PQstatus(m_PGConnection) == CONNECTION_OK )
+				{
+					connected();
+				}
 		}
 	}
 
@@ -281,6 +291,7 @@ int32_t SQLHandlerPostgres::doSend()
 int32_t SQLHandlerPostgres::doRecv()
 {
 	logPF();
+
 	switch ( PQstatus(m_PGConnection) )
 	{
 	case CONNECTION_BAD:
@@ -406,9 +417,12 @@ int32_t SQLHandlerPostgres::doRecv()
 		break;
 
 	default:
-		PQconnectPoll(m_PGConnection);
-		if (PQstatus(m_PGConnection) == CONNECTION_OK)
-			connected();
+		if (m_PollingStatusType == PGRES_POLLING_READING)
+		{
+        		m_PollingStatusType = PQconnectPoll(m_PGConnection);
+				if (PQstatus(m_PGConnection) == CONNECTION_OK)
+					connected();
+		}
 
 
 	}
@@ -452,6 +466,7 @@ void SQLHandlerPostgres::reconnect()
 {
 	logPF();
 	PQresetStart(m_PGConnection);
+	m_PollingStatusType = PGRES_POLLING_ACTIVE;
 	m_LastAction = time(NULL);
 }
 
