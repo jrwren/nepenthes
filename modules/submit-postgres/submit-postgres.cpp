@@ -148,6 +148,7 @@ bool SubmitPostgres::Exit()
 	if (m_SQLHandler != NULL)
 	{
 		delete m_SQLHandler;
+		m_SQLHandler = NULL;
 	}
 	return true;
 }
