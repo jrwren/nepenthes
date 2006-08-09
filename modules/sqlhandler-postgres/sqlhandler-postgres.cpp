@@ -28,6 +28,7 @@
 /* $Id$ */
 
 #include <ctype.h>
+#include <openssl/ssl.h>
 
 #include "sqlhandler-postgres.hpp"
 
@@ -291,6 +292,7 @@ int32_t SQLHandlerPostgres::doRecv()
 
 			if ( PQconsumeInput(m_PGConnection) != 1 )
 			{
+				logInfo("PQcomsumeInput() failed %s\n",PQerrorMessage(m_PGConnection));
 				disconnected();
 				return 1;
 			}
@@ -300,6 +302,7 @@ int32_t SQLHandlerPostgres::doRecv()
 
 			if ( PQstatus(m_PGConnection) == CONNECTION_BAD )
 			{
+				logInfo("PQstatus() says BAD %s\n",PQerrorMessage(m_PGConnection));
 				disconnected();
 				return 1;
 			}
@@ -437,9 +440,9 @@ void SQLHandlerPostgres::disconnected()
 	logPF();
 	if ( PQstatus(m_PGConnection) == CONNECTION_BAD )
 	{
-		logWarn("PostgreSQL Server disconnected - %i queries in queue - reconnecting in %i seconds\n",
+		logWarn("PostgreSQL Server disconnected - %i queries in queue - reconnecting in %i seconds\nMessage: %s",
 				m_Queries.size(),
-				m_TimeoutIntervall);
+				m_TimeoutIntervall, PQerrorMessage(m_PGConnection));
 		m_ConnStatusType = CONNECTION_BAD;
 		m_LastAction = time(NULL);
 	}
@@ -471,7 +474,30 @@ void SQLHandlerPostgres::connected()
 				PQprotocolVersion(m_PGConnection));
 		m_LastAction = time(NULL);
 
+#ifdef HAVE_SSL
+		SSL *sslctx;
+		X509 *peer;
+		char issuer[256];
+		char subject[256];
+		char peer_CN[256];
+		
 
+		if ((sslctx = PQgetssl(m_PGConnection)) != NULL)
+		{	
+			peer=SSL_get_peer_certificate(sslctx);
+			X509_NAME_oneline(X509_get_issuer_name(peer), issuer, 256);
+			X509_NAME_oneline(X509_get_subject_name(peer), subject, 256); 
+			X509_NAME_get_text_by_NID(X509_get_subject_name (peer),  NID_commonName,  peer_CN, 256);
+			logInfo("Using SSL connection %s %s\n"
+					"\tIssuer: %s\n"
+					"\tSubject: %s\n"
+					"\tPeer CN: %s\n",
+					SSL_get_cipher_name(sslctx),SSL_get_cipher_version(sslctx),
+					issuer,
+					subject);
+			
+		}
+#endif
 
 		if ( m_Queries.size() > 0 )
 		{

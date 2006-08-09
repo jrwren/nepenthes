@@ -29,6 +29,8 @@
 
 #include "config.h"
 
+//#define USE_SSL
+
 #ifdef HAVE_POSTGRES
 #include <libpq-fe.h>
 #endif 
