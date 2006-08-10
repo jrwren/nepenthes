@@ -28,7 +28,7 @@
 /* $Id$ */
 
 #include <ctype.h>
-#include <openssl/ssl.h>
+//#include <openssl/ssl.h>
 
 #include "sqlhandler-postgres.hpp"
 
@@ -485,8 +485,13 @@ void SQLHandlerPostgres::connected()
 				PQport(m_PGConnection),
 				PQdb(m_PGConnection),
 				PQbackendPID(m_PGConnection),
+#ifdef HAVE_PQSERVERVERSION
 				PQserverVersion(m_PGConnection),
+#else
+				-1,
+#endif 
 				PQprotocolVersion(m_PGConnection));
+
 		m_LastAction = time(NULL);
 
 #ifdef HAVE_SSL
