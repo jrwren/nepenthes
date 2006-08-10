@@ -14,7 +14,7 @@ SUBDIRS = download-creceive download-csend download-curl download-ftp download-h
           dnsresolve-adns \
           x-1 x-2 x-3 x-4 x-5 x-6 x-9 \
           log-surfnet vuln-ftpd \
-          log-prelude shellcode-signatures
+          log-prelude shellcode-signatures \
 	  sqlhandler-postgres           
 #          vuln-netbios
           # x-5 has linking issues on MacOS X

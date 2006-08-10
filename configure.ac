@@ -601,6 +601,15 @@ if test x$enable_postgre = xyes; then
   else
     AC_DEFINE(HAVE_POSTGRES, 1 , [Define if we have postgre client library])
     LIB_POSTGRES="-lpq"
+
+    AC_MSG_CHECKING([PQserverVersion()])
+    have_pqserverversion=yes
+    AC_TRY_COMPILE([#include<${postgre_inc}/libpq-fe.h>],
+	[PQserverVersion(0)],
+	AC_DEFINE(HAVE_PQSERVERVERSION, 1,
+		[Define if libpq has PQserverVersion()]),
+		[have_pqserverversion=no])
+    AC_MSG_RESULT($have_pqserverversion)
   fi
 
   AC_MSG_RESULT($enable_postgre)  
