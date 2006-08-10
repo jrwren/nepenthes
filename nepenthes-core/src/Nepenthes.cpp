@@ -115,8 +115,9 @@ Nepenthes::Nepenthes()
 Nepenthes::~Nepenthes()
 {
 	logPF();
+
 	if ( m_SocketManager != NULL )
-    	delete m_SocketManager;
+		m_SocketManager->Exit();
 
 	if (m_DownloadManager != NULL )
 		delete m_DownloadManager;
@@ -147,6 +148,9 @@ Nepenthes::~Nepenthes()
 
 	if (m_LogManager != NULL)
 		delete m_LogManager;
+
+	if ( m_SocketManager != NULL )
+		delete m_SocketManager;
 
 	g_Nepenthes = NULL;
 	

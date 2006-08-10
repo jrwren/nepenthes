@@ -93,13 +93,7 @@ SocketManager::SocketManager(Nepenthes *nepenthes)
  */
 SocketManager::~SocketManager()
 {
-	// FIXME CLOSE ALL SOCKETS
-	while(m_Sockets.size() > 0)
-	{
-		if ( !(m_Sockets.front()->getType() & ST_NODEL) )
-        	delete m_Sockets.front();
-		m_Sockets.pop_front();
-	}
+	Exit();
 }
 
 #define PROC_NET_DEV "/proc/net/dev"
@@ -156,6 +150,13 @@ bool  SocketManager::Init()
 
 bool  SocketManager::Exit()
 {
+	while(m_Sockets.size() > 0)
+	{
+		if ( !(m_Sockets.front()->getType() & ST_NODEL) )
+			delete m_Sockets.front();
+		m_Sockets.pop_front();
+	}
+
 	return true;
 }
 
