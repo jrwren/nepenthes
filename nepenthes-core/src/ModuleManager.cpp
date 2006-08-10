@@ -154,7 +154,7 @@ bool ModuleManager::Init()
 }
 
 /**
- * unload all modules
+ * unload all modules in reverse order
  * 
  * @return 
  */
@@ -162,17 +162,17 @@ bool ModuleManager::Exit()
 {
 	while ( m_Modules.size() > 0 )
 	{
-		void *handle = m_Modules.front()->getDlHandle();
-		m_Modules.front()->Exit();
+		void *handle = m_Modules.back()->getDlHandle();
+		m_Modules.back()->Exit();
 
-		if ( m_Modules.front()->getConfig() != NULL )
+		if ( m_Modules.back()->getConfig() != NULL )
 		{
-        	delete m_Modules.front()->getConfig();
+        	delete m_Modules.back()->getConfig();
 		}
 
-		delete m_Modules.front();
+		delete m_Modules.back();
 		dlclose(handle);
-		m_Modules.pop_front();
+		m_Modules.pop_back();
 	}
 	return true;
 
