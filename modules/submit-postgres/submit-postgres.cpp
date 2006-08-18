@@ -286,11 +286,13 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 	case PG_INSTANCE_ADD:
 		if (resvec[0]["sensor_add_instance"] == "f")
 			logCrit("ERROR inserting instance\n");
+		delete m_OutstandingQueries.front();
 		break;
 
 	case PG_SAMPLE_ADD:
 		if (resvec[0]["sensor_add_sample"] == "f")
 			logCrit("ERROR inserting sample\n");
+		delete m_OutstandingQueries.front();
 		break;
 
 	default:
@@ -298,7 +300,6 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 	}
 
 
-	delete m_OutstandingQueries.front();
 	m_OutstandingQueries.pop_front();
 	return true;
 }
