@@ -297,6 +297,8 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 		logCrit("UNEXPECTED STATE IN %s:%i\n",__FILE__,__LINE__);
 	}
 
+
+	delete m_OutstandingQueries.front();
 	m_OutstandingQueries.pop_front();
 	return true;
 }
