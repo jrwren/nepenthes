@@ -478,9 +478,8 @@ void SQLHandlerPostgres::connected()
 	{
 		m_ConnStatusType = CONNECTION_OK;
 
-		logInfo("Connected %s:%s@%s:%s DB %s BackendPID %i ServerVersion %i ProtocolVersion %i\n",
+		logInfo("Connected %s@%s:%s DB %s BackendPID %i ServerVersion %i ProtocolVersion %i\n",
 				PQuser(m_PGConnection),
-				PQpass(m_PGConnection),
 				PQhost(m_PGConnection) ? m_PGServer.c_str() : m_PGServer.c_str(),
 				PQport(m_PGConnection),
 				PQdb(m_PGConnection),
