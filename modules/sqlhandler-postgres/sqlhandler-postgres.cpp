@@ -135,6 +135,7 @@ SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, stri
 	m_Nepenthes = nepenthes;
 	m_LockSend = false;
 
+	m_PGConnection = NULL;
 
 	m_RemoteHost= server;
 
