@@ -44,6 +44,10 @@
 
 #include "Config.hpp"
 
+#include "DNSManager.hpp"
+#include "DNSResult.hpp"
+#include "DNSQuery.hpp"
+
 #ifdef STDTAGS 
 	#undef STDTAGS 
 #endif
@@ -89,6 +93,19 @@ bool SQLHandlerFactoryPostgres::Exit()
 	return true;
 }
 
+
+
+/**
+ * creates a postgres sql handler
+ * 
+ * @param server  the server
+ * @param user    the username to login
+ * @param passwd  the password to use
+ * @param table   the database to use
+ * @param options the options to use
+ * 
+ * @return pointer to the created SQLHandler
+ */
 SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string user, string passwd, string table, string options)
 {
 #ifdef HAVE_POSTGRES
@@ -101,6 +118,16 @@ SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string us
 
 
 #ifdef HAVE_POSTGRES
+/**
+ * the constructor
+ * 
+ * @param nepenthes
+ * @param server
+ * @param user
+ * @param passwd
+ * @param table
+ * @param options
+ */
 SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options)
 {
 
@@ -109,7 +136,9 @@ SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, stri
 	m_LockSend = false;
 
 
-	m_PGServer  = server;
+	m_RemoteHost= server;
+
+	m_PGServer  = "";
 	m_PGTable   = table;
 	m_PGUser    = user;
 	m_PGPass    = passwd;
@@ -122,6 +151,12 @@ SQLHandlerPostgres::~SQLHandlerPostgres()
 }
 
 
+/**
+ * the postgres default notice processor
+ * 
+ * @param arg     we use a pointer to the PGCon as arg
+ * @param message the postgres message
+ */
 void SQLHandlerPostgres::defaultNoticeProcessor(void * arg, const char * message)
 {
 	PGconn *conn = (PGconn *)arg;
@@ -144,20 +179,9 @@ void SQLHandlerPostgres::defaultNoticeProcessor(void * arg, const char * message
 bool SQLHandlerPostgres::Init()
 {
 
-	string ConnectString;
-	ConnectString = 
-	"hostaddr = '" + m_PGServer + 
-	"' dbname = '" + m_PGTable + 
-	"' user = '" + m_PGUser + 
-	"' password = '" + m_PGPass +"'";
-
-	m_PGConnection = PQconnectStart(ConnectString.c_str());
-	m_PollingStatusType = PGRES_POLLING_ACTIVE;
+	g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_RemoteHost.c_str(),NULL);
 
 	PQsetNoticeProcessor(m_PGConnection, SQLHandlerPostgres::defaultNoticeProcessor, (void *)m_PGConnection);
-	g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
-
-
 	m_TimeoutIntervall = 1;
 	m_ConnStatusType = CONNECTION_BAD;
 
@@ -181,6 +205,18 @@ bool SQLHandlerPostgres::Exit()
 }
 
 
+/**
+ * if the connection is established, 
+ *  not locked, 
+ *  and no other query pending, 
+ * send the query, 
+ * else 
+ *  queue it
+ * 
+ * @param query  the query
+ * 
+ * @return true on success, false on failure
+ */
 bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 {
 
@@ -197,6 +233,12 @@ bool SQLHandlerPostgres::runQuery(SQLQuery *query)
 	return true;
 }
 
+/**
+ * 
+ * @param str    escape the string
+ * 
+ * @return the escaped string
+ */
 string SQLHandlerPostgres::escapeString(string *str)
 {
 	int size = str->size() * 2 + 1 ;
@@ -207,6 +249,12 @@ string SQLHandlerPostgres::escapeString(string *str)
 	return result;
 }
 
+/**
+ * 
+ * @param str    escape a binary (bytea)
+ * 
+ * @return the escaped binary as (bytea) string
+ */
 string SQLHandlerPostgres::escapeBinary(string *str)
 {
 
@@ -218,6 +266,12 @@ string SQLHandlerPostgres::escapeBinary(string *str)
 	return result;
 }
 
+/**
+ * 
+ * @param str    (bytea) string
+ * 
+ * @return the unescaped binary
+ */
 string SQLHandlerPostgres::unescapeBinary(string *str)
 {
 	logPF();
@@ -230,6 +284,23 @@ string SQLHandlerPostgres::unescapeBinary(string *str)
 }
 
 
+/**
+ * do we want to send something?
+ * 
+ * if the postgres connection is established, 
+ * check if there is stuff to send in the PGCon using PGflush
+ * PGflush will try to flush whats left
+ * if PGflush returns 1 there is still stuff to send, 
+ * and we will poll for writeability
+ * 
+ * if the connection is bad, we disconnect
+ * 
+ * if the connection is pending, we check which type of polling the connection requested
+ * PGRES_POLLING_ACTIVE is the initial state, 
+ * it means we have to call PGConnectPoll and check if we want to send
+ * 
+ * @return true if we want to send, else false
+ */
 bool SQLHandlerPostgres::wantSend()
 {
 //	logPF();
@@ -260,6 +331,18 @@ bool SQLHandlerPostgres::wantSend()
 }
 
 
+/**
+ * if the connection is established, call PQflush, and done
+ * 
+ * if the connection is bad, disconnect
+ * 
+ * if the connection is pending, check 
+ *  if the connection told us in the previous PQconnectPoll it wants to send
+ *  if so, call PQconnectPoll
+ *    if this call to PQconnectPoll establishes the connection, call connect
+ * 
+ * @return 1
+ */
 int32_t SQLHandlerPostgres::doSend()
 {
 	logPF();
@@ -288,6 +371,33 @@ int32_t SQLHandlerPostgres::doSend()
 	return 1;
 }
 
+/**
+ * if the connection is bad, disconnect
+ * 
+ * if the connection is established,
+ *  call PQconsumeInput
+ *  if PGisBusy returns != 0, a query is done, and we can process it
+ *  while PQgetResult returns != NULL,
+ *   we retrieve data and add it to our result
+ *   we recognize bytea data by oid, and unescape it
+ *   once this is done, we call the callback for the result
+ *   while the callback is running
+ *    we have to lock the connection, 
+ *    to make sure the callback does not add a query 
+ *    which could interfere with the current query.
+ *   once the callback is done, check if there are queries to be sent, 
+ *   if so, sent them
+ *    
+ * 
+ * 
+ * if the connection is pending,
+ *  check if the previous call to PQconnectPoll
+ *  told us we want to recv data, if so, call PQconnectPoll
+ *  else, there is something wrong with the connection (connection refused)
+ *  and we call PQconnectPoll and check for a dead connection.
+ * 
+ * @return 
+ */
 int32_t SQLHandlerPostgres::doRecv()
 {
 	logPF();
@@ -422,15 +532,28 @@ int32_t SQLHandlerPostgres::doRecv()
         		m_PollingStatusType = PQconnectPoll(m_PGConnection);
 				if (PQstatus(m_PGConnection) == CONNECTION_OK)
 					connected();
+		}else
+		{
+			m_PollingStatusType = PQconnectPoll(m_PGConnection);
+			if (PQstatus(m_PGConnection) == CONNECTION_BAD)
+			{
+				logCrit("ERROR %s\n",PQerrorMessage(m_PGConnection));
+			}
 		}
-
-
 	}
 
 	m_LastAction = time(NULL);
 	return 1;
 }
 
+/**
+ * if the connection is not bad, established or pending, 
+ * return the socket of the connection, else -1, 
+ * so the socket is not polled by the mainloop, 
+ * but we can use the timeout checks to reconnect
+ * 
+ * @return 
+ */
 int32_t SQLHandlerPostgres::getSocket()
 {
 	if ( PQstatus(m_PGConnection) != CONNECTION_BAD )
@@ -443,12 +566,26 @@ int32_t SQLHandlerPostgres::getSocket()
 	}
 }
 
+/**
+ * call plain getsockopt on out socket, nothing special
+ * 
+ * @param level
+ * @param optname
+ * @param optval
+ * @param optlen
+ * 
+ * @return 
+ */
 int32_t SQLHandlerPostgres::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
    	return getsockopt(getSocket(), level, optname, optval, optlen);
 }
 
 
+/**
+ * if the connection was bad, we call this, 
+ *   so we can print out information about the loss
+ */
 void SQLHandlerPostgres::disconnected()
 {
 	logPF();
@@ -462,15 +599,27 @@ void SQLHandlerPostgres::disconnected()
 	}
 }
 
+/**
+ * to reconnect, 
+ * we ask the dnsmanager to resolve the host which was provided
+ * the actual reconnect attempt is done in the dns callback
+ */
 void SQLHandlerPostgres::reconnect()
 {
 	logPF();
-	PQresetStart(m_PGConnection);
-	m_PollingStatusType = PGRES_POLLING_ACTIVE;
-	m_LastAction = time(NULL);
+//	PQresetStart(m_PGConnection);
+//	m_PollingStatusType = PGRES_POLLING_ACTIVE;
+//	m_LastAction = time(NULL);
+	g_Nepenthes->getDNSMgr()->addDNS(this,(char *)m_RemoteHost.c_str(),NULL);
 }
 
 
+/**
+ * if the connection moves from pending to established,
+ * we call this
+ *  so we can print out the information
+ *  and start running the queue'd queries.
+ */
 void SQLHandlerPostgres::connected()
 {
 	logPF();
@@ -480,7 +629,7 @@ void SQLHandlerPostgres::connected()
 
 		logInfo("Connected %s@%s:%s DB %s BackendPID %i ServerVersion %i ProtocolVersion %i\n",
 				PQuser(m_PGConnection),
-				PQhost(m_PGConnection) ? m_PGServer.c_str() : m_PGServer.c_str(),
+				PQhost(m_PGConnection) ? m_RemoteHost.c_str() : m_RemoteHost.c_str(),
 				PQport(m_PGConnection),
 				PQdb(m_PGConnection),
 				PQbackendPID(m_PGConnection),
@@ -530,6 +679,17 @@ void SQLHandlerPostgres::connected()
 
 }
 
+/**
+ * this is the reconnect with timeout handler
+ * 
+ * the socket manager will call checkTimeout for every socket, 
+ * even the dead, we use this here
+ * 
+ * if this connection is dead, we wait a given timeout (1 second now)
+ * and then we call reconnect()
+ * 
+ * @return false
+ */
 bool SQLHandlerPostgres::checkTimeout()
 {
 	if (PQstatus(m_PGConnection) == CONNECTION_BAD &&
@@ -541,6 +701,11 @@ bool SQLHandlerPostgres::checkTimeout()
 	return false;
 }
 
+/**
+ * just calls reconnect
+ * 
+ * @return false
+ */
 bool SQLHandlerPostgres::handleTimeout()
 {
 	logPF();
@@ -548,7 +713,61 @@ bool SQLHandlerPostgres::handleTimeout()
 	return false;
 }
 
+/**
+ * if the hostname got resolved, we can create a new new PGCon of it, 
+ * maybe finish the old one first if there was one
+ * if there was no PGCon, this is the first connection attempt, and we ask the socketmanager to poll us.
+ * 
+ * @param result
+ * 
+ * @return 
+ */
+bool SQLHandlerPostgres::dnsResolved(DNSResult *result)
+{
+	logPF();
 
+
+	if ( result->getQueryType() & DNS_QUERY_A )
+	{
+
+		list <uint32_t> resolved = result->getIP4List();
+
+		list <uint32_t>::iterator it;
+		for ( it=resolved.begin();it!=resolved.end();it++ )
+		{
+			logSpam( "domain %s has ip %s \n",result->getDNS().c_str(),inet_ntoa(*(in_addr *)&*it));
+		}
+
+		m_PGServer = inet_ntoa(*(in_addr *)&resolved.front());
+	}
+
+	string ConnectString;
+	ConnectString = 
+	"hostaddr = '" + m_PGServer + 
+	"' dbname = '" + m_PGTable + 
+	"' user = '" + m_PGUser + 
+	"' password = '" + m_PGPass +"'";
+
+	if (m_PGConnection != NULL)
+		PQfinish(m_PGConnection);
+	else
+		g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
+
+	m_PGConnection = PQconnectStart(ConnectString.c_str());
+	m_PollingStatusType = PGRES_POLLING_ACTIVE;
+	m_ConnStatusType = CONNECTION_BAD;
+
+    return true;
+}
+
+bool SQLHandlerPostgres::dnsFailure(DNSResult *result)
+{
+	logPF();
+	logCrit("SQLHandlerPostgres could not resolve domain %s to connect database\n",m_RemoteHost.c_str());
+
+	g_Nepenthes->stop();
+	return true;
+}
 
 #endif // HAVE_POSTGRES
 

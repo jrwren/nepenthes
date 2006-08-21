@@ -54,6 +54,10 @@
 #include "SQLQuery.hpp"
 #include "SQLQuery.cpp"
 
+
+#include "DNSCallback.hpp"
+
+
 using namespace std;
 
 namespace nepenthes
@@ -77,23 +81,25 @@ namespace nepenthes
 	};
 
 #ifdef HAVE_POSTGRES
-	class SQLHandlerPostgres : public SQLHandler , public POLLSocket 
+	class SQLHandlerPostgres : public SQLHandler , public POLLSocket, public DNSCallback
 	{
-    public:
+	public:
 		SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options);
 		~SQLHandlerPostgres();
 
 		static void defaultNoticeProcessor(void * arg, const char * message);
 
-		bool Init();
-		bool Exit();
 
 
+		/* SQLHandler */
 		bool runQuery(SQLQuery *query);
 		string escapeString(string *str);
 		string escapeBinary(string *str);
 		string unescapeBinary(string *str);
 
+		/* POLLSocket */
+		bool Init();
+		bool Exit();
 
 		bool wantSend();
 
@@ -105,6 +111,11 @@ namespace nepenthes
 		bool checkTimeout();
 		bool handleTimeout();
 
+		/* DNSCallback */
+		bool dnsResolved(DNSResult *result);
+		bool dnsFailure(DNSResult *result);
+
+		/* other */
 		void disconnected();
 		void reconnect();
 		void connected();
@@ -120,6 +131,8 @@ namespace nepenthes
 		bool 	m_LockSend;
 
 		list <SQLQuery *> 	m_Queries;
+
+		string m_RemoteHost;
 
 		string m_PGServer;
 		string m_PGTable;
