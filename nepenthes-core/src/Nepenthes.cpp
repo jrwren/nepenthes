@@ -1511,7 +1511,7 @@ int main(int32_t argc, char **argv)
 	signal(SIGTERM,  SignalHandler);	//      15       Term    Termination signal
 //	signal(SIGUSR1,  SignalHandler);	//   30,10,16    Term    User-defined signal 1
 //	signal(SIGUSR2,  SignalHandler);	//   31,12,17    Term    User-defined signal 2
-	signal(SIGCHLD,  SignalHandler);	//   20,17,18    Ign     Child stopped or terminated
+//	signal(SIGCHLD,  SignalHandler);	//   20,17,18    Ign     Child stopped or terminated
 	signal(SIGCONT,  SignalHandler);	//   19,18,25            Continue if stopped
 //	signal(SIGSTOP,  SIG_IGN	  );	//   17,19,23    Stop    Stop process
 //	signal(SIGTSTP,  SIG_IGN	  );	//   18,20,24    Stop    Stop typed at tty
