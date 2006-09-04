@@ -1420,21 +1420,30 @@ bool Nepenthes::setCapabilties()
  */
 void SignalHandler(int32_t iSignal)
 {
-	printf("Got signal %i\n", iSignal);
+	if ( g_Nepenthes != NULL )
+		logWarn("Got signal %i ('%s')\n", iSignal,strsignal(iSignal));
+
 	switch ( iSignal )
 	{
 	case SIGHUP:
-		logCrit("Got SIGHUP\nRereading Config File!\n\n");
-		g_Nepenthes->reloadConfig();
+		if ( g_Nepenthes != NULL )
+		{
+			logCrit("Got SIGHUP\nRereading Config File!\n\n");
+			g_Nepenthes->reloadConfig();
+		}
 		break;
 
 	case SIGINT:
-		logCrit("Got SIGINT\nStopping NOW!\n\n");
-		g_Nepenthes->stop();
+		if ( g_Nepenthes != NULL )
+		{
+			logCrit("Got SIGINT\nStopping NOW!\n\n");
+			g_Nepenthes->stop();
+		}
 		break;
 
 	case SIGABRT:
-		logCrit("Unhandled Exception\n");
+		if ( g_Nepenthes != NULL )
+			logCrit("Unhandled Exception\n");
 		exit(-1);
 		break;
 
@@ -1449,6 +1458,13 @@ void SignalHandler(int32_t iSignal)
 			logCrit("Bus Error\n");
 		exit(-1);
 		break;
+
+	case SIGPIPE:
+		break;
+
+	case SIGCHLD:
+		break;
+
 
 	default:
 		if ( g_Nepenthes != NULL )
@@ -1511,7 +1527,7 @@ int main(int32_t argc, char **argv)
 	signal(SIGTERM,  SignalHandler);	//      15       Term    Termination signal
 //	signal(SIGUSR1,  SignalHandler);	//   30,10,16    Term    User-defined signal 1
 //	signal(SIGUSR2,  SignalHandler);	//   31,12,17    Term    User-defined signal 2
-//	signal(SIGCHLD,  SignalHandler);	//   20,17,18    Ign     Child stopped or terminated
+	signal(SIGCHLD,  SignalHandler);	//   20,17,18    Ign     Child stopped or terminated
 	signal(SIGCONT,  SignalHandler);	//   19,18,25            Continue if stopped
 //	signal(SIGSTOP,  SIG_IGN	  );	//   17,19,23    Stop    Stop process
 //	signal(SIGTSTP,  SIG_IGN	  );	//   18,20,24    Stop    Stop typed at tty
