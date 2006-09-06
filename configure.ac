@@ -602,17 +602,14 @@ if test x$enable_postgre = xyes; then
     AC_DEFINE(HAVE_POSTGRES, 1 , [Define if we have postgre client library])
     LIB_POSTGRES="-lpq"
 
-    AC_MSG_CHECKING([PQserverVersion()])
-    have_pqserverversion=yes
-    AC_TRY_COMPILE([#include<${postgre_inc}/libpq-fe.h>],
-	[PQserverVersion(0)],
-	AC_DEFINE(HAVE_PQSERVERVERSION, 1,
-		[Define if libpq has PQserverVersion()]),
-		[have_pqserverversion=no])
-    AC_MSG_RESULT($have_pqserverversion)
+    have_pqserverversion=no
+    AC_CHECK_LIB(pq,PQserverVersion,[have_pqserverversion=yes],[have_pqserverversion=no])
+    if test "x$have_pqserverversion" != "xno"; then
+      AC_DEFINE(HAVE_PQSERVERVERSION, 1 , [Define if libpq supports PQserverVersion])
+    fi
+
   fi
 
-  AC_MSG_RESULT($enable_postgre)  
 fi  
 
 
@@ -829,26 +826,38 @@ AC_CONFIG_FILES([Makefile
                  nepenthes-core/include/Makefile
                  nepenthes-core/src/Makefile
                  modules/Makefile
+                 modules/dnsresolve-adns/Makefile
                  modules/download-creceive/Makefile
                  modules/download-csend/Makefile
                  modules/download-curl/Makefile
                  modules/download-ftp/Makefile
+                 modules/download-http/Makefile
                  modules/download-link/Makefile
+                 modules/download-rcp/Makefile
                  modules/download-tftp/Makefile
                  modules/log-download/Makefile
                  modules/log-irc/Makefile
+                 modules/log-prelude/Makefile
+                 modules/log-surfnet/Makefile
+                 modules/module-honeytrap/Makefile
                  modules/module-portwatch/Makefile
+                 modules/shellcode-generic/Makefile
+                 modules/shellcode-signatures/Makefile
+                 modules/shellemu-winnt/Makefile
+                 modules/sqlhandler-postgres/Makefile
                  modules/submit-file/Makefile
                  modules/submit-gotek/Makefile
                  modules/submit-norman/Makefile
-                 modules/shellcode-generic/Makefile
-                 modules/shellemu-winnt/Makefile
+                 modules/submit-postgres/Makefile
                  modules/vuln-asn1/Makefile
                  modules/vuln-bagle/Makefile
+                 modules/vuln-dameware/Makefile
                  modules/vuln-dcom/Makefile
+                 modules/vuln-ftpd/Makefile
                  modules/vuln-iis/Makefile
                  modules/vuln-kuang2/Makefile
                  modules/vuln-lsass/Makefile
+                 modules/vuln-msdtc/Makefile
                  modules/vuln-msmq/Makefile
                  modules/vuln-mssql/Makefile
                  modules/vuln-mydoom/Makefile
@@ -856,32 +865,20 @@ AC_CONFIG_FILES([Makefile
                  modules/vuln-netdde/Makefile
                  modules/vuln-optix/Makefile
                  modules/vuln-pnp/Makefile
+                 modules/vuln-realvnc/Makefile
                  modules/vuln-sasserftpd/Makefile
+                 modules/vuln-ssh/Makefile
                  modules/vuln-sub7/Makefile
                  modules/vuln-upnp/Makefile
                  modules/vuln-veritas/Makefile
                  modules/vuln-wins/Makefile
-                 modules/vuln-dameware/Makefile
-		 modules/vuln-ssh/Makefile
                  modules/x-1/Makefile
                  modules/x-2/Makefile
                  modules/x-3/Makefile
                  modules/x-4/Makefile
-                 modules/x-5/Makefile                 
+                 modules/x-5/Makefile
                  modules/x-6/Makefile
-                 modules/download-http/Makefile
-		 modules/dnsresolve-adns/Makefile
-		 modules/log-surfnet/Makefile		 
-		 modules/vuln-msdtc/Makefile
-		 modules/download-rcp/Makefile
-		 modules/vuln-ftpd/Makefile
-		 modules/log-prelude/Makefile
-		 modules/shellcode-signatures/Makefile
-		 modules/vuln-realvnc/Makefile
-		 modules/module-honeytrap/Makefile
-		 modules/sqlhandler-postgres/Makefile
-		 modules/x-9/Makefile
-		 modules/submit-postgres/Makefile
+                 modules/x-9/Makefile
 		 ])
 #		 modules/module-upnp/Makefile		 
 #		 modules/log-prelude/Makefile
@@ -889,7 +886,7 @@ AC_CONFIG_FILES([Makefile
 #		 modules/log-surfnet/Makefile])
 #                modules/vuln-netbios/Makefile
 #                 modules/module-baitnswitch/Makefile
-                 
+#		 modules/dnsresolve-udns/Makefile                 
                  
 AC_OUTPUT
 
