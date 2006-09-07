@@ -117,7 +117,11 @@ ConsumeLevel MydoomDialogue::incomingData(Message *msg)
 				m_State = MYDOOM_FILETRANSFERR;
 				m_Buffer->cut(strlen(MydoomTrailor));
 
-				m_Download = new Download(msg->getRemoteHost(),"mydoom://foo/bar",msg->getRemoteHost(),"some triggerline");
+				string url = "mydoom://";
+				uint32_t remote = msg->getRemoteHost();
+				url += inet_ntoa(*(struct in_addr *)&remote);
+
+				m_Download = new Download(msg->getLocalHost(),(char *)url.c_str(),msg->getRemoteHost(),"some triggerline");
 				m_Download->getDownloadBuffer()->addData((char *)m_Buffer->getData(),m_Buffer->getSize());
 				m_Buffer->clear();
 				return CL_ASSIGN_AND_DONE;
