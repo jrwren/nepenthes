@@ -147,8 +147,9 @@ UDPSocket::~UDPSocket()
 bool UDPSocket::bindPort()
 {
 	struct sockaddr_in addrBind;
-	addrBind.sin_family = AF_INET;
+	memset(&addrBind,0,sizeof(struct sockaddr_in));
 
+	addrBind.sin_family = AF_INET;
 	addrBind.sin_addr.s_addr = getLocalHost();
 	addrBind.sin_port = htons(getLocalPort());
 
@@ -229,6 +230,8 @@ bool UDPSocket::connectHost()
 	}
 
 	struct sockaddr_in addrBind;
+	memset(&addrBind,0,sizeof(struct sockaddr_in));
+
 	addrBind.sin_family = AF_INET;
 
 	addrBind.sin_addr.s_addr = getLocalHost();

@@ -273,6 +273,7 @@ bool TCPSocket::bindPort()
 {
 	logPF();
 	struct sockaddr_in addrBind;
+	memset(&addrBind,0,sizeof(struct sockaddr_in));
 	addrBind.sin_family = AF_INET;
 
 	addrBind.sin_addr.s_addr = getLocalHost();
@@ -384,6 +385,7 @@ bool TCPSocket::connectHost()
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
 
 	struct sockaddr_in addrBind;
+	memset(&addrBind,0,sizeof(struct sockaddr_in));
 	addrBind.sin_family = AF_INET;
 
 	addrBind.sin_addr.s_addr = getLocalHost();
@@ -418,7 +420,7 @@ bool TCPSocket::connectHost()
 #endif
 
 	sockaddr_in ssin; 
-
+	memset(&ssin,0,sizeof(struct sockaddr_in));
 	ssin.sin_family=AF_INET;
 	ssin.sin_port=htons(m_RemotePort);
 	ssin.sin_addr.s_addr=m_RemoteHost;
