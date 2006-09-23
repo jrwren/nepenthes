@@ -839,6 +839,7 @@ AC_CONFIG_FILES([Makefile
                  modules/log-irc/Makefile
                  modules/log-prelude/Makefile
                  modules/log-surfnet/Makefile
+		 modules/module-bridge/Makefile
                  modules/module-honeytrap/Makefile
                  modules/module-portwatch/Makefile
                  modules/shellcode-generic/Makefile
