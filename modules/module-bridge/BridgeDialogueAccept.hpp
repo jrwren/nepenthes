@@ -57,8 +57,8 @@ namespace nepenthes
 		
 	protected:
 		Buffer *m_Buffer;
-		Socket *m_BridgeSocket;
-		Dialogue *m_BridgeDialogue;
+		Socket *m_ConnectSocket;
+		Dialogue *m_ConnectDialogue;
 
 		uint8_t m_State;
 

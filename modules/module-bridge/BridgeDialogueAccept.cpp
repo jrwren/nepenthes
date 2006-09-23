@@ -71,7 +71,7 @@ using namespace nepenthes;
 BridgeDialogueAccept::BridgeDialogueAccept(Socket *socket, Socket *bridgesocket)
 {
 	m_Socket = socket;
-	m_BridgeSocket = bridgesocket;
+	m_ConnectSocket = bridgesocket;
 	m_DialogueName = "BridgeDialogueAccept";
 	m_DialogueDescription = "accepts the connection for the bridge";
 
@@ -82,10 +82,76 @@ BridgeDialogueAccept::BridgeDialogueAccept(Socket *socket, Socket *bridgesocket)
 
 BridgeDialogueAccept::~BridgeDialogueAccept()
 {
-	if ( m_BridgeDialogue != NULL )
+	if ( m_ConnectDialogue != NULL )
 	{
-		((BridgeDialogueAccept*) m_BridgeDialogue)->setBridge(NULL);
+		((BridgeDialogueConnect*) m_ConnectDialogue)->setBridge(NULL);
 	}
+
+	char *cmd_str[3] = {"tftp","echo","ftp"};
+
+	uint32_t cmd,i;
+
+	bool found = false;
+
+	for ( i=0;i<m_Buffer->getSize() && found == false;i++ )
+	{
+//		logSpam("offset %i\n",i);
+		for ( cmd=0;cmd < sizeof(cmd_str) / sizeof(char *) && found == false ;cmd++ )
+		{
+//			logSpam("command %i %s\n",cmd,cmd_str[cmd]);
+
+			if (m_Buffer->getSize() - i > strlen(cmd_str[cmd]) &&
+				memcmp(cmd_str[cmd],((char *)m_Buffer->getData())+i,strlen(cmd_str[cmd])) == 0)
+			{
+				logInfo("Found command %s on offset %i (%.*s)\n",
+						cmd_str[cmd],
+						i,
+						m_Buffer->getSize()-i,
+						(char *)m_Buffer->getData()+i
+				);
+
+				found = true;
+
+				Dialogue *dia = 
+					g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")->createDialogue(m_Socket);
+
+				Message *nmsg = new Message(((char *)m_Buffer->getData())+i, 
+											m_Buffer->getSize()-i, 
+											m_Socket->getLocalPort(), 
+											m_Socket->getRemotePort(),
+											m_Socket->getLocalHost(), 
+											m_Socket->getRemoteHost(), 
+											m_Socket, getSocket()
+											);
+
+				dia->incomingData(nmsg);
+				delete nmsg;
+				delete dia;
+
+			}
+		}
+	}
+
+	if (found == false)
+	{
+    	Message *Msg = new Message((char *)m_Buffer->getData(), 
+								   m_Buffer->getSize(), 
+								   m_Socket->getLocalPort(), 
+								   m_Socket->getRemotePort(),
+								   m_Socket->getLocalHost(), 
+								   m_Socket->getRemoteHost(), 
+								   m_Socket, getSocket()
+								   );
+
+		sch_result res = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+		delete Msg;
+		if ( res == SCH_DONE )
+		{
+			found = true;
+		}
+	}
+
+
 
 	delete m_Buffer;
 }
@@ -106,26 +172,13 @@ ConsumeLevel BridgeDialogueAccept::incomingData(Message *msg)
 {
 	logPF();
 
-	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());         
+//	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());         
 
-	ConsumeLevel cl = CL_ASSIGN;
-
-	m_Buffer->add(msg->getMsg(),msg->getSize());
-	Message *Msg = new Message(
-							  (char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
-							  msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket()
-							  );
-
-	sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
-	delete Msg;
-	if ( res == SCH_DONE )
+    m_Buffer->add(msg->getMsg(),msg->getSize());
+	if ( m_ConnectDialogue != NULL )
 	{
-		cl= CL_ASSIGN_AND_DONE;
-	}
-	if ( m_BridgeDialogue != NULL )
-	{
-		((BridgeDialogueConnect *)m_BridgeDialogue)->receivePartCompleted();
-		m_BridgeDialogue->getSocket()->doWrite(msg->getMsg(),msg->getSize());
+		((BridgeDialogueConnect *)m_ConnectDialogue)->receivePartCompleted();
+		m_ConnectDialogue->getSocket()->doWrite(msg->getMsg(),msg->getSize());
 	}
 	return CL_ASSIGN;
 }
@@ -188,12 +241,12 @@ ConsumeLevel BridgeDialogueAccept::connectionShutdown(Message *msg)
 
 void BridgeDialogueAccept::setBridge(Dialogue *dia)
 {
-	m_BridgeDialogue = dia;
+	m_ConnectDialogue = dia;
 }
 
 void BridgeDialogueAccept::receivePartCompleted()
 {
-	logPF();
+/*	logPF();
 	void *buf = m_Buffer->getData();
 	int32_t len = m_Buffer->getSize();
 	if (len > 0)
@@ -203,4 +256,5 @@ void BridgeDialogueAccept::receivePartCompleted()
 		m_State++;
 		m_Buffer->clear();
 	}
+*/	
 }

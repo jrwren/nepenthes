@@ -132,13 +132,15 @@ bool BridgeModule::Init()
 		logCrit("Error setting needed vars, check your config\n");
 		return false;
 	}
-
+/*
 	uint32_t i = 0;
 	while (i < sList.size())
 	{
 		m_Nepenthes->getSocketMgr()->bindTCPSocket(0,atoi(sList[i]),0,timeout,this);
 		i++;
 	}
+*/	
+	g_Nepenthes->getFactoryMgr()->registerFactory(this);
 	return true;
 }
 
@@ -159,7 +161,7 @@ bool BridgeModule::Exit()
 Dialogue *BridgeModule::createDialogue(Socket *socket)
 {
 
-	Socket *bridgesocket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,m_BridgeHost,socket->getLocalPort(),30);
+	Socket *bridgesocket = g_Nepenthes->getSocketMgr()->connectTCPHost(0,socket->getRemoteHost(),socket->getLocalPort(),30);
 
 	BridgeDialogueAccept *adia = new BridgeDialogueAccept(socket,bridgesocket);
 	BridgeDialogueConnect *cdia = new BridgeDialogueConnect(bridgesocket,socket);

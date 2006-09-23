@@ -56,8 +56,8 @@ namespace nepenthes
 		void receivePartCompleted();
 	protected:
 		Buffer *m_Buffer;
-		Socket *m_BridgeSocket;
-		Dialogue *m_BridgeDialogue;
+		Socket *m_AcceptSocket;
+		Dialogue *m_AcceptDialogue;
 		uint8_t m_State;
 
 	};

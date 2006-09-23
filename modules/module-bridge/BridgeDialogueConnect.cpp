@@ -71,7 +71,7 @@ using namespace nepenthes;
 BridgeDialogueConnect::BridgeDialogueConnect(Socket *socket, Socket *bridgesocket)
 {
 	m_Socket = socket;
-	m_BridgeSocket = bridgesocket;
+	m_AcceptSocket = bridgesocket;
 	m_ConsumeLevel = CL_ASSIGN;
 	m_DialogueName = "BridgeDialogueConnect";
 	m_DialogueDescription = "connects the remote for the bridge";
@@ -83,9 +83,9 @@ BridgeDialogueConnect::BridgeDialogueConnect(Socket *socket, Socket *bridgesocke
 
 BridgeDialogueConnect::~BridgeDialogueConnect()
 {
-	if (m_BridgeDialogue != NULL)
+	if (m_AcceptDialogue != NULL)
 	{
-		((BridgeDialogueAccept*) m_BridgeDialogue)->setBridge(NULL);
+		((BridgeDialogueAccept*) m_AcceptDialogue)->setBridge(NULL);
 	}
 	delete m_Buffer;
 }
@@ -105,15 +105,14 @@ BridgeDialogueConnect::~BridgeDialogueConnect()
 ConsumeLevel BridgeDialogueConnect::incomingData(Message *msg)
 {
 	logPF();
-	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
+//	g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
-	m_Buffer->add(msg->getMsg(),msg->getSize());
+//	m_Buffer->add(msg->getMsg(),msg->getSize());
 
-	if (m_BridgeDialogue != NULL)
+	if (m_AcceptDialogue != NULL)
 	{
-		((BridgeDialogueAccept *)m_BridgeDialogue)->receivePartCompleted();
-
-		m_BridgeDialogue->getSocket()->doWrite(msg->getMsg(),msg->getSize());
+//		((BridgeDialogueAccept *)m_AcceptDialogue)->receivePartCompleted();
+		m_AcceptDialogue->getSocket()->doWrite(msg->getMsg(),msg->getSize());
 	}
 	return CL_ASSIGN;
 }
@@ -176,12 +175,12 @@ ConsumeLevel BridgeDialogueConnect::connectionShutdown(Message *msg)
 
 void BridgeDialogueConnect::setBridge(Dialogue *dia)
 {
-	m_BridgeDialogue = dia;
+	m_AcceptDialogue = dia;
 }
 
 void BridgeDialogueConnect::receivePartCompleted()
 {
-	logPF();
+/*	logPF();
 	void *buf = m_Buffer->getData();
 	int32_t len = m_Buffer->getSize();
 	if ( len > 0 )
@@ -191,4 +190,5 @@ void BridgeDialogueConnect::receivePartCompleted()
 		m_State++;
 		m_Buffer->clear();
 	}
+*/	
 }
