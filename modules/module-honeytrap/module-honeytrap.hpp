@@ -271,6 +271,8 @@ struct libnet_tcp_hdr
 
 		Nepenthes *m_Nepenthes;
 		honeytrap_type m_HTType;
+
+		string m_DialogueFactory;
 	};
 
 }

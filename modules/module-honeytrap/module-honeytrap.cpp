@@ -111,6 +111,9 @@ ModuleHoneyTrap::ModuleHoneyTrap(Nepenthes *nepenthes)
 #endif
 
 	m_HTType = HT_NONE;
+
+
+	m_DialogueFactory = "bridge Factory";
 }
 
 ModuleHoneyTrap::~ModuleHoneyTrap()
@@ -652,9 +655,9 @@ int32_t ModuleHoneyTrap::doRecv_PCAP()
 		{
 
 			DialogueFactory *diaf;
-			if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+			if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory((char *)m_DialogueFactory.c_str())) == NULL )
 			{
-				logCrit("No WinNTShell DialogueFactory availible \n");
+				logCrit("No %s availible \n",m_DialogueFactory.c_str());
 				return 1;
 			}
 
@@ -706,7 +709,7 @@ int32_t ModuleHoneyTrap::doRecv_IPQ()
 
 					printIPpacket(m->payload,m->data_len);
 
-					if ( isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
+					if (1)// isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
 					{
 						logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
 
@@ -715,9 +718,9 @@ int32_t ModuleHoneyTrap::doRecv_IPQ()
 						{
 
 							DialogueFactory *diaf;
-							if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+							if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory((char *)m_DialogueFactory.c_str())) == NULL )
 							{
-								logCrit("No WinNTShell DialogueFactory availible \n");
+								logCrit("No %s availible \n",m_DialogueFactory.c_str());
 								return 1;
 							}
 
@@ -781,9 +784,9 @@ int32_t ModuleHoneyTrap::doRecv_IPFW()
 		{
 
 			DialogueFactory *diaf;
-			if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory("WinNTShell DialogueFactory")) == NULL )
+			if ( (diaf = g_Nepenthes->getFactoryMgr()->getFactory((char *)m_DialogueFactory.c_str())) == NULL )
 			{
-				logCrit("No WinNTShell DialogueFactory availible \n");
+				logCrit("No %s availible \n",m_DialogueFactory.c_str());
 				return 1;
 			}
 
