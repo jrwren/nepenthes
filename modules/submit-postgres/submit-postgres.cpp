@@ -306,7 +306,9 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 
 bool SubmitPostgres::sqlFailure(SQLResult *result)
 {
-
+	logPF();
+	delete m_OutstandingQueries.front();
+	m_OutstandingQueries.pop_front();
 	return true;
 }
 
@@ -322,3 +324,5 @@ extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepe
 		return 0;
 	}
 }
+
+
