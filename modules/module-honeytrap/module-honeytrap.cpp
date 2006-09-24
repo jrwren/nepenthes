@@ -651,7 +651,7 @@ int32_t ModuleHoneyTrap::doRecv_PCAP()
 		printIPpacket((unsigned char *)ip,ip->ip_len);
 
 		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_sport),600,60);
-		if ( sock != NULL )
+		if ( sock != NULL && (sock->getDialogst()->size() == 0 && sock->getFactories()->size() == 0) )
 		{
 
 			DialogueFactory *diaf;
@@ -714,7 +714,7 @@ int32_t ModuleHoneyTrap::doRecv_IPQ()
 						logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
 
 						Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
-						if ( sock != NULL )
+						if ( sock != NULL && (sock->getDialogst()->size() == 0 && sock->getFactories()->size() == 0) )
 						{
 
 							DialogueFactory *diaf;
