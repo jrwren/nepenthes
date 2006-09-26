@@ -62,7 +62,8 @@ namespace nepenthes
 		virtual uint32_t			parseTagString(const char *tagString);
 		void				setColor(bool setting);
 		bool				getColorSetting();
-	
+		bool				setOwnership(int32_t uid, int32_t gid);
+
 	private:
 		bool				m_useColor;
 		list<LogHandlerEntry *>	m_Loggers;

@@ -47,6 +47,7 @@ namespace nepenthes
 		virtual void	setLogFileFormat(char *logFileFormat);
 		virtual void	setMaxFiles(uint8_t count);
 		virtual void	setMaxSize(size_t size);
+		virtual bool	setOwnership(int32_t uid, int32_t gid);
 
 	private:
 		virtual void	rotate();

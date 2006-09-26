@@ -45,6 +45,7 @@ namespace nepenthes
 		virtual			~FileLogger();
 		virtual void	log(uint32_t mask, const char *message);
 		virtual void	setLogFile(const char *filename);
+		virtual bool	setOwnership(int32_t uid, int32_t gid);
 
 	private:
 		char		*m_Filename;

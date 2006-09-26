@@ -34,6 +34,12 @@
 
 #include <stdio.h>
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <pwd.h>
+#include <grp.h>
 #include "FileLogger.hpp"
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -101,3 +107,43 @@ void FileLogger::log(uint32_t mask, const char *message)
 
 	fclose(f);
 }
+
+
+bool FileLogger::setOwnership(int32_t uid, int32_t gid)
+{
+#if !defined(CYGWIN) && !defined(CYGWIN32) && !defined(__CYGWIN__) && !defined(__CYGWIN32__) && !defined(WIN32)
+	if ( m_Filename == NULL )
+		return true;
+
+	struct stat s;
+	int32_t filestat = stat(m_Filename, &s);
+
+	if ( filestat != 0 )
+	{
+		if ( errno == ENOENT )
+		{
+			// TODO: create the file.
+			logCrit("Logfile %s does not exist\n", m_Filename);
+			return false;
+		}
+		else
+		{
+			logCrit("Could not access logfile %s: %s\n", m_Filename, strerror(errno));
+			return false;
+		}
+	}
+
+	if ( chown(m_Filename, uid, gid) != 0 )
+	{
+		logCrit("Failed to change ownership for file %s: %s\n", m_Filename, strerror(errno));
+		return false;
+	}
+
+	logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", m_Filename, uid, gid, getpwuid(uid)->pw_name,
+			getgrgid(gid)->gr_name);
+#endif
+
+	return true;
+}
+
+

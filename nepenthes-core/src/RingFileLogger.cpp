@@ -37,6 +37,13 @@
 #include <stdio.h>
 #include <string>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <pwd.h>
+#include <grp.h>
+
 #include "RingFileLogger.hpp"
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
@@ -155,3 +162,47 @@ void RingFileLogger::log(uint32_t mask, const char *message)
 	if( (uint32_t)s.st_size > m_MaxSize )
 		rotate();
 }
+
+
+
+bool RingFileLogger::setOwnership(int32_t uid, int32_t gid)
+{
+#if !defined(CYGWIN) && !defined(CYGWIN32) && !defined(__CYGWIN__) && !defined(__CYGWIN32__) && !defined(WIN32)
+	char filename[0xff];
+	struct stat s;
+
+	for ( int32_t i = 0; i < m_MaxFiles; i++ )
+	{
+		snprintf(filename, sizeof(filename), m_FileFormat, i);
+		int32_t filestat = stat(filename, &s);
+
+		if ( filestat != 0 )
+		{
+			if ( errno == ENOENT )
+			{
+				// TODO: create the file.
+				logCrit("Logfile %s does not exist\n", filename);
+				return false;
+			}
+			else
+			{
+				logCrit("Could not access logfile %s: %s\n", filename, strerror(errno));
+				return false;
+			}
+		}
+
+		if ( chown(filename, uid, gid) != 0 )
+		{
+			logCrit("Failed to change ownership for file %s: %s\n", filename, strerror(errno));
+			return false;
+		}
+
+		logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", uid, gid, getpwuid(uid)->pw_name,
+				getgrgid(gid)->gr_name);
+	}
+#endif	
+
+	return true;
+}
+
+

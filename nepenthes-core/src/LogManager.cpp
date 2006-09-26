@@ -243,3 +243,23 @@ bool LogManager::getColorSetting()
 {
 	return m_useColor;
 }
+
+
+/**
+ * Ensure file ownership for all attached loggers.
+ *
+ * @param user The desired username.
+ * @param group The desired group.
+ *
+ * @return false if at least one logger failed, true otherwise.
+ */
+bool LogManager::setOwnership(int32_t uid, int32_t gid)
+{
+	list<LogHandlerEntry *>::iterator it;
+
+	for ( it = m_Loggers.begin(); it != m_Loggers.end(); it++ )
+		if ( !(*it)->m_Lh->setOwnership(uid, gid) )
+			return false;
+
+	return true;
+}

@@ -39,6 +39,7 @@
 #endif
 
 #include <stdint.h>
+#include <string>
 
 typedef unsigned char byte;
 
@@ -109,6 +110,7 @@ namespace nepenthes
 	class DNSManager;
 	class Message;
 	class SQLManager;
+	struct Options;
 
 
 /**
@@ -139,7 +141,7 @@ namespace nepenthes
 		virtual SQLManager			*getSQLMgr();
 
 		virtual bool 				doLoop();
-		virtual int32_t 				run(int32_t argc, char **argv);
+		virtual int32_t 			run(int32_t argc, char **argv);
 		virtual bool				stop();
 		virtual bool 				reloadConfig();
 
@@ -159,26 +161,62 @@ namespace nepenthes
 		SQLManager 			*m_SQLManager;
 		
 		
-		
+		virtual bool		parseArguments(int32_t argc, char **argv, Options *options);
 
 		bool				m_running;
 
 		uid_t				m_UID;
 		gid_t				m_GID;
 	protected:
-		bool fileCheckMain(char *filecheckarg,int32_t argc, int32_t opti, char **argv);
+		bool fileCheckMain(const char *filecheckarg,int32_t argc, int32_t opti, char **argv);
 		uint8_t fileCheckPrinter(const char *filename, uint8_t options);
 		int32_t fileCheck(const char *filename, Message **Msg);
 
-		bool changeUser(char *user);
-		bool changeGroup(char *group);
+		bool changeUser(const char *user);
+		bool changeGroup(const char *group);
 		bool changeUser();
 		bool changeGroup();
 
 		bool setCapabilties();
 
-		bool changeRoot(char *path);
-    };
+		bool changeRoot(const char *path);
+	};
+
+
+	enum ColorSetting
+	{
+		colorAuto, colorAlways, colorNever
+	};
+	enum RunMode
+	{
+		runNormal, runConfigCheck, runFileCheck
+	};
+
+	struct Options
+	{
+		Options();
+
+		RunMode         m_runMode; // runNormal, runConfigCheck, runFileCheck
+
+		bool 			m_daemonize;
+		bool            m_verbose;
+		bool            m_setCaps;
+		bool            m_ringLogger;
+		ColorSetting    m_color;
+
+		const char      *m_fileCheckArguments;
+		const char      *m_configPath;
+		const char      *m_workingDir;
+		const char      *m_changeUser;
+		const char      *m_changeGroup;
+		const char      *m_changeRoot;
+		const char      *m_diskTags;
+		const char      *m_consoleTags;
+
+		std::string     m_logFile;
+		std::string     m_ringLoggerFile;
+	};
+
 }
 
 extern nepenthes::Nepenthes *g_Nepenthes;

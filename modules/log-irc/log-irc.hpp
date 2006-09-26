@@ -67,7 +67,7 @@ namespace nepenthes
 		bool dnsFailure(DNSResult *result);
 
 		void log(uint32_t mask, const char *message);
-
+		bool setOwnership(int32_t uid, int32_t gid) { return true; }
 
 		bool doStart();
 		bool doStopp();

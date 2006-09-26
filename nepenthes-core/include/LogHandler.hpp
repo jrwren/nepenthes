@@ -45,7 +45,8 @@ namespace nepenthes
 //						LogHandler(LogManager *lm);
 		virtual			~LogHandler();
 		virtual void	log(uint32_t mask, const char *message) = 0;
-	
+		virtual bool	setOwnership(int32_t uid, int32_t gid) = 0;
+
 	protected:
 		LogManager		*m_LogManager;
 	};
