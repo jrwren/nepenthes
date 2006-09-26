@@ -172,6 +172,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	bool confcheck=false;
 	bool filecheck=false;
 	bool verbose=false;
+	bool daemonize=false;
 
 	char *filecheckarg =NULL;
 	char *confpath = SYSCONFDIR "/nepenthes/nepenthes.conf";
@@ -219,7 +220,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:Cd:f:g:hHikl:Lo:r:Ru:vVw:", long_options, (int *)&option_index);
+		int32_t c = getopt_long(argc, argv, "c:Cd:Df:g:hHikl:Lo:r:Ru:vVw:", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
@@ -242,6 +243,11 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		case 'd':	// FIXME set disk loglevel
 			diskTags = optarg;
 			break;
+
+		case 'D':	
+			daemonize = true;
+			break;
+
 
 		case 'f':
 //			fprintf(stderr,"filecheck\n");
@@ -514,6 +520,13 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		}
 	}
 
+	if (run == true && daemonize == true)
+	{
+		logInfo("running as daemon\n");
+		daemon(1,0);
+		logInfo("daemon process id is %i\n",getpid());
+	}
+
 
 	if (run == true || filecheck == true)
 	{
@@ -744,7 +757,7 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		show_version();
 		fileCheckMain(filecheckarg,argc,optind,argv);
 	}
-	if( true )//run == true )
+	if( run == true )
 	{
         doLoop();
 	}
@@ -1655,6 +1668,7 @@ void show_help(bool defaults)
         {"c",	"config=FILE",		"use FILE as configuration file",				SYSCONFDIR "/nepenthes.conf"	},
 		{"C",	"capabilities",		"force kernel 'security' capabilities",	0						},
 		{"d",	"disk-log",			"disk logging tags, see -L",			0						},
+		{"D",	"daemonize",		"run as daemon",						0						},
 		{"f",	"file-check=OPTS",	"check file for known shellcode, OPTS can\n"
 			"                              be any combination of `rmknown' and\n"
 			"                              `rmnonop'; seperate by comma when needed",   0			},
