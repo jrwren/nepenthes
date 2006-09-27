@@ -195,6 +195,8 @@ AC_SUBST([LIB_PCAP])
 # libnet
 AC_SUBST([LIB_LIBNET])
 
+# liby
+AC_SUBST([LIB_LIBY])
 
 dnl **************************************************
 dnl * libipq support                                 *
@@ -798,7 +800,21 @@ else
 	])
     
 fi    
-    
+
+dnl **************************************************
+dnl * liby existence                                 *
+dnl **************************************************
+
+AC_CHECK_LIB(y, yyerror,
+	[	
+              LIB_LIBY="-ly"
+              enable_liby="yes"
+	], 
+	[
+               enable_liby="no"
+	])
+		
+
 
 
 AC_DEFUN([AC_DEFINE_DIR], [
@@ -894,6 +910,8 @@ AC_OUTPUT
 echo
 echo "*** Dumping Nepenthes Configuration ***"
 echo "- Debug Logging               : $enable_debug_logging"
+echo ""
+echo "- link on liby                : $enable_liby"
 echo ""
 echo "- DNS Resolve                 "
 echo "  - Support adns              : $enable_dnsresolve_adns"
