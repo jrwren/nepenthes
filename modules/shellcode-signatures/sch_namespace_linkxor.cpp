@@ -154,7 +154,7 @@ sch_result NamespaceLinkXOR::handleShellcode(Message **msg)
 		for ( uint32_t j = 0; j < codeSize && j < postSize; j++ )
 			decodedMessage[j] ^= byteKey;
 
-		g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)decodedMessage, postSize);			
+//		g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)decodedMessage, postSize);			
 
 		Message *newMessage = new Message((char *)decodedMessage, postSize, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
 										  (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());
