@@ -197,7 +197,7 @@ bool RingFileLogger::setOwnership(int32_t uid, int32_t gid)
 			return false;
 		}
 
-		logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", uid, gid, getpwuid(uid)->pw_name,
+		logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", filename, uid, gid, getpwuid(uid)->pw_name,
 				getgrgid(gid)->gr_name);
 	}
 #endif	

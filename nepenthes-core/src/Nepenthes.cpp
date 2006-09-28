@@ -195,15 +195,16 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 		static struct option long_options[] = {
             { "config", 		1, 0, 'c' },
 			{ "capabilities",	0, 0, 'C' },
-			{ "disk-log", 		1, 0, 'd' },	// FIXME
-			{ "file-check",		1, 0, 'f' },	// FIXME
+			{ "disk-log", 		1, 0, 'd' },
+			{ "daemonize",		0, 0, 'D' },
+			{ "file-check",		1, 0, 'f' },	
 			{ "group",			1, 0, 'g' },	
 			{ "help", 			0, 0, 'h' },
 			{ "large-help",		0, 0, 'H' },
 			{ "info",			0, 0, 'i' },
 			{ "check-config", 	0, 0, 'k' },
-			{ "log", 			1, 0, 'l' },	// FIXME
-			{ "logging-help",	0, 0, 'L' },	// FIXME
+			{ "log", 			1, 0, 'l' },	
+			{ "logging-help",	0, 0, 'L' },	
 			{ "color",	 		1, 0, 'o' },
 			{ "chroot",			1, 0, 'r' }, 
 			{ "ringlog",		0, 0, 'R' }, 
