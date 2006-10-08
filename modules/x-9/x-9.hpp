@@ -76,6 +76,8 @@ namespace nepenthes
 
 		bool sqlSuccess(SQLResult *result);
 		bool sqlFailure(SQLResult *result);
+		void sqlConnected();
+		void sqlDisconnected();
 
 	private:
 		list <SQLQuery *>	m_OutstandingQueries;

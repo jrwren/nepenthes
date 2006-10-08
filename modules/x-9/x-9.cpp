@@ -37,7 +37,7 @@
 #include "LogManager.hpp"
 #include "DialogueFactoryManager.hpp"
 #include "Nepenthes.hpp"
-
+#include "Utilities.hpp"
 
 #include "SQLManager.hpp"
 #include "SQLResult.hpp"
@@ -128,7 +128,8 @@ X9Dialogue::X9Dialogue(Socket *socket)
 															  string("postgres"),
 															  string(""),
 															  string("abm"),
-															  string(""));
+															  string(""),
+															  this);
 }
 
 X9Dialogue::~X9Dialogue()
@@ -139,6 +140,7 @@ X9Dialogue::~X9Dialogue()
 		m_OutstandingQueries.front()->cancelCallback();
 		m_OutstandingQueries.pop_front();
 	}
+	delete m_SQLHandler;
 }
 
 ConsumeLevel X9Dialogue::incomingData(Message *msg)
@@ -200,7 +202,7 @@ bool X9Dialogue::sqlSuccess(SQLResult *result)
 
 		for (jt = it->begin(); jt != it->end(); jt++ )
 		{
-			msg = msg + "| " + (*it)[jt->first] + " ";
+			msg = msg + "| " + string((*it)[jt->first].data(),(*it)[jt->first].size()) + " ";
 		}
 		msg += "|\n";
 	}
@@ -210,6 +212,7 @@ bool X9Dialogue::sqlSuccess(SQLResult *result)
 	
 	m_OutstandingQueries.pop_front();
 
+//	g_Nepenthes->getUtilities()->hexdump((byte *)msg.data(),msg.size());
 	return true;
 }
 
@@ -228,7 +231,20 @@ bool X9Dialogue::sqlFailure(SQLResult *result)
 	return true;
 }
 
+void X9Dialogue::sqlConnected()
+{
+	logPF();
+	const char *est = "connection to server established\n";
+	m_Socket->doWrite((char *)est,strlen(est));
+}
 
+void X9Dialogue::sqlDisconnected()
+{
+	logPF();
+	const char *lost = "connection to server lost\n";
+	m_Socket->doWrite((char *)lost,strlen(lost));
+
+}
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {
