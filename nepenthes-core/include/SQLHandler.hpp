@@ -39,6 +39,7 @@ using namespace std;
 namespace nepenthes
 {
 	class SQLQuery;
+	class SQLCallback;
 
 
 	class SQLHandler
@@ -71,6 +72,7 @@ namespace nepenthes
 
 	protected:
 		string m_SQLHandlerName;
+		SQLCallback *m_Callback;
 	};
 }
 

@@ -38,6 +38,7 @@ using namespace std;
 namespace nepenthes
 {
 	class SQLHandler;
+	class SQLCallback;
 
 
 	class SQLHandlerFactory
@@ -49,7 +50,7 @@ namespace nepenthes
 			return m_DBType;
 		}
 
-		virtual SQLHandler *createSQLHandler(string server, string user, string passwd, string table, string options)=0;
+		virtual SQLHandler *createSQLHandler(string server, string user, string passwd, string table, string options, SQLCallback *cb)=0;
 		
 	protected:
 		string m_SQLHandlerFactoryName;

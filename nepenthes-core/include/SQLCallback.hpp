@@ -50,6 +50,9 @@ namespace nepenthes
 			return m_SQLCallbackName;
 		}
 
+		virtual void sqlConnected()=0;
+		virtual void sqlDisconnected()=0;
+
 	protected:
 		string m_SQLCallbackName;
 	};
