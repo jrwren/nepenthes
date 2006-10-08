@@ -122,7 +122,8 @@ bool SubmitPostgres::Init()
 															   m_User,
 															   m_Pass,
 															   m_DB,
-															   m_Options);
+															   m_Options,
+															  this);
 
 	if (m_SQLHandler == NULL)
 	{
@@ -312,6 +313,16 @@ bool SubmitPostgres::sqlFailure(SQLResult *result)
 	return true;
 }
 
+
+void SubmitPostgres::sqlConnected()
+{
+	logPF();
+}
+
+void SubmitPostgres::sqlDisconnected()
+{
+	logPF();
+}
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {

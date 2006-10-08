@@ -157,6 +157,9 @@ namespace nepenthes
 		bool sqlSuccess(SQLResult *result);
 		bool sqlFailure(SQLResult *result);
 
+		void sqlConnected();
+		void sqlDisconnected();
+
 	private:
 		SQLHandler 			*m_SQLHandler;
 
@@ -172,4 +175,3 @@ namespace nepenthes
 }
 
 extern nepenthes::Nepenthes *g_Nepenthes;
-
