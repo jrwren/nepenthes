@@ -106,10 +106,11 @@ bool SQLHandlerFactoryPostgres::Exit()
  * 
  * @return pointer to the created SQLHandler
  */
-SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string user, string passwd, string table, string options)
+SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string user, string passwd, 
+														string table, string options, SQLCallback *cb)
 {
 #ifdef HAVE_POSTGRES
-	return new SQLHandlerPostgres(m_Nepenthes, server, user, passwd, table, options);
+	return new SQLHandlerPostgres(m_Nepenthes, server, user, passwd, table, options, cb);
 #else
 	return NULL;
 #endif
@@ -128,7 +129,8 @@ SQLHandler *SQLHandlerFactoryPostgres::createSQLHandler(string server, string us
  * @param table
  * @param options
  */
-SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options)
+SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, 
+									   string table, string options, SQLCallback *cb)
 {
 
 	m_SQLHandlerName    = "sqlhandler-postgres";
@@ -143,6 +145,8 @@ SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, stri
 	m_PGTable   = table;
 	m_PGUser    = user;
 	m_PGPass    = passwd;
+
+	m_Callback = cb;
 }
 
 SQLHandlerPostgres::~SQLHandlerPostgres()
@@ -533,6 +537,10 @@ int32_t SQLHandlerPostgres::doRecv()
         		m_PollingStatusType = PQconnectPoll(m_PGConnection);
 				if (PQstatus(m_PGConnection) == CONNECTION_OK)
 					connected();
+				else 
+				if (PQstatus(m_PGConnection) == CONNECTION_BAD)
+					logCrit("ERROR %s\n",PQerrorMessage(m_PGConnection));
+
 		}else
 		{
 			m_PollingStatusType = PQconnectPoll(m_PGConnection);
@@ -597,6 +605,7 @@ void SQLHandlerPostgres::disconnected()
 				m_TimeoutIntervall, PQerrorMessage(m_PGConnection));
 		m_ConnStatusType = CONNECTION_BAD;
 		m_LastAction = time(NULL);
+		m_Callback->sqlDisconnected();
 	}
 }
 
@@ -667,6 +676,8 @@ void SQLHandlerPostgres::connected()
 			
 		}
 #endif
+
+		m_Callback->sqlConnected();
 
 		if ( m_Queries.size() > 0 )
 		{

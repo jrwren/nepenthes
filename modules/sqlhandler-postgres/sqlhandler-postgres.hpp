@@ -64,6 +64,7 @@ namespace nepenthes
 {
 
 	class Buffer;
+	class SQLCallback;
 
 
 	class SQLHandlerFactoryPostgres : public Module , public SQLHandlerFactory
@@ -76,7 +77,8 @@ namespace nepenthes
 		bool Init();
 		bool Exit();
 
-		SQLHandler * createSQLHandler(string server, string user, string passwd, string table, string options);
+		SQLHandler * createSQLHandler(string server, string user, string passwd, string table, 
+									  string options, SQLCallback *cb);
 
 	};
 
@@ -84,7 +86,8 @@ namespace nepenthes
 	class SQLHandlerPostgres : public SQLHandler , public POLLSocket, public DNSCallback
 	{
 	public:
-		SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string passwd, string table, string options);
+		SQLHandlerPostgres(Nepenthes *nepenthes, string server, string user, string 
+						   passwd, string table, string options, SQLCallback *cb);
 		~SQLHandlerPostgres();
 
 		static void defaultNoticeProcessor(void * arg, const char * message);
