@@ -180,9 +180,14 @@ bool RingFileLogger::setOwnership(int32_t uid, int32_t gid)
 		{
 			if ( errno == ENOENT )
 			{
-				// TODO: create the file.
-				logCrit("Logfile %s does not exist\n", filename);
-				return false;
+				logInfo("Creating logfile %s\n",filename);
+				FILE *f = fopen(filename,"w");
+				if (f == NULL)
+				{
+                   	logCrit("Logfile %s does not exist, creating failed with %s\n", filename,strerror(errno));
+					return false;
+				}
+				fclose(f);
 			}
 			else
 			{

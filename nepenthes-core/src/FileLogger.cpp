@@ -122,9 +122,14 @@ bool FileLogger::setOwnership(int32_t uid, int32_t gid)
 	{
 		if ( errno == ENOENT )
 		{
-			// TODO: create the file.
-			logCrit("Logfile %s does not exist\n", m_Filename);
-			return false;
+			logInfo("Creating logfile %s\n",m_Filename);
+			FILE *f = fopen(m_Filename,"w");
+			if (f == NULL)
+			{
+				logCrit("Logfile %s does not exist, creating failed with %s\n", m_Filename,strerror(errno));
+				return false;
+			}
+			fclose(f);
 		}
 		else
 		{
