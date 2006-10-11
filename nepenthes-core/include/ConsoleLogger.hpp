@@ -44,7 +44,7 @@ namespace nepenthes
 						ConsoleLogger(LogManager *lm);
 		virtual			~ConsoleLogger();
 		virtual void	log(uint32_t mask, const char *message);
-		virtual bool	setOwnership(int32_t uid, int32_t gid) { return true; }
+		virtual bool	setOwnership(uid_t uid, gid_t gid) { return true; }
 	};
 
 }

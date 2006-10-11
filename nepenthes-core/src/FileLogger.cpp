@@ -109,7 +109,7 @@ void FileLogger::log(uint32_t mask, const char *message)
 }
 
 
-bool FileLogger::setOwnership(int32_t uid, int32_t gid)
+bool FileLogger::setOwnership(uid_t uid, gid_t gid)
 {
 #if !defined(CYGWIN) && !defined(CYGWIN32) && !defined(__CYGWIN__) && !defined(__CYGWIN32__) && !defined(WIN32)
 	if ( m_Filename == NULL )
@@ -138,14 +138,17 @@ bool FileLogger::setOwnership(int32_t uid, int32_t gid)
 		}
 	}
 
-	if ( chown(m_Filename, uid, gid) != 0 )
+	if( s.st_uid != uid || s.st_gid != gid )
 	{
-		logCrit("Failed to change ownership for file %s: %s\n", m_Filename, strerror(errno));
-		return false;
-	}
+		if ( chown(m_Filename, uid, gid) != 0 )
+		{
+			logCrit("Failed to change ownership for file %s: %s\n", m_Filename, strerror(errno));
+			return false;
+		}
 
-	logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", m_Filename, uid, gid, getpwuid(uid)->pw_name,
+		logInfo("Logfile %s ownership is now %d:%d (%s:%s)\n", m_Filename, uid, gid, getpwuid(uid)->pw_name,
 			getgrgid(gid)->gr_name);
+	}
 #endif
 
 	return true;
