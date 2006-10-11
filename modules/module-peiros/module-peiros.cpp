@@ -88,6 +88,10 @@ Nepenthes *g_Nepenthes;
  */
 Peiros::Peiros(Nepenthes *nepenthes)
 {
+	g_Nepenthes = nepenthes;
+
+	logPF();
+
 	m_ModuleName        = "module-peiros";
 	m_ModuleDescription = "Peiros server for shellcode handling and packet decapsulation.";
 	m_ModuleRevision    = "$Rev: 550 $";
@@ -96,12 +100,12 @@ Peiros::Peiros(Nepenthes *nepenthes)
 	m_DialogueFactoryName = "module-peiros Factory";
 	m_DialogueFactoryDescription = "Behind you!!1111";
 
-	g_Nepenthes = nepenthes;
+	
 }
 
 Peiros::~Peiros()
 {
-
+	logPF();
 }
 
 
@@ -115,6 +119,7 @@ Peiros::~Peiros()
  */
 bool Peiros::Init()
 {
+	logPF();
 	if ( m_Config == NULL )
 	{
 		logCrit("I need a config\n");
@@ -165,6 +170,7 @@ bool Peiros::Init()
 
 bool Peiros::initializeNetrange(const char * description)
 {
+	logPF();
 	string baseAddress;
 	uint32_t prefixLength = 0;
 	bool state = false;
@@ -216,6 +222,7 @@ bool Peiros::initializeNetrange(const char * description)
 
 uint32_t Peiros::allocateAddress()
 {
+	logPF();
 	uint32_t address;
 	
 	for(address = 0; address < m_NetRange.numAddresses; ++address)
@@ -235,6 +242,7 @@ uint32_t Peiros::allocateAddress()
 
 void Peiros::freeAddress(uint32_t address)
 {
+	logPF();
 	address = ntohl(address) - ntohl(m_NetRange.baseAddress);
 	
 	if(address > m_NetRange.numAddresses)
@@ -245,6 +253,7 @@ void Peiros::freeAddress(uint32_t address)
 
 bool Peiros::Exit()
 {
+	logPF();
 	if(m_NetRange.usageMap)
 	{
 		free(m_NetRange.usageMap);
@@ -265,6 +274,8 @@ bool Peiros::Exit()
  */
 Dialogue *Peiros::createDialogue(Socket *socket)
 {
+	logPF();
+
 	PeirosDialogue * dia;
 	
 	try
@@ -296,6 +307,8 @@ Dialogue *Peiros::createDialogue(Socket *socket)
  */
 PeirosDialogue::PeirosDialogue(Socket *socket, string name, TapInterface * tap, Peiros * peiros)
 {
+	logPF();
+
 	m_Socket = socket;
     m_DialogueName = "PeirosDialogue";
 	m_DialogueDescription = "handles peiros ctrl/encaps connections";
@@ -313,11 +326,15 @@ PeirosDialogue::PeirosDialogue(Socket *socket, string name, TapInterface * tap, 
 
 PeirosDialogue::~PeirosDialogue()
 {
+	logPF();
+
 	m_peiros->freeAddress(m_remoteAddress);
 }
 
 ConsumeLevel PeirosDialogue::incomingData(Message *msg)
 {
+	logPF();
+
 	if(!m_peirosParser.parseData(msg->getMsg(), msg->getSize()))
 		return CL_DROP;
 	
@@ -330,6 +347,8 @@ ConsumeLevel PeirosDialogue::incomingData(Message *msg)
 
 bool PeirosDialogue::handleRequest(PeirosRequest request)
 {
+	logPF();
+
 	PeirosRequest response;
 	string rbuf;
 	
@@ -462,6 +481,8 @@ bool PeirosDialogue::handleRequest(PeirosRequest request)
 sch_result PeirosDialogue::analyzeShellcode(const char * data, unsigned int length,
 	uint32_t srcHost, uint16_t srcPort, uint32_t dstHost, uint16_t dstPort)
 {
+	logPF();
+
 	const char * t;
 	char * fixup = 0;
 	sch_result res;
@@ -506,6 +527,8 @@ sch_result PeirosDialogue::analyzeShellcode(const char * data, unsigned int leng
 
 void PeirosDialogue::encapsulatePacket(const char * pkt, uint16_t length)
 {
+	logPF();
+
 	char buf[32];
 	PeirosRequest encaps;
 	string encapsulated;
@@ -524,6 +547,8 @@ void PeirosDialogue::encapsulatePacket(const char * pkt, uint16_t length)
 
 bool PeirosDialogue::parseAddress(const char * address, uint32_t * hostp, uint16_t * portp)
 {
+	logPF();
+
 	char * work = strdup(address);
 	char * host = work, * port = work;
 	
@@ -545,11 +570,15 @@ bool PeirosDialogue::parseAddress(const char * address, uint32_t * hostp, uint16
 
 ConsumeLevel PeirosDialogue::outgoingData(Message *msg)
 {
+	logPF();
+
 	return CL_ASSIGN;
 }
 
 ConsumeLevel PeirosDialogue::handleTimeout(Message *msg)
 {
+	logPF();
+
 	m_tapInterface->setEncapsulator(0);
 	return CL_DROP;
 }
@@ -557,12 +586,15 @@ ConsumeLevel PeirosDialogue::handleTimeout(Message *msg)
 
 ConsumeLevel PeirosDialogue::connectionLost(Message *msg)
 {
+	logPF();
+
 	m_tapInterface->setEncapsulator(0);
 	return CL_DROP;
 }
 
 ConsumeLevel PeirosDialogue::connectionShutdown(Message *msg)
 {
+	logPF();
 	return CL_DROP;
 }
 

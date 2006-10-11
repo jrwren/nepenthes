@@ -39,6 +39,8 @@
 #include "Socket.cpp"
 #include "POLLSocket.cpp"
 
+#include "module-peiros.hpp"
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -51,11 +53,13 @@
 
 TapInterface::TapInterface() : POLLSocket()
 {
+//	logPF();
 	m_encapsulator = 0;
 }
 
 bool TapInterface::Init(uint32_t netmask)
 {
+	logPF();
     struct ifreq ifr;
     int fd, ret;
     
@@ -110,7 +114,7 @@ bool TapInterface::Init(uint32_t netmask)
 
 int32_t TapInterface::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
 {
-	return 0;
+    return 0;
 }
 
 int TapInterface::getSocket()
@@ -120,6 +124,7 @@ int TapInterface::getSocket()
 
 bool TapInterface::Exit()
 {
+	logPF();
 	close(m_fd);
 	return true;
 }
@@ -136,6 +141,7 @@ int32_t TapInterface::doSend()
 
 int32_t TapInterface::doRecv()
 {
+	logPF();
 	static char buffer[2048];
 	ssize_t len = read(m_fd, buffer, sizeof(buffer));
 	
@@ -155,16 +161,19 @@ int32_t TapInterface::doRecv()
 
 int32_t TapInterface::doWrite(char * buf, uint32_t len)
 {	
+	logPF();
 	return write(m_fd, buf, len);
 }
 
 void TapInterface::setEncapsulator(TapEncapsulator * e)
 {
+	logPF();
 	m_encapsulator = e;
 }
 
 bool TapInterface::addAddress(uint32_t address)
 {
+	logPF();
 	int ctlsocket;
 	struct ifreq ifr;
 	struct sockaddr_in addr;
@@ -179,7 +188,10 @@ bool TapInterface::addAddress(uint32_t address)
 		memcpy(&ifr.ifr_addr, &addr, sizeof(addr));
 		
 		if(ioctl((ctlsocket = socket(AF_INET, SOCK_STREAM, 0)), SIOCSIFADDR, &ifr) < 0)
-			return false;
+		{
+			logWarn("Failed to set address %s: %s\n", inet_ntoa(addr.sin_addr), strerror(errno));
+        	return false;
+		}
 	}
 		
 	{
@@ -205,5 +217,6 @@ bool TapInterface::addAddress(uint32_t address)
 
 void TapInterface::removeAddress(uint32_t address)
 {
+	logPF();
 	// TODO: implement
 }

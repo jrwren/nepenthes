@@ -21,6 +21,10 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "PeirosParser.hpp"
+#include "Nepenthes.hpp"
+#include "LogManager.hpp"
+
+#include "module-peiros.hpp"
 
 
 namespace peiros
@@ -29,6 +33,7 @@ namespace peiros
 
 bool PeirosParser::parseData(const char * data, uint32_t length)
 {
+	logPF();
 	m_inBuffer.append(data, length);	
 	m_malformed = false;
 	
@@ -39,6 +44,7 @@ bool PeirosParser::parseData(const char * data, uint32_t length)
 
 bool PeirosParser::parseRequest()
 {
+	logPF();
 	if(m_current.command.empty())
 	{		
 		if(m_inBuffer.find("\r\n\r\n") == m_inBuffer.npos)
@@ -77,6 +83,7 @@ bool PeirosParser::parseRequest()
 
 bool PeirosParser::parseCommand()
 {
+	logPF();
 	const char * c = m_inBuffer.data();
 	uint16_t cnt = 0;
 	bool inResource = false;
@@ -115,6 +122,7 @@ bool PeirosParser::parseCommand()
 
 bool PeirosParser::parseHeaders()
 {
+	logPF();
 	const char * c = m_inBuffer.data();
 	uint16_t cnt = 0;
 	string header, value;
@@ -200,11 +208,13 @@ bool PeirosParser::parseHeaders()
 
 bool PeirosParser::hasRequest()
 {
+	logPF();
 	return !m_requests.empty();
 }
 
 PeirosRequest PeirosParser::getRequest()
 {
+	logPF();
 	PeirosRequest res = m_requests.front();
 	m_requests.pop_front();
 	return res;
@@ -213,6 +223,7 @@ PeirosRequest PeirosParser::getRequest()
 
 string PeirosParser::renderRequest(PeirosRequest * request)
 {
+	logPF();
 	string result = request->command;
 	
 	if(!request->resource.empty())
