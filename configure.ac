@@ -858,6 +858,7 @@ AC_CONFIG_FILES([Makefile
 		 modules/module-bridge/Makefile
                  modules/module-honeytrap/Makefile
                  modules/module-portwatch/Makefile
+		 modules/module-peiros/Makefile
                  modules/shellcode-generic/Makefile
                  modules/shellcode-signatures/Makefile
                  modules/shellemu-winnt/Makefile

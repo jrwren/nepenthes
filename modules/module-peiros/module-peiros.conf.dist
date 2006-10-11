@@ -1,0 +1,11 @@
+module-peiros
+{
+	# the port on which we listen for incoming peiros control connections
+	port		= "12478";
+	
+	# the netrange for which the peiros interface will be configured for
+	# use something big enough to cover a lot of attackers, we will try to
+	# assign one attacker one new destination IP
+	# the actual rewriting of packets is supposed to be done inside ScriptGen
+	netrange	= "10.254.0.0/32";
+};
