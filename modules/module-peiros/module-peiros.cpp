@@ -299,7 +299,7 @@ PeirosDialogue::PeirosDialogue(Socket *socket, string name, TapInterface * tap, 
 	m_Socket = socket;
     m_DialogueName = "PeirosDialogue";
 	m_DialogueDescription = "handles peiros ctrl/encaps connections";
-	m_Timeout = 0;
+//	m_Timeout = 0;
 
 	m_name = name;
 	m_tapInterface = tap;
