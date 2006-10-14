@@ -27,21 +27,11 @@
 
  /* $Id$ */
 
-
-
-
-#include "Module.hpp"
-#include "ModuleManager.hpp"
-#include "SocketManager.hpp"
-#include "Nepenthes.hpp"
-#include "SubmitHandler.hpp"
-#include "SQLCallback.hpp"
+#include <string>
+#include <stdint.h>
 
 #include "Download.hpp"
 #include "DownloadBuffer.hpp"
-
-
-#include "PGDownloadContext.hpp"
 
 using namespace std;
 
@@ -51,38 +41,59 @@ namespace nepenthes
 	class SQLHandler;
 
 
-	/**
-	 * SubmitPostgres
-	 */
-	class SubmitPostgres : public Module , public SubmitHandler, public SQLCallback
+	typedef enum {
+		PG_NULL,
+		PG_SAMPLE_EXISTS,
+		PG_SAMPLE_ADD,
+		PG_INSTANCE_ADD
+	} pg_submit_state;
+
+
+	struct benc_key_comp
 	{
-	public:
-		SubmitPostgres(Nepenthes *);
-		~SubmitPostgres();
-		bool Init();
-		bool Exit();
+		bool operator()(string s1, string s2) const
+		{
+			unsigned int size = s1.size();
+			if (s2.size() < size)
+				size = s2.size();
 
-		void Submit(Download *down);
-		void Hit(Download *down);
-
-		bool sqlSuccess(SQLResult *result);
-		bool sqlFailure(SQLResult *result);
-
-		void sqlConnected();
-		void sqlDisconnected();
-
-	private:
-		SQLHandler 			*m_SQLHandler;
-
-		list <PGDownloadContext *> m_OutstandingQueries;
-
-		string m_Server;
-		string m_DB;
-		string m_User;
-		string m_Pass;
-		string m_Options;
+			return(memcmp(s1.data(),s2.data(),size) < 0);
+		}
 	};
 
-}
 
-extern nepenthes::Nepenthes *g_Nepenthes;
+	class PGDownloadContext
+	{
+	public:
+		PGDownloadContext(Download *down);
+
+		~PGDownloadContext();
+		static PGDownloadContext *unserialize(const char *path);
+		uint32_t    serialize();
+		bool        remove();
+		string      getHashMD5();
+		string      getHashSHA512();
+		string      *getUrl();
+		string 		getRemoteHost();
+		string 		getLocalHost();
+		string  	*getFileContent();
+		uint32_t 	getFileSize();
+		pg_submit_state getState();
+		void 		setState(pg_submit_state s);
+
+	private:
+		PGDownloadContext(string md5, string sha512, string url, string remote, string local, string file, string path);
+
+		string          m_hash_md5;
+		string          m_hash_sha512;
+		string          m_Url;
+
+		string          m_RemoteHost;
+		string          m_LocalHost;
+
+		string          m_FileContent;
+
+		string 			m_FilePath;
+		pg_submit_state m_State;
+	};
+}

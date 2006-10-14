@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include <dirent.h>
+
 #include "submit-postgres.hpp"
 #include "Download.hpp"
 #include "DownloadBuffer.hpp"
@@ -132,6 +134,56 @@ bool SubmitPostgres::Init()
 	}
 
 	REG_SUBMIT_HANDLER(this);
+
+
+
+	string m_SpoolDir = "var/spool/submitpostgres";
+	DIR *dir;
+	struct dirent *dent;
+	
+	if((dir = opendir(m_SpoolDir.c_str())) == NULL)
+	{
+		logWarn("could not open spool dir\n");
+		return true; // for now this is not critical FIXME
+	}
+	
+	while((dent = readdir(dir)) != NULL)
+	{
+		string filepath = m_SpoolDir + "/" + string(dent->d_name);
+		struct stat s;
+
+		logInfo("Checking %s\n",filepath.c_str());
+		
+		if(stat(filepath.c_str(), &s) != 0)
+		{
+			continue;
+		}
+		
+		if(S_ISREG(s.st_mode) == 0)
+		{
+			continue;
+		}
+		
+		PGDownloadContext *ctx = PGDownloadContext::unserialize(filepath.c_str());
+		if (ctx == NULL)
+			continue;
+
+		string query;
+		query = "SELECT mwcollect.sensor_exists_sample('";
+		query += ctx->getHashMD5();
+		query += "','";
+		query += ctx->getHashSHA512();
+		query += "')";
+
+		logSpam("Query is %s\n",query.c_str());
+
+		m_SQLHandler->addQuery(&query,this,ctx);
+
+		ctx->setState(PG_SAMPLE_EXISTS);
+		m_OutstandingQueries.push_back(ctx);
+
+	}
+	closedir(dir);
 	return true;
 }
 
@@ -287,12 +339,14 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 	case PG_INSTANCE_ADD:
 		if (resvec[0]["sensor_add_instance"] == "f")
 			logCrit("ERROR inserting instance\n");
+		m_OutstandingQueries.front()->remove();
 		delete m_OutstandingQueries.front();
 		break;
 
 	case PG_SAMPLE_ADD:
 		if (resvec[0]["sensor_add_sample"] == "f")
 			logCrit("ERROR inserting sample\n");
+		m_OutstandingQueries.front()->remove();
 		delete m_OutstandingQueries.front();
 		break;
 
@@ -308,8 +362,9 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 bool SubmitPostgres::sqlFailure(SQLResult *result)
 {
 	logPF();
+	m_OutstandingQueries.front()->remove();
 	delete m_OutstandingQueries.front();
-	m_OutstandingQueries.pop_front();
+    m_OutstandingQueries.pop_front();
 	return true;
 }
 

@@ -10,6 +10,8 @@ AM_CXXFLAGS = -Wall -Werror
 
 pkglib_LTLIBRARIES = submitpostgres.la
 
-submitpostgres_la_SOURCES = submit-postgres.cpp submit-postgres.hpp
+submitpostgres_la_SOURCES = submit-postgres.cpp submit-postgres.hpp 
+submitpostgres_la_SOURCES += PGDownloadContext.cpp PGDownloadContext.hpp 
+submitpostgres_la_SOURCES += bencoding.c bencoding.h
 
 submitpostgres_la_LDFLAGS = -module -no-undefined -avoid-version
