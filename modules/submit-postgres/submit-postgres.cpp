@@ -51,7 +51,7 @@ using namespace nepenthes;
  * we need this pointer for logInfo() etc
  */
 Nepenthes *g_Nepenthes;
-
+SubmitPostgres *g_SubmitPostgres;
 
 /**
  * Constructor
@@ -74,7 +74,10 @@ SubmitPostgres::SubmitPostgres(Nepenthes *nepenthes)
 	m_SubmitterName = "submit-postgres";
 	m_SubmitterDescription = "submit files to a postgres database";
 
+	m_SQLHandler = NULL;
+
 	g_Nepenthes = nepenthes;
+	g_SubmitPostgres = this;
 }
 
 
@@ -83,7 +86,16 @@ SubmitPostgres::SubmitPostgres(Nepenthes *nepenthes)
  */
 SubmitPostgres::~SubmitPostgres()
 {
+	if (m_SQLHandler != NULL)
+	{
+		delete m_SQLHandler;
+	}
 
+	while (m_OutstandingQueries.size() > 0)
+	{
+		delete m_OutstandingQueries.front();
+		m_OutstandingQueries.pop_front();
+	}
 }
 
 /**
@@ -96,6 +108,7 @@ SubmitPostgres::~SubmitPostgres()
 bool SubmitPostgres::Init()
 {
 
+	// the config
 	if ( m_Config == NULL )
 	{
 		logCrit("I (%s:%i) need a config\n",__FILE__,__LINE__);
@@ -109,13 +122,42 @@ bool SubmitPostgres::Init()
 		m_Pass = m_Config->getValString("submit-postgres.pass");
 		m_DB = m_Config->getValString("submit-postgres.db");
 		m_Options = m_Config->getValString("submit-postgres.options");
-
-		
 	}
 	catch (...)
 	{
+		logCrit("submit-postgres, missing config values\n");
 		return false;
 	}
+
+
+	// the spool dir
+	try 
+	{
+		m_SpoolDir = m_Config->getValString("submit-postgres.spooldir");
+	}
+	catch (...)
+	{
+		m_SpoolDir = "var/spool/submitpostgres/";
+		logWarn("submit-postgres, no spooldir set in config file submit-postgres.conf, using %s as default\n",m_SpoolDir.c_str());
+	}
+
+	// verify existance
+	struct stat s;
+	
+	if(stat(m_SpoolDir.c_str(), &s) != 0)
+	{
+		logCrit("Can not access spooldir %s\n",m_SpoolDir.c_str());
+		return false;
+	}
+
+/*	// this is useless when changing uid, as the user is changed after this
+	// therefore commented code with a FIXME in mind
+	if (access(m_SpoolDir.c_str(),R_OK|W_OK) != 0)
+	{
+		logCrit("read/write on %s failed (%s)\n",m_SpoolDir.c_str(),strerror(errno));
+		return false;
+	}
+*/
 
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 
@@ -137,7 +179,8 @@ bool SubmitPostgres::Init()
 
 
 
-	string m_SpoolDir = "var/spool/submitpostgres";
+	
+
 	DIR *dir;
 	struct dirent *dent;
 	
@@ -155,14 +198,12 @@ bool SubmitPostgres::Init()
 		logInfo("Checking %s\n",filepath.c_str());
 		
 		if(stat(filepath.c_str(), &s) != 0)
-		{
-			continue;
-		}
+        	continue;
+		
 		
 		if(S_ISREG(s.st_mode) == 0)
-		{
-			continue;
-		}
+        	continue;
+		
 		
 		PGDownloadContext *ctx = PGDownloadContext::unserialize(filepath.c_str());
 		if (ctx == NULL)
@@ -377,6 +418,11 @@ void SubmitPostgres::sqlConnected()
 void SubmitPostgres::sqlDisconnected()
 {
 	logPF();
+}
+
+string SubmitPostgres::getSpoolPath()
+{
+	return m_SpoolDir;
 }
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)

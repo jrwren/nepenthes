@@ -71,6 +71,9 @@ namespace nepenthes
 		void sqlConnected();
 		void sqlDisconnected();
 
+		string getSpoolPath();
+
+
 	private:
 		SQLHandler 			*m_SQLHandler;
 
@@ -81,8 +84,11 @@ namespace nepenthes
 		string m_User;
 		string m_Pass;
 		string m_Options;
+
+		string m_SpoolDir;
 	};
 
 }
 
 extern nepenthes::Nepenthes *g_Nepenthes;
+extern nepenthes::SubmitPostgres *g_SubmitPostgres;

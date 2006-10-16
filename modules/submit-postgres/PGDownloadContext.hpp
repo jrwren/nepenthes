@@ -27,6 +27,9 @@
 
  /* $Id$ */
 
+#ifndef HAVE_PGDOWNLOADCONTEXT_HPP
+#define HAVE_PGDOWNLOADCONTEXT_HPP
+
 #include <string>
 #include <stdint.h>
 
@@ -39,7 +42,6 @@ namespace nepenthes
 {
 
 	class SQLHandler;
-
 
 	typedef enum {
 		PG_NULL,
@@ -97,3 +99,5 @@ namespace nepenthes
 		pg_submit_state m_State;
 	};
 }
+
+#endif

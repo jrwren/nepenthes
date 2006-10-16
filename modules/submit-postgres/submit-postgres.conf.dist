@@ -5,5 +5,7 @@ submit-postgres
 	pass	"pass";		// db pass
 	db 	"mwcollect";	// which database to use
 	options	"";		// not sure if options already work (ssl is an option)
+	
+	spooldir "var/spool/submitpostgres/";
 };
 	

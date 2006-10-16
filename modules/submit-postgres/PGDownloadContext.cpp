@@ -54,6 +54,8 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 
+#include "submit-postgres.hpp"
+
 extern "C"
 {
 	#include "bencoding.h"
@@ -217,7 +219,9 @@ uint32_t PGDownloadContext::serialize()
 
 	char filepath[1024];
 
-	snprintf(filepath,1024,"%04d%02d%02d-%02d%02d%02d-0", 
+	memset(filepath,0,1024);
+
+	snprintf(filepath,1023,"%04d%02d%02d-%02d%02d%02d-0", 
 			 t.tm_year + 1900, 
 			 t.tm_mon + 1, 
 			 t.tm_mday, 
@@ -226,13 +230,13 @@ uint32_t PGDownloadContext::serialize()
 			 t.tm_sec);
 
 
-	string fullpath = string("var/spool/submitpostgres/") + string(filepath);
+	string fullpath = g_SubmitPostgres->getSpoolPath() + string(filepath);
 	struct stat s;
 
 	int i=1;
 	while ( stat(fullpath.c_str(),&s) == 0 )
 	{
-		snprintf(filepath,1024,"%04d%02d%02d-%02d%02d%02d-%i", 
+		snprintf(filepath,1023,"%04d%02d%02d-%02d%02d%02d-%i", 
 				 t.tm_year + 1900, 
 				 t.tm_mon + 1, 
 				 t.tm_mday, 
@@ -241,7 +245,7 @@ uint32_t PGDownloadContext::serialize()
 				 t.tm_sec,
 				 i);
 
-		fullpath = string("var/spool/submitpostgres/") + string(filepath);
+		fullpath = g_SubmitPostgres->getSpoolPath() + string(filepath);
 		i++;
 	}
 
@@ -250,6 +254,7 @@ uint32_t PGDownloadContext::serialize()
 	if ( (f = fopen(fullpath.c_str(),"w")) == NULL )
 	{
 		logCrit("Could not open %s (%s)\n",fullpath.c_str(),strerror(errno));
+		m_FilePath = "";
 		return 0;
 	}
 
@@ -294,8 +299,9 @@ uint32_t PGDownloadContext::serialize()
 	fwrite(benc.data(),1,benc.size(),f);
 
 	fclose(f);
+	logDebug("Wrote bencoded spoolfile %s (%i bytes)\n",m_FilePath.c_str(),benc.size());
 	
-	return 0;
+	return benc.size();
 }
 
 
@@ -306,8 +312,14 @@ uint32_t PGDownloadContext::serialize()
  */
 bool PGDownloadContext::remove()
 {
+	logPF();
+
+	if (m_FilePath == "")
+		return false;
+
 	if (unlink(m_FilePath.c_str()) == 0)
 		return true;
+
 	logWarn("Could not remove %s (%s)\n",m_FilePath.c_str(),strerror(errno));
 	return false;
 }
@@ -357,3 +369,6 @@ void PGDownloadContext::setState(pg_submit_state s)
 {
 	m_State = s;
 }
+
+
+
