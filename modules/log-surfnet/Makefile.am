@@ -10,6 +10,6 @@ AM_LDFLAGS = $(LIB_POSTGRES)
 
 pkglib_LTLIBRARIES = logsurfnet.la
 
-logsurfnet_la_SOURCES = log-surfnet.cpp log-surfnet.hpp DatabaseConnection.cpp DatabaseConnection.hpp log-surfnet.conf.dist
+logsurfnet_la_SOURCES = log-surfnet.cpp log-surfnet.hpp log-surfnet.conf.dist
 
 logsurfnet_la_LDFLAGS = -module -no-undefined -avoid-version

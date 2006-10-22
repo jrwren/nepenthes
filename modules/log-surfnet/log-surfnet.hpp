@@ -34,6 +34,8 @@
 #include "SocketManager.hpp"
 #include "Nepenthes.hpp"
 #include "EventHandler.hpp"
+#include "SQLCallback.hpp"
+
 
 using namespace std;
 
@@ -61,17 +63,43 @@ namespace nepenthes
 		}
 	};
 
-	
+	class LSDetail
+	{
+	public:
+		LSDetail(uint32_t host, int type, string data);
+		string m_host;
+		int m_type;
+		string m_data;
+	};
+
+	class LSContext
+	{
+	public:
+		LSContext();
+        uint32_t m_attackID;
+		list <LSDetail *> m_Details;
+		bool m_closed;
+		int m_severity;
+	};
+
+
+	typedef enum
+	{
+		LS_MODE_ANY,
+		LS_MODE_LIST,
+	} log_surfnet_mode;
+
 
 	class ShellcodeHandler;
-	class DatabaseConnection;
+
+	class SQLHandler;
 
 	/**
 	 * LogSurfNET
 	 * log to the surfnet IDS database
 	 * 
      */
-	class LogSurfNET : public Module , public EventHandler
+	class LogSurfNET : public Module , public EventHandler, public SQLCallback
 	{
 	public:
 		LogSurfNET(Nepenthes *);
@@ -81,8 +109,14 @@ namespace nepenthes
 
 		uint32_t handleEvent(Event *event);
 
+		bool sqlSuccess(SQLResult *result);
+		bool sqlFailure(SQLResult *result);
+		void sqlConnected();
+		void sqlDisconnected();
+
+
 	private:
-		map <uint32_t, uint32_t, ltint> m_SocketTracker;
+		map <uint32_t, LSContext, ltint> m_SocketTracker;
 
 		uint16_t		*m_Ports;
 		uint16_t        m_MaxPorts;
@@ -99,9 +133,10 @@ namespace nepenthes
 		void handleDownloadOffer(uint32_t localhost, uint32_t remotehost,const char *url);
 		void handleDownloadSuccess(uint32_t localhost, uint32_t remotehost,const char *url, const char *md5hash);
 
-		DatabaseConnection *m_DB;
-				//
+		SQLHandler 		*m_SQLHandler;
+		log_surfnet_mode	m_RunningMode;
 	};
+	
 
 }
 
