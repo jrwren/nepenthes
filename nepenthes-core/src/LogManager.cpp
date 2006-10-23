@@ -121,6 +121,20 @@ void LogManager::addLogger(LogHandler *lh, uint32_t filterMask)
 	#endif
 }
 
+bool LogManager::delLogger(LogHandler *lh)
+{
+	list<LogHandlerEntry *>::iterator it;
+	for( it = m_Loggers.begin(); it != m_Loggers.end(); it++ )
+	{
+		if ((*it)->m_Lh == lh)
+		{
+        	m_Loggers.erase(it);
+			delete *it;
+			return true;
+		}
+	}
+	return false;
+}
 
 /**
  * write a log message.

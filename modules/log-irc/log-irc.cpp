@@ -231,6 +231,13 @@ bool LogIrc::doRestart()
 
 bool LogIrc::Exit()
 {
+	if (g_Nepenthes->getLogMgr()->delLogger(this) == true)
+	{
+		logDebug("Unregisterd from logmanager\n");
+	}else
+	{
+		logWarn("Could not unregister from logmanager\n");
+	}
 	return true;
 }
 

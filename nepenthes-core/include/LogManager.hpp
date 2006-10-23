@@ -55,6 +55,7 @@ namespace nepenthes
 	
 		void				registerTag(uint32_t bit, const char *tag);
 		virtual void		addLogger(LogHandler *lh, uint32_t filterMask);
+		virtual bool		delLogger(LogHandler *lh);
 		virtual void		log(uint32_t mask, const char *message);
 		virtual void		logf(uint32_t mask, const char *format, ...);
 		const char			*getTagName(uint32_t bit);
