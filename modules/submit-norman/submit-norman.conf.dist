@@ -2,4 +2,7 @@ submit-norman
 {
 	// this is the adress where norman sandbox reports will be sent
 	email   "malware@mac.com";
+	urls	("http://sandbox.norman.no/live_4.html",
+		 "http://luigi.informatik.uni-mannheim.de/submit.php?action=verify");
+
 };

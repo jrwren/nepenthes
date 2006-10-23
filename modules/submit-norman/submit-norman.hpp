@@ -144,6 +144,8 @@ namespace nepenthes
 		CURLM * m_CurlStack;
 		int32_t 	m_Queued;
 		string m_Email;
+
+		list <string> m_UrlList;
 	};
 }
 
