@@ -505,7 +505,7 @@ void LogSurfNET::handleDialogueAssignAndDone(Socket *socket, Dialogue *dia, uint
 		m_SQLHandler->addQuery(&query,NULL,NULL);
 
 
-		query = "SELECT surfnet_attack_update_severity(";
+		query = "SELECT surfnet_attack_update_severity('";
 		query += itos(attackid);
 		query += "','";
 		query += itos(AS_DEFINITLY_MALICIOUS_CONNECTION);
