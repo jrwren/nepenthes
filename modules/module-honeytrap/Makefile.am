@@ -10,6 +10,9 @@ AM_LDFLAGS = ${LIB_PCAP} ${LIB_IPQ}
 
 pkglib_LTLIBRARIES = modulehoneytrap.la
 
-modulehoneytrap_la_SOURCES = module-honeytrap.cpp module-honeytrap.hpp module-honeytrap.conf.dist
+modulehoneytrap_la_SOURCES = module-honeytrap.cpp module-honeytrap.hpp 
+modulehoneytrap_la_SOURCES += PCAPSocket.cpp PCAPSocket.hpp
+modulehoneytrap_la_SOURCES += TrapSocket.cpp TrapSocket.hpp
+modulehoneytrap_la_SOURCES += module-honeytrap.conf.dist
 
 modulehoneytrap_la_LDFLAGS = -module -no-undefined -avoid-version
