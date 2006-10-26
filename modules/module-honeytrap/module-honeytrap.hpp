@@ -66,16 +66,37 @@ namespace nepenthes
 	{
 		bool operator()(connection_t s1, connection_t s2) const
 		{
-			if (s1.m_RemoteHost < s2.m_RemoteHost)
-				return true;
-			if (s1.m_RemotePort < s2.m_RemotePort)
-				return true;
-			if (s1.m_LocalHost < s2.m_LocalHost)
-				return true;
-			if (s1.m_LocalPort < s2.m_LocalPort)
-				return true;
+//			printf("the comparator\n");
+			if ( s1.m_RemoteHost < s2.m_RemoteHost )
+			{
+				return(true);
+			} else
+				if ( s1.m_RemoteHost == s2.m_RemoteHost )
+			{
 
-			return false;
+				if ( s1.m_RemotePort < s2.m_RemotePort )
+				{
+					return(true);
+				} else
+					if ( s1.m_RemotePort == s2.m_RemotePort )
+				{
+					if ( s1.m_LocalHost < s2.m_LocalHost )
+					{
+						return(true);
+					} else
+						if ( s1.m_LocalHost == s2.m_LocalHost )
+					{
+						if ( s1.m_LocalPort < s2.m_LocalPort )
+							return(true);
+						else
+							return(false);
+					}
+				} else
+				{
+					return(false);
+				}
+			}
+			return(false);
 		}
 	};
 

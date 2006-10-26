@@ -187,7 +187,7 @@ bool TrapSocket::Init_IPFW()
         return false;
     }
     bzero(&m_DivertSin, sizeof(m_DivertSin));
-	m_DivertSin.sin_port = htons(4711);	// FIXME
+	m_DivertSin.sin_port = htons(m_DivertPort);	// FIXME
     m_DivertSin.sin_family = PF_INET;
     m_DivertSin.sin_addr.s_addr = INADDR_ANY;
 
@@ -196,7 +196,7 @@ bool TrapSocket::Init_IPFW()
         logCrit("Could not bind divert socket %s\n",strerror(errno));
         return false;
     }
-	logInfo("Bound divert socket on port %i\n",4711);	//FIXME
+	logInfo("Bound divert socket on port %i\n",m_DivertPort);	//FIXME
 	return true;
 #else
 	logCrit("IPFW not supported, check your plattform\n");
@@ -791,22 +791,24 @@ bool TrapSocket::createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsign
 			sock->addDialogueFactory(diaf);
 		}
 
-
-		if (g_ModuleHoneytrap->socketExists((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
-						 (uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport)) == false)
+		if ( m_HTType != HT_PCAP )
 		{
-			POLLSocket *ps = new PCAPSocket((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport) ,
-									(uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport));
-			if ( ps->Init() == true )
+			if ( g_ModuleHoneytrap->socketExists((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
+												 (uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport)) == false )
 			{
-				g_Nepenthes->getSocketMgr()->addPOLLSocket(ps);
-				g_ModuleHoneytrap->socketAdd((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
-						  (uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport),
-						  ps);
+				POLLSocket *ps = new PCAPSocket((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport) ,
+												(uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport));
+				if ( ps->Init() == true )
+				{
+					g_Nepenthes->getSocketMgr()->addPOLLSocket(ps);
+					g_ModuleHoneytrap->socketAdd((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
+												 (uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport),
+												 ps);
+				}
+			} else
+			{
+				logWarn("Already listening for this buddy\n");
 			}
-		}else
-		{
-			logWarn("Already listening for this buddy\n");
 		}
 	}
 	return true;

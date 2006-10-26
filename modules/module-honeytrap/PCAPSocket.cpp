@@ -57,6 +57,9 @@ PCAPSocket::PCAPSocket(uint32_t remotehost, uint16_t remoteport, uint32_t localh
 PCAPSocket::~PCAPSocket()
 {
 	logPF();
+	logDebug("connectionlogger logged %i packets\n", m_PacketCount);
+	pcap_dump_close(m_PcapDumper);
+	pcap_close(m_PcapSniffer);
 	g_ModuleHoneytrap->socketDel(this);
 }
 
@@ -178,7 +181,21 @@ bool PCAPSocket::Init()
 		return false;
 	}
 
-	/* create the path for logging */
+	/* free the filter */
+	pcap_freecode(&filter);
+
+
+	/* create the path for logging 
+	   this path is uniq, and there is no danger in overwriting existing files,
+	   as
+	    - we use the timestamp and the connection details remotehost remoteport localhost localport
+		and the ModuleHoneyTrap socket tracker makes sure there is only _one_ pcap listener per 
+		connection
+		- this listener has a 10 seconds timeout if the connection is not established
+		so either you wait 10 seconds, change the timestamp, or use a different host/port
+		which will result in a different filename
+	*/
+
 	char *pcap_file_path;
 
 	asprintf(&pcap_file_path,"var/log/nepenthes/pcap/%i_%s-%i_%s-%i.pcap",
@@ -189,7 +206,8 @@ bool PCAPSocket::Init()
 
 
 
-	/* create the buddy who will write the pcap file, the pcap_dumper_t */
+	/* create the buddy who will write the pcap file, the pcap_dumper_t 
+    */
 	if ( (m_PcapDumper = pcap_dump_open(m_PcapSniffer,pcap_file_path)) == NULL )
 	{
 		logCrit("Pcap error - Could not create pcap dumpfile %s\n", pcap_geterr(m_PcapSniffer));
@@ -221,9 +239,6 @@ bool PCAPSocket::Init()
 
 bool PCAPSocket::Exit()
 {
-	logDebug("connectionlogger logged %i packets\n", m_PacketCount);
-	pcap_dump_close(m_PcapDumper);
-	pcap_close(m_PcapSniffer);
 	setStatus(SS_CLOSED);
 	return true;
 }

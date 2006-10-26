@@ -236,7 +236,9 @@ bool ModuleHoneyTrap::Exit()
 bool ModuleHoneyTrap::socketDel(Socket *s)
 {
 	logPF();
+	logSpam("connection tracking has %i entries\n",m_Sockets.size());
 	connection_t c;
+	memset(&c,0,sizeof(connection_t));
 	c.m_RemoteHost = s->getRemoteHost();
 	c.m_RemotePort = s->getRemotePort();
 	c.m_LocalHost  = s->getLocalHost();
@@ -244,9 +246,11 @@ bool ModuleHoneyTrap::socketDel(Socket *s)
 
 	if (m_Sockets.count(c) == 0)
 	{
+		logWarn("Can not delete untracked socket\n");
 		return false;
 	}
 
+	logSpam("erasing socket from tracker\n");
 	m_Sockets.erase(c);
     return true;
 }
@@ -255,15 +259,21 @@ bool ModuleHoneyTrap::socketDel(Socket *s)
 bool ModuleHoneyTrap::socketExists(uint32_t remotehost, uint16_t remoteport, uint32_t localhost, uint16_t localport)
 {
 	logPF();
+	logSpam("connection tracking has %i entries\n",m_Sockets.size());
 	connection_t c;
+	memset(&c,0,sizeof(connection_t));
 	c.m_RemoteHost = remotehost;
 	c.m_RemotePort = remoteport;
 	c.m_LocalHost  = localhost;
 	c.m_LocalPort  = localport;
 
 	if (m_Sockets.count(c) > 0)
-    	return true;
-	
+	{
+		logSpam("Socket exists\n");
+       	return true;
+	}
+
+	logSpam("Socket does not exist\n");
 	return false;
 }
 
@@ -279,8 +289,11 @@ bool ModuleHoneyTrap::socketAdd(uint32_t remotehost, uint16_t remoteport, uint32
 	c.m_LocalHost  = localhost;
 	c.m_LocalPort  = localport;
 
-//	if (m_Sockets.count(c) > 0)
-//		return false;
+	if (m_Sockets.count(c) > 0)
+	{
+		logCrit("duplicate socket in tracker\n");
+    	return false;
+	}
 
 	m_Sockets[c] = s;
 
@@ -292,7 +305,14 @@ uint32_t ModuleHoneyTrap::handleEvent(Event *event)
 {
 	logPF();
 
-	
+
+
+	if (!(((SocketEvent *)event)->getSocket()->getType() & ST_ACCEPT) )
+	{
+		logSpam("Not a accept socket, dropping\n");
+		return 0;
+
+	}
 
 	connection_t c;
 	c.m_RemoteHost = ((SocketEvent *)event)->getSocket()->getRemoteHost();
@@ -302,9 +322,16 @@ uint32_t ModuleHoneyTrap::handleEvent(Event *event)
 
 	if (m_Sockets.count(c) == 0)
 	{
-		logInfo("Socket unknown, dropping\n");
+		string rhost = inet_ntoa(*(in_addr *)&c.m_RemoteHost);
+		string lhost = inet_ntoa(*(in_addr *)&c.m_LocalHost);
+
+		logInfo("Connection %s:%i %s:%i unknown, dropping\n", rhost.c_str(),c.m_RemotePort,
+				 lhost.c_str(),c.m_LocalPort);
 		return 0;
 	}
+
+
+
 
 	switch(event->getType())
 	{
