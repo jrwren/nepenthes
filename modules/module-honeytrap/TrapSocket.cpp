@@ -90,6 +90,7 @@ TrapSocket::TrapSocket(string pcap_device)
 	m_PcapDevice = pcap_device;
 	m_HTType = HT_PCAP;
 
+	m_DialogueFactory = "bridge Factory";
 }
 
 TrapSocket::TrapSocket(uint16_t divert_port)
@@ -99,6 +100,7 @@ TrapSocket::TrapSocket(uint16_t divert_port)
 #ifdef HAVE_IPFW
 	m_DivertPort = divert_port;
 #endif
+	m_DialogueFactory = "bridge Factory";
 }
 
 TrapSocket::TrapSocket(bool param)
