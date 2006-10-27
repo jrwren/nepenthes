@@ -106,7 +106,7 @@ TrapSocket::TrapSocket(bool param)
 	TrapSocket();
 	m_HTType = HT_IPQ;
 
-	m_DialogueFactory = "WinNTShell DialogueFactory";
+	m_DialogueFactory = "bridge Factory";
 }
 
 
