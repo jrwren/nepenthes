@@ -654,7 +654,7 @@ int32_t TrapSocket::doRecv_IPFW()
 	 */
 	{
 
-		createListener(ip,tcp,buf,len);
+		createListener((libnet_ipv4_hdr *)ip,(libnet_tcp_hdr *)tcp,(unsigned char *)buf,len);
 	}
 
 

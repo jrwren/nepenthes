@@ -31,7 +31,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
