@@ -39,10 +39,6 @@
 #include <string>
 
 
-#ifndef __linux__
-#error This only works on Linux.
-#endif
-
 #ifndef __INCLUDE_TapInterface_hpp
 #define __INCLUDE_TapInterface_hpp
 

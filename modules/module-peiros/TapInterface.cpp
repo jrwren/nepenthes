@@ -46,8 +46,12 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+
+#if defined(__linux__)
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#endif
+
 #include <string.h>
 #include <errno.h>
 
@@ -59,6 +63,7 @@ TapInterface::TapInterface() : POLLSocket()
 
 bool TapInterface::Init(uint32_t netmask)
 {
+#if defined(__linux_)
 	logPF();
     struct ifreq ifr;
     int fd, ret;
@@ -110,6 +115,12 @@ bool TapInterface::Init(uint32_t netmask)
     
     g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
     return true;
+#else
+	logCrit("this module does not work on your operating system, use linux\n");
+	return false;
+
+#endif
+    
 }
 
 int32_t TapInterface::getsockOpt(int32_t level, int32_t optname,void *optval,socklen_t *optlen)
@@ -173,6 +184,7 @@ void TapInterface::setEncapsulator(TapEncapsulator * e)
 
 bool TapInterface::addAddress(uint32_t address)
 {
+#if defined(__linux__)
 	logPF();
 	int ctlsocket;
 	struct ifreq ifr;
@@ -213,6 +225,9 @@ bool TapInterface::addAddress(uint32_t address)
 	close(ctlsocket);
 		
 	return true;
+#else
+	return false;	
+#endif	
 }
 
 void TapInterface::removeAddress(uint32_t address)
