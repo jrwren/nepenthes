@@ -10,7 +10,7 @@ AM_CXXFLAGS = -Wall -Werror
 
 pkglib_LTLIBRARIES = modulebridge.la
 
-modulebridge_la_SOURCES = module-bridge.cpp module.bridge.hpp
+modulebridge_la_SOURCES = module-bridge.cpp module-bridge.hpp
 modulebridge_la_SOURCES += BridgeDialogueAccept.cpp BridgeDialogueAccept.hpp
 modulebridge_la_SOURCES += BridgeDialogueConnect.cpp BridgeDialogueConnect.hpp
 
