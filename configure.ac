@@ -198,6 +198,32 @@ AC_SUBST([LIB_LIBNET])
 # liby
 AC_SUBST([LIB_LIBY])
 
+# libdl
+AC_SUBST([LIB_DL])
+
+dnl **************************************************
+dnl * libdl linking flag                             *
+dnl **************************************************
+
+enable_dl=no;
+AC_CHECK_FUNC([dlopen],enable_dl="yes", enable_dl="no")
+
+if test x$enable_dl = "xno" ; then
+	AC_CHECK_LIB([dl],[dlopen],enable_dl="yes", enable_dl="no")
+	if test x$enable_dl = "xyes" ; then
+		LIB_DL="-ldl"
+	fi
+fi
+
+if test x$enable_dl = "xno" ; then
+	AC_CHECK_LIB([ldld],[dlopen],enable_dl="yes", enable_dl="no")
+	if test x$enable_dl = "xyes" ; then
+		LIB_DL="-ldl"
+	fi
+fi
+
+
+
 dnl **************************************************
 dnl * libipq support                                 *
 dnl **************************************************
