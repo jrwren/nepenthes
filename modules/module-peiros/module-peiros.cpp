@@ -119,6 +119,8 @@ Peiros::~Peiros()
  */
 bool Peiros::Init()
 {
+	bool manageDefaultRoute = false;
+	
 	logPF();
 	if ( m_Config == NULL )
 	{
@@ -148,6 +150,12 @@ bool Peiros::Init()
 		return false;
 	}
 	
+	try
+	{
+		manageDefaultRoute = m_Config->getValString("module-peiros.manage-default-route") == string("yes");
+	} catch ( ... )
+	{ }
+	
 	{
 		uint32_t netmask = 0;
 		
@@ -156,7 +164,7 @@ bool Peiros::Init()
 			
 		netmask = htonl(netmask);
 		
-		if(!m_tapInterface.Init(netmask))
+		if(!m_tapInterface.Init(netmask, manageDefaultRoute))
 		{
 			logCrit("Failed to initialize TAP interface!\n");
 			return false;

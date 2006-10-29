@@ -56,7 +56,7 @@ class TapInterface : public POLLSocket
 public:	
 	TapInterface();
 	
-	bool Init(uint32_t netmask);
+	bool Init(uint32_t netmask, bool manageRoute);
 	bool Exit();
 	
 	bool wantSend();
@@ -78,6 +78,7 @@ private:
 	uint32_t m_netmask;
 	std::string m_devname;
 	uint8_t m_hwaddr[6];
+	bool m_manageRoute;
 };
 
 #endif // __INCLUDE_TapInterface_hpp

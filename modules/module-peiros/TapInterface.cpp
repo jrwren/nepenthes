@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <net/route.h>
 #include <fcntl.h>
 
 #if defined(__linux__)
@@ -61,7 +62,7 @@ TapInterface::TapInterface() : POLLSocket()
 	m_encapsulator = 0;
 }
 
-bool TapInterface::Init(uint32_t netmask)
+bool TapInterface::Init(uint32_t netmask, bool manageRoute)
 {
 #if defined(__linux_)
 	logPF();
@@ -75,7 +76,7 @@ bool TapInterface::Init(uint32_t netmask)
     }
     memset(&ifr, 0, sizeof(ifr));
     ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
-    strncpy(ifr.ifr_name, "peiros%d", IFNAMSIZ);
+    strncpy(ifr.ifr_name, "tun%d", IFNAMSIZ);
     ret = ioctl(fd, TUNSETIFF, (void *) &ifr);
     if (ret != 0) {
         logCrit("Could not configure /dev/net/tun for module-peiros!\n");
@@ -103,6 +104,8 @@ bool TapInterface::Init(uint32_t netmask)
 	if(ioctl(ctlsocket, SIOCGIFHWADDR, &ifr) < 0)
 		return false;
 		
+	m_devname = ifr.ifr_name;
+		
 	memcpy(m_hwaddr, ifr.ifr_hwaddr.sa_data, sizeof(m_hwaddr));
 		
 	m_netmask = netmask;
@@ -114,7 +117,37 @@ bool TapInterface::Init(uint32_t netmask)
     m_Polled = true;
     
     g_Nepenthes->getSocketMgr()->addPOLLSocket(this);
-    return true;
+        
+	if((m_manageRoute = manageRoute))
+	{
+		int sockfd;
+		struct rtentry rt = { 0 };
+		
+		((struct sockaddr_in *) &rt.rt_dst)->sin_family = AF_INET;		
+		((struct sockaddr_in *) &rt.rt_genmask)->sin_family = AF_INET;
+		
+		logInfo("Adding route for \"%s\"!\n", ifr.ifr_name);
+
+		rt.rt_dev = (char *) m_devname.c_str();
+		rt.rt_flags = RTF_UP;
+		
+		
+		if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+		{
+			logCrit("Could not create socket for peiros default route ioctl: %s!\n", strerror(errno));
+			return false;
+		}
+		
+		if(ioctl(sockfd, SIOCADDRT, &rt) < 0)
+		{
+			logCrit("Could not add peiros default route: %s!\n", strerror(errno));
+			//return false;
+		}
+		
+		close(sockfd);
+	}
+	
+	return true;
 #else
 	logCrit("this module does not work on your operating system, use linux\n");
 	return false;
@@ -135,6 +168,36 @@ int TapInterface::getSocket()
 
 bool TapInterface::Exit()
 {
+	if(m_manageRoute)
+	{
+		int sockfd;
+		struct rtentry rt = { 0 };
+		
+		((struct sockaddr_in *) &rt.rt_dst)->sin_family = AF_INET;
+		((struct sockaddr_in *) &rt.rt_dst)->sin_addr.s_addr = 0;
+		
+		((struct sockaddr_in *) &rt.rt_genmask)->sin_family = AF_INET;
+		((struct sockaddr_in *) &rt.rt_genmask)->sin_addr.s_addr = 0;
+
+		rt.rt_dev = (char *) m_devname.c_str();
+		rt.rt_flags = RTF_UP;
+		
+		
+		if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+		{
+			logCrit("Could not create socket for peiros default route removal ioctl: %s!\n", strerror(errno));
+			return false;
+		}
+		
+		if(ioctl(sockfd, SIOCDELRT, &rt) < 0)
+		{
+			logCrit("Could not remove peiros default route: %s!\n", strerror(errno));
+			return false;
+		}
+		
+		close(sockfd);
+	}
+
 	logPF();
 	close(m_fd);
 	return true;
@@ -221,7 +284,9 @@ bool TapInterface::addAddress(uint32_t address)
 			return false;
 		}
    	}
-		
+   	
+   	logInfo("Added address %s.\n", inet_ntoa(addr.sin_addr));
+   	
 	close(ctlsocket);
 		
 	return true;
