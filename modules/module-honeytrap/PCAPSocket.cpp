@@ -29,7 +29,6 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 
 #include "LogManager.hpp"
@@ -37,7 +36,6 @@
 #include "module-honeytrap.hpp"
 
 using namespace nepenthes;
-
 
 
 PCAPSocket::PCAPSocket(uint32_t remotehost, uint16_t remoteport, uint32_t localhost, uint16_t localport)
@@ -57,16 +55,36 @@ PCAPSocket::PCAPSocket(uint32_t remotehost, uint16_t remoteport, uint32_t localh
 
 PCAPSocket::~PCAPSocket()
 {
+#ifdef HAVE_PCAP
 	logPF();
 	logDebug("connectionlogger logged %i packets\n", m_PacketCount);
 	pcap_dump_close(m_PcapDumper);
 	pcap_close(m_PcapSniffer);
 	g_ModuleHoneytrap->socketDel(this);
+
+
+	bool drop_file = false;
+
+	/* the connection was never accepted */
+	if ( m_TimeoutIntervall == 0 )
+		drop_file = true;
+
+	/* remove dump if there was no packet with data
+	   the minimum of packets is 3
+		 [SYN] ACK SYN|ACK (RST|FIN) */
+
+	if ( m_PacketCount <= 3 )
+		drop_file = true;
+
+	if ( drop_file == true )
+		unlink(m_DumpFilePath.c_str());
+#endif // HAVE_PCAP
 }
 
 
 bool PCAPSocket::Init()
 {
+#ifdef HAVE_PCAP
 	logPF();
 	bpf_u_int32 mask;
 	bpf_u_int32 net;
@@ -217,6 +235,8 @@ bool PCAPSocket::Init()
 		return false;
 	}
 
+	m_DumpFilePath = pcap_file_path;
+
 	/* the the socket async */
 	if ( pcap_setnonblock(m_PcapSniffer, 1, errbuf) == -1 )
 	{
@@ -235,6 +255,9 @@ bool PCAPSocket::Init()
 	m_TimeoutIntervall = 10;
 
 	return true;
+#else // HAVE_PCAP
+	return false;
+#endif // HAVE_PCAP
 }
 
 
@@ -259,6 +282,7 @@ int32_t PCAPSocket::doSend()
 
 int32_t PCAPSocket::doRecv()
 {
+#ifdef HAVE_PCAP
 	struct pcap_pkthdr *pkt_header;
 	const u_char *pkt_data;
 
@@ -269,13 +293,18 @@ int32_t PCAPSocket::doRecv()
 		pcap_dump((u_char *)m_PcapDumper,pkt_header,pkt_data);
 		m_PacketCount++;
 	}
+#endif // HAVE_PCAP
 	return 1;
 }
 
 
 int32_t PCAPSocket::getSocket()
 {
+#ifdef HAVE_PCAP
 	return pcap_get_selectable_fd(m_PcapSniffer);
+#else // HAVE_PCAP
+	return 0;
+#endif // HAVE_PCAP
 }
 
 
@@ -283,9 +312,9 @@ int32_t PCAPSocket::getsockOpt(int32_t level, int32_t optname,void *optval,sockl
 {
 #if defined(linux) || defined(__linux)	
 	return getsockopt(getSocket(), level, optname, optval, optlen);
-#else
+#else // HAVE_PCAP
 	return 0;	
-#endif
+#endif // HAVE_PCAP
 }
 
 bool PCAPSocket::checkTimeout()
@@ -313,4 +342,6 @@ void PCAPSocket::dead()
 	logPF();
 	Exit();
 }
+
+
 

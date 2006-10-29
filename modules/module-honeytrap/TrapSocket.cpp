@@ -87,10 +87,15 @@ TrapSocket::TrapSocket()
 TrapSocket::TrapSocket(string pcap_device)
 {
 	TrapSocket();
+#ifdef HAVE_PCAP
 	m_PcapDevice = pcap_device;
 	m_HTType = HT_PCAP;
+#else 
+	m_HTType = HT_NONE;
+#endif
 
 	m_DialogueFactory = "bridge Factory";
+
 }
 
 TrapSocket::TrapSocket(uint16_t divert_port)
@@ -99,6 +104,8 @@ TrapSocket::TrapSocket(uint16_t divert_port)
 	m_HTType = HT_IPFW;
 #ifdef HAVE_IPFW
 	m_DivertPort = divert_port;
+#else 
+	m_HTType = HT_NONE;
 #endif
 	m_DialogueFactory = "bridge Factory";
 }
@@ -107,7 +114,6 @@ TrapSocket::TrapSocket(bool param)
 {
 	TrapSocket();
 	m_HTType = HT_IPQ;
-
 	m_DialogueFactory = "bridge Factory";
 }
 
@@ -145,6 +151,7 @@ bool TrapSocket::Init()
 
 	default:
 		logCrit("Invalid mode for module-honeytrap\n");
+		return false;
 
 	}
 
@@ -200,7 +207,7 @@ bool TrapSocket::Init_IPFW()
     }
 	logInfo("Bound divert socket on port %i\n",m_DivertPort);	//FIXME
 	return true;
-#else
+#else // HAVE_IPFW
 	logCrit("IPFW not supported, check your plattform\n");
 	return false;
 #endif // HAVE_IPFW
@@ -360,7 +367,7 @@ bool TrapSocket::Init_PCAP()
 	
 
 	return true;
-#else
+#else // HAVE_PCAP
 	logCrit("pcap not supported, hit the docs\n");
 	return false;
 #endif // HAVE_PCAP
@@ -444,7 +451,7 @@ bool TrapSocket::Exit_IPFW()
 	{
 		close(m_DivertSocket);
 	}
-#endif
+#endif // HAVE_IPFW
 	return true;
 }
 
@@ -654,7 +661,7 @@ int32_t TrapSocket::doRecv_IPFW()
 	 */
 	{
 
-		createListener((libnet_ipv4_hdr *)ip,(libnet_tcp_hdr *)tcp,(unsigned char *)buf,len);
+		createListener(ip,tcp,buf,len);
 	}
 
 
@@ -792,7 +799,7 @@ bool TrapSocket::createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsign
 
 			sock->addDialogueFactory(diaf);
 		}
-
+#ifdef HAVE_PCAP
 		if ( m_HTType != HT_PCAP )
 		{
 			if ( g_ModuleHoneytrap->socketExists((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
@@ -812,6 +819,7 @@ bool TrapSocket::createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsign
 				logWarn("Already listening for this buddy\n");
 			}
 		}
+#endif // HAVE_PCAP
 	}
 	return true;
 }
@@ -823,7 +831,7 @@ string TrapSocket::getSupportedModes()
 
 #ifdef HAVE_PCAP
 	isupport += "pcap,";
-#endif
+#endif 
 
 #ifdef HAVE_IPQ
 	isupport += "ipq,";

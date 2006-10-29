@@ -45,10 +45,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-#include <net/route.h>
 #include <fcntl.h>
 
 #if defined(__linux__)
+#include <net/route.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
 #endif
@@ -168,8 +168,10 @@ int TapInterface::getSocket()
 
 bool TapInterface::Exit()
 {
+#if defined(__linux_)
 	if(m_manageRoute)
 	{
+
 		int sockfd;
 		struct rtentry rt = { 0 };
 		
@@ -196,10 +198,12 @@ bool TapInterface::Exit()
 		}
 		
 		close(sockfd);
+
 	}
 
 	logPF();
 	close(m_fd);
+#endif
 	return true;
 }
 
@@ -288,11 +292,8 @@ bool TapInterface::addAddress(uint32_t address)
    	logInfo("Added address %s.\n", inet_ntoa(addr.sin_addr));
    	
 	close(ctlsocket);
-		
+#endif			
 	return true;
-#else
-	return false;	
-#endif	
 }
 
 void TapInterface::removeAddress(uint32_t address)

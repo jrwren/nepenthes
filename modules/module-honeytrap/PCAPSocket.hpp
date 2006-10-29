@@ -77,11 +77,13 @@ namespace nepenthes
 
 
 	private:
+#ifdef HAVE_PCAP
 			pcap_t 			*m_PcapSniffer;
 			pcap_dumper_t 	*m_PcapDumper;
+#endif
 			uint32_t 		m_PacketCount;
 			string 			m_NetworkDevice;
-	};
+			string 			m_DumpFilePath;
+		};
 }
-
 #endif

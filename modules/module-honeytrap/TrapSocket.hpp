@@ -263,6 +263,7 @@ struct libnet_tcp_hdr
 		static string getSupportedModes();
 		bool createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsigned char *data, uint16_t size);
 	protected:
+		
 #ifdef HAVE_PCAP
 		pcap_t	*m_RawListener;
 		string 	m_PcapDevice;

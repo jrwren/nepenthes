@@ -238,7 +238,7 @@ string PeirosParser::renderRequest(PeirosRequest * request)
 	{
 		char * lengthHeader;
 		
-		asprintf(&lengthHeader, "Content-length: %u\r\n", request->appendedData.size());
+		asprintf(&lengthHeader, "Content-length: %u\r\n", (int)request->appendedData.size());
 		result += lengthHeader;
 		free(lengthHeader);
 	}
