@@ -27,8 +27,8 @@
 
 /* $Id$ */
 
-#ifndef CONFIG_H
-#define CONIFG_H
+#ifndef HAVE_CONFIG_HPP
+#define HAVE_CONFIG_HPP
 
 #include <vector>
 #include <map>

@@ -118,12 +118,21 @@ namespace nepenthes
 		bool socketDel(Socket *s);
         bool socketExists(uint32_t remotehost, uint16_t remoteport, uint32_t localhost, uint16_t localport);
 
+		bool 		getPcapDumpFiles();
+		string 		getPcapPath();
+		uint32_t	getPcapMinPackets();
+
+
 	protected:
 		map<connection_t ,Socket *,cmp_connection_t> m_Sockets;
 		Nepenthes *m_Nepenthes;
 //		honeytrap_type m_HTType;
 
 		string m_DialogueFactory;
+
+		bool		m_PcapDumpFiles;
+		string  	m_PcapDumpFilePath;
+		uint32_t 	m_PcapMinPackets;
 	};
 
 }

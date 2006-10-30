@@ -1,6 +1,6 @@
 module-honeytrap
 {
-	listen_mode 	"ipq";	// valid values are ipq pcap and divert
+	listen_mode 	"ipq";	// valid values are ipq pcap and ipfw
 
 
 	pcap
@@ -8,10 +8,19 @@ module-honeytrap
 		device	"any";	// any should be valid always
 	};
 	
-	divert
+	ipfw
 	{
-		port	"4711";
+		divert_port	"4711";
 	};
+
 	
+	write_pcap_files	"1";	/* creates a single pcap file per accepted connection
+					   only supported in ipq and ipfw mode */
+
+	pcap_dump_options
+	{	
+		min_packets "3";			// minimum of packets, else the dump gets removed
+		path	"var/log/pcap/";		// path for pcap files relative to basedir
+	};	
 	
 };

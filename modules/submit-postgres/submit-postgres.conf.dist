@@ -6,6 +6,6 @@ submit-postgres
 	db 	"mwcollect";	// which database to use
 	options	"";		// not sure if options already work (ssl is an option)
 	
-	spooldir "var/spool/submitpostgres/";
+	spooldir "var/spool/nepenthes/submitpostgres/";
 };
 	

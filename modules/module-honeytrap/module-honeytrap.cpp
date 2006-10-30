@@ -111,6 +111,11 @@ ModuleHoneyTrap::ModuleHoneyTrap(Nepenthes *nepenthes)
 	g_Nepenthes = nepenthes;
 	g_ModuleHoneytrap = this;
 
+	m_PcapDumpFiles = false;
+	m_PcapDumpFilePath	= "var/log/pcap/";
+	m_PcapMinPackets	= 3;
+
+
 }
 
 ModuleHoneyTrap::~ModuleHoneyTrap()
@@ -143,6 +148,11 @@ bool ModuleHoneyTrap::Init()
 	{
 
 		mode = m_Config->getValString("module-honeytrap.listen_mode");
+
+		m_PcapDumpFiles 	= (bool)m_Config->getValInt("module-honeytrap.write_pcap_files");
+		m_PcapDumpFilePath	= m_Config->getValString("module-honeytrap.pcap_dump_options.path");;
+		m_PcapMinPackets	= m_Config->getValInt("module-honeytrap.pcap_dump_options.min_packets");;
+
 	} catch ( ... )
 	{
 		logCrit("Error setting needed vars, check your config\n");
@@ -152,6 +162,24 @@ bool ModuleHoneyTrap::Init()
 	logInfo("Supported honeytrap modes %s, choosen mode %s\n",
 			TrapSocket::getSupportedModes().c_str(),
 			mode.c_str());
+
+
+	if (m_PcapDumpFiles == true)
+	{
+#ifdef HAVE_PCAP
+		logInfo("Dumping accepted connection pcap files to %s if they have the minimum of %i packets\n",
+				m_PcapDumpFilePath.c_str(),
+				m_PcapMinPackets);
+#else
+		logWarn("Not dumping to pcap files (not supported)\n");
+		m_PcapDumpFiles = false;
+#endif
+
+	}else
+	{
+		logInfo("Not dumping to pcap files\n");
+	}
+
 
 	Socket *s = NULL;
 #ifdef HAVE_PCAP
@@ -186,7 +214,7 @@ bool ModuleHoneyTrap::Init()
 		uint16_t port;
 		try
 		{
-			port = m_Config->getValInt("module-honeytrap.divert.port");
+			port = m_Config->getValInt("module-honeytrap.ipfw.divert_port");
 		} catch (...)
 		{
 			return false;
@@ -346,6 +374,23 @@ uint32_t ModuleHoneyTrap::handleEvent(Event *event)
 
 	return 0;
 
+}
+
+bool        ModuleHoneyTrap::getPcapDumpFiles()
+{
+	return m_PcapDumpFiles;
+}
+
+
+string      ModuleHoneyTrap::getPcapPath()
+{
+
+	return m_PcapDumpFilePath;
+}
+
+uint32_t    ModuleHoneyTrap::getPcapMinPackets()
+{
+	return m_PcapMinPackets;
 }
 
 

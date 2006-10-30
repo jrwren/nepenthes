@@ -800,7 +800,7 @@ bool TrapSocket::createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsign
 			sock->addDialogueFactory(diaf);
 		}
 #ifdef HAVE_PCAP
-		if ( m_HTType != HT_PCAP )
+		if ( g_ModuleHoneytrap->getPcapDumpFiles() &&  m_HTType != HT_PCAP )
 		{
 			if ( g_ModuleHoneytrap->socketExists((uint32_t)ip->ip_src.s_addr, ntohs(tcp->th_sport),
 												 (uint32_t)ip->ip_dst.s_addr,ntohs(tcp->th_dport)) == false )

@@ -48,7 +48,7 @@ install-data-local:
 	$(INSTALL_DATA) $(srcdir)/doc/nepenthes.8 $(DESTDIR)$(mandir)/man8/nepenthes.8;
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes
-	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/geolocation
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/pcap
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/cache/nepenthes/signatures
 
 	$(INSTALL_DATA) modules/shellcode-signatures/shellcode-signatures.sc $(DESTDIR)$(localstatedir)/cache/nepenthes/signatures
@@ -56,7 +56,9 @@ install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes/gotek
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/spool/nepenthes/submitpostgres
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/log
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/log/pcap
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/binaries
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)/hexdumps
 

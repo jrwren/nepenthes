@@ -75,7 +75,7 @@ PCAPSocket::~PCAPSocket()
 	   the minimum of packets is 3
 		 [SYN] ACK SYN|ACK (RST|FIN) */
 
-	if ( m_PacketCount <= 3 )
+	if ( m_PacketCount < g_ModuleHoneytrap->getPcapMinPackets() )
 		drop_file = true;
 
 	if ( drop_file == true )
@@ -219,7 +219,8 @@ bool PCAPSocket::Init()
 
 	char *pcap_file_path;
 
-	asprintf(&pcap_file_path,"var/log/nepenthes/pcap/%i_%s-%i_%s-%i.pcap",
+	asprintf(&pcap_file_path,"%s/%i_%s-%i_%s-%i.pcap",
+			 g_ModuleHoneytrap->getPcapPath().c_str(),
 			 (int)time(NULL),
 			 rhost.c_str(),getRemotePort(),
 			 lhost.c_str(),getLocalPort()
