@@ -109,9 +109,9 @@ sch_result NamespaceBase64::handleShellcode(Message **msg)
 		free(decoded);
 		pcre_free_substring(postMatch);
 
-		return SCH_DONE;
+		return SCH_REPROCESS;
 	}
-	return SCH_REPROCESS;
+	return SCH_NOTHING;
 }
 
 
