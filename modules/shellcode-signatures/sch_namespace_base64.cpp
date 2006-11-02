@@ -111,7 +111,7 @@ sch_result NamespaceBase64::handleShellcode(Message **msg)
 
 		return SCH_DONE;
 	}
-	return SCH_NOTHING;
+	return SCH_REPROCESS;
 }
 
 
