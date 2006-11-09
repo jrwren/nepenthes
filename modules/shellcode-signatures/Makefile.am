@@ -9,7 +9,7 @@ AM_CXXFLAGS = -Wall -Werror
 AM_CFLAGS = -Wall
 AM_LDFLAGS = ${LIB_PCRE} @LEXLIB@ ${LIB_LIBY}
 
-YACC += -d
+AM_YFLAGS = -d
 
 
 pkglib_LTLIBRARIES = shellcodesignatures.la

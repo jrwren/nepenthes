@@ -10,6 +10,8 @@ AM_CXXFLAGS = -Wall -Werror
 
 pkglib_LTLIBRARIES = modulepeiros.la
 
-modulepeiros_la_SOURCES = module-peiros.cpp PeirosParser.cpp TapInterface.cpp
+modulepeiros_la_SOURCES =  module-peiros.cpp module-peiros.hpp  
+modulepeiros_la_SOURCES += PeirosParser.cpp  PeirosParser.hpp   
+modulepeiros_la_SOURCES += TapInterface.cpp  TapInterface.hpp   
 
 modulepeiros_la_LDFLAGS = -module -no-undefined -avoid-version
