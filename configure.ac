@@ -344,23 +344,37 @@ AC_ARG_WITH(curl-lib,
     [curl_lib=no])
 
 if test xyes = "xyes"; then
-    orig_cppflags=$CPPFLAGS
-  
+
+    AC_PATH_PROG(LIBCURL_CONFIG, curl-config, no)
+    if test "$LIBCURL_CONFIG" = "no" ; then
+	AC_MSG_ERROR([libcurl curl-config was not found in PATH])
+    fi
+
+
     if test "x$curl_inc" != xno; then
       CPPFLAGS="-I$curl_inc $CPPFLAGS"
     fi
 
-    orig_ldflags=$LDFLAGS
     if test "x$curl_lib" != "xno"; then
         LDFLAGS="-L$curl_lib $LDFLAGS"
     fi
 
+    orig_cppflags=$CPPFLAGS
+    orig_libs=$LIBS
+    
+    CPPFLAGS="$CPPFLAGS `curl-config --cflags`"
+    LIBS="$LIBS `curl-config --libs`"
+    
+
     AC_CHECK_LIB([curl], [curl_version],
              [AC_DEFINE(HAVE_LIBCURL, 1,
                        [Define if you want to use libcurl])
-             LIB_CURL="-lcurl"],
+             LIB_CURL="`curl-config --cflags`"],
              [AC_MSG_ERROR([libcurl is missing - install it please])
              ])
+
+    CPPFLAGS=$orig_cppflags
+    LIBS=$orig_libs
 fi
 	  
 
@@ -424,13 +438,19 @@ if test xyes = "xyes"; then
         LDFLAGS="-L$magic_lib $LDFLAGS"
     fi
 
+    
+    orig_libs=$LIBS
+    LIBS="-lz $LIBS"
 
     AC_CHECK_LIB([magic], [magic_open],
              [AC_DEFINE(HAVE_LIBMAGIC, 1,
                        [Define if you want to use libmagic])
-              LIB_MAGIC="-lmagic"],
+              LIB_MAGIC="-lmagic -lz"],
              [AC_MSG_ERROR([libmagic is missing - install it please])
              ])
+
+    LIBS=$orig_libs
+
     AC_CHECK_HEADERS(magic.h)
 fi
 
