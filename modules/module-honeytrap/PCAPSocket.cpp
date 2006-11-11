@@ -27,11 +27,13 @@
 
 /* $Id$ */
 
-
+#include <unistd.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <errno.h>
 
 #include "LogManager.hpp"
 #include "PCAPSocket.hpp"
@@ -64,22 +66,26 @@ PCAPSocket::~PCAPSocket()
 	pcap_close(m_PcapSniffer);
 	g_ModuleHoneytrap->socketDel(this);
 
+	if ( m_DumpFilePath != "" )
+	{
 
-	bool drop_file = false;
+		bool drop_file = false;
 
-	/* the connection was never accepted */
-	if ( m_TimeoutIntervall == 0 )
-		drop_file = true;
+		/* the connection was never accepted */
+		if ( m_TimeoutIntervall != 0 )
+			drop_file = true;
 
-	/* remove dump if there was no packet with data
-	   the minimum of packets is 3
-		 [SYN] ACK SYN|ACK (RST|FIN) */
+		/* remove dump if there was no packet with data
+		   the minimum of packets is 3
+			 [SYN] ACK SYN|ACK (RST|FIN) */
 
-	if ( m_PacketCount < g_ModuleHoneytrap->getPcapMinPackets() )
-		drop_file = true;
+		if ( m_PacketCount < g_ModuleHoneytrap->getPcapMinPackets() )
+			drop_file = true;
 
-	if ( drop_file == true )
-		unlink(m_DumpFilePath.c_str());
+		if ( drop_file == true )
+			if (unlink(m_DumpFilePath.c_str()) != 0)
+				logWarn("Could not unlink file %s '%s'\n",m_DumpFilePath.c_str(),strerror(errno));
+	}
 #endif // HAVE_PCAP
 }
 

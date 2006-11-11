@@ -33,9 +33,7 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 
-#ifdef WIN32
 #include <time.h>
-#endif
 
 using namespace nepenthes;
 using namespace std;

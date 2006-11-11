@@ -297,11 +297,11 @@ bool SubmitPostgres::sqlSuccess(SQLResult *result)
 
 	vector< map<string,string> > resvec = *result->getResult();
 
-
+/*
 	vector< map<string,string> >::iterator it = resvec.begin();
 	map<string,string>::iterator jt;
 
-/*
+
 	//	this is my reply debugger 
 	
 	string msg;

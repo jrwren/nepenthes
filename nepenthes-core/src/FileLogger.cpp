@@ -27,9 +27,7 @@
 
 /* $Id$ */
 
-#ifdef WIN32
 #include <time.h>
-#endif
 
 
 #include <stdio.h>
