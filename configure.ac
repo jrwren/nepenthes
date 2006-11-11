@@ -369,7 +369,7 @@ if test xyes = "xyes"; then
     AC_CHECK_LIB([curl], [curl_version],
              [AC_DEFINE(HAVE_LIBCURL, 1,
                        [Define if you want to use libcurl])
-             LIB_CURL="`curl-config --cflags`"],
+             LIB_CURL="`curl-config --libs` -lcurl"],
              [AC_MSG_ERROR([libcurl is missing - install it please])
              ])
 
