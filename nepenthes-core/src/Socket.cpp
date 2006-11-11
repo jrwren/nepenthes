@@ -30,14 +30,12 @@
 #include <string>
 #include <sstream>
 
-#ifdef WIN32
 #include <time.h>
-#else
-     #include <sys/types.h>
-     #include <sys/socket.h>
-     #include <netinet/in.h>
-     #include <arpa/inet.h>
-#endif
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "Socket.hpp"
 #include "DialogueFactory.hpp"

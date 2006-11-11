@@ -1219,15 +1219,17 @@ bool Nepenthes::setCapabilties()
 #ifdef HAVE_LIBCAP
 	// set caps
 	cap_t caps = cap_init();
-	cap_value_t capList[4] =
+	cap_value_t capList[6] =
 	{ 
 		CAP_SYS_CHROOT, 		// chroot()
 		CAP_NET_BIND_SERVICE, 	// bind() ports < 1024 
 		CAP_SETUID, 			// setuid()
-		CAP_SETGID				// setgid()
+		CAP_SETGID,				// setgid()
+		CAP_NET_RAW,			// pcap
+		CAP_NET_ADMIN			// route
 	};
 
-	unsigned num_caps = 4;
+	unsigned num_caps = 6;
 
 	cap_set_flag(caps, CAP_EFFECTIVE, 	num_caps, capList, CAP_SET);
 	cap_set_flag(caps, CAP_INHERITABLE, num_caps, capList, CAP_SET);
