@@ -6,7 +6,7 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.1.7], [dornseif@informatik.rwth-aachen.de])
+AC_INIT([nepenthes], [0.2.0], [dornseif@informatik.rwth-aachen.de])
 AM_INIT_AUTOMAKE([nepenthes], [0.1.7])
 AC_REVISION([$Id$])
 

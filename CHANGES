@@ -1,3 +1,156 @@
+Version 0.2.0
+==================
+
+Indepent from the codebase, we cleaned up the compile process, 
+now every module is linked only on the libraries it relies on.
+
+
+Nepenthes
+        FIXES and ADDITIONS
+	-----
+	* Nepenthes 
+		* check for nepenthes in signal handler before logging
+		* dont handle SIGUSR1/2
+		* create LogManager in constructor, so we can use it right from the beginning to the bitter end
+		* added mips & arm to MY_ARCHES
+		* handle SIGCHLD & SIGPIPE
+		* add -D daemonize flag for start as daemon
+		* use proper types for uid/gid
+		* dont change user/group if not necessary
+		* clean up startup code
+
+	* GeoLocationManager
+        	* removed
+
+	* UploadManager
+        	* removed
+
+
+	* LogManager 
+		* clear() loggers on destruction
+                * check for registerd loggers before logging, if no handlers re registerd, log using printf
+
+	* Socket
+		* allow hw address lookup using /proc/net/arp in Socket::getRemoteHWA(string *address)
+	
+	* UDPSocket
+		* fix source based routing for udp, bind local address for connect' connections
+		* memset() our sockaddr_in before we use em
+
+	* TCPSocket
+		* add event on binding a port
+                * memset() our sockaddr_in before we use em
+
+
+	* SQLManager
+		* added
+
+	* ModuleManager
+		* unload modules in reverse order
+
+	* LogHandler
+		* added setOwnership()
+
+	* LogManager
+		* added bool LogManager::delLogger(LogHandler *lh), return true on success, false else
+
+ 
+Modules
+        FIXES and ADDITIONS
+        -----
+	* shellcode-signatures
+		* changed the build process to use the yacc & flex files
+		* fix bug in sch_namespace_base64, credits go to Nelson William for pointing this out
+
+	* log-prelude
+		* fixes & classification changes by Harald Lampesberger
+		* should produce valid idmef now
+
+	* vuln-bagle
+		* fixed endless loop on closed connection
+
+	* vuln-mydoom
+		* fixed endless loop on closed connection
+
+
+	* log-irc
+		* can set filters now
+		* use LogManager::delLogger(LogHandler *lh) on ::Exit
+
+	* shellemu-winnt
+		* improve ftp.exe commandline parsing
+		  problem was, when the host/anonymous flag was specified on the command line, 
+		  after the script
+
+
+	* log-surfnet
+		* log remote mac address to table if its availible
+		* use sqlhandler-postgres, to offer autoreconnect etc etc etc
+
+	* download-ftp
+		* workaround problems with PORTs command where the virus would parse the wrong port
+
+	* download-creceive
+		* fix a bug where the downloads source is equal to the downloads destionation
+
+	
+	* vuln-mydoom
+		* fix destionation ip
+		* proper url
+
+	* submit-norman
+		* submit to cwsandbox too, add a new config var urls, 
+		  which is a list of urls to post to
+
+        NEW
+        ---
+	* vuln-realvnc 
+		* handles alphanumeric keystrokes
+		* clipboard actions
+
+	* module-honeytrap
+		* idea is taken from honeytrap.sf.net by Werner Tillmann
+		* detect incoming connections using pcap/ipq/ipfw
+		* bind unbound ports
+		* create a mirror connection between to the attacker to "emulate" the vuln using the attackers own weakness
+		* able to log incoming connections as pcap files
+
+	* module-bridge
+		* basic exploit & command detection to the accept() Dialogue,
+		* handle recognized attacks, downloads what has to be downloaded
+
+
+	* sqlhandler-postgres
+		* can use domains
+		* nonblocking, even in conjunction with domains
+		* autoreconnect
+
+	* x-9
+		* example on the sqlmanager/handler
+
+
+	* submit-postgres
+		* submit samples & context information to a postgres database
+		* requires the sqlhandler-postgres
+		* compatible to libpq 7.4 and 8.x
+		* spooling with bencoded files
+
+
+	* module-peiros
+		* 'construction site'
+
+
+	GONE WITH THE WIND
+	------------------
+	*
+		* geolocation-*
+		* x-8 (geolocation example)
+		* upload-http
+		* submit-xmlrpc
+
+
+
+
 Version 0.1.7
 ==================
 
