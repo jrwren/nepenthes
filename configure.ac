@@ -7,7 +7,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT([nepenthes], [0.2.0], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.1.7])
+AM_INIT_AUTOMAKE([nepenthes], [0.2.0])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
