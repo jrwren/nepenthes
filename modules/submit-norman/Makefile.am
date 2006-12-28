@@ -12,4 +12,4 @@ pkglib_LTLIBRARIES = submitnorman.la
 
 submitnorman_la_SOURCES = submit-norman.conf.dist submit-norman.hpp submit-norman.cpp
 
-submitnorman_la_LDFLAGS = -module -no-undefined -avoid-version
+submitnorman_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)

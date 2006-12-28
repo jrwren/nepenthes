@@ -32,4 +32,4 @@ shellcodegeneric_la_SOURCES += sch_generic_winexec.cpp         sch_generic_winex
 shellcodegeneric_la_SOURCES += sch_generic_leimbach_url_xor.cpp sch_generic_leimbach_url_xor.hpp
 shellcodegeneric_la_SOURCES += sch_generic_wget.cpp            sch_generic_wget.hpp
 
-shellcodegeneric_la_LDFLAGS = -module -no-undefined -avoid-version
+shellcodegeneric_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)

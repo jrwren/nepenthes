@@ -12,4 +12,4 @@ pkglib_LTLIBRARIES = sqlhandlerpostgres.la
 
 sqlhandlerpostgres_la_SOURCES = sqlhandler-postgres.cpp sqlhandler-postgres.hpp
 
-sqlhandlerpostgres_la_LDFLAGS = -module -no-undefined -avoid-version
+sqlhandlerpostgres_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)

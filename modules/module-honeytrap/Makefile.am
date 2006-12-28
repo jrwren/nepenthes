@@ -15,4 +15,4 @@ modulehoneytrap_la_SOURCES += PCAPSocket.cpp PCAPSocket.hpp
 modulehoneytrap_la_SOURCES += TrapSocket.cpp TrapSocket.hpp
 modulehoneytrap_la_SOURCES += module-honeytrap.conf.dist
 
-modulehoneytrap_la_LDFLAGS = -module -no-undefined -avoid-version
+modulehoneytrap_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)

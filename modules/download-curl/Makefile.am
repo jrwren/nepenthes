@@ -12,4 +12,4 @@ pkglib_LTLIBRARIES = downloadcurl.la
 
 downloadcurl_la_SOURCES = download-curl.conf.dist download-curl.hpp download-curl.cpp
 
-downloadcurl_la_LDFLAGS = -module -no-undefined -avoid-version
+downloadcurl_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)

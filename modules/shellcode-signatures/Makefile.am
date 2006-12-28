@@ -33,5 +33,5 @@ shellcodesignatures_la_SOURCES += sch_engine_unicode.cpp sch_engine_unicode.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_konstanzxor.cpp sch_namespace_konstanzxor.hpp
 shellcodesignatures_la_SOURCES += sch_namespace_alphanumericxor.cpp sch_namespace_alphanumericxor.hpp
 
-shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version
+shellcodesignatures_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)
 

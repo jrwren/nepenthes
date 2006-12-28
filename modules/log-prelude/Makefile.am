@@ -12,5 +12,5 @@ pkglib_LTLIBRARIES = logprelude.la
 
 logprelude_la_SOURCES = log-prelude.cpp log-prelude.hpp log-prelude.conf.dist
 
-logprelude_la_LDFLAGS = -module -no-undefined -avoid-version
+logprelude_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)
 

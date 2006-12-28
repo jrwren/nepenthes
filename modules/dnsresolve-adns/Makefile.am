@@ -12,4 +12,4 @@ pkglib_LTLIBRARIES = dnsresolveadns.la
 
 dnsresolveadns_la_SOURCES = dnsresolve-adns.cpp dnsresolve-adns.hpp
 
-dnsresolveadns_la_LDFLAGS = -module -no-undefined -avoid-version
+dnsresolveadns_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)
