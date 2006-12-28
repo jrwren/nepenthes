@@ -370,26 +370,27 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 
 
 
+	m_LogManager->registerTag(l_crit,   "crit");
+	m_LogManager->registerTag(l_warn,   "warn");
+	m_LogManager->registerTag(l_debug,  "debug");
+	m_LogManager->registerTag(l_info,   "info");
+	m_LogManager->registerTag(l_spam,   "spam");
+	m_LogManager->registerTag(l_net,    "net");
+	m_LogManager->registerTag(l_script, "script");
+	m_LogManager->registerTag(l_shell,  "shell");
+	m_LogManager->registerTag(l_mem,    "mem");
+	m_LogManager->registerTag(l_sc,     "sc");
+	m_LogManager->registerTag(l_dl,     "down");
+	m_LogManager->registerTag(l_mgr,    "mgr");
+	m_LogManager->registerTag(l_hlr,    "handler");
+	m_LogManager->registerTag(l_dia,    "dia");
+	m_LogManager->registerTag(l_sub,    "submit");
+	m_LogManager->registerTag(l_ev,     "event");
+	m_LogManager->registerTag(l_mod,    "module");
+	m_LogManager->registerTag(l_stdtag, "fixme");
+
 	if ( opt.m_runMode != runFileCheck || opt.m_verbose )
 	{
-		m_LogManager->registerTag(l_crit,   "crit");
-		m_LogManager->registerTag(l_warn,   "warn");
-		m_LogManager->registerTag(l_debug,  "debug");
-		m_LogManager->registerTag(l_info,   "info");
-		m_LogManager->registerTag(l_spam,   "spam");
-		m_LogManager->registerTag(l_net,    "net");
-		m_LogManager->registerTag(l_script, "script");
-		m_LogManager->registerTag(l_shell,  "shell");
-		m_LogManager->registerTag(l_mem,    "mem");
-		m_LogManager->registerTag(l_sc,     "sc");
-		m_LogManager->registerTag(l_dl,     "down");
-		m_LogManager->registerTag(l_mgr,    "mgr");
-		m_LogManager->registerTag(l_hlr,    "handler");
-		m_LogManager->registerTag(l_dia,    "dia");
-		m_LogManager->registerTag(l_sub,    "submit");
-		m_LogManager->registerTag(l_ev,     "event");
-		m_LogManager->registerTag(l_mod,    "module");
-		m_LogManager->registerTag(l_stdtag, "fixme");
 
 		if ( opt.m_consoleTags )
 			m_LogManager->addLogger(new ConsoleLogger(m_LogManager), m_LogManager->parseTagString(opt.m_consoleTags));
@@ -460,52 +461,53 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		return 0;
 
 
-	if ( opt.m_ringLogger == true )
+	if ( opt.m_runMode != runFileCheck || opt.m_verbose )
 	{
-		string rlpath;
-		try
+
+		if ( opt.m_ringLogger == true )
 		{
-			rlpath = m_Config->getValString("nepenthes.logmanager.ring_logging_file");
-		}
-		catch ( ... )
+			string rlpath;
+			try
+			{
+				rlpath = m_Config->getValString("nepenthes.logmanager.ring_logging_file");
+			} catch ( ... )
+			{
+				logCrit("Could not find nepenthes.logmanager.ring_logging_file in Config\n");
+				return (false);
+			}
+
+
+			RingFileLogger *fl = new RingFileLogger(m_LogManager);
+
+			fl->setLogFileFormat((char *)rlpath.c_str());
+			fl->setMaxFiles(5);
+			fl->setMaxSize(1024 * 1024);
+
+			if ( opt.m_diskTags )
+				m_LogManager->addLogger(fl, m_LogManager->parseTagString(opt.m_diskTags));
+			else
+				m_LogManager->addLogger(fl, l_all);
+
+		} else
 		{
-			logCrit("Could not find nepenthes.logmanager.ring_logging_file in Config\n");
-			return false;
+			string flpath;
+			try
+			{
+				flpath = m_Config->getValString("nepenthes.logmanager.file_logging_file");
+			} catch ( ... )
+			{
+				logCrit("Could not find nepenthes.logmanager.file_logging_file in Config\n");
+				return (false);
+			}
+
+			FileLogger *fl = new FileLogger(m_LogManager);
+			fl->setLogFile(flpath.c_str());
+			if ( opt.m_diskTags )
+				m_LogManager->addLogger(fl, m_LogManager->parseTagString(opt.m_diskTags));
+			else
+				m_LogManager->addLogger(fl, l_all);
+
 		}
-
-
-		RingFileLogger *fl = new RingFileLogger(m_LogManager);
-
-		fl->setLogFileFormat((char *)rlpath.c_str());
-		fl->setMaxFiles(5);
-		fl->setMaxSize(1024 * 1024);
-
-		if ( opt.m_diskTags )
-			m_LogManager->addLogger(fl, m_LogManager->parseTagString(opt.m_diskTags));
-		else
-			m_LogManager->addLogger(fl, l_all);
-
-	}
-	else
-	{
-		string flpath;
-		try
-		{
-			flpath = m_Config->getValString("nepenthes.logmanager.file_logging_file");
-		}
-		catch ( ... )
-		{
-			logCrit("Could not find nepenthes.logmanager.file_logging_file in Config\n");
-			return false;
-		}
-
-		FileLogger *fl = new FileLogger(m_LogManager);
-		fl->setLogFile(flpath.c_str());
-		if ( opt.m_diskTags )
-			m_LogManager->addLogger(fl, m_LogManager->parseTagString(opt.m_diskTags));
-		else
-			m_LogManager->addLogger(fl, l_all);
-
 	}
 
 	if (opt.m_daemonize == true)
@@ -680,7 +682,10 @@ bool Nepenthes::fileCheckMain(const char *optval, int32_t argc, int32_t opti, ch
 				)
 				
 			{
-				unlink(argv[opti]);
+				if (unlink(argv[opti]) != 0)
+				{
+					printf("could not remove file %s (%s)\n",argv[opti],strerror(errno));
+				}
 			}
 
 		}else
@@ -693,7 +698,7 @@ bool Nepenthes::fileCheckMain(const char *optval, int32_t argc, int32_t opti, ch
 			while ( (dirnode = readdir(bindir)) != NULL && m_running == true )
 			{
 
-#if !defined(CYGWIN)  && !defined(CYGWIN32) &&!defined(__CYGWIN__) || !defined(__CYGWIN32__)
+#if defined(d_type_IS_NOT_A_POSIX_SPEC)
 				if ( dirnode->d_type == 8 )
 #else
 				if (1)
@@ -708,7 +713,10 @@ bool Nepenthes::fileCheckMain(const char *optval, int32_t argc, int32_t opti, ch
 						)
 						
 					{
-						unlink(filepath.c_str());
+						if (unlink(filepath.c_str()) != 0)
+						{
+							printf("could not remove file %s (%s)\n",filepath.c_str(),strerror(errno));
+						}
 					}
 				}
 			}
