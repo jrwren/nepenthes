@@ -1,0 +1,5 @@
+x-2
+{
+	ports		("10002");
+	accepttimeout 	"45";
+};
