@@ -12,4 +12,4 @@ pkglib_LTLIBRARIES = vulnoptix.la
 
 vulnoptix_la_SOURCES = vuln-optix.conf.dist OPTIXBindDialogue.hpp OPTIXDownloadDialogue.hpp OPTIXDownloadHandler.hpp OPTIXShellDialogue.hpp vuln-optix.hpp OPTIXBindDialogue.cpp OPTIXDownloadDialogue.cpp OPTIXDownloadHandler.cpp OPTIXShellDialogue.cpp vuln-optix.cpp
 
-vulnoptix_la_LDFLAGS = -module -no-undefined -avoid-version
+vulnoptix_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)
