@@ -8,7 +8,7 @@ SUBDIRS = download-creceive download-csend download-curl download-ftp download-h
           shellcode-generic shellemu-winnt \
           vuln-asn1 vuln-bagle vuln-dcom vuln-iis vuln-kuang2 vuln-lsass \
           vuln-msdtc vuln-msmq vuln-mssql vuln-mydoom \
-          vuln-netbiosname vuln-netdde vuln-optix vuln-pnp vuln-sasserftpd \
+          vuln-netbiosname vuln-netdde vuln-optix vuln-pnp vuln-sasserftpd vuln-sav \
           vuln-sub7 vuln-upnp vuln-veritas vuln-wins vuln-dameware vuln-ssh vuln-realvnc \
           module-portwatch module-honeytrap module-bridge module-peiros\
           dnsresolve-adns \

@@ -931,6 +931,7 @@ AC_CONFIG_FILES([Makefile
                  modules/vuln-pnp/Makefile
                  modules/vuln-realvnc/Makefile
                  modules/vuln-sasserftpd/Makefile
+		 modules/vuln-sav/Makefile
                  modules/vuln-ssh/Makefile
                  modules/vuln-sub7/Makefile
                  modules/vuln-upnp/Makefile
