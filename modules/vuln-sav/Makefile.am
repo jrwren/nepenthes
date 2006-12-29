@@ -7,9 +7,8 @@ AUTOMAKE_OPTIONS = foreign
 AM_CPPFLAGS = -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-core/src -pipe -D _GNU_SOURCE
 AM_CXXFLAGS = -Wall -Werror
 
+pkglib_LTLIBRARIES = vulnsav.la
 
-pkglib_LTLIBRARIES = x2.la
+vulnsav_la_SOURCES = vuln-sav.cpp vuln-sav.hpp
 
-x2_la_SOURCES = x-2.cpp x-2.hpp x-2.conf.dist
-
-x2_la_LDFLAGS = -module -no-undefined -avoid-version
+vulnsav_la_LDFLAGS = -module -no-undefined -avoid-version

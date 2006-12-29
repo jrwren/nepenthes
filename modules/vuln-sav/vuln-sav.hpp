@@ -42,21 +42,21 @@ namespace nepenthes
 
 	class Buffer;
 
-	class X2 : public Module , public DialogueFactory
+	class VulnSAV : public Module , public DialogueFactory
 	{
 	public:
-		X2(Nepenthes *);
-		~X2();
+		VulnSAV(Nepenthes *);
+		~VulnSAV();
 		Dialogue *createDialogue(Socket *socket);
 		bool Init();
 		bool Exit();
 	};
 
-	class X2Dialogue : public Dialogue
+	class SAVDialogue : public Dialogue
 	{
 	public:
-		X2Dialogue(Socket *socket);
-		~X2Dialogue();
+		SAVDialogue(Socket *socket);
+		~SAVDialogue();
 		ConsumeLevel incomingData(Message *msg);
 		ConsumeLevel outgoingData(Message *msg);
 		ConsumeLevel handleTimeout(Message *msg);
