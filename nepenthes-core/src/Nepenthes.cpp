@@ -211,7 +211,7 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 			{ "user",			1, 0, 'u' },	
 			{ "version", 		0, 0, 'V' },
 			{ "verbose", 		0, 0, 'v' },
-			{ "workingdir", 	0, 0, 'w' },
+			{ "workingdir", 	1, 0, 'w' },
 			{ 0, 0, 0, 0 }
 		};
 
