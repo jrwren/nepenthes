@@ -201,6 +201,9 @@ AC_SUBST([LIB_LIBY])
 # libdl
 AC_SUBST([LIB_DL])
 
+# libssh
+AC_SUBST([LIB_SSH])
+
 dnl **************************************************
 dnl * libdl linking flag                             *
 dnl **************************************************

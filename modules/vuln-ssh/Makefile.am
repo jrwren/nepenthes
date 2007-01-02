@@ -10,6 +10,6 @@ AM_LDFLAGS = ${LIB_SSH}
 
 pkglib_LTLIBRARIES = vulnssh.la
 
-vulnssh_la_SOURCES =  vuln-ssh.cpp vuln-ssh.hpp SSHSocket.cpp SSHSocket.hpp SSHDialogue.cpp SSHDialogue.hpp vuln-ssh.conf.dist
+vulnssh_la_SOURCES =  vuln-ssh.cpp vuln-ssh.hpp SSHSocket.cpp SSHSocket.hpp SSHDialogue.cpp SSHDialogue.hpp
 
 vulnssh_la_LDFLAGS = -module -no-undefined -avoid-version $(AM_LDFLAGS)
