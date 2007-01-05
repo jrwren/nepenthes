@@ -181,7 +181,7 @@ xor::leimbach
 xor::marburganderlahn
 {
 	pattern
-	"(.*)(\\xEB.\\x5A\\x4A\\x31\\xC9\\xB1(.)\\x80..(.)\\xE2.\\xEB.\\xE8.)(.*)$";
+	"(.*)(\\xEB\\x0E\\x5A\\x4A\\x31\\xC9\\xB1(.)\\x80\\x34\\x11(.)\\xE2\\xFA\\xEB\\x05\\xE8\\xED\xFF\xFF\xFF)(.*)$";
 	mapping (none,pre,decoder,size,key,post);
 };
 
