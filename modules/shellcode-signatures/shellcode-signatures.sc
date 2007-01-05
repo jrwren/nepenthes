@@ -178,6 +178,13 @@ xor::leimbach
 	mapping (none,pre,decoder,size,key,post); 
 };
 
+xor::marburganderlahn
+{
+	pattern
+	"(.*)(\\xEB.\\x5A\\x4A\\x31\\xC9\\xB1(.)\\x80..(.)\\xE2.\\xEB.\\xE8.)(.*)$";
+	mapping (none,pre,decoder,size,key,post);
+};
+
 /*
  * too inaccurate
  * 
@@ -1051,12 +1058,12 @@ download::curl
 
 
 // taken from shellcode-generic/sch_generic_url.cpp
-url::anyurl
+/*url::anyurl
 {
 	pattern
 	".*((http|https|ftp):\/\/[@a-zA-Z0-9\-\/\\\.\+:]+).*";
 	mapping (none,uri);
-};
+};*
 
 
 base64::iis_asn1
