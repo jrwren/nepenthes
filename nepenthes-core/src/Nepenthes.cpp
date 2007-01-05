@@ -43,6 +43,8 @@
 #include <dirent.h>
 #include <sys/utsname.h>
 #include <ctype.h>
+#include <errno.h>
+#include <string.h>
 
 #ifdef HAVE_LIBCAP
 #undef _POSIX_SOURCE
@@ -667,7 +669,7 @@ bool Nepenthes::fileCheckMain(const char *optval, int32_t argc, int32_t opti, ch
 		struct stat fileinfo;
 		if ( stat((const char*)argv[opti],&fileinfo) != 0 )
 		{
-			printf("failed\n");
+			printf("Could not stat %s: %s", (const char*)argv[opti], strerror(errno));
 			return -1;
 		}
 
