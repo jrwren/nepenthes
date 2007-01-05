@@ -1058,12 +1058,12 @@ download::curl
 
 
 // taken from shellcode-generic/sch_generic_url.cpp
-/*url::anyurl
+url::anyurl
 {
 	pattern
 	".*((http|https|ftp):\/\/[@a-zA-Z0-9\-\/\\\.\+:]+).*";
 	mapping (none,uri);
-};*
+};
 
 
 base64::iis_asn1
