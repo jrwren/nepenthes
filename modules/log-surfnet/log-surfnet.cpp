@@ -76,7 +76,7 @@ LSContext::LSContext()
 	m_attackID = 0;
 	m_closed = false;
 
-	m_severity = 0;
+	m_severity = -1;
 }
 
 
@@ -471,7 +471,13 @@ void LogSurfNET::handleTCPclose(Socket *socket, uint32_t attackid)
 			(uint32_t) ((intptr_t)socket), 
 			attackid);
 
-	m_SocketTracker[(uintptr_t) socket].m_closed = true;
+	if (m_SocketTracker[(uintptr_t) socket].m_Details.size() > 0)
+	{
+    	m_SocketTracker[(uintptr_t) socket].m_closed = true;
+	}else
+	{
+		m_SocketTracker.erase((uintptr_t)socket);
+	}
 }
 
 void LogSurfNET::handleDialogueAssignAndDone(Socket *socket, Dialogue *dia, uint32_t attackid)
@@ -647,6 +653,19 @@ bool LogSurfNET::sqlSuccess(SQLResult *result)
 
 		delete m_SocketTracker[(uintptr_t)s].m_Details.front();
 		m_SocketTracker[(uintptr_t)s].m_Details.pop_front();
+	}
+
+	if (m_SocketTracker[(uintptr_t)s].m_severity != -1)
+	{
+		string query;
+
+		query = "SELECT surfnet_attack_update_severity('";
+		query += itos(m_SocketTracker[(uintptr_t)s].m_attackID);
+		query += "','";
+		query += itos(m_SocketTracker[(uintptr_t)s].m_severity);
+		query += "');";
+
+		m_SQLHandler->addQuery(&query,NULL,NULL);
 	}
 
 	if (m_SocketTracker[(uintptr_t)s].m_closed == true)
