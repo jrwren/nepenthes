@@ -782,11 +782,18 @@ bool TrapSocket::createListener(libnet_ipv4_hdr *ip, libnet_tcp_hdr *tcp, unsign
 {
 	printIPpacket(data,size);
 
+	uint16_t port;
+
+	if ( tcp->th_flags & TH_SYN && !(tcp->th_flags & TH_ACK) )
+		port = ntohs(tcp->th_dport); // inline mode
+	else
+		port = ntohs(tcp->th_sport); // pcap mode
+
 	if (1)// isPortListening(ntohs(tcp->th_dport),*(uint32_t *)&(ip->ip_dst)) == false )
 	{
-		logInfo("Connection to unbound port %i requested, binding port\n",ntohs(tcp->th_dport));
+		logInfo("Connection to unbound port %i requested, binding port\n",port);
 
-		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,ntohs(tcp->th_dport),60,60);
+		Socket *sock = g_Nepenthes->getSocketMgr()->bindTCPSocket(INADDR_ANY,port,60,60);
 		if ( sock != NULL && (sock->getDialogst()->size() == 0 && sock->getFactories()->size() == 0) )
 		{
 
