@@ -232,7 +232,7 @@ bool CurlDownloadHandler::download(Download *down)
 //        string auth = down->getDownloadUrl()->getUser() + ":" + down->getDownloadUrl()->getPass();
 #if LIBCURL_VERSION_NUM < 0x071000
 		curl_easy_setopt(pCurlHandle, CURLOPT_SOURCE_USERPWD,(char *)down->getDownloadUrl()->getAuth().c_str());
-+#endif
+#endif
 		curl_easy_setopt(pCurlHandle, CURLOPT_USERPWD,(char *)down->getDownloadUrl()->getAuth().c_str());
 		curl_easy_setopt(pCurlHandle, CURLOPT_URL			, url);
 		curl_easy_setopt(pCurlHandle, CURLOPT_FTP_RESPONSE_TIMEOUT, 120);	// 2 min ftp timeout
