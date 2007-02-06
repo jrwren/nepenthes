@@ -112,7 +112,7 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
 
 			unsigned char sessionkey[8];
 			memcpy((char *)sessionkey,(char *)m_Buffer->getData(),8);
-			g_Nepenthes->getUtilities()->hexdump(sessionkey,8);
+//			g_Nepenthes->getUtilities()->hexdump(sessionkey,8);
 
 			
 
@@ -128,13 +128,13 @@ ConsumeLevel gotekCTRLDialogue::incomingData(Message *msg)
  			byte hashme[1032];
 			memset(hashme,0,1032);
 
-			g_Nepenthes->getUtilities()->hexdump(g_GotekSubmitHandler->getCommunityKey(),1024);
+//			g_Nepenthes->getUtilities()->hexdump(g_GotekSubmitHandler->getCommunityKey(),1024);
 			memcpy(hashme,g_GotekSubmitHandler->getCommunityKey(),1024);
 			memcpy(hashme+1024,sessionkey,8);
-			g_Nepenthes->getUtilities()->hexdump(hashme, 1032);
+//			g_Nepenthes->getUtilities()->hexdump(hashme, 1032);
 
 			g_Nepenthes->getUtilities()->sha512(hashme, 1032, hash);
-			g_Nepenthes->getUtilities()->hexdump(hash,64);
+//			g_Nepenthes->getUtilities()->hexdump(hash,64);
 
 			m_Socket->doRespond((char *)hash,64);
 

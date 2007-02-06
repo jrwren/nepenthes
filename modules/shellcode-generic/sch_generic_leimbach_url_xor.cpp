@@ -203,7 +203,7 @@ sch_result LeimbachUrlXORXOR::handleShellcode(Message **msg)
 			pcre_free_substring(preload);
 			pcre_free_substring(xordecoder);
 
-			g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)newshellcode, len);			
+//			g_Nepenthes->getUtilities()->hexdump(l_crit,(byte *)newshellcode, len);			
 
 			Message *newMessage = new Message((char *)newshellcode, len, (*msg)->getLocalPort(), (*msg)->getRemotePort(),
 				   (*msg)->getLocalHost(), (*msg)->getRemoteHost(), (*msg)->getResponder(), (*msg)->getSocket());

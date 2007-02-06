@@ -49,6 +49,9 @@
 #include "Message.hpp"
 #include "Message.cpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
+
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
@@ -85,7 +88,7 @@ IISDialogue::~IISDialogue()
 	case IIS_NULL:
 	case IIS_SSL:
 		logWarn("Unknown IIS SSL exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+		HEXDUMP(m_Socket,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 		break;
 
 	case IIS_DONE:

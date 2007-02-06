@@ -55,6 +55,9 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
+
 #ifdef STDTAGS 
 	#undef STDTAGS 
 #endif
@@ -220,7 +223,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 	uint32_t i = 0;
 	bool buffercut=false;
 
-	g_Nepenthes->getUtilities()->hexdump((byte *) m_Buffer->getData(),m_Buffer->getSize());
+//	g_Nepenthes->getUtilities()->hexdump((byte *) m_Buffer->getData(),m_Buffer->getSize());
 	while ( i < m_Buffer->getSize() )
 	{
 		buffercut = false;
@@ -418,7 +421,7 @@ ConsumeLevel FTPdDialogue::connectionShutdown(Message *msg)
 void FTPdDialogue::dump()
 {
 	logWarn("Unknown exploit %i bytes \n",m_Shellcode->getSize());
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Shellcode->getData(), m_Shellcode->getSize());
+	HEXDUMP(m_Socket,(byte *) m_Shellcode->getData(), m_Shellcode->getSize());
 }
 
 ftp_exploit FTPdDialogue::identExploit(string line)

@@ -47,6 +47,9 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
+
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
@@ -77,7 +80,7 @@ WatchDialogue::WatchDialogue(Socket *socket)
 WatchDialogue::~WatchDialogue()
 {
 	logWarn("Unknown WatchDialogue %i bytes, port %i\n",m_Buffer->getSize(), m_Socket->getLocalPort());		
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+	HEXDUMP(m_Socket,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 	delete m_Buffer;
 }
 

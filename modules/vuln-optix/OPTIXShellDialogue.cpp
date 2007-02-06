@@ -107,7 +107,7 @@ ConsumeLevel OPTIXShellDialogue::incomingData(Message *msg)
 	case OPTIX_AUTHED:
 		if (m_Buffer->getSize() >= 6)
 		{	
-			g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
+//			g_Nepenthes->getUtilities()->hexdump((byte *)m_Buffer->getData(),m_Buffer->getSize());
 			// we could do this with pcre ...
        		if (memcmp(m_Buffer->getData(),"019¬\r\n",6) == 0)
            	{

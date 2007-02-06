@@ -49,6 +49,8 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -98,7 +100,7 @@ ConsumeLevel VERITASDialogue::incomingData(Message *msg)
 	m_Buffer->add(msg->getMsg(),msg->getSize());
 
 	logInfo("Traffic for VERITAS (%i bytes)\n",msg->getSize());
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS|l_warn,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+//	g_Nepenthes->getUtilities()->hexdump(STDTAGS|l_warn,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 
 /*
 	switch (m_State)
@@ -189,5 +191,5 @@ ConsumeLevel VERITASDialogue::connectionShutdown(Message *msg)
 void VERITASDialogue::dump()
 {
 	logWarn("Unknown VERITAS exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+	HEXDUMP(m_Socket,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 }

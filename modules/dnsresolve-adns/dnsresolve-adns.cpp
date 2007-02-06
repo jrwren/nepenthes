@@ -47,6 +47,7 @@
 
 
 #include "EventManager.hpp"
+#include "Nepenthes.hpp"
 
 using namespace std;
 

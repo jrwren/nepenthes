@@ -122,7 +122,7 @@ ConsumeLevel LinkDialogue::incomingData(Message *msg)
 	case LINK_NULL:
 		{
 			m_Buffer->add(msg->getMsg(),msg->getSize());
-//			g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
+//			HEXDUMP(m_Socket,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 			msg->getResponder()->doRespond((char *)&m_Challenge,4);
 
 			m_State = LINK_FILE;

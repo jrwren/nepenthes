@@ -137,5 +137,50 @@ namespace nepenthes
 		Dialogue *m_Dialogue;
 	};
 
+#ifdef HAVE_DEBUG_LOGGING
+#define HEXDUMP(socket,data,size)							\
+{															\
+	HexdumpEvent *he = new HexdumpEvent(socket,data,size); 	\
+	g_Nepenthes->getEventMgr()->handleEvent(he);			\
+	delete he;												\
+}															
+#else	// HAVE_DEBUG_LOGGING
+#define HEXDUMP(socket,data,size)
+#endif	// HAVE_DEBUG_LOGGING
+
+
+
+	class HexdumpEvent : public Event
+	{
+	public:
+		HexdumpEvent(Socket *s, void *data, uint32_t size)
+		{
+			m_EventType = EV_HEXDUMP;
+			m_Socket = s;
+			m_Size = size;
+			m_Data = data;
+		}
+
+		virtual Socket *getSocket()
+		{
+			return m_Socket;
+		}
+
+		virtual void *getData()
+		{
+			return m_Data;
+		}
+
+		virtual uint32_t getSize()
+		{
+			return m_Size;
+		}
+
+	private:
+		Socket 		*m_Socket;
+		void 		*m_Data;
+		uint32_t	m_Size;
+	};
+
 
 }

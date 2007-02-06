@@ -146,7 +146,7 @@ void LogManager::log(uint32_t mask, const char *message)
 {
 	if ( m_Loggers.size() == 0)
 	{
-		printf("%s",message);
+//		printf("%s",message);
 		return;
 	}
 

@@ -56,6 +56,7 @@ namespace nepenthes
 		virtual ~DNSQuery();
 
 		virtual DNSCallback *getCallback();
+		virtual void cancelCallback();
 		virtual string getDNS();
 		virtual uint16_t getQueryType();
 		virtual void *getObject();

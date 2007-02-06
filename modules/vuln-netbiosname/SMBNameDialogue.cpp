@@ -49,6 +49,8 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -146,7 +148,7 @@ SMBNameDialogue::~SMBNameDialogue()
 	case SMBName_NEGOTIATE:
 	case SMBName_NULL:
 		logWarn("Unknown SMBName exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-//		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+//		HEXDUMP(m_Socket,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 		break;
 
 

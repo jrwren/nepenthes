@@ -49,6 +49,8 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -219,5 +221,5 @@ ConsumeLevel SasserFTPDDialogue::connectionShutdown(Message *msg)
 void SasserFTPDDialogue::dump()
 {
 	logWarn("Unknown SasserFTPD exploit %i bytes State %i\n",m_Buffer->getSize(), m_State);
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *) m_Buffer->getData(), m_Buffer->getSize());
+	HEXDUMP(m_Socket,(byte *) m_Buffer->getData(), m_Buffer->getSize());
 }

@@ -87,7 +87,7 @@ CReceiveDialogue::CReceiveDialogue(Socket *socket)//, Download *down)
 
 CReceiveDialogue::~CReceiveDialogue()
 {
-//	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
+//	HEXDUMP(m_Socket,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 //	delete m_Buffer;
 	delete m_Download;
 }

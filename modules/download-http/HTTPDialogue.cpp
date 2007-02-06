@@ -178,7 +178,7 @@ ConsumeLevel HTTPDialogue::connectionShutdown(Message *msg)
 	if ( end == NULL )
 	{
 		logWarn("HTTP ERROR header found %i\n", size);
-		g_Nepenthes->getUtilities()->hexdump((byte *)start,size);
+//		g_Nepenthes->getUtilities()->hexdump((byte *)start,size);
 		return CL_DROP;
 	}else
 	if ( end != NULL )

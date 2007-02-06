@@ -124,7 +124,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 		}
 		
 		logCrit("Unknown Bagle Auth (%i)\n",m_Buffer->getSize());
-		g_Nepenthes->getUtilities()->hexdump(l_crit | STDTAGS ,(byte *)m_Buffer->getData(),m_Buffer->getSize());
+//		g_Nepenthes->getUtilities()->hexdump(l_crit | STDTAGS ,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 		if (m_Buffer->getSize() > 128 )
 			return CL_DROP;
 

@@ -425,7 +425,6 @@ bool VFSCommandFTP::startDownload(string host, string port, string user, string 
 		logSpam("VFSCommandFTP Setting Hosts %i %i\n",remotehost,localhost);
 		remotehost = m_VFS->getDialogue()->getSocket()->getRemoteHost();
 		localhost  = m_VFS->getDialogue()->getSocket()->getLocalHost();
-
 	}
 
 	logSpam("VFSCommandFTP LocalHost %s\n",inet_ntoa(*(in_addr *)&localhost));

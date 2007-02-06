@@ -119,7 +119,7 @@ sch_result GenericUrl::handleShellcode(Message **msg)
 
 	if((iResult = pcre_exec(m_pcre, 0, (char *) shellcode, len, 0, 0, (int *)piOutput, sizeof(piOutput)/sizeof(int32_t))) > 0)
 	{
-//		g_Nepenthes->getUtilities()->hexdump(STDTAGS,shellcode,len);
+//		HEXDUMP(m_Socket,shellcode,len);
 		const char * pUrl;
 
 		pcre_get_substring((char *) shellcode, (int *)piOutput, (int)iResult, 1, &pUrl);

@@ -54,6 +54,15 @@ DNSCallback *DNSQuery::getCallback()
 	return m_Callback;
 }
 
+
+/**
+ * chancel the callback
+ */
+void DNSQuery::cancelCallback()
+{
+	m_Callback = NULL;
+}
+
 /**
  * get the dns to resolve
  * 

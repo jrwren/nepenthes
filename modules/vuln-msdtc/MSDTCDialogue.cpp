@@ -38,6 +38,8 @@
 #include "ShellcodeManager.hpp"
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
 
 #ifdef STDTAGS 
 #undef STDTAGS 
@@ -181,5 +183,5 @@ ConsumeLevel MSDTCDialogue::connectionShutdown(Message *msg)
 void MSDTCDialogue::dump()
 {
 	logWarn("Unknown %s Shellcode (Buffer %i bytes) (State %i)\n","MSDTC",m_Buffer->getSize(),m_State);
-	g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte *)m_Buffer->getData(),m_Buffer->getSize());
+	HEXDUMP(m_Socket,(byte *)m_Buffer->getData(),m_Buffer->getSize());
 }

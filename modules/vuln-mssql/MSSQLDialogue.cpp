@@ -41,6 +41,9 @@
 
 #include "Utilities.hpp"
 
+#include "EventManager.hpp"
+#include "SocketEvent.hpp"
+
 #ifdef STDTAGS 
 #undef STDTAGS 
 #endif
@@ -115,7 +118,7 @@ ConsumeLevel MSSQLDialogue::incomingData(Message *msg)
 	}
 	else
 	{	// hexdump it
-		g_Nepenthes->getUtilities()->hexdump(STDTAGS,(byte*)msg->getMsg(),msg->getSize());
+		HEXDUMP(m_Socket,(byte*)msg->getMsg(),msg->getSize());
 
 	}
 

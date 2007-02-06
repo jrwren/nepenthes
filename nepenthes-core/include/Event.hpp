@@ -71,6 +71,8 @@ namespace nepenthes
 
 #define EV_SHELLCODE_DONE		24
 
+#define EV_HEXDUMP				25
+
 	class Event
     {
     public:

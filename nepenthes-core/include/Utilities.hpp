@@ -130,10 +130,10 @@ namespace nepenthes
 		void MD5Init(struct MD5Context *context);
 		void MD5Update(struct MD5Context *context, unsigned char const *buf,unsigned len);
 		void MD5Final(unsigned char digest[16], struct MD5Context *context);
-
+/*
 		virtual void hexdump(byte *data, uint32_t len);
 		virtual void hexdump(uint32_t mask, byte *data, uint32_t len);
-
+*/
 		virtual unsigned char *b64encode_alloc(unsigned char *in);
 		virtual unsigned char *b64encode_alloc(unsigned char *in, int32_t inlen);
 		virtual unsigned char *b64decode_alloc(unsigned char *in);

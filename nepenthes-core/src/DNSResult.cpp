@@ -89,7 +89,7 @@ DNSResult::DNSResult(adns_answer *answer, char *dns, uint16_t querytype, void *o
 			while ( test->i != -1 )
 			{
 				m_TXT.append(test->str,test->i);
-				g_Nepenthes->getUtilities()->hexdump((byte *)test->str,test->i);
+//				g_Nepenthes->getUtilities()->hexdump((byte *)test->str,test->i);
 				test++;
 			}
 		}

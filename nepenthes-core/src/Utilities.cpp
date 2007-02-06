@@ -339,7 +339,7 @@ string Utilities::md5sum(char *msg, int32_t len)
 
 // ENDOF MD5Sum
 
-
+/*
 
 void Utilities::hexdump(byte *data, uint32_t len)
 {
@@ -430,7 +430,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 	
 }
 
-
+*/
 
 
 
