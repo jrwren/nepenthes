@@ -1,0 +1,8 @@
+submit-http
+{
+  url "http://somehost.de/submit.php";
+  email "your@email"; // optional
+  user "httpuser"; // optional
+  pass "httppass"; // optional
+};
+
