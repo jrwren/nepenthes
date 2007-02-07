@@ -916,6 +916,7 @@ AC_CONFIG_FILES([Makefile
                  modules/submit-gotek/Makefile
                  modules/submit-norman/Makefile
                  modules/submit-postgres/Makefile
+                 modules/submit-http/Makefile
                  modules/vuln-asn1/Makefile
                  modules/vuln-bagle/Makefile
                  modules/vuln-dameware/Makefile
