@@ -33,8 +33,6 @@
 #include "Utilities.hpp"
 #include "SubmitManager.hpp"
 #include "LogManager.hpp"
-#include "EventManager.hpp"
-#include "SocketEvent.hpp"
 
 using namespace nepenthes;
 
@@ -120,8 +118,7 @@ bool X4::Exit()
  */
 void X4::Submit(Download *down)
 {
-	// m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getSize());
-	HEXDUMP(m_Socket, (byte *) down->getDownloadBuffer()->getData(), down->getDownloadBuffer()->getSize());
+//	m_Nepenthes->getUtilities()->hexdump((byte *)down->getDownloadBuffer()->getData(),down->getDownloadBuffer()->getSize());
 }
 
 /**
