@@ -141,6 +141,7 @@ namespace nepenthes
 		string m_PGTable;
 		string m_PGUser;
 		string m_PGPass;
+		string m_PGOptions;
 
 	};
 

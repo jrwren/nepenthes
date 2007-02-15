@@ -145,6 +145,7 @@ SQLHandlerPostgres::SQLHandlerPostgres(Nepenthes *nepenthes, string server, stri
 	m_PGTable   = table;
 	m_PGUser    = user;
 	m_PGPass    = passwd;
+	m_PGOptions	= options;
 
 	m_Callback = cb;
 }
@@ -759,6 +760,10 @@ bool SQLHandlerPostgres::dnsResolved(DNSResult *result)
 	"' dbname = '" + m_PGTable + 
 	"' user = '" + m_PGUser + 
 	"' password = '" + m_PGPass +"'";
+
+	if (m_PGOptions.size() > 0)
+    	ConnectString += m_PGOptions;
+	
 
 	if (m_PGConnection != NULL)
 		PQfinish(m_PGConnection);
