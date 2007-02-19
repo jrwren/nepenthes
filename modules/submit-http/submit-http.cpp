@@ -56,6 +56,8 @@ HTTPSubmitHandler::HTTPSubmitHandler(Nepenthes *nepenthes)
 	m_SubmitterName = "submit-http";
 	m_SubmitterDescription = "submit binary file via HTTP POST request";
 	g_Nepenthes = nepenthes;
+
+	m_Queued = 0;
 }
 
 
