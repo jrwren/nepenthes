@@ -58,6 +58,7 @@ HTTPSubmitHandler::HTTPSubmitHandler(Nepenthes *nepenthes)
 	g_Nepenthes = nepenthes;
 
 	m_Queued = 0;
+	m_Timeout = time(NULL);
 }
 
 
