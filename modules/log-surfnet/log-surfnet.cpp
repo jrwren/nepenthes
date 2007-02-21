@@ -679,6 +679,11 @@ bool LogSurfNET::sqlSuccess(SQLResult *result)
 bool LogSurfNET::sqlFailure(SQLResult *result)
 {
 	logPF();
+
+	Socket *s;
+	s = (Socket *)result->getObject();
+	logCrit("Getting attackid for socket %x failed, dropping the whole attack, forgetting all details\n",(uintptr_t)s);
+	m_SocketTracker.erase((uintptr_t)s);
 	return true;
 }
 
