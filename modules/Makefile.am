@@ -4,7 +4,7 @@
 
 SUBDIRS = download-creceive download-csend download-curl download-ftp download-http download-link download-tftp download-rcp\
           log-download log-irc \
-          submit-file submit-gotek submit-norman submit-postgres submit-http\
+          submit-file submit-gotek submit-norman submit-postgres submit-http submit-mwserv \
           shellcode-generic shellemu-winnt \
           vuln-asn1 vuln-bagle vuln-dcom vuln-iis vuln-kuang2 vuln-lsass \
           vuln-msdtc vuln-msmq vuln-mssql vuln-mydoom \

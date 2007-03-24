@@ -1,0 +1,18 @@
+// lightweight libcurl based module for file submission via HTTP to the mwserv
+// python script suite (typically running on an apache2 with mod_python)
+// This is primarily used by the mwcollect Alliance - alliance.mwcollect.org
+
+submit-mwserv
+{
+	// the url to send the submission requests to
+	url =			"";
+	
+	// username of the maintainer of this sensor
+	maintainer =	"";
+	
+	// guid of this sensor, as generated serverside; typically 8 chars
+	guid = 			"";
+	
+	// shared secret used for authentication aka `password'; typically 48 chars
+	secret =		"";
+};
