@@ -39,6 +39,10 @@
 #include "TransferSession.hpp"
 
 
+#define DEFAULT_HEARTBEAT_DELTA 30
+#define MAX_HEARTBEAT_DELTA 300
+
+
 using namespace std;
 
 namespace nepenthes
@@ -61,6 +65,7 @@ public:
 	
 	void submitSample(TransferSample& sample);	
 	void retrySample(TransferSample& sample);
+	void scheduleHeartbeat(unsigned long delta);
 
 protected:
 	string m_url, m_guid, m_maintainer, m_secret;

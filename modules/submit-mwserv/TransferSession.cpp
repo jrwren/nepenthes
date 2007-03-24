@@ -107,7 +107,7 @@ TransferSession::TransferSession(Type type, SubmitMwservModule * parent)
 	m_sample.binary = 0;
 }
 
-void TransferSession::transferSample(TransferSample& sample, string url)
+void TransferSession::transfer(TransferSample& sample, string url)
 {
 	m_sample = sample;
 	
@@ -122,7 +122,6 @@ void TransferSession::transferSample(TransferSample& sample, string url)
 	m_sample = sample;
 	
 	initializeHandle();
-	
 }
 
 TransferSession::~TransferSession()
@@ -134,15 +133,16 @@ void TransferSession::initializeHandle()
 {
 	m_postInfo = m_postInfoLast = 0;
 	
-	if(m_type != TSS_HEARTBEAT)
-	{
-		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "guid",
+	curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "guid",
 			CURLFORM_COPYCONTENTS, m_sample.guid.c_str(), CURLFORM_END);
-		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME,
-			"maintainer", CURLFORM_COPYCONTENTS, m_sample.maintainer.c_str(),
-			CURLFORM_END);
-		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "secret",
-			CURLFORM_COPYCONTENTS, m_sample.secret.c_str(), CURLFORM_END);
+	curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME,
+		"maintainer", CURLFORM_COPYCONTENTS, m_sample.maintainer.c_str(),
+		CURLFORM_END);
+	curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "secret",
+		CURLFORM_COPYCONTENTS, m_sample.secret.c_str(), CURLFORM_END);
+	
+	if(m_type != TST_HEARTBEAT)
+	{
 		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "url",
 			CURLFORM_COPYCONTENTS, m_sample.url.c_str(), CURLFORM_END);
 		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "sha512",
@@ -152,22 +152,12 @@ void TransferSession::initializeHandle()
 		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "daddr",
 			CURLFORM_COPYCONTENTS, m_sample.daddr.c_str(), CURLFORM_END);
 		
-		if(m_type == TSS_SAMPLE)
+		if(m_type == TST_SAMPLE)
 		{
 			curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "data",
 				CURLFORM_PTRCONTENTS, m_sample.binary, CURLFORM_CONTENTSLENGTH,
 				m_sample.binarySize, CURLFORM_END);
 		}
-
-		curl_easy_setopt(m_curlHandle, CURLOPT_HTTPPOST, m_postInfo);
-		curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, false);
-		curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, false);
-		curl_easy_setopt(m_curlHandle, CURLOPT_URL, m_targetUrl.c_str());
-		curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT,
-			"nepenthes " VERSION " (" MY_OS ", " MY_ARCH ", " MY_COMPILER ")");
-		curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, this);
-		curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION,
-			TransferSession::readData);
 	}
 	else
 	{
@@ -175,6 +165,16 @@ void TransferSession::initializeHandle()
 			CURLFORM_PTRCONTENTS, "nepenthes " VERSION " (" MY_OS ", " MY_ARCH
 			", " MY_COMPILER ")", CURLFORM_END);
 	}
+	
+	curl_easy_setopt(m_curlHandle, CURLOPT_HTTPPOST, m_postInfo);
+	curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, false);
+	curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(m_curlHandle, CURLOPT_URL, m_targetUrl.c_str());
+	curl_easy_setopt(m_curlHandle, CURLOPT_USERAGENT,
+		"nepenthes " VERSION " (" MY_OS ", " MY_ARCH ", " MY_COMPILER ")");
+	curl_easy_setopt(m_curlHandle, CURLOPT_WRITEDATA, this);
+	curl_easy_setopt(m_curlHandle, CURLOPT_WRITEFUNCTION,
+		TransferSession::readData);
 		
 	CURLMcode error;
 	
@@ -196,12 +196,22 @@ size_t TransferSession::readData(char * buffer, size_t s, size_t n,
 
 TransferSession::Status TransferSession::getTransferStatus()
 {
-	if(m_buffer == "OK")
-		return TSS_OK;
-	else if(m_buffer == "UNKNOWN")
-		return TSS_UNKNOWN;
+	if(m_type != TST_HEARTBEAT)
+	{
+		if(m_buffer == "OK")
+			return TSS_OK;
+		else if(m_buffer == "UNKNOWN")
+			return TSS_UNKNOWN;
+		else
+			return TSS_ERROR;
+	}
 	else
-		return TSS_ERROR;
+	{
+		if(m_buffer.substr(0, 4) == "OK: ")
+			return TSS_HEARTBEAT;
+		else
+			return TSS_ERROR;
+	}
 }
 
 bool TransferSession::Init()
@@ -231,7 +241,7 @@ bool TransferSession::wantSend()
 	if((error = curl_multi_fdset(m_multiHandle, &readSet, &writeSet, &errorSet,
 		&maxFd)))
 	{
-		printf("Obtaining write socket failed: %s\n",
+		logCrit("Obtaining write socket failed: %s\n",
 			curl_multi_strerror(error));
 		return false;
 	}
@@ -255,7 +265,7 @@ int32_t TransferSession::doRecv()
 		
 	while((message = curl_multi_info_read(m_multiHandle, &queued)))
 	{				
-		if(message->msg == CURLMSG_DONE != CURLE_OK)
+		if(message->msg == CURLMSG_DONE)
 		{
 			if(message->data.result)
 			{
@@ -282,9 +292,23 @@ int32_t TransferSession::doRecv()
 					m_parent->submitSample(m_sample);
 					m_sample.binary = 0;
 					
-					return 0;
+					break;
+				
+				case TransferSession::TSS_HEARTBEAT:
+					{
+						unsigned long delta = strtoul(m_buffer.substr(4).
+							c_str(), 0, 0);
+						logInfo("Next heartbeat in %u seconds.\n", delta);
+						
+						m_parent->scheduleHeartbeat(delta);
+						
+						return 0;
+					}
 				
 				case TransferSession::TSS_ERROR:
+					if(m_type == TST_HEARTBEAT)
+						m_parent->scheduleHeartbeat(DEFAULT_HEARTBEAT_DELTA);
+					
 					logCrit("%s reported \"%s\"\n", m_targetUrl.c_str(),
 						m_buffer.c_str());
 					
@@ -310,7 +334,7 @@ int32_t TransferSession::getSocket()
 	if((error = curl_multi_fdset(m_multiHandle, &readSet, &writeSet, &errorSet,
 		&maxFd)))
 	{
-		printf("Obtaining read socket failed: %s\n",
+		logCrit("Obtaining read socket failed: %s\n",
 			curl_multi_strerror(error));
 		return -1;
 	}
@@ -321,7 +345,7 @@ int32_t TransferSession::getSocket()
 	if(!FD_ISSET(maxFd, &readSet) && !FD_ISSET(maxFd, &writeSet) &&
 		!FD_ISSET(maxFd, &errorSet))
 	{
-		printf("maxFd not in set: %i!\n", maxFd);
+		logCrit("maxFd not in set: %i!\n", maxFd);
 		return -1;
 	}
 	

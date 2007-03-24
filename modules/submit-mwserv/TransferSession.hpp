@@ -67,9 +67,9 @@ class TransferSession : public POLLSocket
 public:
 	enum Type
 	{
-		TSS_INSTANCE,
-		TSS_SAMPLE,
-		TSS_HEARTBEAT,
+		TST_INSTANCE,
+		TST_SAMPLE,
+		TST_HEARTBEAT,
 	};
 	
 	TransferSession(Type type, SubmitMwservModule * parent);
@@ -79,12 +79,13 @@ public:
 	{
 		TSS_OK,
 		TSS_UNKNOWN,
+		TSS_HEARTBEAT,
 		TSS_ERROR,
 	};
 	
 	TransferSession::Status getTransferStatus();
 	
-	void transferSample(TransferSample& sample, string url);	
+	void transfer(TransferSample& sample, string url);	
 	
 	// POLLSocket	
 	bool Init();
@@ -116,6 +117,8 @@ protected:
 	
 	Type m_type;
 	SubmitMwservModule * m_parent;
+	
+	unsigned long m_heartbeatDelta;
 
 private:
 	static size_t readData(char * buffer, size_t size, size_t n, void * data);

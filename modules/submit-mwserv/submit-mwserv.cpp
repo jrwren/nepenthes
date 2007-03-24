@@ -49,7 +49,7 @@
 
 
 #define SUBMIT_URI "nepenthes/submit"
-#define HEARTBEAT_URI "nepenthes/heartbeat"
+#define HEARTBEAT_URI "heartbeat"
 
 
 namespace nepenthes
@@ -64,9 +64,6 @@ SubmitMwservModule::SubmitMwservModule(Nepenthes * nepenthes)
 	m_Nepenthes = nepenthes;
 	m_SubmitterName = "submit-mwserv";
 	m_SubmitterDescription = "mwserv.py HTTP Post Submission";
-
-	m_Timeout = time(0);
-	m_Events.reset();
 }
 
 bool SubmitMwservModule::Init()
@@ -100,8 +97,13 @@ bool SubmitMwservModule::Init()
 		return false;
 	}
 	
+	if(* m_url.rbegin() != '/')
+		m_url += "/";
+	
 	REG_SUBMIT_HANDLER(this);
 	REG_EVENT_HANDLER(this);
+	
+	handleEvent(0);
 	
 	return true;
 }
@@ -120,7 +122,7 @@ void SubmitMwservModule::Hit(Download * download)
 {
 	TransferSample sample;
 	TransferSession * session = new TransferSession(TransferSession::
-		TSS_INSTANCE, this);
+		TST_INSTANCE, this);
 	
 	{
 		struct in_addr saddr, daddr;
@@ -144,7 +146,7 @@ void SubmitMwservModule::Hit(Download * download)
 			sample.binarySize);
 	}
 	
-	session->transferSample(sample, m_url + SUBMIT_URI);
+	session->transfer(sample, m_url + SUBMIT_URI);
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(session);
 }
 
@@ -155,15 +157,43 @@ void SubmitMwservModule::retrySample(TransferSample& sample)
 void SubmitMwservModule::submitSample(TransferSample& sample)
 {
 	TransferSession * session = new TransferSession(TransferSession::
-		TSS_SAMPLE, this);
+		TST_SAMPLE, this);
 	
-	session->transferSample(sample, m_url + SUBMIT_URI);
+	session->transfer(sample, m_url + SUBMIT_URI);
 	g_Nepenthes->getSocketMgr()->addPOLLSocket(session);
 }
 
 uint32_t SubmitMwservModule::handleEvent(Event * ev)
 {
+	m_Events.reset(EV_TIMEOUT);
+	
+	TransferSample sample;
+	TransferSession * session = new TransferSession(TransferSession::
+		TST_HEARTBEAT, this);
+	
+	sample.guid = m_guid;
+	sample.maintainer = m_maintainer;
+	sample.secret = m_secret;
+	sample.binary = 0;
+	
+	session->transfer(sample, m_url + HEARTBEAT_URI);
+	g_Nepenthes->getSocketMgr()->addPOLLSocket(session);
+	
 	return 0;
+}
+
+void SubmitMwservModule::scheduleHeartbeat(unsigned long delta)
+{
+	if(delta > MAX_HEARTBEAT_DELTA)
+	{
+		logInfo("Capping server heartbeat delta of %u sec to %u sec.\n", delta,
+			MAX_HEARTBEAT_DELTA);
+	
+		delta = MAX_HEARTBEAT_DELTA;
+	}
+		
+	m_Events.set(EV_TIMEOUT);
+	m_Timeout = time(0) + delta;
 }
 
 
