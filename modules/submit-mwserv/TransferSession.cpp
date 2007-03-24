@@ -298,7 +298,7 @@ int32_t TransferSession::doRecv()
 					{
 						unsigned long delta = strtoul(m_buffer.substr(4).
 							c_str(), 0, 0);
-						logInfo("Next heartbeat in %u seconds.\n", delta);
+						logDebug("Next heartbeat in %u seconds.\n", delta);
 						
 						m_parent->scheduleHeartbeat(delta);
 						
