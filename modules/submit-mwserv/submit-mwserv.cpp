@@ -152,6 +152,11 @@ void SubmitMwservModule::Hit(Download * download)
 
 void SubmitMwservModule::retrySample(TransferSample& sample)
 {
+	TransferSession * session = new TransferSession(TransferSession::
+		TST_INSTANCE, this);
+
+	session->transfer(sample, m_url + SUBMIT_URI);
+	g_Nepenthes->getSocketMgr()->addPOLLSocket(session);
 }
 
 void SubmitMwservModule::submitSample(TransferSample& sample)

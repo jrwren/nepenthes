@@ -273,7 +273,10 @@ int32_t TransferSession::doRecv()
 					m_targetUrl.c_str(), curl_easy_strerror(message->
 					data.result), m_buffer.c_str());
 				
-				m_parent->retrySample(m_sample);
+				if(m_type == TST_HEARTBEAT)
+					m_parent->scheduleHeartbeat(DEFAULT_HEARTBEAT_DELTA);
+				else
+					m_parent->retrySample(m_sample);
 			}
 			else
 			{					
