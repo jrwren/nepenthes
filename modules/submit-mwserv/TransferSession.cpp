@@ -167,6 +167,7 @@ void TransferSession::initializeHandle()
 	}
 	
 	curl_easy_setopt(m_curlHandle, CURLOPT_HTTPPOST, m_postInfo);
+	curl_easy_setopt(m_curlHandle, CURLOPT_FORBID_REUSE, 1);
 	curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYHOST, false);
 	curl_easy_setopt(m_curlHandle, CURLOPT_SSL_VERIFYPEER, false);
 	curl_easy_setopt(m_curlHandle, CURLOPT_URL, m_targetUrl.c_str());
