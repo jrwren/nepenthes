@@ -104,7 +104,9 @@ TransferSession::TransferSession(Type type, SubmitMwservModule * parent)
 {
 	m_type = type;
 	m_parent = parent;
-	m_sample.binary = 0;
+	
+	m_sample.binary = 0;	
+	m_multiHandle = 0;
 }
 
 void TransferSession::transfer(TransferSample& sample, string url)
@@ -224,10 +226,18 @@ bool TransferSession::Exit()
 {
 	curl_formfree(m_postInfo);
 	curl_easy_cleanup(m_curlHandle);
-	curl_multi_cleanup(m_multiHandle);
+	
+	if(m_multiHandle)
+	{
+		curl_multi_cleanup(m_multiHandle);
+		m_multiHandle = 0;
+	}
 	
 	if(m_sample.binary)
+	{
 		delete m_sample.binary;
+		m_sample.binary = 0;
+	}
 	
 	return true;
 }
