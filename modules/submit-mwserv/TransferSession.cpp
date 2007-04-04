@@ -107,6 +107,8 @@ TransferSession::TransferSession(Type type, SubmitMwservModule * parent)
 	
 	m_sample.binary = 0;	
 	m_multiHandle = 0;
+	
+	m_Type |= ST_NODEL;
 }
 
 void TransferSession::transfer(TransferSample& sample, string url)
