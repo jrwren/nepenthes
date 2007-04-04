@@ -306,7 +306,7 @@ int32_t TransferSession::doRecv()
 						
 						m_parent->scheduleHeartbeat(delta);
 						
-						return 0;
+						break;
 					}
 				
 				case TransferSession::TSS_ERROR:
