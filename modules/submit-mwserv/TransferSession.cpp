@@ -376,3 +376,13 @@ int32_t TransferSession::getsockOpt(int32_t level, int32_t optname,
 
 
 }
+
+
+bool TransferSession::checkTimeout()
+{
+	// if the connection is bad, give curl a chance to take care, so we can get rid of the connection
+	if (getSocket() == -1)
+		doRecv();
+		
+	return false;
+}

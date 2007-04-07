@@ -98,6 +98,7 @@ public:
 	int32_t getSocket();
 	int32_t getsockOpt(int32_t level, int32_t optname,
 		void *optval, socklen_t *optlen);
+	bool checkTimeout();
 
 protected:
 	string m_targetUrl;
