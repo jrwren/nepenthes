@@ -226,6 +226,9 @@ bool TransferSession::Init()
 
 bool TransferSession::Exit()
 {
+	if(m_multiHandle)
+		curl_multi_remove_handle(m_multiHandle, m_curlHandle);
+	
 	curl_formfree(m_postInfo);
 	curl_easy_cleanup(m_curlHandle);
 	
@@ -237,7 +240,7 @@ bool TransferSession::Exit()
 	
 	if(m_sample.binary)
 	{
-		delete m_sample.binary;
+		delete [] m_sample.binary;
 		m_sample.binary = 0;
 	}
 	
