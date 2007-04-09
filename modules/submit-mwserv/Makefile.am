@@ -11,7 +11,7 @@ AM_LDFLAGS = $(LIB_CURL)
 
 pkglib_LTLIBRARIES = submitmwserv.la
 
-submitmwserv_la_SOURCES = submit-mwserv.cpp submit-mserv.hpp
+submitmwserv_la_SOURCES = submit-mwserv.cpp submit-mwserv.hpp
 submitmwserv_la_SOURCES += TransferSession.cpp TransferSession.hpp
 submitmwserv_la_SOURCES += submit-mwserv.conf.dist
 
