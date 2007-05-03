@@ -171,7 +171,7 @@ bool LogIrc::Init()
 	}
 //	m_Nepenthes->getSocketMgr()->bindTCPSocket(0,10002,0,45,this);
 
-	g_Nepenthes->getLogMgr()->addLogger(this,l_dl|l_sub);
+	g_Nepenthes->getLogMgr()->addLogger(this,l_all);
 	return true;
 }
 
