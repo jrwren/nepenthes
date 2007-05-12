@@ -761,8 +761,8 @@ bool SQLHandlerPostgres::dnsResolved(DNSResult *result)
 	"' user = '" + m_PGUser + 
 	"' password = '" + m_PGPass +"'";
 
-	if (m_PGOptions.size() > 0)
-    	ConnectString += m_PGOptions;
+	if ( m_PGOptions.size() > 0 )
+		ConnectString += m_PGOptions;
 	
 
 	if (m_PGConnection != NULL)

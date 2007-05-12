@@ -1,8 +1,8 @@
 submit-norman
 {
 	// this is the adress where norman sandbox reports will be sent
-	email   "malware@mac.com";
-	urls	("http://sandbox.norman.no/live_4.html",
+	email   "nsbx@mwcollect.org";
+	urls	("http://www.norman.com/microsites/nsic/Submit/Special/45773/",
 		 "http://luigi.informatik.uni-mannheim.de/submit.php?action=verify");
 
 };

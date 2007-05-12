@@ -273,13 +273,17 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 		}
 	}
 
+	int32_t socketcounter, socketmax;
+	socketcounter=0;
+	socketmax = m_Sockets.size();
+
 	int32_t iPollRet = poll(polls,i,50);
 
 	if (iPollRet != 0)
 	{
 		// read sockets
 		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
+		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(), socketcounter < socketmax ; itSocket++, socketcounter++)
 		{
 			if ( (*itSocket)->isPolled() == true )
 			{
@@ -303,7 +307,8 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 
 		// write sockets
 		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
+		socketcounter=0;
+		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(), socketcounter < socketmax; itSocket++, socketcounter++)
 		{
 			if ( (*itSocket)->isPolled() == true )
 			{
@@ -331,7 +336,8 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 
 		// accept new, non udp clients as udp does not accept()
 		i=0;
-		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(); itSocket++)
+		socketcounter=0;
+		for (itSocket = m_Sockets.begin();itSocket != m_Sockets.end(), socketcounter < socketmax; itSocket++, socketcounter++)
 		{
 				
 
