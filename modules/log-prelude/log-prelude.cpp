@@ -195,12 +195,12 @@ bool LogPrelude::Init()
 	ret = idmef_analyzer_new_model(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
 	        return false;
-	prelude_string_set_constant(string, analyzerModel.c_str());
+	prelude_string_set_ref(string, analyzerModel.c_str());
 	
 	ret = idmef_analyzer_new_class(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
 	        return false;
-	prelude_string_set_constant(string, analyzerClass.c_str());
+	prelude_string_set_ref(string, analyzerClass.c_str());
 	
 	ret = idmef_analyzer_new_manufacturer(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )

@@ -30,7 +30,7 @@
 #include "config.h"
 
 #ifdef HAVE_LIBPRELUDE
-#include <prelude.h>
+#include <libprelude/prelude.h>
 #endif
 
 #include <string>

@@ -4,7 +4,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-AM_CPPFLAGS = -I/usr/include/libprelude -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-core/src -pipe -D _GNU_SOURCE $(CPPFLAG_PRELUDE)
+AM_CPPFLAGS = -I$(top_srcdir)/nepenthes-core/include -I$(top_srcdir)/nepenthes-core/src -pipe -D _GNU_SOURCE
 AM_CXXFLAGS = -Wall
 AM_LDFLAGS = $(LDFLAG_PRELUDE) ${LIB_PRELUDE}
 
