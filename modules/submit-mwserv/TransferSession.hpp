@@ -122,7 +122,7 @@ protected:
 	unsigned long m_heartbeatDelta;
 
 private:
-	static size_t readData(char * buffer, size_t size, size_t n, void * data);
+	static size_t readData(void *buffer, size_t size, size_t n, void *data);
 };
 
 

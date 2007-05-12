@@ -64,6 +64,9 @@ SubmitMwservModule::SubmitMwservModule(Nepenthes * nepenthes)
 	m_Nepenthes = nepenthes;
 	m_SubmitterName = "submit-mwserv";
 	m_SubmitterDescription = "mwserv.py HTTP Post Submission";
+
+	m_Timeout = 0;
+	m_TimeoutIntervall = 0;
 }
 
 bool SubmitMwservModule::Init()

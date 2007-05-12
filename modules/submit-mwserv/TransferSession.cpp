@@ -109,6 +109,9 @@ TransferSession::TransferSession(Type type, SubmitMwservModule * parent)
 	m_multiHandle = 0;
 	
 	m_Type |= ST_NODEL;
+
+	m_buffer    = "";
+	m_targetUrl = "";
 }
 
 void TransferSession::transfer(TransferSample& sample, string url)
@@ -192,10 +195,10 @@ void TransferSession::initializeHandle()
 		CURLM_CALL_MULTI_PERFORM && handles);
 }
 
-size_t TransferSession::readData(char * buffer, size_t s, size_t n,
-	void * data)
+//size_t function( void *ptr, size_t size, size_t nmemb, void *stream);
+size_t TransferSession::readData(void *buffer, size_t s, size_t n, void *data)
 {
-	((TransferSession *) data)->m_buffer.append(buffer, s * n);	
+	((TransferSession *) data)->m_buffer.append((const char *)buffer, s * n);	
 	return s * n;
 }
 
