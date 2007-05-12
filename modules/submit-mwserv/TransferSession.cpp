@@ -169,7 +169,7 @@ void TransferSession::initializeHandle()
 	else
 	{
 		curl_formadd(&m_postInfo, &m_postInfoLast, CURLFORM_PTRNAME, "software",
-			CURLFORM_PTRCONTENTS, "nepenthes " VERSION " (" MY_OS ", " MY_ARCH
+			CURLFORM_COPYCONTENTS, "nepenthes " VERSION " (" MY_OS ", " MY_ARCH
 			", " MY_COMPILER ")", CURLFORM_END);
 	}
 	
