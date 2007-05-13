@@ -295,7 +295,10 @@ int32_t TransferSession::doRecv()
 				if(m_type == TST_HEARTBEAT)
 					m_parent->scheduleHeartbeat(DEFAULT_HEARTBEAT_DELTA);
 				else
+				{
 					m_parent->retrySample(m_sample);
+					m_sample.binary = 0;
+				}
 			}
 			else
 			{					
