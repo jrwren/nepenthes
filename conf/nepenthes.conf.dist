@@ -40,6 +40,7 @@ nepenthes
 // logging
     "logdownload.so",               "log-download.conf",            ""
 //  "logirc.so",                    "log-irc.conf",                 ""  // needs configuration
+//  "logprelude.so",                "log-prelude.conf",             "" 
 
 
 // dumping and logging
