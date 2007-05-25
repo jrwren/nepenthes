@@ -1,7 +1,9 @@
 log-prelude
 {
-       	analyzerClass "NIDS";
-		analyzerModel "nepenthes";
-		analyzerName "nepenthes";
-        
+
+	// Name of the Prelude analyzer to use (default is nepenthes).	
+	// analyzerName "nepenthes";
+
+	// Name of the Prelude profile to use (default is nepenthes).
+	// analyzerProfile "nepenthes";
 };

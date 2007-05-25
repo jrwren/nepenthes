@@ -27,14 +27,6 @@
 
  /* $Id$ */
 
-#ifdef HAVE_LIBPRELUDE
-#include <prelude.h>
-#include <libprelude/prelude-log.h>
-#include <idmef-message-print.h>
-#include <prelude-io.h>
-#include <libprelude/prelude-timer.h>
-#endif
-
 #include <arpa/inet.h>
 #include "log-prelude.hpp"
 #include "Nepenthes.hpp"
@@ -61,9 +53,13 @@ using namespace nepenthes;
 #undef STDTAGS 
 #endif
 
+
 #define STDTAGS l_mod | l_ev | l_hlr
-#define ANALYZER_MANUFACTURER "http://nepenthes.sf.net"
-#define NEPENTHES_VERSION "$Rev$"
+#define DEFAULT_ANALYZER_NAME     "nepenthes"
+#define DEFAULT_ANALYZER_PROFILE  "nepenthes"
+#define ANALYZER_MODEL            "Nepenthes"
+#define ANALYZER_CLASS            "Honeypot"
+#define ANALYZER_MANUFACTURER     "http://nepenthes.mwcollect.org/"
 
 
 
@@ -132,28 +128,21 @@ bool LogPrelude::Init()
 
 #ifdef HAVE_LIBPRELUDE
 
-	if ( m_Config == NULL )
-	{
-		logCrit("I need a config\n");
-		return false;
-	}
-
-	string analyzerClass;
-	string analyzerModel;
 	string analyzerName;
-
-	try
-	{
-		analyzerClass = (m_Config->getValString("log-prelude.analyzerClass"));
-		analyzerModel = m_Config->getValString("log-prelude.analyzerModel");
-		analyzerName = m_Config->getValString("log-prelude.analyzerName");
-
-	} catch ( ... )
-	{
-		logCrit("Error setting needed vars, check your config\n");
-		return false;
-	}
-	
+        string analyzerProfile;
+        
+        try {
+                analyzerName = m_Config->getValString("log-prelude.analyzerName");
+        } catch ( ... ) { 
+                analyzerName = DEFAULT_ANALYZER_NAME;
+        }
+                
+        try {
+                analyzerProfile = m_Config->getValString("log-prelude.analyzerProfile");
+        } catch ( ... ) { 
+                analyzerProfile = DEFAULT_ANALYZER_PROFILE;
+        }
+        
 	m_ModuleManager = m_Nepenthes->getModuleMgr();
 	m_Events.set(EV_SOCK_TCP_ACCEPT);
 	m_Events.set(EV_SOCK_TCP_CLOSE);
@@ -163,44 +152,39 @@ bool LogPrelude::Init()
 	m_Events.set(EV_DOWNLOAD);
 	m_Events.set(EV_SUBMISSION);
 
-
-    const char *profile, *config;
-
-	config = NULL;
-	profile = analyzerName.c_str();
-
-
-
-
 	int32_t ret;
 // Initialize Prelude Library
 	ret = prelude_init(NULL, NULL);
-	if ( ret < 0 )
+	if ( ret < 0 ) {
 		logCrit("%s: Unable to initialize the Prelude library: %s.\n",
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
+                return false;
+        }
 
 // generate a new Prelude client
-	ret = prelude_client_new(&m_PreludeClient, profile);
+	ret = prelude_client_new(&m_PreludeClient, analyzerProfile.c_str());
 
-	if ( ret < 0 )
+	if ( ret < 0 ) {
 		logCrit("%s: Unable to create a prelude client object: %s.\n",
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
+                return false;
+        }
 
-
+        
 	// set options in the analyzer-part of the client
 	prelude_string_t *string;
+
+	ret = idmef_analyzer_new_class(prelude_client_get_analyzer(m_PreludeClient), &string);
+	if ( ret < 0 )
+	        return false;
+	prelude_string_set_constant(string, ANALYZER_CLASS);
 
 	ret = idmef_analyzer_new_model(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
 	        return false;
-	prelude_string_set_ref(string, analyzerModel.c_str());
-	
-	ret = idmef_analyzer_new_class(prelude_client_get_analyzer(m_PreludeClient), &string);
-	if ( ret < 0 )
-	        return false;
-	prelude_string_set_ref(string, analyzerClass.c_str());
+	prelude_string_set_constant(string, ANALYZER_MODEL);
 	
 	ret = idmef_analyzer_new_manufacturer(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
@@ -209,28 +193,31 @@ bool LogPrelude::Init()
 	
 	ret = idmef_analyzer_new_version(prelude_client_get_analyzer(m_PreludeClient), &string);
 	if ( ret < 0 )
-	        return false;
-	        
-	prelude_string_set_constant(string, NEPENTHES_VERSION);
+	        return false;        
+	prelude_string_set_constant(string, VERSION);
 
-//  start the Prelude Client
+        ret = idmef_analyzer_new_name(prelude_client_get_analyzer(m_PreludeClient), &string);
+        if ( ret < 0 )
+	        return false;        
+	prelude_string_set_ref(string, analyzerName.c_str());
+	
+        //  start the Prelude Client
 	ret = prelude_client_start(m_PreludeClient);
 	if ( ret < 0 )
 	{
-		if ( prelude_client_is_setup_needed(ret) )
-			prelude_client_print_setup_error(m_PreludeClient);
-
 		logCrit("%s: Unable to initialize prelude client: %s.\n",
 				   prelude_strsource(ret), prelude_strerror(ret));
+                return false;
 	}
 
-// set async Prelude Flags for the client, makes the application multithreaded
-	ret = prelude_client_set_flags(m_PreludeClient, (prelude_client_flags_t) (PRELUDE_CLIENT_FLAGS_CONNECT | PRELUDE_CLIENT_FLAGS_ASYNC_SEND | PRELUDE_CLIENT_FLAGS_ASYNC_TIMER));
-	if ( ret < 0 )
+        // set async Prelude Flags for the client, makes the application multithreaded
+        ret = prelude_client_set_flags(m_PreludeClient, (prelude_client_flags_t) (PRELUDE_CLIENT_FLAGS_CONNECT | PRELUDE_CLIENT_FLAGS_ASYNC_SEND | PRELUDE_CLIENT_FLAGS_ASYNC_TIMER));
+	if ( ret < 0 ) {
 		logCrit("%s: Unable to set asynchronous send and timer: %s.\n",
 				prelude_strsource(ret), 
 				prelude_strerror(ret));
-				
+		return false;
+	}	
 
 	REG_EVENT_HANDLER(this);
 	return true;
@@ -274,7 +261,7 @@ int32_t add_idmef_object(idmef_message_t *message, const char *object, const cha
 	idmef_value_t *val;
 	idmef_path_t *path;
 
-	ret = idmef_path_new(&path, object);
+	ret = idmef_path_new_fast(&path, object);
 	if ( ret < 0 )
 	{
 		logWarn("imdef error #1 %s -> %s %i (%s) \n",object,value,ret, prelude_strerror(ret));
