@@ -363,7 +363,6 @@ void LogPrelude::handleTCPaccept(Event *event)
 
 	add_idmef_object(idmef, "alert.classification.text"						,"TCP Connection established");
 	add_idmef_object(idmef, "alert.classification.ident", EV_SOCK_TCP_ACCEPT);
-//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Spoofed"						,"no");
@@ -436,7 +435,6 @@ void LogPrelude::handleTCPclose(Event *event)
 
 	add_idmef_object(idmef, "alert.classification.text"							,"TCP Connection closed");
 	add_idmef_object(idmef, "alert.classification.ident", EV_SOCK_TCP_CLOSE);
-//	add_idmef_object(idmef, "alert.classification.reference(0).origin"			,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Service.protocol"					,"TCP");
@@ -502,7 +500,6 @@ void LogPrelude::handleShellcodeDone(Event *event)
 	// hl: added ident
 	add_idmef_object(idmef, "alert.classification.ident", EV_SHELLCODE_DONE);
 
-	//	add_idmef_object(idmef, "alert.classification.reference(0).origin"		,"vendor-specific" );
 
 
 	add_idmef_object(idmef, "alert.source(0).Spoofed"					,"no");
