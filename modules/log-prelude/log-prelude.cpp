@@ -199,7 +199,7 @@ bool LogPrelude::Init()
         ret = idmef_analyzer_new_name(prelude_client_get_analyzer(m_PreludeClient), &string);
         if ( ret < 0 )
 	        return false;        
-	prelude_string_set_ref(string, analyzerName.c_str());
+	prelude_string_set_dup(string, analyzerName.c_str());
 	
         //  start the Prelude Client
 	ret = prelude_client_start(m_PreludeClient);
