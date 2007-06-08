@@ -106,12 +106,11 @@ TransferSession::TransferSession(Type type, SubmitMwservModule * parent)
 	m_parent = parent;
 	
 	m_sample.binary = 0;	
-	m_multiHandle = 0;
-	
-	m_Type |= ST_NODEL;
+	m_multiHandle = 0;	
+	m_postInfo = m_postInfoLast = 0;
+	m_curlHandle = 0;
 
-	m_buffer    = "";
-	m_targetUrl = "";
+	m_Type |= ST_NODEL;
 }
 
 void TransferSession::transfer(TransferSample& sample, string url)
@@ -232,8 +231,11 @@ bool TransferSession::Exit()
 	if(m_multiHandle)
 		curl_multi_remove_handle(m_multiHandle, m_curlHandle);
 	
-	curl_formfree(m_postInfo);
-	curl_easy_cleanup(m_curlHandle);
+	if(m_postInfo)
+		curl_formfree(m_postInfo);
+	
+	if(m_curlHandle)
+		curl_easy_cleanup(m_curlHandle);
 	
 	if(m_multiHandle)
 	{
@@ -350,7 +352,10 @@ int32_t TransferSession::doRecv()
 }
 
 int32_t TransferSession::getSocket()
-{		
+{
+	if(!m_multiHandle)
+		return -1;
+
 	fd_set readSet, writeSet, errorSet;
 	int maxFd = 0;
 	CURLMcode error;
