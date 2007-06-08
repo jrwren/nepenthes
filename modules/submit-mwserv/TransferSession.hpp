@@ -73,7 +73,7 @@ public:
 	};
 	
 	TransferSession(Type type, SubmitMwservModule * parent);
-	~TransferSession();
+	virtual ~TransferSession();
 	
 	enum Status
 	{
