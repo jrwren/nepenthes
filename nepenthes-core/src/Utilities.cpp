@@ -339,7 +339,7 @@ string Utilities::md5sum(char *msg, int32_t len)
 
 // ENDOF MD5Sum
 
-/*
+
 
 void Utilities::hexdump(byte *data, uint32_t len)
 {
@@ -372,6 +372,9 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 		fclose(f);
 
 		g_Nepenthes->getLogMgr()->logf(mask,"Stored Hexdump %s (0x%08x , 0x%08x).\n", md5.c_str(), (uint32_t)((intptr_t)data), len);
+	}else
+	{
+		g_Nepenthes->getLogMgr()->logf(l_crit, "Could not open %s (%s)\n", md5.c_str(), strerror(errno));
 	}
 
 
@@ -430,7 +433,7 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 	
 }
 
-*/
+
 
 
 
