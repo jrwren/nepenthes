@@ -41,7 +41,7 @@ nepenthes
     "logdownload.so",               "log-download.conf",            ""
 //  "logirc.so",                    "log-irc.conf",                 ""  // needs configuration
 //  "logprelude.so",                "log-prelude.conf",             "" 
-
+//  "loghexdump.so"                 "" 				    ""
 
 // dumping and logging
     "moduleportwatch.so",           "module-portwatch.conf",        ""

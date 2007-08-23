@@ -204,6 +204,10 @@ AC_SUBST([LIB_DL])
 # libssh
 AC_SUBST([LIB_SSH])
 
+# libemu
+AC_SUBST([LIB_EMU])
+
+
 dnl **************************************************
 dnl * libdl linking flag                             *
 dnl **************************************************
@@ -665,6 +669,69 @@ fi
 
 
 
+dnl **************************************************
+dnl * libemu support                                  *
+dnl **************************************************
+
+AC_ARG_WITH(emu-lib,
+    [  --with-emu-lib=PATH	specify path to libemu library],
+    [emu_lib=$withval],
+    [emu_lib=no])
+AC_ARG_WITH(emu-include,
+    [  --with-emu-include=PATH	specify path to libemu include files],
+    [emu_inc=$withval],
+    [emu_inc=no])
+
+AC_ARG_ENABLE(emu, [  --enable-emu	Enable Support [default=auto]], 
+		    enable_emu="$enableval", enable_emu="no")
+
+
+if test x$enable_emu = xyes; then
+
+  AC_MSG_CHECKING(for libemu - x86 emulation library)
+
+  dnl **************************************************
+  dnl * emu headers                                  *
+  dnl **************************************************
+
+  orig_cppflags=$CPPFLAGS
+  
+  if test "x$emu_inc" != xno; then
+    CPPFLAGS="-I$emu_inc $CPPFLAGS"
+  fi
+  
+  AC_CHECK_HEADER(emu/emu.h, [found=yes], [found=no])
+
+  if test "x$found" != "xno"; then
+
+
+    dnl **************************************************
+    dnl * emu lib                                      *
+    dnl **************************************************
+	
+    orig_ldflags=$LDFLAGS
+    if test "x$emu_lib" != "xno"; then
+        LDFLAGS="-L$emu_lib $LDFLAGS"
+    fi
+    AC_CHECK_LIB(emu, emu_new, [found=yes], [found=no])
+    
+    if test "x$found" != "xyes"; then
+        LDFLAGS=$orig_ldflags
+    fi
+  else    
+     CPPFLAGS=$orig_cppflags
+
+  fi
+
+  if test "x$found" != "xyes"; then
+    enable_emu=no
+  else
+    AC_DEFINE(HAVE_EMU, 1 , [Define if we have emu client library])
+    LIB_EMU="-lemu"
+  fi
+fi  
+
+
 
 
 dnl **************************************************
@@ -948,7 +1015,9 @@ AC_CONFIG_FILES([Makefile
                  modules/x-5/Makefile
                  modules/x-6/Makefile
                  modules/x-9/Makefile
+                 modules/log-hexdump/Makefile
 		 ])
+#		 modules/shellcode-emulation/Makefile
 #		 modules/module-upnp/Makefile		 
 #		 modules/log-prelude/Makefile
 #                modules/module-drone/Makefile		 
