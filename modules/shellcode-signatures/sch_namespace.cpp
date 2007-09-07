@@ -107,7 +107,7 @@ bool NamespaceShellcodeHandler::Init()
 	if ( (m_Pcre = pcre_compile(m_Pattern.c_str(), PCRE_DOTALL, &pcreEerror, (int *)&pcreErrorPos, 0)) == NULL )
 	{
 		logCrit("%s could not compile pattern \n\t\"%s\"\n\t Error:\"%s\" at Position %u", 
-				m_ShellcodeHandlerName.c_str(), pcreEerror, pcreErrorPos);
+				m_ShellcodeHandlerName.c_str(), m_Pattern.c_str(), pcreEerror, pcreErrorPos);
 		return false;
 	} else
 	{
