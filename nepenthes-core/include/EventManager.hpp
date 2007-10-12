@@ -72,10 +72,11 @@ namespace nepenthes
 		bool Exit();
 
 		virtual uint16_t registerEvent(char *name);
+//		virtual uint16_t registerEvent(const char *name);
 //		virtual int32_t	 getEventbyName(char *name);
     private:
 
-		bool registerInternalEvent(char *name, uint16_t number);
+		bool registerInternalEvent(const char *name, uint16_t number);
 
 
         list <EventHandler *> m_EventHandlers;

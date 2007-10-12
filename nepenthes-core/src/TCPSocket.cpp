@@ -840,3 +840,8 @@ bool TCPSocket::doRespond(char *msg, uint32_t len)
 		return false;
 }
 
+bool TCPSocket::doRespond(const char *msg, uint32_t len)
+{
+	return doRespond((char *)msg, len);
+}
+

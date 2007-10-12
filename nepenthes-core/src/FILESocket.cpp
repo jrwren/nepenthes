@@ -147,5 +147,10 @@ bool FILESocket::doRespond(char *msg, uint32_t len)
 	return false;
 }
 
+bool FILESocket::doRespond(const char *msg, uint32_t len)
+{
+	return false;
+}
+
 #endif // WIN32
 

@@ -366,7 +366,7 @@ bool CTRLDialogue::parsePass(char *msg)
 
 void CTRLDialogue::sendType()
 {
-	char *nmsg = "TYPE I\r\n";
+	const char *nmsg = "TYPE I\r\n";
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	logDebug("FTPSEND: '%s'\n",nmsg);
 }
@@ -506,7 +506,7 @@ bool CTRLDialogue::parseRetr(char *msg)
 void CTRLDialogue::sendQuit()
 {
 	
-	char *nmsg = "QUIT\r\n";
+	const char *nmsg = "QUIT\r\n";
 	
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));

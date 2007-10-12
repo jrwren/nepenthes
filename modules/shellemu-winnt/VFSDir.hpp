@@ -45,7 +45,7 @@ namespace nepenthes
 	class VFSDir: public VFSNode
 	{
 	public:
-		VFSDir(VFSNode *parentnode, char *name);
+		VFSDir(VFSNode *parentnode,char *name);
 		~VFSDir();
 		virtual VFSDir* getDirectory(char *dirname);
 		virtual VFSDir *createDirectory(char *dirname);

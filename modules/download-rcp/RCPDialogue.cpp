@@ -94,14 +94,14 @@ ConsumeLevel RCPDialogue::connectionEstablished()
 	m_Buffer = new Buffer(1024);
 
 	char zerobyte = 0;
-	char *request ="rcp -f ";
+	const char *request ="rcp -f ";
     m_Socket->doWrite((char *)&zerobyte,1);
 
 	m_Buffer->add((void *)m_Download->getDownloadUrl()->getUser().c_str(),m_Download->getDownloadUrl()->getUser().size());
 	m_Buffer->add(&zerobyte,1);
 	m_Buffer->add((void *)m_Download->getDownloadUrl()->getUser().c_str(),m_Download->getDownloadUrl()->getUser().size());
 	m_Buffer->add(&zerobyte,1);
-	m_Buffer->add(request,strlen(request));
+	m_Buffer->add((void *)request,strlen(request));
 	m_Buffer->add((void *)m_Download->getDownloadUrl()->getPath().c_str(),m_Download->getDownloadUrl()->getPath().size());
 	m_Buffer->add(&zerobyte,1);
 

@@ -440,7 +440,7 @@ bool VFSCommandFTP::startDownload(string host, string port, string user, string 
 	}else
 	{
 		g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
-													"ftp",
+													(char *)"ftp",
 												   (char *)user.c_str(),
 												   (char *)pass.c_str(), 
 												   (char *)host.c_str(), 

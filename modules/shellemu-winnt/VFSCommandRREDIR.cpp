@@ -78,7 +78,7 @@ int32_t VFSCommandRREDIR::run(vector<string> *paramlist)
 	}
 	
 	file->addData((char *)m_VFS->getStdOut()->c_str(),m_VFS->getStdOut()->size());
-	file->addData("\n",1);
+	file->addData((char *)"\n",1);
 	logDebug("file is '%.*s' \n",file->getSize(),(char *)file->getData());
 	m_VFS->freeStdout();
 

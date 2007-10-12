@@ -122,3 +122,8 @@ bool POLLSocket::doRespond(char *msg, uint32_t len)
 	return false;
 }
 
+bool POLLSocket::doRespond(const char *msg, uint32_t len)
+{
+	return false;
+}
+

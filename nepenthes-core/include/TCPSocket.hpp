@@ -56,6 +56,7 @@ public:
 		bool checkTimeout();
 		bool handleTimeout();
 		bool doRespond(char *msg, uint32_t len);
+		bool doRespond(const char *msg, uint32_t len);
 
 		void setStatus(socket_state i);
 	protected:

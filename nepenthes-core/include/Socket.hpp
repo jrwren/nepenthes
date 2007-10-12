@@ -111,6 +111,7 @@ namespace nepenthes
         virtual int32_t doRecv()=0;
 
         virtual int32_t doWrite(char *msg,uint32_t len)=0;
+//		virtual int32_t doWrite(const char *msg,uint32_t len)=0;
 
         virtual bool checkTimeout()=0;
 		virtual bool handleTimeout()=0;

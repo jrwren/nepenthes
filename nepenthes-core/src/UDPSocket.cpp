@@ -491,3 +491,8 @@ bool UDPSocket::doRespond(char *msg, uint32_t len)
 	return doWrite(msg,len);
 }
 
+bool UDPSocket::doRespond(const char *msg, uint32_t len)
+{
+	return doRespond((char *)msg, len);
+}
+

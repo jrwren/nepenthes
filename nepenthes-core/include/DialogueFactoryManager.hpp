@@ -62,7 +62,7 @@ namespace nepenthes
 
 		virtual bool registerFactory(DialogueFactory *diaf);
 		virtual bool unregisterFactory(DialogueFactory *diaf);
-		virtual DialogueFactory *getFactory(char *factoryname);
+		virtual DialogueFactory *getFactory(const char *factoryname);
 	protected:
 		list <DialogueFactory *> m_Factories;
 	};

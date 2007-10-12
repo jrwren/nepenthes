@@ -76,10 +76,10 @@ bool VFS::Init(Dialogue *dia)
 {
 	m_Dialogue = dia;
 
-	VFSDir *cdir = new VFSDir(NULL,"c:");
+	VFSDir *cdir = new VFSDir(NULL,(char *)"c:");
 	m_Nodes.push_back(cdir);
-	VFSDir *wdir = cdir->createDirectory("WINNT");
-	VFSDir *sdir = wdir->createDirectory("System32");
+	VFSDir *wdir = cdir->createDirectory((char *)"WINNT");
+	VFSDir *sdir = wdir->createDirectory((char *)"System32");
 	m_CurrentDir = sdir;
 
 	m_CommandDirs.push_back(wdir);

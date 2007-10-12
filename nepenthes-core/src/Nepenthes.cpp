@@ -1503,10 +1503,10 @@ void show_help(bool defaults)
 {
 	typedef struct 
 	{
-		char *m_shortOpt;
-		char *m_longOpt;
-        char *m_Description;
-		char *m_Default;
+		const char *m_shortOpt;
+		const char *m_longOpt;
+        const char *m_Description;
+		const char *m_Default;
 	} helpstruct;
 
 	helpstruct myopts[]=

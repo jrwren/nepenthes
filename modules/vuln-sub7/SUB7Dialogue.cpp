@@ -143,7 +143,7 @@ ConsumeLevel SUB7Dialogue::incomingData(Message *msg)
 			m_FileSize = atoi(filesize);
 			m_State = SUB7_FILETRANSFERR;
 			m_Buffer->clear();
-			m_Download = new Download(msg->getRemoteHost(),"sub7://foo/bar",msg->getRemoteHost(),"some triggerline");
+			m_Download = new Download(msg->getRemoteHost(),(char *)"sub7://foo/bar",msg->getRemoteHost(),(char *)"some triggerline");
 			free(filesize);
 		}
 		break;

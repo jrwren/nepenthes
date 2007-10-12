@@ -405,9 +405,9 @@ bool DownloadManager::downloadUrl(Download *down)
  * 
  * @return returns downloadUrl(Download *) return value
  */
-bool DownloadManager::downloadUrl(uint32_t localhost, char *url, uint32_t address, char *triggerline, uint8_t downloadflags, DownloadCallback *callback, void *obj)
+bool DownloadManager::downloadUrl(uint32_t localhost, char *url, uint32_t address, const char *triggerline, uint8_t downloadflags, DownloadCallback *callback, void *obj)
 {
-	Download *down = new Download(localhost, url,address,triggerline, callback,obj);
+	Download *down = new Download(localhost, url,address, (char *)triggerline, callback,obj);
 	down->addDownloadFlags(downloadflags);
 	return downloadUrl(down);
 }

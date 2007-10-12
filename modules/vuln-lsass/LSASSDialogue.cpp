@@ -146,7 +146,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 				 logDebug("Valid LSASS HOD Stage #3 (%i)\n",sizeof(lsass_hod_req3));
 				 m_State = LSASS_HOD_STAGE4;
 				 m_Buffer->clear();
-                 char *osversion = "W i n d o w s   5 . 1 ";
+                 const char *osversion = "W i n d o w s   5 . 1 ";
 				 memcpy(reply+48,osversion,strlen(osversion));
 				 msg->getResponder()->doRespond(reply,256);
 				 return CL_ASSIGN;

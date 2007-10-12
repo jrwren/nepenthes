@@ -206,7 +206,7 @@ bool EventManager::doTimeoutLoop()
  * @return true on success ( no collisions in number & name)
  *         else false
  */
-bool EventManager::registerInternalEvent(char *name, uint16_t number)
+bool EventManager::registerInternalEvent(const char *name, uint16_t number)
 {
 // check name and number are uniq
 	list<EventRegistration *>::iterator it;
@@ -243,3 +243,5 @@ uint16_t EventManager::registerEvent(char *name)
 		retval = rand();
 	return retval;
 }
+
+

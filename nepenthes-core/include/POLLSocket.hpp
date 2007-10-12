@@ -57,6 +57,8 @@ public:
 		virtual bool checkTimeout();
 		virtual bool handleTimeout();
 		bool doRespond(char *msg, uint32_t len);
+		bool doRespond(const char *msg, uint32_t len);
+
 	};
 }
 

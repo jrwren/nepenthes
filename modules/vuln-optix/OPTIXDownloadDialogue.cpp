@@ -133,7 +133,7 @@ ConsumeLevel OPTIXDownloadDialogue::incomingData(Message *msg)
 
 				msg->getResponder()->doRespond("+OK REDY",strlen("+OK REDY"));
 				m_State = OPTIX_DL_FILETRANSFERR;
-				m_Download = new Download(msg->getRemoteHost(),"optix://foo/bar",msg->getRemoteHost(),"some triggerline");
+				m_Download = new Download(msg->getRemoteHost(),(char *)"optix://foo/bar",msg->getRemoteHost(),(char *)"some triggerline");
 			}
 			break;
 		}

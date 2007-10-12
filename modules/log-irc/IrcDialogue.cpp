@@ -357,7 +357,7 @@ ConsumeLevel IrcDialogue::connectionShutdown(Message *msg)
 struct FlagMapping
 {
 	int32_t	m_LogFlag;
-	char 	*m_ColorFlag;
+	const char 	*m_ColorFlag;
 };
 
 const struct FlagMapping colors[] =

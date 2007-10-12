@@ -106,7 +106,7 @@ bool X5::Init()
     m_Events.set(EV_SOCK_TCP_ACCEPT);
 	m_Events.set(EV_TIMEOUT);
 	REG_EVENT_HANDLER(this);
-	myevent = g_Nepenthes->getEventMgr()->registerEvent("EV_X5_TEST_EVENT");
+	myevent = g_Nepenthes->getEventMgr()->registerEvent((char*)"EV_X5_TEST_EVENT");
 	m_Events.set(myevent);
 	logInfo("My personal Event is %i\n",myevent);
 	return true;

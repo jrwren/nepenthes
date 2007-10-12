@@ -40,6 +40,7 @@ namespace nepenthes
     public:
 		virtual ~Responder() {};
         virtual bool doRespond(char *msg, uint32_t len)=0;
+		virtual bool doRespond(const char *msg, uint32_t len)=0;
 
     };
 

@@ -87,7 +87,7 @@ BridgeDialogueAccept::~BridgeDialogueAccept()
 		((BridgeDialogueConnect*) m_ConnectDialogue)->setBridge(NULL);
 	}
 
-	char *cmd_str[3] = {"tftp","echo","ftp"};
+	const char *cmd_str[3] = {"tftp","echo","ftp"};
 
 	uint32_t cmd,i;
 

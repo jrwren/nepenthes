@@ -39,8 +39,8 @@ namespace nepenthes
 {
 	struct XORPcreHelper
 	{
-		char *m_PCRE;
-		char *m_Name;
+		const char *m_PCRE;
+		const char *m_Name;
 		uint16_t m_Options; // will use this later
 
 	};

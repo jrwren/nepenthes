@@ -156,7 +156,7 @@ ConsumeLevel BagleDialogue::incomingData(Message *msg)
 				m_FileSize = ntohs (*(uint32_t *)msg->getMsg());
 				logInfo("Unexpected but detected: Bagle Binary Stream (%i bytes)\n",m_FileSize);
 				m_State = BAGLE_BINARY;
-				m_Download = new Download(m_Socket->getRemoteHost(),"bagle://",m_Socket->getRemoteHost(),"bagle://foo/bar");
+				m_Download = new Download(m_Socket->getRemoteHost(),(char *)"bagle://",m_Socket->getRemoteHost(),(char *)"bagle://foo/bar");
 				m_Download->getDownloadBuffer()->addData(msg->getMsg()+4,msg->getSize()-4);
 				return CL_ASSIGN_AND_DONE;
 			}
