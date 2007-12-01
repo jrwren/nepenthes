@@ -281,7 +281,7 @@ bool DownloadManager::isLocalAddress(uint32_t ulAddress)
 		return false; // not an ip
 
 	for ( uint32_t i = 0; i < sizeof(m_irLocalRanges) / sizeof(ip_range_t); i++ )
-		if ( (ulAddress & m_irLocalRanges[i].m_ulMask) == m_irLocalRanges[i].m_ulAddress )
+		if ( (ulAddress & htons(m_irLocalRanges[i].m_ulMask)) == htons(m_irLocalRanges[i].m_ulAddress) )
 			return true;
 
 	return false;
