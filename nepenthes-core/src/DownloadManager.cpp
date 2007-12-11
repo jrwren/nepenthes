@@ -302,7 +302,7 @@ bool DownloadManager::downloadUrl(Download *down)
 	SubmitEvent se(EV_DOWNLOAD,down);
 	g_Nepenthes->getEventMgr()->handleEvent(&se);
 
-	if (down->getDownloadUrl()->getPort() <= 0 || down->getDownloadUrl()->getPort() > 65536)
+	if ( down->getDownloadUrl()->getPort() <= 0 || down->getDownloadUrl()->getPort() > 65536 )
 	{
 		logWarn("malformed url 0<port<65536  , %s \n",down->getUrl().c_str());
 		delete down;
@@ -316,67 +316,56 @@ bool DownloadManager::downloadUrl(Download *down)
 	{	// address is either dns or invalid ip
 		logSpam("Host %s is valid ip \n",down->getDownloadUrl()->getHost().c_str());
 		bool bReplaceHost = false;
-		if (isLocalAddress(ulAddress) == true)
+		if ( isLocalAddress(ulAddress) == true )
 		{ // local ip
-			if (m_ReplaceLocalIps)
+			if ( m_ReplaceLocalIps )
 			{
 				bReplaceHost = true;
 				logInfo("Link %s  has local address, replacing with real ip \n",down->getUrl().c_str());
 
-			}else
+			}
+			else
 			{
 				logDebug(" Address %s is local, we will not download \n",inet_ntoa( *(in_addr *)&ulAddress));
 				delete down;
 				return false;
 			}
-            
-			
-		}else
+
+
+		}
+		else
 		{
-			if (ulAddress == 0) // replace 0.0.0.0
+			if ( ulAddress == 0 && m_ReplaceLocalIps ) // replace 0.0.0.0
 			{
 				bReplaceHost = true;
 			}
 		}
 
-		if (bReplaceHost)
+		if ( bReplaceHost )
 		{
-/*			pDown->m_sUri  = pDown->m_pUri->m_protocol;
-			pDown->m_sUri += "://";
-			pDown->m_sUri += inet_ntoa( *(in_addr *)&pDown->m_ulAddress);
-			pDown->m_sUri += "/";
-			pDown->m_sUri += pDown->m_pUri->m_file;			 // fixme port
-			pDown->m_pUri->m_host = inet_ntoa( *(in_addr *)&pDown->m_ulAddress);
-*/	
-			string sUrl =	down->getDownloadUrl()->getProtocol();
+			string sUrl =   down->getDownloadUrl()->getProtocol();
 			sUrl += "://";
+
 			uint32_t newaddr = down->getRemoteHost();
 			sUrl += inet_ntoa(*(in_addr *)&newaddr);
 			down->getDownloadUrl()->setHost(newaddr);
+			logInfo("Replaced Address, new URL is %s \n",sUrl.c_str());
 
-#ifdef WIN32
-			char *port = (char *)malloc(7);
-			memset(port,0,7);
-			_snprintf(port,7,":%i/",down->getDownloadUrl()->getPort());
-            sUrl += port;
-			free(port);
-#else
 			char *port;
 			asprintf(&port,":%i/",down->getDownloadUrl()->getPort());
-            sUrl += port;
+			sUrl += port;
 			free(port);
-#endif
+
 			sUrl += down->getDownloadUrl()->getPath();
 			down->setUrl(&sUrl);
-			logInfo("Replaced Address, new URL is %s \n",sUrl.c_str());
 		}
 	}
 
 
 	list <DownloadHandlerTuple>::iterator handler;
-	for(handler = m_DownloadHandlers.begin(); handler != m_DownloadHandlers.end(); handler++)
+	for ( handler = m_DownloadHandlers.begin(); handler != m_DownloadHandlers.end(); handler++ )
 	{
-		if(handler->m_Protocol == down->getDownloadUrl()->getProtocol())
+		if ( handler->m_Protocol == down->getDownloadUrl()->getProtocol() )
 		{
 			logInfo("Handler %s will download %s \n",handler->m_Handler->getDownloadHandlerName().c_str(),down->getUrl().c_str());
 			handler->m_Handler->download(down);
