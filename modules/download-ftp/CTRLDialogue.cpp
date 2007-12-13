@@ -28,6 +28,7 @@
  /* $Id$ */
  
 #include <sys/types.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -455,10 +456,17 @@ void CTRLDialogue::sendPort()
 	
 
 	asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
+#if BYTE_ORDER == BIG_ENDIAN
+			(int32_t)(ip >> 24) & 0xff,
+			(int32_t)(ip >> 16) & 0xff,
+			(int32_t)(ip >> 8) & 0xff,
+			(int32_t)ip & 0xff,
+#else
 			(int32_t)ip & 0xff,
 			(int32_t)(ip >> 8) & 0xff,
 			(int32_t)(ip >> 16) & 0xff,
 			(int32_t)(ip >> 24) & 0xff,
+#endif
 			(int32_t)(port >> 8) & 0xff,
 			(int32_t)port & 0xff);
 	logDebug("FTPSEND: '%s'\n",nmsg);
