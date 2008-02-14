@@ -278,9 +278,6 @@ void DownloadManager::doList()
  */
 bool DownloadManager::isLocalAddress(uint32_t ulAddress)
 {
-	if ( !ulAddress || ulAddress == 0xFFFFFFFF )
-		return false; // not an ip
-
 	for ( uint32_t i = 0; i < sizeof(m_irLocalRanges) / sizeof(ip_range_t); i++ )
 		if ( (ulAddress & m_irLocalRanges[i].m_ulMask) == m_irLocalRanges[i].m_ulAddress )
 			return true;
@@ -329,15 +326,6 @@ bool DownloadManager::downloadUrl(Download *down)
 				logDebug(" Address %s is local, we will not download \n",inet_ntoa( *(in_addr *)&ulAddress));
 				delete down;
 				return false;
-			}
-
-
-		}
-		else
-		{
-			if ( ulAddress == 0 && m_ReplaceLocalIps ) // replace 0.0.0.0
-			{
-				bReplaceHost = true;
 			}
 		}
 
