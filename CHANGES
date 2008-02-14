@@ -1,3 +1,76 @@
+Version 0.2.2
+==================
+
+This release has been overdue for a long time.
+It should compile using g++4.2 (and automake 1.10).
+
+Nepenthes
+        FIXES and ADDITIONS
+	-----
+	* DownloadManager
+		* 0.0.0.0 is local
+		* if replace_local_ips is not set, local downloads will be dropped
+
+	* SocketManager
+		*  adding sockets during send or recv increases the .size() of m_Sockets, 
+		   therefore the pollfd set is read beyond its borders, prevent this
+
+	
+Modules
+        FIXES and ADDITIONS
+        -----
+	* submit-norman
+		* submit to cwsandbox too, add a new config var urls, 
+		  which is a list of urls to post to
+
+	* download-ftp
+		* big endian fixes (rui)
+
+	* shellcode-signatures
+		* sparc64 fixes (rui
+
+
+	* log-prelude
+		* various fixes (yoann)
+
+	* sqlhandler-postgres
+		* support options
+
+
+	* submit-norman
+		* use captchaless url
+
+
+	* log-surfnet
+		* prevent attack insert failures from messing up following attacks using the same socket ptr
+		* update attack severity for delayed attacks
+		* erase closed sockets from the socket tracker if there is no outstanding query to process
+
+	* download-curl
+		* new curl api
+
+        NEW
+        ---
+	* vuln-sav
+		* added
+
+	* log-hexdump
+		* added, external module now
+		* compile with --enable-debug-logging and load loghexdump.so
+
+
+	* sumbit-mwserv
+		* added (oxff)
+
+
+
+	* submit-http
+		* added (Niklas Schiffler)
+
+
+	* module-honeytrap
+		* added
+
 Version 0.2.0
 ==================
 

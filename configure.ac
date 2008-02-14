@@ -6,8 +6,8 @@
 # $Id$
 
 AC_PREREQ(2.59)
-AC_INIT([nepenthes], [0.2.1], [dornseif@informatik.rwth-aachen.de])
-AM_INIT_AUTOMAKE([nepenthes], [0.2.1])
+AC_INIT([nepenthes], [0.2.2], [nepenthesdev@gmail.com])
+AM_INIT_AUTOMAKE([nepenthes], [0.2.2])
 AC_REVISION([$Id$])
 
 AC_PREFIX_DEFAULT(/opt/nepenthes)
