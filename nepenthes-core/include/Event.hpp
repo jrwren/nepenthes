@@ -46,32 +46,42 @@ namespace nepenthes
 #define EV_SOCK_TCP_RX 			5
 #define EV_SOCK_TCP_TX 			6
 
-#define EV_SOCK_UDP_BIND 		7
-#define EV_SOCK_UDP_ACCEPT 		8
-#define EV_SOCK_UDP_CONNECT 	9
-#define EV_SOCK_UDP_CLOSE 		10
+#define EV_SOCK_UDP_BIND 		11
+#define EV_SOCK_UDP_ACCEPT 		12
+#define EV_SOCK_UDP_CONNECT 	13
+#define EV_SOCK_UDP_CLOSE 		14
+#define EV_SOCK_UDP_RX          15
+#define EV_SOCK_UDP_TX          16
 
-#define EV_SOCK_UDS_BIND 		11
-#define EV_SOCK_UDS_ACCEPT 		12
-#define EV_SOCK_UDS_CONNECT 	13
-#define EV_SOCK_UDS_CLOSE 		14
+#define EV_SOCK_UDS_BIND 		21
+#define EV_SOCK_UDS_ACCEPT 		22
+#define EV_SOCK_UDS_CONNECT 	23
+#define EV_SOCK_UDS_CLOSE 		24
+#define EV_SOCK_UDS_RX          25
+#define EV_SOCK_UDS_TX          26
 
-#define EV_SOCK_RAW_BIND 		15
-#define EV_SOCK_RAW_ACCEPT 		16
-#define EV_SOCK_RAW_CONNECT 	17
-#define EV_SOCK_RAW_CLOSE 		18
 
-#define EV_DOWNLOAD 			19
 
-#define EV_SUBMISSION 			20
-#define EV_SUBMISSION_UNIQ 		21
-#define EV_SUBMISSION_HIT 		22
+#define EV_SOCK_RAW_BIND 		31
+#define EV_SOCK_RAW_ACCEPT 		32
+#define EV_SOCK_RAW_CONNECT 	33
+#define EV_SOCK_RAW_CLOSE 		34
+#define EV_SOCK_RAW_RX          35
+#define EV_SOCK_RAW_TX          36
 
-#define EV_DIALOGUE_ASSIGN_AND_DONE 23
 
-#define EV_SHELLCODE_DONE		24
 
-#define EV_HEXDUMP				25
+#define EV_DOWNLOAD 			41
+
+#define EV_SUBMISSION 			51
+#define EV_SUBMISSION_UNIQ 		52
+#define EV_SUBMISSION_HIT 		53
+
+#define EV_DIALOGUE_ASSIGN_AND_DONE 61
+
+#define EV_SHELLCODE_DONE		71
+
+#define EV_HEXDUMP				81
 
 	class Event
     {
