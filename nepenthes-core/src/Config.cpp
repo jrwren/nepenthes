@@ -352,7 +352,7 @@ char *Config::parseString(CharField *data, int32_t lineNum)
 
 					szHexConv[0] = data->getChar();
 					szHexConv[1] = data->getChar();
-					szHexConv[3] = 0;
+					szHexConv[2] = 0; /* 3 looked like a typo */
 //					printf("uint32_t i is here %i\n",i);
 //					printf("Converting %i %c%c -> %i\n",i, szHexConv[0],szHexConv[1], (unsigned char)strtol(szHexConv,NULL,16) );
 //					strtol(szHexConv,NULL,16);

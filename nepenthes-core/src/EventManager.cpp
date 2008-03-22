@@ -34,6 +34,8 @@
 
 #include "LogManager.hpp"
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 

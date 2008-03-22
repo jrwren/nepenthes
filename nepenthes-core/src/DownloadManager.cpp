@@ -42,6 +42,8 @@
 #include "SubmitEvent.hpp"
 #include "EventManager.hpp"
 
+#include <cstdlib>
+
 using namespace std;
 using namespace nepenthes;
 

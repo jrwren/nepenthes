@@ -39,6 +39,8 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
  

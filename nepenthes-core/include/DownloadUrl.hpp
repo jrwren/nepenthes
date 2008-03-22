@@ -32,13 +32,13 @@
 
 
 #include <string>
+#include <typeinfo>
 
 using namespace std;
 
 
 namespace nepenthes
 {
-
 
 	/**
 	 * protocoll/port mapping for various protocols
@@ -47,7 +47,7 @@ namespace nepenthes
 	{
 		const char      *protocolName;
 		uint16_t         port;
-	};
+	} foo;
 
 
 	/**

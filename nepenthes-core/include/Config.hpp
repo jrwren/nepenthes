@@ -52,6 +52,8 @@
 
 #endif
 
+#include <cstring>
+
 using namespace std;
 
 

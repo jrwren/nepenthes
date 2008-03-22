@@ -43,6 +43,8 @@
 #include "Nepenthes.hpp"
 #include "LogManager.hpp"
 
+#include <cstring>
+
 using namespace nepenthes;
 
 //extern int32_t errno;
