@@ -30,6 +30,9 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "LogManager.hpp"
 #include "LogHandlerEntry.hpp"
 #include "LogHandler.hpp"
