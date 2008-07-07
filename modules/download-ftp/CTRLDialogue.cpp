@@ -163,7 +163,14 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 							sendType();
 							m_State = FTP_TYPE;
 						}
+
 					}else
+					if ( m_Download->getDownloadUrl()->getDir() != "" )
+					{
+						sendCWD();
+						m_State = FTP_CWD;
+					}
+					else
 					{
 						sendPort();
 						m_State = FTP_PORT;
