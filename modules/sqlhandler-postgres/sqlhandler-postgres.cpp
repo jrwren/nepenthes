@@ -27,6 +27,7 @@
 
 /* $Id$ */
 
+#include <stdlib.h>
 #include <ctype.h>
 //#include <openssl/ssl.h>
 
