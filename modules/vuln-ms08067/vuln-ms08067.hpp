@@ -47,8 +47,10 @@ namespace nepenthes
 		MS08067_STAGE4,
 		MS08067_STAGE5,
 		MS08067_STAGE6,
+		MS08067_STAGE6_TRANS,
 		MS08067_STAGE7,
 		MS08067_STAGE8,
+		MS08067_STAGE8_TRANS,
 		MS08067_STAGE9,
 
 		MS08067_DONE
@@ -64,7 +66,7 @@ namespace nepenthes
 		SMB_WRITE_ANDX = '\x2f',
 		SMB_NTCREATE_ANDX = '\xa2',
 		SMB_TREECONNECT_ANDX = '\x75',
-		
+		SMB_TRANS = '\x25',
 
 	} smb_cmdcode;
 
@@ -90,7 +92,8 @@ namespace nepenthes
 		ConsumeLevel handleTimeout(Message *msg);
 		ConsumeLevel connectionLost(Message *msg);
 		ConsumeLevel connectionShutdown(Message *msg);
-		bool checkPacketValidity(Message *msg, smb_cmdcode cmdcode);
+		bool checkPacketValidity(Message *msg);
+		bool checkSMBCommand(Message *msg, smb_cmdcode cmdcode);
 
 	protected:
 		ms08067_state m_State;

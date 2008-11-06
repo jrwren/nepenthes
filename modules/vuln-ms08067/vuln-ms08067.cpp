@@ -198,20 +198,18 @@ MS08067Dialogue::~MS08067Dialogue()
 }
 
 /**
- * Dialogue::checkPacketValidity(Message *, const char *)
+ * Dialogue::checkPacketValidity(Message *)
  * 
- * @param msg the Message the Socker received.
- * @param cmdcode SMB command 
+ * @param msg the Message the Socket received
  * 
  * @return bool
  */
-bool MS08067Dialogue::checkPacketValidity(Message *msg, smb_cmdcode cmdcode)
+bool MS08067Dialogue::checkPacketValidity(Message *msg)
 {
 	bool result = false;
 	
 	if (msg->getSize() > 32+4 && // netbios and smb header
 		((char *)msg->getMsg())[0] == '\x00' && // smb message
-		((char *)msg->getMsg())[8] == cmdcode && // SMB command
 		memcmp(smb_header_fix, (char *)msg->getMsg()+4, 4) == 0 && // smb fixed header
 		ntohs(* ( (unsigned short *)msg->getMsg()+1 ) ) == (msg->getSize()-4) // message length okay?
 	)
@@ -220,6 +218,21 @@ bool MS08067Dialogue::checkPacketValidity(Message *msg, smb_cmdcode cmdcode)
 	return result;
 }
 
+/**
+ * Dialogue::checkSMBCommand(Message *, smb_cmdcode)
+ * 
+ * @param msg the Message the Socket received.
+ * @param cmdcode SMB command 
+ * 
+ * @return bool
+ */
+bool MS08067Dialogue::checkSMBCommand(Message *msg, smb_cmdcode cmdcode)
+{
+	if (((char *)msg->getMsg())[8] == cmdcode)
+		return true;
+
+	return false;
+}
 
 /**
  * Dialogue::incomingData(Message *)
@@ -242,17 +255,23 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 	 }
 
 	 // state manipulation to make some dirty stuff work...
-	 if ( m_State == MS08067_STAGE8 && checkPacketValidity(msg, SMB_READ_ANDX) )// write andx -> stage 9
+	 if ( m_State == MS08067_STAGE8 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )// write andx -> stage 9
 	 {
 		m_State = MS08067_STAGE9;
 	 }
 
-	 if ( m_State == MS08067_STAGE7 && checkPacketValidity(msg, SMB_WRITE_ANDX) )// write andx -> stage 8
+	 if ( m_State == MS08067_STAGE7 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_WRITE_ANDX) )// write andx -> stage 8
 	 {
 		m_State = MS08067_STAGE8;
 	 }
 
-	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg, SMB_READ_ANDX) )// read andx -> stage 7
+	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS) )
+	 {
+	 	// SMB Transaction mode -> Branch to TRANS state
+		m_State = MS08067_STAGE6_TRANS;
+	 }
+
+	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )// read andx -> stage 7
 	 {
 		// by now we should know if this is our uuid dcerpc call
 		if (m_ConsumeLevel == CL_UNSURE)
@@ -271,7 +290,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 	 switch (m_State)
 	 {
 	 case MS08067_STAGE1:
-		 if (checkPacketValidity(msg, SMB_NEGPROT))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_NEGPROT))
 		 {
 				 logDebug("Valid MS08-067 Stage #1 (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE2;
@@ -288,7 +307,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE2:
-		 if (checkPacketValidity(msg, SMB_SESS_SETUP_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_SESS_SETUP_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #2 (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE3;
@@ -305,7 +324,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE3:
-		 if (checkPacketValidity(msg, SMB_SESS_SETUP_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_SESS_SETUP_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #3 (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE4;
@@ -322,7 +341,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE4:
-		 if (checkPacketValidity(msg, SMB_TREECONNECT_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TREECONNECT_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #4 (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE5;
@@ -339,7 +358,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE5:
-		 if (checkPacketValidity(msg, SMB_NTCREATE_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_NTCREATE_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #5 (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE6;
@@ -356,7 +375,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE6:
-		 if (checkPacketValidity(msg, SMB_WRITE_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_WRITE_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #6 (bufsize %i)\n", m_Buffer->getSize());
 
@@ -382,7 +401,36 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 						m_ConsumeLevel = CL_ASSIGN;
 				 }
 				 return m_ConsumeLevel;
-		 }else
+		 }else 
+			 return CL_DROP;
+		 break;
+
+	 case MS08067_STAGE6_TRANS:
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS))
+		 {
+				 logDebug("Valid MS08-067 Stage #6 [TRANS] (bufsize %i)\n", m_Buffer->getSize());
+				 m_State = MS08067_STAGE8_TRANS;
+
+				 memcpy(reply, transaction_bind_ack, sizeof(transaction_bind_ack)-1);
+				 // copy process and multiplex id
+				 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
+				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+
+ 				 assembled_dcerpc_data->add((char *)m_Buffer->getData()+67, m_Buffer->getSize()-67);
+
+				 m_Buffer->clear();
+				 msg->getResponder()->doRespond(reply,sizeof(transaction_bind_ack)-1);
+				 // search memory for our vulnerable call uuid so we can return CL_ASSIGN
+
+				 string s = string((char *)assembled_dcerpc_data->getData(), assembled_dcerpc_data->getSize());
+				 if ( s.find(string(vuln_rpccall_uuid, 16)) != (unsigned int)(-1) )
+				 {
+						logDebug("This is our UUID bind -> CL_ASSIGN!! \n");
+						assembled_dcerpc_data->clear();
+						m_ConsumeLevel = CL_ASSIGN;
+				 }
+				 return m_ConsumeLevel;
+		 }else 
 			 return CL_DROP;
 		 break;
 
@@ -393,7 +441,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		  * :(
 		  * -- also we have many fixed byte positions that could be made relative to get prettier code...
 		 */
-		 if (checkPacketValidity(msg, SMB_READ_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #7 (bufsize %i)\n", m_Buffer->getSize());
 
@@ -448,7 +496,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 break;
 
 	 case MS08067_STAGE8:
-		 if (checkPacketValidity(msg, SMB_WRITE_ANDX))
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_WRITE_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #8 (bufsize %i)\n", m_Buffer->getSize());
 
@@ -468,6 +516,24 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 }else
 			 return CL_DROP;
 		 break;
+
+	 case MS08067_STAGE8_TRANS:
+		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS))
+		 {
+				 logDebug("Valid MS08-067 Stage #8 (bufsize %i)\n", m_Buffer->getSize());
+				 m_State = MS08067_STAGE9;
+
+				 memcpy(reply, transaction_call_error_response, sizeof(transaction_call_error_response)-1);
+				 // copy process and multiplex id
+				 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
+				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+
+ 				 assembled_dcerpc_data->add((char *)m_Buffer->getData()+67, m_Buffer->getSize()-67);
+				 m_Buffer->clear();
+
+				 msg->getResponder()->doRespond(reply,sizeof(transaction_call_error_response)-1);
+		 }else
+			 return CL_DROP;
 
 	 case MS08067_STAGE9:
 		 {
