@@ -995,6 +995,7 @@ AC_CONFIG_FILES([Makefile
                  modules/vuln-msdtc/Makefile
                  modules/vuln-msmq/Makefile
                  modules/vuln-mssql/Makefile
+                 modules/vuln-ms08067/Makefile
                  modules/vuln-mydoom/Makefile
                  modules/vuln-netbiosname/Makefile
                  modules/vuln-netdde/Makefile
@@ -1025,7 +1026,7 @@ AC_CONFIG_FILES([Makefile
 #                modules/vuln-netbios/Makefile
 #                 modules/module-baitnswitch/Makefile
 #		 modules/dnsresolve-udns/Makefile                 
-                 
+
 AC_OUTPUT
 
 echo

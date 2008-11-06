@@ -1,0 +1,5 @@
+vuln-ms08067
+{
+	ports		("445");
+	accepttimeout 	"45";
+};
