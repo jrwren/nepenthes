@@ -39,6 +39,9 @@
 #include "PCAPSocket.hpp"
 #include "module-honeytrap.hpp"
 
+#include <cstdlib>
+#include <cstring>
+
 using namespace nepenthes;
 
 

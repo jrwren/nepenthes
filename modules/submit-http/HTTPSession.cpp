@@ -38,6 +38,8 @@
 #include "DownloadBuffer.hpp"
 #include "DownloadUrl.hpp"
 
+#include <cstring>
+
 using namespace nepenthes;
 
 HTTPSession::HTTPSession(string &url, string &email, string &user, string &password, Download* down)

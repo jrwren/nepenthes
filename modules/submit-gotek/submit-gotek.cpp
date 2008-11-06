@@ -57,6 +57,8 @@
 #include "EventManager.hpp"
 #include "EventHandler.cpp"
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 

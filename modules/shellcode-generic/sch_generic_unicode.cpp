@@ -42,6 +42,9 @@
 #define STDTAGS l_sc | l_hlr
 
 
+#include <cstdlib>
+#include <cstring>
+
 using namespace nepenthes;
 
 

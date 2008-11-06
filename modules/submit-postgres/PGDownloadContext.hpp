@@ -36,6 +36,9 @@
 #include "Download.hpp"
 #include "DownloadBuffer.hpp"
 
+#include <cstdlib>
+#include <cstring>
+
 using namespace std;
 
 namespace nepenthes

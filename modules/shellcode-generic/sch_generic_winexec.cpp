@@ -38,6 +38,8 @@
 #include "DialogueFactory.hpp"
 #include "Dialogue.hpp"
 
+#include <cstring>
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 

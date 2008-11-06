@@ -57,6 +57,8 @@
 #endif
 #define STDTAGS l_mod
 
+#include <cstring>
+
 using namespace nepenthes;
 
 

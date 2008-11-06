@@ -95,6 +95,7 @@
 #endif
 
 
+#include <cstdlib>
 
 namespace nepenthes
 {

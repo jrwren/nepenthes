@@ -68,6 +68,8 @@
 #include <arpa/inet.h>
 #endif // end bind to if
 
+#include <cstdlib>
+
 using namespace nepenthes;
 using namespace std;
 

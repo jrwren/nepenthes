@@ -40,6 +40,8 @@
 #define STDTAGS l_sc | l_hlr
 
 
+#include <cstring>
+
 using namespace nepenthes;
 
 KonstanzXOR::KonstanzXOR(ShellcodeManager *shellcodemanager)

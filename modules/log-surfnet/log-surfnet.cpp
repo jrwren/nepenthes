@@ -52,6 +52,8 @@
 #include "SQLResult.hpp"
 #include "SQLManager.hpp"
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 

@@ -55,6 +55,8 @@
 #endif
 #define STDTAGS l_dia
 
+#include <cstring>
+
 using namespace nepenthes;
 
 /**

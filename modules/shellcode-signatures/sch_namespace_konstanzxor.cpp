@@ -42,6 +42,8 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#include <cstring>
+
 using namespace nepenthes;
 
 NamespaceKonstanzXOR::NamespaceKonstanzXOR(sc_shellcode *sc): NamespaceShellcodeHandler(sc)

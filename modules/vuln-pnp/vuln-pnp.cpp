@@ -48,6 +48,8 @@
 #endif
 #define STDTAGS l_mod
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 /**

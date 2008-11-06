@@ -40,6 +40,8 @@
 
 #include "VFS.hpp"
 
+#include <cstring>
+
 using namespace nepenthes;
 using namespace std;
 

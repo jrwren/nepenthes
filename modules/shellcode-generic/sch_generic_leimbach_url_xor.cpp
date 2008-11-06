@@ -46,6 +46,8 @@
 #define XF_SIZE_INVERT 		0x00002
 #define XF_INVERSE_ORDER 	0x00004
 
+#include <cstring>
+
 using namespace nepenthes;
 
 LeimbachUrlXORXOR::LeimbachUrlXORXOR(ShellcodeManager *shellcodemanager)

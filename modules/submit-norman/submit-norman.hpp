@@ -40,6 +40,9 @@
 #include "EventHandler.hpp"
 #include "EventHandler.cpp"
 
+#include <cstdlib>
+#include <cstring>
+
 using namespace std;
 
 namespace nepenthes

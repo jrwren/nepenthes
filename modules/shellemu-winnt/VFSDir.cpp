@@ -38,6 +38,8 @@
 #endif
 #define STDTAGS l_shell
 
+#include <cstring>
+
 using namespace nepenthes;
 
 VFSDir::VFSDir(VFSNode *parentnode, char *name)

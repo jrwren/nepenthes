@@ -47,6 +47,8 @@
 #define STDTAGS l_dl | l_dia | l_hlr
 
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 

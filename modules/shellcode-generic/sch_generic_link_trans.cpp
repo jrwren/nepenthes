@@ -49,6 +49,8 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#include <cstring>
+
 using namespace nepenthes;
 
 LinkTrans::LinkTrans(ShellcodeManager *shellcodemanager)

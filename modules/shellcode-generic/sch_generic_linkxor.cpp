@@ -43,6 +43,8 @@
 #define min(a,b) ((a) > (b) ? (b) : (a))
 #endif
 
+#include <cstring>
+
 using namespace nepenthes;
 
 LinkXOR::LinkXOR(ShellcodeManager *shellcodemanager)

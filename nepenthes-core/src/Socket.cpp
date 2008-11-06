@@ -48,8 +48,11 @@
 #endif
 #define STDTAGS l_net
 
+#include <cstring>
+
 
 using namespace std;
+
 using namespace nepenthes;
 
 

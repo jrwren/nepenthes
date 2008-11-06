@@ -47,6 +47,8 @@
 #endif
 #define STDTAGS l_mod | l_dia | l_hlr
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 Nepenthes *g_Nepenthes;

@@ -39,6 +39,8 @@
 
 #include "Config.hpp"
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 

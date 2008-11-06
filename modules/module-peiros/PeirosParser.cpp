@@ -26,6 +26,8 @@
 
 #include "module-peiros.hpp"
 
+#include <cstdlib>
+
 
 namespace peiros
 {

@@ -48,6 +48,8 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#include <cstring>
+
 using namespace nepenthes;
 
 Stuttgart::Stuttgart(ShellcodeManager *shellcodemanager)

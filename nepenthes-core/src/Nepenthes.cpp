@@ -77,6 +77,8 @@
 	#define STDTAGS l_mgr
 #endif	
 
+#include <cstdlib>
+
 using namespace nepenthes;
 
 

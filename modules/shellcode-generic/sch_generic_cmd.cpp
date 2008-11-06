@@ -41,6 +41,8 @@
 
 #include "Utilities.hpp"
 
+#include <cstring>
+
 using namespace nepenthes;
 
 #ifdef STDTAGS 

@@ -43,6 +43,8 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#include <cstring>
+
 using namespace nepenthes;
 
 NamespaceLinkXOR::NamespaceLinkXOR(sc_shellcode *sc):NamespaceShellcodeHandler(sc)

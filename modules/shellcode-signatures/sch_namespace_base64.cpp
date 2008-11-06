@@ -46,6 +46,8 @@
 #endif
 #define STDTAGS l_sc | l_hlr
 
+#include <cstring>
+
 using namespace nepenthes;
 
 NamespaceBase64::NamespaceBase64(sc_shellcode *sc) : NamespaceShellcodeHandler(sc)
