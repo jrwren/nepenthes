@@ -75,6 +75,7 @@ nepenthes
     "vulnveritas.so",               "vuln-veritas.conf",            ""
     "vulnwins.so",                  "vuln-wins.conf",               ""
     "vulnasn1.so",                  "vuln-asn1.conf",               ""
+    "vulnms08067.so",               "vuln-ms08067.conf",            ""
 
 
 // eXample modules for testing - disabled by default
