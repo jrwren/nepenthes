@@ -280,13 +280,6 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 			m_State = MS08067_STAGE7;
 	 }
 
-	 // debug output
-		logDebug("MS08-067 Stage # %d checking (bufsize %i) (%x,%x,%d,%d)\n",m_State+1, m_Buffer->getSize(),
-			((char *)m_Buffer->getData())[0], ((char *)m_Buffer->getData())[8], 
-			memcmp(smb_header_fix, (char *)m_Buffer->getData()+4, 4),
-			ntohs(* ( (unsigned short *)m_Buffer->getData()+1 ) )
-		);
- 
 	 switch (m_State)
 	 {
 	 case MS08067_STAGE1:
@@ -299,6 +292,30 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 // copy process and multiplex id
 				 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
 				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+
+				string s = string((char *)m_Buffer->getData(), m_Buffer->getSize());
+
+				// overlay on dialect struct
+				string s2;
+				s2.assign(s, 39, s.size());
+
+				// now we go through the dialects to find our NT LM 0.12
+				unsigned short count = 0;
+				unsigned int startpos = 0;
+				unsigned short ourdialect = 0;
+
+				startpos = s2.find(string("\x02", 1), startpos); // dialect start
+
+				while (startpos < s2.size() && startpos != string::npos)
+				{
+					count++;
+					if (s2.find("\x4e\x54\x20\x4c\x4d\x20\x30\x2e\x31\x32\x00") == startpos +1)
+						ourdialect = count-1;
+
+					startpos = s2.find(string("\x02", 1), startpos+1); // dialect start
+				}
+				 memcpy(reply+37, &ourdialect, 2);
+
 				 m_Buffer->clear();
 				 msg->getResponder()->doRespond(reply,sizeof(negotiate_protocol_response)-1);
 				 return m_ConsumeLevel;
@@ -310,31 +327,27 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_SESS_SETUP_ANDX))
 		 {
 				 logDebug("Valid MS08-067 Stage #2 (bufsize %i)\n", m_Buffer->getSize());
-				 m_State = MS08067_STAGE3;
 
-				 memcpy(reply, session_setup_challenge, sizeof(session_setup_challenge)-1);
-				 // copy process and multiplex id
-				 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
-				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
-				 m_Buffer->clear();
-				 msg->getResponder()->doRespond(reply,sizeof(session_setup_challenge)-1);
-				 return m_ConsumeLevel;
-		 }else
-			 return CL_DROP;
-		 break;
+				 if (((char *)msg->getMsg())[37] == '\x75')
+				 {
+					logDebug("andx treeconnect!!\n");
+				 	m_State = MS08067_STAGE5;
+					 memcpy(reply, session_setup_response_andx_tree_connect, sizeof(session_setup_response_andx_tree_connect)-1);
+					 // copy process and multiplex id
+					 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
+					 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+					 m_Buffer->clear();
+					 msg->getResponder()->doRespond(reply,sizeof(session_setup_response_andx_tree_connect)-1);
+				 } else {
+				 	m_State = MS08067_STAGE4;
+					 memcpy(reply, session_setup_response, sizeof(session_setup_response)-1);
+					 // copy process and multiplex id
+					 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
+					 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+					 m_Buffer->clear();
+					 msg->getResponder()->doRespond(reply,sizeof(session_setup_response)-1);
+				 }
 
-	 case MS08067_STAGE3:
-		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_SESS_SETUP_ANDX))
-		 {
-				 logDebug("Valid MS08-067 Stage #3 (bufsize %i)\n", m_Buffer->getSize());
-				 m_State = MS08067_STAGE4;
-
-				 memcpy(reply, session_setup_complete, sizeof(session_setup_complete)-1);
-				 // copy process and multiplex id
-				 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
-				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
-				 m_Buffer->clear();
-				 msg->getResponder()->doRespond(reply,sizeof(session_setup_complete)-1);
 				 return m_ConsumeLevel;
 		 }else
 			 return CL_DROP;
@@ -520,7 +533,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 	 case MS08067_STAGE8_TRANS:
 		 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS))
 		 {
-				 logDebug("Valid MS08-067 Stage #8 (bufsize %i)\n", m_Buffer->getSize());
+				 logDebug("Valid MS08-067 Stage #8 [TRANS] (bufsize %i)\n", m_Buffer->getSize());
 				 m_State = MS08067_STAGE9;
 
 				 memcpy(reply, transaction_call_error_response, sizeof(transaction_call_error_response)-1);
