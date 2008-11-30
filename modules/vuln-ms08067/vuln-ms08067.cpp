@@ -255,30 +255,33 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 	 }
 
 	 // state manipulation to make some dirty stuff work...
-	 if ( m_State == MS08067_STAGE8 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )// write andx -> stage 9
-	 {
+
+#ifdef REPLAYMODE
+ 	 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TREECONNECT_ANDX))
+ 	 	m_State = MS08067_STAGE4;
+#endif
+	 
+	 // this one makes it possible to have multiple NTCreateAndX Requests in a session
+	 if ( m_State > MS08067_STAGE5 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_NTCREATE_ANDX) )
+		m_State = MS08067_STAGE5;
+
+	 // write andx -> stage 9
+	 if ( m_State == MS08067_STAGE8 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )
 		m_State = MS08067_STAGE9;
-	 }
 
-	 if ( m_State == MS08067_STAGE7 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_WRITE_ANDX) )// write andx -> stage 8
-	 {
+	 // SMB Transaction mode -> Branch to TRANS state
+	 if ( m_State == MS08067_STAGE7 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS) )
+		m_State = MS08067_STAGE8_TRANS;
+	 // write andx -> stage 8
+	 if ( m_State == MS08067_STAGE7 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_WRITE_ANDX) )
 		m_State = MS08067_STAGE8;
-	 }
 
+	 // SMB Transaction mode -> Branch to TRANS state
 	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TRANS) )
-	 {
-	 	// SMB Transaction mode -> Branch to TRANS state
 		m_State = MS08067_STAGE6_TRANS;
-	 }
-
-	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )// read andx -> stage 7
-	 {
-		// by now we should know if this is our uuid dcerpc call
-		if (m_ConsumeLevel == CL_UNSURE)
-			return CL_DROP;
-		else
-			m_State = MS08067_STAGE7;
-	 }
+	 // read andx -> stage 7
+	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )
+		m_State = MS08067_STAGE7;
 
 	 switch (m_State)
 	 {
