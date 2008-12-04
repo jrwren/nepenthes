@@ -33,6 +33,7 @@
 #include <libprelude/prelude.h>
 #endif
 
+#include <stdlib.h>
 #include <string>
 
 #include "Module.hpp"

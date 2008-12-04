@@ -305,7 +305,13 @@ bool X6Dialogue::dnsResolved(DNSResult *result)
 			printf("NUM %i\n",(int)i);
 			logSpam( "domain %s has ip %s \n",result->getDNS().c_str(),inet_ntoa(*(in_addr *)&*it));
 			char *reply;
-			asprintf(&reply,"domain %s has A %s (context %08x)\n",result->getDNS().c_str(), inet_ntoa(*(in_addr *)&*it), (uint32_t)((intptr_t)result->getObject()));
+			if (asprintf(&reply,"domain %s has A %s (context %08x)\n",
+					result->getDNS().c_str(),
+					inet_ntoa(*(in_addr *)&*it),
+					(uint32_t)((intptr_t)result->getObject())) == -1) {
+				logCrit("Memory allocation error\n");
+				exit(EXIT_FAILURE);
+			}
 			m_Socket->doRespond(reply,strlen(reply));
 			free(reply);
 
@@ -342,7 +348,10 @@ bool X6Dialogue::dnsFailure(DNSResult *result)
 	{
 		logSpam("domain %s has no A, resolve error\n",result->getDNS().c_str());
 		char *reply;
-		asprintf(&reply,"domain '%s' could not resolve A\n", result->getDNS().c_str());
+		if (asprintf(&reply,"domain '%s' could not resolve A\n", result->getDNS().c_str()) == -1) {
+			logCrit("Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
 		m_Socket->doRespond(reply,strlen(reply));
 		free(reply);
 	} else
@@ -350,7 +359,10 @@ bool X6Dialogue::dnsFailure(DNSResult *result)
 	{
 		logSpam("domain %s has no TXT, resolve error\n",result->getDNS().c_str());
 		char *reply;
-		asprintf(&reply,"domain '%s' could not resolve TXT\n", result->getDNS().c_str());
+		if (asprintf(&reply,"domain '%s' could not resolve TXT\n", result->getDNS().c_str()) == -1) {
+			logCrit("Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
 		m_Socket->doRespond(reply,strlen(reply));
 		free(reply);
 	}

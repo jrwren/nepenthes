@@ -182,14 +182,17 @@ bool PCAPSocket::Init()
 	string lhost = inet_ntoa(*(in_addr *)&m_LocalHost);
 
 	char *bpffilter;
-	asprintf(&bpffilter,
+	if (asprintf(&bpffilter,
 			 "(src host %s and src port %i and dst host %s and dst port %i)"
 			 " or "
 			 "(src host %s and src port %i and dst host %s and dst port %i)",
 			 rhost.c_str(),getRemotePort(),
 			 lhost.c_str(),getLocalPort(),
 			 lhost.c_str(),getLocalPort(),
-			 rhost.c_str(),getRemotePort());
+			 rhost.c_str(),getRemotePort()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 
 	logDebug("connection logger bpf is '%s'.\n",bpffilter);
 
@@ -228,12 +231,15 @@ bool PCAPSocket::Init()
 
 	char *pcap_file_path;
 
-	asprintf(&pcap_file_path,"%s/%i_%s-%i_%s-%i.pcap",
+	if (asprintf(&pcap_file_path,"%s/%i_%s-%i_%s-%i.pcap",
 			 g_ModuleHoneytrap->getPcapPath().c_str(),
 			 (int)time(NULL),
 			 rhost.c_str(),getRemotePort(),
 			 lhost.c_str(),getLocalPort()
-			 );
+			 ) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 
 
 

@@ -190,7 +190,10 @@ void LogManager::logf(uint32_t mask, const char *format, ...)
 	va_end(ap);
 #else
 	char		*message;
-	vasprintf(&message, format, ap);
+	if (vasprintf(&message, format, ap) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	va_end(ap);
 
 	log(mask, message);

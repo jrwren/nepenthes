@@ -152,7 +152,10 @@ sch_result Wuerzburg::handleShellcode(Message **msg)
 
 		char *url;
 
-		asprintf(&url,"csend://%s:%d",inet_ntoa(*(in_addr *)&address), port);
+		if (asprintf(&url,"csend://%s:%d",inet_ntoa(*(in_addr *)&address), port) == -1) {
+			logCrit("Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
 		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
 		free(url);
 

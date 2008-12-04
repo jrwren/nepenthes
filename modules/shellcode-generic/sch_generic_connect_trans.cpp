@@ -179,7 +179,10 @@ sch_result GenericConnectTrans::handleShellcode(Message **msg)
 
 
 			char *url;
-			asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, (*it)->m_Offset);
+			if (asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, (*it)->m_Offset) == -1) {
+				logCrit("Memory allocation error\n");
+				exit(EXIT_FAILURE);
+			}
 			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
 			free(url);
 

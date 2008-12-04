@@ -370,7 +370,10 @@ void Utilities::hexdump(uint32_t mask, byte *data, uint32_t len)
 
 	if( (f = fopen(md5.c_str(), "wb")) )
 	{
-		fwrite((const void *)data, len, 1, f);
+		if (fwrite((const void *)data, 1, len, f) != len) {
+			logCrit("fwrite error\n");
+			exit(EXIT_FAILURE);
+		}
 		fclose(f);
 
 		g_Nepenthes->getLogMgr()->logf(mask,"Stored Hexdump %s (0x%08x , 0x%08x).\n", md5.c_str(), (uint32_t)((intptr_t)data), len);

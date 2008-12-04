@@ -1,6 +1,8 @@
 /* $Id$ */
 %{
+	#ifndef _GNU_SOURCE
 	#define _GNU_SOURCE
+	#endif
 	#include <string.h>
 	#include <stdio.h>
 	#include <memory.h>
@@ -17,6 +19,9 @@
 	extern char *yytext;
 	extern int yyleng;
 	extern FILE *yyin;
+
+	extern int yylex(void);
+	extern int yyerror(char *s);
 
 	static struct sc_shellcode *shellcodes = NULL;
 	extern int line_number;

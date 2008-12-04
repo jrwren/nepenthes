@@ -116,7 +116,12 @@ PGDownloadContext *PGDownloadContext::unserialize(const char *path)
 	unsigned char *data = (unsigned char *)malloc(s.st_size);
 	memset(data,0,s.st_size);
 	FILE *f = fopen(path,"r");
-	fread(data,1,s.st_size,f);
+	if (fread(data,1,s.st_size,f) != (size_t) s.st_size) {
+		logWarn("Error reading file: %s %s\n", path, strerror(errno));
+		free(data);
+		fclose(f);
+		return NULL;
+	}
 	fclose(f);
 
 	Bencoding_Context *c = Bencoding_createContext();
@@ -295,8 +300,13 @@ uint32_t PGDownloadContext::serialize()
 	benc.append(m_FileContent);
 	benc += "e";
 
+	size_t size = benc.size();
 
-	fwrite(benc.data(),1,benc.size(),f);
+	if (fwrite(benc.data(),1,size,f) != size) {
+		logWarn("Error writing file: %s %s\n", fullpath.c_str(), strerror(errno));
+		fclose(f);
+		return NULL;
+	}
 
 	fclose(f);
 	logDebug("Wrote bencoded spoolfile %s (%i bytes)\n",m_FilePath.c_str(),benc.size());

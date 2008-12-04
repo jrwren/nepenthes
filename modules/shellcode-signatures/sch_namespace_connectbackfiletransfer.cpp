@@ -146,7 +146,12 @@ sch_result NamespaceConnectbackFiletransfer::handleShellcode(Message **msg)
 			char *url;
 			unsigned char *base64Key = g_Nepenthes->getUtilities()->b64encode_alloc(authKey,4);
 
-			asprintf(&url,"link://%s:%i/%s",inet_ntoa(*(in_addr *)&host),port,base64Key);
+			if (asprintf(&url,"link://%s:%i/%s",inet_ntoa(*(in_addr *)&host),port,base64Key) == -1) {
+				free(url);
+				free(base64Key);
+				logCrit("Memory allocation error\n");
+				return SCH_NOTHING;
+			}
 			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
 			free(url);
 			free(base64Key);
@@ -155,7 +160,11 @@ sch_result NamespaceConnectbackFiletransfer::handleShellcode(Message **msg)
 			logInfo("%s -> %s:%u  \n",m_ShellcodeHandlerName.c_str(), inet_ntoa(*(in_addr *)&host), port);
 
 			char *url;
-			asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, 0);
+			if (asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, 0) == -1) {
+				free(url);
+				logCrit("Memory allocatino error\n");
+				return SCH_NOTHING;
+			}
 			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
 			free(url);
 

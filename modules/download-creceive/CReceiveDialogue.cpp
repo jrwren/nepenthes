@@ -80,7 +80,10 @@ CReceiveDialogue::CReceiveDialogue(Socket *socket)//, Download *down)
 	char *url;
 	uint32_t host = socket->getRemoteHost();
 	uint16_t port = socket->getRemotePort();
-	asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port);
+	if (asprintf(&url,"creceive://%s:%i",inet_ntoa(*(in_addr *)&host),port) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
     m_Download = new Download(socket->getLocalHost(),url,socket->getRemoteHost(),url);
 	free(url);
 }

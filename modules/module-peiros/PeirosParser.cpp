@@ -240,7 +240,10 @@ string PeirosParser::renderRequest(PeirosRequest * request)
 	{
 		char * lengthHeader;
 		
-		asprintf(&lengthHeader, "Content-length: %u\r\n", (int)request->appendedData.size());
+		if (asprintf(&lengthHeader, "Content-length: %u\r\n", (int)request->appendedData.size()) == -1) {
+			logCrit("Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
 		result += lengthHeader;
 		free(lengthHeader);
 	}

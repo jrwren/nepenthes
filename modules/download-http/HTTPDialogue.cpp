@@ -255,7 +255,7 @@ ConsumeLevel HTTPDialogue::connectionEstablished()
 	logPF();
 
 	char *request;
-	asprintf(&request,
+	if (asprintf(&request,
 			 "GET /%s HTTP/1.0\r\n"
 			 "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n"
 			 "Accept: */*\r\n"
@@ -263,7 +263,10 @@ ConsumeLevel HTTPDialogue::connectionEstablished()
 			 "Connection: close\r\n"
 			 "\r\n",
 			 m_Download->getDownloadUrl()->getPath().c_str(),
-			 m_Download->getDownloadUrl()->getHost().c_str(), m_Download->getDownloadUrl()->getPort());
+			 m_Download->getDownloadUrl()->getHost().c_str(), m_Download->getDownloadUrl()->getPort()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 
 	m_Socket->doRespond(request,strlen(request));
 	logSpam("HTTP REQ\n%s\n",request);

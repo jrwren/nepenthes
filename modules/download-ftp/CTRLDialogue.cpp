@@ -329,7 +329,10 @@ void CTRLDialogue::setDownload(Download *down)
 void CTRLDialogue::sendUser()
 {
 	char *msg;
-	asprintf(&msg,"USER %s\r\n",m_Download->getDownloadUrl()->getUser().c_str());
+	if (asprintf(&msg,"USER %s\r\n",m_Download->getDownloadUrl()->getUser().c_str()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	logDebug("FTPSEND: '%s'\n",msg);
 	m_Socket->doRespond(msg,strlen(msg));
 	free(msg);
@@ -350,7 +353,10 @@ bool CTRLDialogue::parseUser(char *msg)
 void CTRLDialogue::sendPass()
 {
 	char *nmsg;
-	asprintf(&nmsg,"PASS %s\r\n",m_Download->getDownloadUrl()->getPass().c_str());
+	if (asprintf(&nmsg,"PASS %s\r\n",m_Download->getDownloadUrl()->getPass().c_str()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	free(nmsg);
@@ -462,7 +468,7 @@ void CTRLDialogue::sendPort()
 	char *nmsg;
 	
 
-	asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
+	if (asprintf(&nmsg,"PORT %d,%d,%d,%d,%d,%d\r\n",
 #if BYTE_ORDER == BIG_ENDIAN
 			(int32_t)(ip >> 24) & 0xff,
 			(int32_t)(ip >> 16) & 0xff,
@@ -475,7 +481,10 @@ void CTRLDialogue::sendPort()
 			(int32_t)(ip >> 24) & 0xff,
 #endif
 			(int32_t)(port >> 8) & 0xff,
-			(int32_t)port & 0xff);
+			(int32_t)port & 0xff) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	free(nmsg);
@@ -500,7 +509,10 @@ void CTRLDialogue::sendRetr()
 {
 	
 	char *nmsg;
-	asprintf(&nmsg,"RETR %s\r\n",m_Download->getDownloadUrl()->getFile().c_str());
+	if (asprintf(&nmsg,"RETR %s\r\n",m_Download->getDownloadUrl()->getFile().c_str()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	free(nmsg);
@@ -543,7 +555,10 @@ bool CTRLDialogue::parseQuit(char *msg)
 void CTRLDialogue::sendCWD()
 {
 	char *nmsg;
-	asprintf(&nmsg,"CWD %s\r\n",m_Download->getDownloadUrl()->getDir().c_str());
+	if (asprintf(&nmsg,"CWD %s\r\n",m_Download->getDownloadUrl()->getDir().c_str()) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 	logDebug("FTPSEND: '%s'\n",nmsg);
 	m_Socket->doRespond(nmsg,strlen(nmsg));
 	free(nmsg);

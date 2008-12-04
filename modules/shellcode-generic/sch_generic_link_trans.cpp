@@ -163,7 +163,10 @@ sch_result LinkTrans::handleShellcode(Message **msg)
 		char *url;
 		unsigned char *base64Key = g_Nepenthes->getUtilities()->b64encode_alloc(authKey,4);
 
-		asprintf(&url,"link://%s:%i/%s",inet_ntoa(*(in_addr *)&address),port,base64Key);
+		if (asprintf(&url,"link://%s:%i/%s",inet_ntoa(*(in_addr *)&address),port,base64Key) == -1) {
+			logCrit("Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
 		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
 		free(url);
 		free(base64Key);

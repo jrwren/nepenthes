@@ -342,7 +342,10 @@ bool DownloadManager::downloadUrl(Download *down)
 			logInfo("Replaced Address, new URL is %s \n",sUrl.c_str());
 
 			char *port;
-			asprintf(&port,":%i/",down->getDownloadUrl()->getPort());
+			if (asprintf(&port,":%i/",down->getDownloadUrl()->getPort()) == -1) {
+				logCrit("Memory allocation failed\n");
+				exit(EXIT_FAILURE);
+			}
 			sUrl += port;
 			free(port);
 

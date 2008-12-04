@@ -90,7 +90,10 @@ void RingFileLogger::setLogFileFormat(char *fmt)
 	{
 		free(m_FirstFile);
 	}
-	asprintf(&m_FirstFile, m_FileFormat, 0);
+	if (asprintf(&m_FirstFile, m_FileFormat, 0) == -1) {
+		logCrit("Memory allocation error\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void RingFileLogger::setMaxFiles(uint8_t count)

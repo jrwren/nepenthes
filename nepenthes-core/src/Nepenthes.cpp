@@ -517,7 +517,10 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	if (opt.m_daemonize == true)
 	{
 		logInfo("running as daemon\n");
-		daemon(1,0);
+		if (daemon(1,0) == -1) {
+			logCrit("Daemonize error\n");
+			exit(EXIT_FAILURE);
+		}
 		logInfo("daemon process id is %i\n",getpid());
 	}
 
@@ -817,7 +820,10 @@ int32_t Nepenthes::fileCheck(const char *filename, Message **Msg)
 			return -1;
 		} else
 		{
-			fread(buffer,1,filesize,f);
+			if (fread(buffer,1,filesize,f) != filesize) {
+				logCrit("fread error\n");
+				exit(EXIT_FAILURE);
+			}
 			fclose(f);
 
 			uint32_t i;

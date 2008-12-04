@@ -225,10 +225,13 @@ bool CurlDownloadHandler::download(Download *down)
 	if (down->getDownloadUrl()->getProtocol() == "ftp")
 	{
 		char *url;
-		asprintf(&url,"ftp://%s:%i/%s",
+		if (asprintf(&url,"ftp://%s:%i/%s",
 				 down->getDownloadUrl()->getHost().c_str(),
 				 down->getDownloadUrl()->getPort(),
-				 down->getDownloadUrl()->getPath().c_str());
+				 down->getDownloadUrl()->getPath().c_str()) == -1) {
+			logCrit("Memory allocation error\n");
+			return false;
+		}
 //        string auth = down->getDownloadUrl()->getUser() + ":" + down->getDownloadUrl()->getPass();
 #if LIBCURL_VERSION_NUM < 0x071000
 		curl_easy_setopt(pCurlHandle, CURLOPT_SOURCE_USERPWD,(char *)down->getDownloadUrl()->getAuth().c_str());

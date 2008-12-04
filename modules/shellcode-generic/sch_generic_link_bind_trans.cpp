@@ -166,7 +166,10 @@ sch_result LinkBindTrans::handleShellcode(Message **msg)
 		unsigned char *base64Key = g_Nepenthes->getUtilities()->b64encode_alloc(authKey,4);
 
 		uint32_t remoteHost = (*msg)->getRemoteHost();
-		asprintf(&url,"blink://%s:%i/%s",inet_ntoa(*(in_addr *)&remoteHost),port,base64Key);
+		if (asprintf(&url,"blink://%s:%i/%s",inet_ntoa(*(in_addr *)&remoteHost),port,base64Key) == -1) {
+			logCrit("Memory allocation failed\n");
+			exit(EXIT_FAILURE);
+		}
 		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
 		free(url);
 		free(base64Key);

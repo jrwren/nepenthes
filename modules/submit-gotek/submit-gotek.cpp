@@ -274,7 +274,10 @@ void GotekSubmitHandler::Submit(Download *down)
 		{ // TODO substitute with clean std::string solution
 			char * temp;
 			
-			asprintf(&temp, "sample-%u-%03u", (unsigned int) time(NULL), rand() % 1000);
+			if (asprintf(&temp, "sample-%u-%03u", (unsigned int) time(NULL), rand() % 1000) == -1) {
+				logCrit("Memory allocation error\n");
+				exit(EXIT_FAILURE);
+			}
 			fileName += temp;
 			free(temp);
 		}
