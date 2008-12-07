@@ -305,7 +305,7 @@ uint32_t PGDownloadContext::serialize()
 	if (fwrite(benc.data(),1,size,f) != size) {
 		logWarn("Error writing file: %s %s\n", fullpath.c_str(), strerror(errno));
 		fclose(f);
-		return NULL;
+		return 0;
 	}
 
 	fclose(f);
