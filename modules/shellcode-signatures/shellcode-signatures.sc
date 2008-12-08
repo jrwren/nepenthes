@@ -286,6 +286,21 @@ leimbachxor::leimbach
 };
 
 
+xor::emsdetten
+{
+	pattern
+	"(.*)("
+	"\\xE8(\\xFF\\xFF)\\xFF"           // call 0x4
+	"\\xFF\\xC1"                      // inc ecx
+	"\\x5e"                           // pop esi
+        "\\x8D\\x4E\\x10"                 // lea ecx,[esi+0x10]
+        "\\x80\\x31(.)"                   // xor byte [ecx],0xc4
+	"\\x41"                           // inc ecx
+        "\\x66\\x81\\x39(..)"             // cmp word [ecx],0x5045
+	"\\x75\\xF5"			  // jnz 0xfffffff7
+	")(.*$)";
+	mapping(none,pre,decoder,size,key,none,post);
+};
 
 // taken from shellcode-generic/shellcode-generic.conf.dist
 
