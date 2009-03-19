@@ -966,6 +966,7 @@ AC_CONFIG_FILES([Makefile
                  modules/download-link/Makefile
                  modules/download-rcp/Makefile
                  modules/download-tftp/Makefile
+		 modules/log-attack/Makefile
                  modules/log-download/Makefile
                  modules/log-irc/Makefile
                  modules/log-prelude/Makefile

@@ -45,8 +45,9 @@ using namespace nepenthes;
  * @param querytype the querytype we resolved
  * @param obj       the additional data
  */
-DNSResult::DNSResult(uint32_t ip , char *dns, uint16_t querytype, void *obj)
+DNSResult::DNSResult(DNSQuery *query, uint32_t ip , char *dns, uint16_t querytype, void *obj)
 {
+	m_Query = query;
 	m_ResolvedIPv4.push_back(ip);
 	m_DNS = dns;
 	m_Object = obj;
@@ -66,7 +67,7 @@ DNSResult::DNSResult(uint32_t ip , char *dns, uint16_t querytype, void *obj)
  * @param querytype the querytype we used
  * @param obj       the additional data
  */
-DNSResult::DNSResult(adns_answer *answer, char *dns, uint16_t querytype, void *obj)
+DNSResult::DNSResult(DNSQuery *query, adns_answer *answer, char *dns, uint16_t querytype, void *obj)
 {
 	int32_t i;
 	if ( querytype & DNS_QUERY_A )
@@ -99,6 +100,7 @@ DNSResult::DNSResult(adns_answer *answer, char *dns, uint16_t querytype, void *o
 
 	m_DNS = dns;
 	m_Object = obj;
+	m_Query = query;
 	m_QueryType = querytype;
 }
 #endif
@@ -138,6 +140,12 @@ string DNSResult::getDNS()
 void *DNSResult::getObject()
 {
 	return m_Object;
+}
+
+DNSQuery *
+DNSResult::getQuery ( void )
+{
+	return m_Query;
 }
 
 /**

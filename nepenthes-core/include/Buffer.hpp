@@ -48,6 +48,7 @@ namespace nepenthes
 		virtual void            addString(const char *str);
 		virtual uint32_t    getSize();
 		virtual void            *getData();
+		virtual void		*getData( uint32_t offset );
 		virtual void            cut(int32_t size);
 
 		virtual void            debug();

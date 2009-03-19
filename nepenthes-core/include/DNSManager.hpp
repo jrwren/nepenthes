@@ -33,18 +33,18 @@
 
 #endif
 
+#include "DNSCallback.hpp"
 #include "Manager.hpp"
 #include "EventHandler.hpp"
 
 namespace nepenthes
 {
-	class DNSCallback;
 	class DNSHandler;
 
 	/**
 	 * if you want to resolve a domains A record or TXT record, ask the DNSManager
 	 */
-	class DNSManager : public Manager
+	class DNSManager : public DNSCallback, public Manager
 	{
 	public:
 		DNSManager(Nepenthes *nepenthes);
@@ -77,6 +77,10 @@ namespace nepenthes
 
 		virtual bool registerDNSHandler(DNSHandler *handler);
 		virtual bool unregisterDNSHandler(DNSHandler *handler);
+
+		bool dnsResolved	( DNSResult * );
+		bool dnsFailure		( DNSResult * );
+
 	protected:
 		DNSHandler *m_DNSHandler;
 	};

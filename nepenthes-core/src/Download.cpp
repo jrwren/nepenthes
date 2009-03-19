@@ -30,8 +30,10 @@
 #include "Download.hpp"
 #include "DownloadUrl.hpp"
 #include "DownloadBuffer.hpp"
-#include "Nepenthes.hpp"
+#include "EventManager.hpp"
 #include "LogManager.hpp"
+#include "Nepenthes.hpp"
+#include "SubmitEvent.hpp"
 
 #include <cstring>
 
@@ -47,7 +49,7 @@ using namespace nepenthes;
  * @param callback the DownloadCallback (if used)
  * @param obj      the additional data (if used)
  */
-Download::Download(uint32_t localhost, char *url,uint32_t address,char *triggerline,DownloadCallback *callback, void *obj)
+Download::Download(uint32_t localhost, char *url,uint32_t address,const char *triggerline,DownloadCallback *callback, void *obj)
 {
 	m_Url 			= url;
 	m_TriggerLine 	= triggerline;
@@ -60,6 +62,9 @@ Download::Download(uint32_t localhost, char *url,uint32_t address,char *triggerl
 
 	m_DownloadCallback = callback;
 	m_Object = obj;
+
+	SubmitEvent se(EV_DOWNLOAD,this);
+	g_Nepenthes->getEventMgr()->handleEvent(&se);
 }
 
 /**
@@ -68,6 +73,10 @@ Download::Download(uint32_t localhost, char *url,uint32_t address,char *triggerl
 Download::~Download()
 {
 	logPF();
+
+	SubmitEvent se(EV_DOWNLOAD_DESTROYED, this);
+	g_Nepenthes->getEventMgr()->handleEvent(&se);
+
 	delete m_DownloadUrl;
 	delete m_DownloadBuffer;
 }

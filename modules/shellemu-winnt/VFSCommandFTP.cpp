@@ -450,7 +450,7 @@ bool VFSCommandFTP::startDownload(string host, string port, string user, string 
 												   (char *)file.c_str(),
 												   remotehost,
 												   downloadflags,
-												"Download Initiated by Shell Command"); 
+													(char *)"Download Initiated by Shell Command"); 
 	}
 	return true;
 }

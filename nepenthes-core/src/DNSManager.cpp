@@ -34,14 +34,15 @@
 #endif
 
 #include <errno.h>
+#include "DNSEvent.hpp"
 #include "DNSManager.hpp"
 #include "DNSCallback.hpp"
 #include "DNSResult.hpp"
 #include "DNSQuery.hpp"
 #include "DNSHandler.hpp"
-
-#include "Nepenthes.hpp"
+#include "EventManager.hpp"
 #include "LogManager.hpp"
+#include "Nepenthes.hpp"
 
 #include <cstring>
 
@@ -127,6 +128,10 @@ bool DNSManager::addDNS(DNSCallback *callback,char *dns,void *obj)
 {
 	logSpam("addDNS: Adding DNS %s for (%s)\n",dns,callback->getDNSCallbackName().c_str());
 
+	DNSQuery *query = new DNSQuery((DNSCallback *) this, callback,dns, DNS_QUERY_A, obj);
+
+	DNSEvent event(EV_DNS_QUERY_CREATED, query);
+	g_Nepenthes->getEventMgr()->handleEvent(&event);
 
 	// the resolver libs lack support for /etc/hosts
 	// so we have to look the /etc/hosts up on our own
@@ -137,21 +142,21 @@ bool DNSManager::addDNS(DNSCallback *callback,char *dns,void *obj)
 	{
 		logSpam("DNS is %s resolving to 127.0.0.1\n",dns);
 		unsigned long ip = inet_addr("127.0.0.1");
-		DNSResult result(ip,dns, (uint16_t)DNS_QUERY_A ,obj);
-		callback->dnsResolved(&result);
+		DNSResult result(query, ip,dns, (uint16_t)DNS_QUERY_A ,obj);
+		query->getCallback()->dnsResolved(&result);
+		delete query;
 		return true;
 	} else
 		if ( inet_addr(dns) != INADDR_NONE )
 	{
 		unsigned long ip = inet_addr(dns);
 		logSpam("DNS is ip %s \n",dns);
-		DNSResult result(ip,dns, (uint16_t)DNS_QUERY_A ,obj);
-		callback->dnsResolved(&result);
+		DNSResult result(query, ip,dns, (uint16_t)DNS_QUERY_A ,obj);
+		query->getCallback()->dnsResolved(&result);
+		delete query;
 		return true;
 	}
 
-
-	DNSQuery *query = new DNSQuery(callback,dns, DNS_QUERY_A, obj);
 	return m_DNSHandler->resolveDNS(query);
 }
 
@@ -171,7 +176,7 @@ bool DNSManager::addDNS(DNSCallback *callback,char *dns,void *obj)
 bool DNSManager::addTXT(DNSCallback *callback,char *dns, void *obj)
 {
 	logSpam("addTXT: Adding DNS %s for (%s)\n", dns,callback->getDNSCallbackName().c_str());
-	DNSQuery *query = new DNSQuery(callback,dns, DNS_QUERY_TXT, obj);
+	DNSQuery *query = new DNSQuery((DNSCallback *) this, callback,dns, DNS_QUERY_TXT, obj);
 	
 	return m_DNSHandler->resolveTXT(query);
 }
@@ -210,3 +215,40 @@ bool DNSManager::unregisterDNSHandler(DNSHandler *handler)
 	m_DNSHandler = NULL;
 	return true;
 }
+
+bool
+DNSManager::dnsResolved ( DNSResult *result )
+{
+	{
+		DNSEvent event(EV_DNS_QUERY_SUCCESS, result->getQuery(), result);
+		g_Nepenthes->getEventMgr()->handleEvent(&event);
+	}
+
+	result->getQuery()->getCallbackUser()->dnsResolved(result);
+
+	{
+		DNSEvent event(EV_DNS_QUERY_STOP, result->getQuery());
+		g_Nepenthes->getEventMgr()->handleEvent(&event);
+	}
+
+	return true;
+}
+
+bool
+DNSManager::dnsFailure ( DNSResult *result )
+{
+	{
+		DNSEvent event(EV_DNS_QUERY_FAILURE, result->getQuery());
+		g_Nepenthes->getEventMgr()->handleEvent(&event);
+	}
+
+	result->getQuery()->getCallbackUser()->dnsFailure(result);
+
+	{
+		DNSEvent event(EV_DNS_QUERY_STOP, result->getQuery());
+		g_Nepenthes->getEventMgr()->handleEvent(&event);
+	}
+
+	return true;
+}
+

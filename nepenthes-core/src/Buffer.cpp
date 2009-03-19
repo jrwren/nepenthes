@@ -196,6 +196,15 @@ void *Buffer::getData()
 	return m_data;
 }
 
+void *
+Buffer::getData ( uint32_t offset )
+{
+	uint8_t *ptr = (uint8_t *) m_data;
+
+	assert( offset < m_offset );
+
+	return ptr + offset;
+}
 
 /**
  * returns the size of the buffer.

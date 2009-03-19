@@ -198,6 +198,8 @@ void SubmitManager::addSubmission(Download *down)
 		if (strstr(filetype,"executable") == NULL && m_StrictFileType == true )
 		{
 			logWarn("dropping file %s as it is not executable\n",down->getMD5Sum().c_str());
+			SubmitEvent se(EV_SUBMISSION_DROPPED,down);
+			m_Nepenthes->getEventMgr()->handleEvent(&se);
 			return;
 		}
 	}else
@@ -205,6 +207,8 @@ void SubmitManager::addSubmission(Download *down)
 		if (m_StrictFileType == true )
 		{
 			logWarn("dropping file %s as it has no filetype\n",down->getMD5Sum().c_str());
+			SubmitEvent se(EV_SUBMISSION_DROPPED,down);
+			m_Nepenthes->getEventMgr()->handleEvent(&se);
 			return;
 		}
 	}

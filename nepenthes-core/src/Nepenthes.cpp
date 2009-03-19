@@ -35,6 +35,10 @@
 #include <getopt.h>
 #endif /* WIN32 */
 
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif /* __linux__ */
+
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -89,6 +93,7 @@ Nepenthes *g_Nepenthes;
 Options::Options()
 {
 	m_runMode = runNormal;
+	m_allowCore = false;
 	m_daemonize = false;
 	m_verbose = false;
 	m_setCaps = false;	
@@ -197,7 +202,8 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 	{
 		int32_t option_index = 0;
 		static struct option long_options[] = {
-            { "config", 		1, 0, 'c' },
+			{ "allow-core",		0, 0, 'X' },
+			{ "config", 		1, 0, 'c' },
 			{ "capabilities",	0, 0, 'C' },
 			{ "disk-log", 		1, 0, 'd' },
 			{ "daemonize",		0, 0, 'D' },
@@ -219,7 +225,7 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:Cd:Df:g:hHikl:Lo:r:Ru:vVw:", long_options, (int *)&option_index);
+		int32_t c = getopt_long(argc, argv, "c:Cd:Df:g:hHikl:Lo:r:Ru:vVw:X", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
@@ -322,6 +328,9 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
  
  		case 'w':
 			options->m_workingDir = optarg;
+			break;
+		case 'X':
+			options->m_allowCore = true;
 			break;
 
 		case '?':
@@ -595,6 +604,31 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 	if ( opt.m_changeUser != NULL && changeUser() == false )
 		return -1;
 
+	/*
+	** Have we been asked to change privileges and allow core dumping?
+	*/
+	if ( opt.m_changeGroup != NULL || opt.m_changeUser != NULL )
+	{
+		if ( opt.m_allowCore )
+		{
+#ifdef __linux__
+			if ( prctl(PR_SET_DUMPABLE, 1) != 0 )
+			{
+				logCrit("Failed to enable core dump: prctl: %s\n",
+					strerror(errno));
+				return false;
+			}
+			else
+			{
+				logInfo("Enabled core dumping with privilege drop.\n");
+			}
+#else
+		logCrit("Allowing coredump with -g/-u not supported on this platform.\n");
+
+		return false;
+#endif /* __linux__ */
+		}
+	}
 
 	if (opt.m_runMode == runFileCheck )
 	{
@@ -1308,24 +1342,6 @@ void SignalHandler(int32_t iSignal)
 		}
 		break;
 
-	case SIGABRT:
-		if ( g_Nepenthes != NULL )
-			logCrit("Unhandled Exception\n");
-		exit(-1);
-		break;
-
-	case SIGSEGV:
-		if ( g_Nepenthes != NULL )
-			logCrit("Segmentation Fault\n");
-		exit(-1);
-		break;
-
-	case SIGBUS:
-		if ( g_Nepenthes != NULL )
-			logCrit("Bus Error\n");
-		exit(-1);
-		break;
-
 	case SIGPIPE:
 		break;
 
@@ -1370,12 +1386,7 @@ int main(int32_t argc, char **argv)
  */
 	signal(SIGHUP,   SignalHandler);	//       1       Term    Hangup detected on controlling terminal or death of controlling process
 	signal(SIGINT,   SignalHandler);	//       2       Term    Interrupt from keyboard
-	signal(SIGQUIT,  SignalHandler);	//       3       Core    Quit from keyboard
-	signal(SIGILL,   SignalHandler);	//       4       Core    Illegal Instruction
-	signal(SIGABRT,  SignalHandler);	//       6       Core    Abort signal from abort(3)
-	signal(SIGFPE,   SignalHandler);	//       8       Core    Floating point exception
 //  signal(SIGKILL,  SignalHandler);	//       9       Term    Kill signal
-	signal(SIGSEGV,  SignalHandler);	//      11       Core    Invalid memory reference
 
 /* I hate breaking this well formatted list, 
  * but some systems lack
@@ -1404,8 +1415,6 @@ int main(int32_t argc, char **argv)
 /*
  *	Next the signals not in the POSIX.1 standard but described in SUSv2 and SUSv3 / POSIX 1003.1-2001.
  */
-
-	signal(SIGBUS,   SignalHandler);	//   10,7,10     Core    Bus error (bad memory access)
 	
 #ifdef HAVE_SIGPOLL
 	signal(SIGPOLL,  SignalHandler);	//               Term    Pollable event (Sys V). Synonym of SIGIO
@@ -1540,6 +1549,7 @@ void show_help(bool defaults)
 		{"g",	"group=GROUP",			"switch to GROUP after startup (use with -u)", "keep current group"},
 		{"V",	"version",			"show version",							""						},
 		{"w",	"workingdir=DIR",		"set the process' working dir to DIR",			PREFIX		},
+		{"X",	"allow-core",			"allow coredump with -g and/or -u", 0 },
 	};
 	show_version();
 

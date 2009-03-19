@@ -37,9 +37,10 @@
 #include <arpa/inet.h>
 #endif
 
-
 #include <list>
 #include <string>
+
+#include "DNSQuery.hpp"
 
 using namespace std;
 
@@ -53,19 +54,21 @@ namespace nepenthes
 #ifdef WIN32
 
 #else
-		DNSResult(adns_answer *answer, char *dns, uint16_t querytype, void *obj);
+		DNSResult(DNSQuery *query, adns_answer *answer, char *dns, uint16_t querytype, void *obj);
 #endif
-		DNSResult(uint32_t ip , char *dns, uint16_t querytype, void *obj);
+		DNSResult(DNSQuery *query, uint32_t ip , char *dns, uint16_t querytype, void *obj);
 
 		virtual ~DNSResult();
 		virtual list <uint32_t> getIP4List();
 		virtual string getDNS();
 		virtual void *getObject();
+		virtual DNSQuery * getQuery();
 		virtual uint16_t getQueryType();
 		virtual string getTXT();
 
 	protected:
         list <uint32_t> m_ResolvedIPv4;
+		DNSQuery	*m_Query;
 		string m_DNS;
 		void 	*m_Object;
 		uint16_t 	m_QueryType;

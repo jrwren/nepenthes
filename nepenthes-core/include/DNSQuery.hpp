@@ -52,10 +52,11 @@ namespace nepenthes
 	class DNSQuery
 	{
 	public:
-		DNSQuery(DNSCallback *handler, char *dns, uint16_t querytype, void *obj);
+		DNSQuery(DNSCallback *manager, DNSCallback *handler, char *dns, uint16_t querytype, void *obj);
 		virtual ~DNSQuery();
 
 		virtual DNSCallback *getCallback();
+		virtual DNSCallback *getCallbackUser();
 		virtual void cancelCallback();
 		virtual string getDNS();
 		virtual uint16_t getQueryType();
@@ -63,6 +64,7 @@ namespace nepenthes
 
 	protected:
 		DNSCallback  *m_Callback;
+		DNSCallback  *m_CallbackUser;
 		void 		*m_Object;
 
 		string      m_DNS;

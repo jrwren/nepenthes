@@ -242,7 +242,12 @@ bool SocketManager::doLoop(uint32_t polltimeout)
 			case EISCONN:
 				if ((*itSocket)->getStatus() == SS_CONNECTING)
 				{
-					(*itSocket)->setStatus(SS_CONNECTED);
+					struct sockaddr_in sai;
+					socklen_t namelen = sizeof(struct sockaddr_in);
+
+					// Double-check that we're connected.
+					if ( getpeername((*itSocket)->getSocket(), (struct sockaddr *) &sai, &namelen) == 0 )
+						(*itSocket)->setStatus(SS_CONNECTED);
 				}
 				(*itSocket)->setPolled();	// der socket ist am start
 				break;

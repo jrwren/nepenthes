@@ -87,6 +87,9 @@ void  TCPSocket::setStatus(socket_state i)
 		{
 			(*dia)->connectionEstablished();
 		}
+
+		SocketEvent se(this, EV_SOCK_TCP_CONNECT);
+		getNepenthes()->getEventMgr()->handleEvent(&se);
 	}
 	m_Status = i;
 	return;
@@ -383,8 +386,17 @@ bool TCPSocket::connectHost()
 	localhost = inet_ntoa(* (in_addr *)&m_LocalHost);
 	remotehost = inet_ntoa(* (in_addr *)&m_RemoteHost);
 	logDebug("Connecting %s:%i -> %s:%i \n",localhost.c_str(),m_LocalPort, remotehost.c_str(), m_RemotePort);
-	
+
+	SocketEvent se(this, EV_SOCK_TCP_CONNECT_REQ);
+	g_Nepenthes->getEventMgr()->handleEvent(&se);
+
 	m_Socket=socket(AF_INET, SOCK_STREAM, 0);
+
+	if ( m_Socket == -1 )
+	{
+		logCrit("Could not create socket for connectHost(): %s\n", strerror(errno));
+		return false;
+	}
 
 	struct sockaddr_in addrBind;
 	memset(&addrBind,0,sizeof(struct sockaddr_in));
@@ -475,6 +487,9 @@ Socket * TCPSocket::acceptConnection()
 	Socket *socket = new TCPSocket(m_Nepenthes, sock ,LocalHost, m_LocalPort, RemoteHost, RemotePort, m_TimeoutIntervall);
 	logSpam("%s \n",socket->getDescription().c_str());
 
+	SocketEvent sEvent(this, socket, EV_SOCK_TCP_ACCEPT);
+	m_Nepenthes->getEventMgr()->handleEvent(&sEvent);
+
 	list <DialogueFactory *>::iterator diaf;
 	for(diaf = m_DialogueFactories.begin();diaf != m_DialogueFactories.end(); diaf++)
 	{
@@ -490,8 +505,9 @@ Socket * TCPSocket::acceptConnection()
 		}
 	}
 
-	SocketEvent sEvent(socket,EV_SOCK_TCP_ACCEPT);
-	m_Nepenthes->getEventMgr()->handleEvent(&sEvent);
+	SocketEvent sEvent2(this, socket, EV_SOCK_TCP_ACCEPT_STOP);
+	m_Nepenthes->getEventMgr()->handleEvent(&sEvent2);
+
 	return socket;
 }
 
@@ -540,6 +556,10 @@ int32_t TCPSocket::doSend()
 // set the socket writing disabled
 
 			Message Msg(packet->getData(),sended,m_LocalPort,m_RemotePort,m_LocalHost, m_RemoteHost,this,this);
+
+                        MessageEvent ev_message(&Msg, EV_SOCK_TCP_TX);
+                        g_Nepenthes->getEventMgr()->handleEvent(&ev_message);
+
 			m_CanSend = false;
 			list <Dialogue *>::iterator dia;
             for( dia = m_Dialogues.begin(); dia != m_Dialogues.end(); dia++ )
@@ -742,6 +762,10 @@ int32_t TCPSocket::doRecv()
 		logDebug("Connection %s CLOSED \n",getDescription().c_str());
 		m_Status = SS_CLOSED;
 	}
+
+	MessageEvent ev(Msg,EV_SOCK_TCP_RX_STOP);
+	g_Nepenthes->getEventMgr()->handleEvent(&ev);
+
 	return length;
 }
 

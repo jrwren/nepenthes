@@ -41,17 +41,20 @@ namespace nepenthes
 
 #define EV_SOCK_TCP_BIND 		1
 #define EV_SOCK_TCP_ACCEPT 		2
-#define EV_SOCK_TCP_CONNECT 	3
-#define EV_SOCK_TCP_CLOSE 		4
-#define EV_SOCK_TCP_RX 			5
-#define EV_SOCK_TCP_TX 			6
+#define EV_SOCK_TCP_ACCEPT_STOP		3
+#define EV_SOCK_TCP_CONNECT		4
+#define EV_SOCK_TCP_CONNECT_REQ		5
+#define EV_SOCK_TCP_CLOSE 		6
+#define EV_SOCK_TCP_RX 			7
+#define EV_SOCK_TCP_RX_STOP		8
+#define EV_SOCK_TCP_TX 			9
 
 #define EV_SOCK_UDP_BIND 		11
 #define EV_SOCK_UDP_ACCEPT 		12
-#define EV_SOCK_UDP_CONNECT 	13
+#define EV_SOCK_UDP_CONNECT		13
 #define EV_SOCK_UDP_CLOSE 		14
-#define EV_SOCK_UDP_RX          15
-#define EV_SOCK_UDP_TX          16
+#define EV_SOCK_UDP_RX			15
+#define EV_SOCK_UDP_TX			16
 
 #define EV_SOCK_UDS_BIND 		21
 #define EV_SOCK_UDS_ACCEPT 		22
@@ -72,16 +75,26 @@ namespace nepenthes
 
 
 #define EV_DOWNLOAD 			41
+#define EV_DOWNLOAD_DESTROYED		42
 
 #define EV_SUBMISSION 			51
 #define EV_SUBMISSION_UNIQ 		52
 #define EV_SUBMISSION_HIT 		53
+#define EV_SUBMISSION_DROPPED		54
 
 #define EV_DIALOGUE_ASSIGN_AND_DONE 61
 
+#define EV_SHELLCODE			70
 #define EV_SHELLCODE_DONE		71
+#define EV_SHELLCODE_FAIL		72
 
 #define EV_HEXDUMP				81
+
+#define EV_DNS_QUERY_CREATED		90
+#define EV_DNS_QUERY_FAILURE		91
+#define EV_DNS_QUERY_SUCCESS		92
+#define EV_DNS_QUERY_STOP		93
+#define EV_DNS_QUERY_DESTROYED		94
 
 	class Event
     {

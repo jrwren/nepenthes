@@ -60,7 +60,7 @@ namespace nepenthes
         virtual ~ShellcodeManager();
         virtual bool registerShellcodeHandler(ShellcodeHandler *handler);
 		virtual bool unregisterShellcodeHandler(ShellcodeHandler *handler);
-        virtual sch_result  handleShellcode(Message **msg);    
+        virtual sch_result  handleShellcode(Message **msg, const char *trigger = NULL, bool knownAttack = false); 
 				sch_result fileCheck(Message **nmsg);
 
 		bool Init();

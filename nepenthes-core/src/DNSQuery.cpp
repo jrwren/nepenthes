@@ -29,12 +29,17 @@
 
 #include "DNSQuery.hpp"
 
+#include "DNSEvent.hpp"
+#include "EventManager.hpp"
+#include "Nepenthes.hpp"
+
 using namespace nepenthes;
 
 
-DNSQuery::DNSQuery(DNSCallback *callback, char *dns, uint16_t querytype, void *obj)
+DNSQuery::DNSQuery(DNSCallback *manager, DNSCallback *handler, char *dns, uint16_t querytype, void *obj)
 {
-	m_Callback = callback;
+	m_Callback = manager;
+	m_CallbackUser = handler;
 	m_DNS = dns;
 	m_Object = obj;
 	m_QueryType = querytype;
@@ -42,6 +47,8 @@ DNSQuery::DNSQuery(DNSCallback *callback, char *dns, uint16_t querytype, void *o
 
 DNSQuery::~DNSQuery()
 {
+	DNSEvent event(EV_DNS_QUERY_DESTROYED, this);
+	g_Nepenthes->getEventMgr()->handleEvent(&event);
 }
 
 /**
@@ -54,13 +61,17 @@ DNSCallback *DNSQuery::getCallback()
 	return m_Callback;
 }
 
+DNSCallback *DNSQuery::getCallbackUser()
+{
+	return m_CallbackUser;
+}
 
 /**
  * chancel the callback
  */
 void DNSQuery::cancelCallback()
 {
-	m_Callback = NULL;
+	m_CallbackUser = NULL;
 }
 
 /**

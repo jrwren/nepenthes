@@ -182,16 +182,24 @@ sch_result ShellcodeManager::fileCheck(Message **nmsg)
  * gives the shellcode to the registerd shellcodehandlers
  * 
  * @param msg the shellcode we want to check as Message
+ * @param trigger	Text describing the delivery mechanism (exploited
+ *			vulnerability) for the shellcode.
+ * @param known		True if we are certain the message is shellcode, and
+ *			that a failure to process the shellcode is likely a bug
+ *			in our emulation. False if only success is significant.
  * 
  * @return returns SCH_DONE on success, else SCH_NOTHING
  * 
  * 
  */
-sch_result ShellcodeManager::handleShellcode(Message **msg)
+sch_result
+ShellcodeManager::handleShellcode ( Message **msg, const char *trigger, bool known )
 {
 //	logDebug("SCHMGR Msg ptr is %x \n",(uint32_t )*msg);
 	list <ShellcodeHandler *>::iterator shandler;
 
+	if ( trigger == NULL )
+		trigger = "Unknown";
 	
 //	list <ShellcodeHandler *>::iterator demseinemutter;
 //	list <ShellcodeHandler *> notme;
@@ -200,6 +208,11 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 	static Message *nnmsg;
 	nmsg = msg;
 	nnmsg = *nmsg;
+
+	{
+		ShellcodeEvent se((*nmsg), NULL, trigger, known, EV_SHELLCODE);
+		g_Nepenthes->getEventMgr()->handleEvent(&se);
+	}
 
 	for(shandler = m_ShellcodeHandlers.begin();shandler != m_ShellcodeHandlers.end();)
 	{
@@ -228,7 +241,7 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 		{
 		case SCH_DONE:
 			{
-				ShellcodeEvent se((*nmsg)->getSocket(), (*shandler), EV_SHELLCODE_DONE);
+				ShellcodeEvent se((*nmsg), (*shandler), trigger, known, EV_SHELLCODE_DONE);
 				g_Nepenthes->getEventMgr()->handleEvent(&se);
 			}
 			return SCH_DONE;
@@ -253,6 +266,11 @@ sch_result ShellcodeManager::handleShellcode(Message **msg)
 			
 
 		}
+	}
+
+	{
+		ShellcodeEvent se((*nmsg), NULL, trigger, known, EV_SHELLCODE_FAIL);
+		g_Nepenthes->getEventMgr()->handleEvent(&se);
 	}
 
 	return SCH_NOTHING;

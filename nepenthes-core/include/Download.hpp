@@ -56,7 +56,7 @@ namespace nepenthes
 	class Download //: public EvCID
 	{
 	public:
-		Download(uint32_t localhost, char *pszUri, uint32_t ulAddress, char *triggerline, DownloadCallback *callback=NULL, void *obj=NULL);
+		Download(uint32_t localhost, char *pszUri, uint32_t ulAddress, const char *triggerline, DownloadCallback *callback=NULL, void *obj=NULL);
 		virtual ~Download();
 		virtual void 			setUrl(string *url);
 		virtual string 			getUrl();

@@ -28,6 +28,7 @@
 /* $Id$ */
 
 #include "Event.hpp"
+#include "Message.hpp"
 
 namespace nepenthes
 {
@@ -41,14 +42,25 @@ namespace nepenthes
 			m_Socket = socket;
 			m_EventType = e;
 		}
+		SocketEvent(Socket *parent, Socket *child, uint32_t e)
+		{
+			m_Socket = child;
+			m_EventType = e;
+			m_ParentSocket = parent;
+		}
 		~SocketEvent()
 		{
+		}
+		virtual Socket *getParentSocket()
+		{
+			return m_ParentSocket;
 		}
 		virtual Socket *getSocket()
 		{
 			return m_Socket;
 		}
 	private:
+		Socket *m_ParentSocket;
 		Socket *m_Socket;
 	};
 
@@ -83,26 +95,46 @@ namespace nepenthes
 	class ShellcodeEvent : public Event
 	{
 	public:
-		ShellcodeEvent(Socket *socket, ShellcodeHandler *handler, uint32_t e)
+		// ShellcodeEvent(Socket *socket, ShellcodeHandler *handler, const char *trigger, bool known, uint32_t e)
+		ShellcodeEvent(Message *msg, ShellcodeHandler *handler, const char *trigger, bool known, uint32_t e)
 		{
-			m_Socket = socket;
+			// m_Socket = socket;
+			m_Message = msg;
 			m_SCHandler = handler;
+			m_Trigger = trigger;
+			m_Known = known;
 			m_EventType = e;
 		}
 		~ShellcodeEvent()
 		{
 		}
+		virtual bool getKnown ()
+		{
+			return m_Known;
+		}
+		virtual Message *getMessage ()
+		{
+			return m_Message;
+		}
 		virtual Socket *getSocket()
 		{
-			return m_Socket;
+			return m_Message->getSocket();
 		}
 		virtual ShellcodeHandler *getShellcodeHandler()
 		{
 			return m_SCHandler;
 		}
+		virtual const char * getTrigger ()
+		{
+			return m_Trigger;
+		}
+
 	private:
-		Socket *m_Socket;
+		// Socket *m_Socket;
+		Message *m_Message;
 		ShellcodeHandler *m_SCHandler;
+		const char *m_Trigger;
+		bool m_Known;
 	};
 
 

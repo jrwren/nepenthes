@@ -202,6 +202,7 @@ namespace nepenthes
 		bool            m_verbose;
 		bool            m_setCaps;
 		bool            m_ringLogger;
+		bool		m_allowCore;
 		ColorSetting    m_color;
 
 		const char      *m_fileCheckArguments;

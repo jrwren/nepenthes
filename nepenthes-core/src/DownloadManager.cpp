@@ -296,11 +296,6 @@ bool DownloadManager::isLocalAddress(uint32_t ulAddress)
  */
 bool DownloadManager::downloadUrl(Download *down)
 {
-
-	// this is an event 
-	SubmitEvent se(EV_DOWNLOAD,down);
-	g_Nepenthes->getEventMgr()->handleEvent(&se);
-
 	if ( down->getDownloadUrl()->getPort() <= 0 || down->getDownloadUrl()->getPort() > 65536 )
 	{
 		logWarn("malformed url 0<port<65536  , %s \n",down->getUrl().c_str());
@@ -415,7 +410,7 @@ bool DownloadManager::downloadUrl(uint32_t localhost, char *url, uint32_t addres
  * 
  * @return true
  */
-bool DownloadManager::downloadUrl(uint32_t localhost, char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags)
+bool DownloadManager::downloadUrl(uint32_t localhost, char *proto, char *user, char *pass, char *host, char *port, char *file, uint32_t address, uint8_t downloadflags, const char *triggerLine )
 {
 	string url = proto;
 	 url += "://";
@@ -429,7 +424,7 @@ bool DownloadManager::downloadUrl(uint32_t localhost, char *proto, char *user, c
 	 url += "/";
 	 url += file;
 
-	Download *down = new Download(localhost, (char *)url.c_str(),address,(char *)url.c_str());
+	Download *down = new Download(localhost, (char *)url.c_str(),address,triggerLine);
 
 	down->getDownloadUrl()->setProtocol(proto);
 	down->getDownloadUrl()->setUser(user);
