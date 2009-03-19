@@ -1376,7 +1376,7 @@ LogAttack::log ( AttackCtx *ctx )
 		return false;
 
 	strftime(destination, sizeof(destination), m_ConfigData.logAttack.c_str(),
-		gmtime(&current_time.tv_sec));
+		gmtime((const time_t *)&current_time.tv_sec));
 
 	if ( m_ConfigData.logModeAttack == LOG_TO_DIRECTORY )
 	{
