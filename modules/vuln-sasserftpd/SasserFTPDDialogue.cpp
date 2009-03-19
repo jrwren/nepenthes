@@ -141,7 +141,7 @@ ConsumeLevel SasserFTPDDialogue::incomingData(Message *msg)
 		{
         	Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 									   m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-			sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "Sasser FTPD", true);
 			delete Msg;
 
 			if (  sch == SCH_DONE )

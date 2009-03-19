@@ -117,7 +117,7 @@ ConsumeLevel SMBDialogue::incomingData(Message *msg)
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 
-			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg, "MS04-007 ASN.1 Decoding (SMB_NEGOTIATE)");
 			delete Msg;
 			if ( res == SCH_DONE )
 			{
@@ -158,7 +158,7 @@ ConsumeLevel SMBDialogue::incomingData(Message *msg)
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 
-			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg, "MS04-007 ASN.1 Decoding (SMB_SESSION_SETUP)");
 			delete Msg;
 			if ( res == SCH_DONE )
 			{

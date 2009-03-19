@@ -1,0 +1,11 @@
+
+BUG: Failed outgoing TCP connections don't get close()'d quickly.
+
+UDP Support
+===========
+Currently, there is no good UDP support. Nepenthes has no concept of accept()
+for UDP "sessions", and as such each vulnerability module will have to track
+its own state between hosts. This prevents us from using log-attack to hold
+UDP socket state per "session" -- a UDP session framework should be added to
+Nepenthes beforehand.
+

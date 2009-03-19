@@ -141,7 +141,7 @@ ConsumeLevel IISDialogue::incomingData(Message *msg)
 		{
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 							   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
-			if ( msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg) == SCH_DONE )
+			if ( msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg, "Generic HTTP GET/POST Attack") == SCH_DONE )
 			{
 				m_State = IIS_DONE;
 				cl=CL_ASSIGN_AND_DONE;

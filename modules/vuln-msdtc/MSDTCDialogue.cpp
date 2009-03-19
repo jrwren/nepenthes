@@ -138,7 +138,7 @@ ConsumeLevel MSDTCDialogue::incomingData(Message *msg)
 				msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket()
 				);
 
-			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg, "MS05-051 MSDTC", true);
 			delete Msg;
 			if ( res == SCH_DONE )
 			{

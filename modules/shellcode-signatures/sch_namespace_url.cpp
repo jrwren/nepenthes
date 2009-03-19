@@ -74,7 +74,7 @@ sch_result NamespaceUrl::handleShellcode(Message **msg)
 	{
 		pcre_get_substring((char *) shellcode, (int *)ovec, (int)matchCount, 1, &match);
 		logInfo("%s: \"%s\"\n",m_ShellcodeHandlerName.c_str(), match);
-		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)match,(*msg)->getRemoteHost(),"generic url decoder",0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)match,(*msg)->getRemoteHost(),"URL Detected in Shellcode",0);
 		pcre_free_substring(match);
 		return SCH_DONE;
 	}

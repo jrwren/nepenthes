@@ -166,7 +166,7 @@ int32_t VFSCommandRCP::run(vector<string> *paramlist)
 			g_Nepenthes->getDownloadMgr()->downloadUrl( localhost,
 															(char *)url.c_str(),
 															remotehost,
-															(char *)url.c_str(),
+															"Download Initiated by Shell Command",
 															downloadflags);
 			return 0;
 

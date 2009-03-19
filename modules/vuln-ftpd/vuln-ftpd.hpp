@@ -83,6 +83,7 @@ namespace nepenthes
 		
 		void dump();
 		ftp_exploit identExploit(string line);
+		const char *identExploitString(ftp_exploit);
 	protected:
 		Buffer *m_Buffer;
 		Buffer *m_Shellcode;

@@ -189,7 +189,7 @@ ConsumeLevel DCOMDialogue::incomingData(Message *msg)
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 
-			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result res = msg->getSocket()->getNepenthes()->getShellcodeMgr()->handleShellcode(&Msg, "Generic Microsoft Windows DCOM");
 			delete Msg;
 
 			if ( res == SCH_DONE )

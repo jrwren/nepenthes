@@ -213,7 +213,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 	uint32_t threshold = 40;
 
 	ConsumeLevel retval = CL_ASSIGN;
-
+	ftp_exploit exploit_id;
 
 
 	m_Buffer->add(msg->getMsg(),msg->getSize());
@@ -249,7 +249,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 						logSpam("Recieved possible Exloit in USER field\n");
 
 						// identify exploit
-						identExploit(line);
+						exploit_id = identExploit(line);
 
 						m_Shellcode->add((char *)line.c_str(), line.size());
 
@@ -260,7 +260,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 												   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
 												   m_Socket->getRemoteHost(), m_Socket, m_Socket);
 
-						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, this->identExploitString(exploit_id));
 
 						delete Msg;
 
@@ -296,7 +296,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 						logSpam("Recieved possible Exloit in PASS field\n");
 
 						// identify exploit
-						identExploit(line);
+						exploit_id = identExploit(line);
 
 						m_Shellcode->add((char *)line.c_str(), line.size());
 
@@ -305,7 +305,7 @@ ConsumeLevel FTPdDialogue::incomingData(Message *msg)
 												   m_Socket->getRemotePort(),m_Socket->getLocalHost(), 
 												   m_Socket->getRemoteHost(), m_Socket, m_Socket);
 
-						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+						sch_result sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, this->identExploitString(exploit_id));
 
 						delete Msg;
 						if ( sch == SCH_DONE )
@@ -477,6 +477,45 @@ ftp_exploit FTPdDialogue::identExploit(string line)
 
 }
 
+const char *
+FTPdDialogue::identExploitString ( ftp_exploit exploit )
+{
+	switch ( exploit )
+	{
+	case FREEFTPD:
+		return "FreeFTPd 1.08";
+		break;
+
+	case WARFTPD_USER:
+		return "WarFTPd 1.65 USER";
+		break;
+
+	case WARFTPD_PASS:
+		return "WarFTPd 1.65 PASS";
+		break;
+
+	case UNKNOWN:
+
+		if ( m_state == FTP_NULL )
+		{
+			return "Generic FTP USER";
+		}
+		else if ( m_state == FTP_USER )
+		{
+			return "Generic FTP PASS";
+		}
+		else
+		{
+			return "Generic FTP";
+		}		
+
+		break;
+
+	default:
+		assert( false );
+		break;
+	}
+}
 
 extern "C" int32_t module_init(int32_t version, Module **module, Nepenthes *nepenthes)
 {

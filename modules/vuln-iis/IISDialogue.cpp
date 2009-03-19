@@ -126,7 +126,7 @@ ConsumeLevel IISDialogue::incomingData(Message *msg)
 						msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 //			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
-			if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg)  == SCH_DONE )
+			if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "Generic IIS SSL (IIS_NULL)")  == SCH_DONE )
 			{
 				m_State = IIS_DONE;
 				cl = CL_ASSIGN_AND_DONE;
@@ -141,7 +141,7 @@ ConsumeLevel IISDialogue::incomingData(Message *msg)
 									   msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 //			g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
 
-    		if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg)  == SCH_DONE )
+    		if ( g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "Generic IIS SSL (IIS_SSL)")  == SCH_DONE )
 			{
 				m_State = IIS_DONE;
 				cl = CL_ASSIGN_AND_DONE;

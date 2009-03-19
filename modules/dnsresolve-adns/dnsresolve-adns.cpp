@@ -189,14 +189,14 @@ void DNSResolverADNS::callBack()
 				m_Queue--;
 				query = ctx->m_DNSQuery;
 				logDebug("resolved dns %s (%i left) \n", query->getDNS().c_str(),m_Queue);
-				DNSResult result(answer,(char *)query->getDNS().c_str(), query->getQueryType(),query->getObject());
+				DNSResult result(query, answer,(char *)query->getDNS().c_str(), query->getQueryType(),query->getObject());
 
 				if (answer->nrrs == 0)
 				{
 					query->getCallback()->dnsFailure(&result);
 				}else
 				{
-                    query->getCallback()->dnsResolved(&result);
+					query->getCallback()->dnsResolved(&result);
 				}
 				delete ctx;
 				delete query;

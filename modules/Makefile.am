@@ -14,7 +14,7 @@ SUBDIRS = download-creceive download-csend download-curl download-ftp download-h
           module-portwatch module-honeytrap module-bridge module-peiros\
           dnsresolve-adns \
           x-1 x-2 x-3 x-4 x-5 x-6 x-9 \
-          log-surfnet log-hexdump vuln-ftpd \
+          log-attack log-surfnet log-hexdump vuln-ftpd \
           log-prelude shellcode-signatures \
 	  sqlhandler-postgres           
 #          vuln-netbios

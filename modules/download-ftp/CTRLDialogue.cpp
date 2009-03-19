@@ -138,7 +138,7 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 			switch (m_State)
 			{
 			case FTP_CONNECTED:
-				if (strncmp((char *)m_Buffer->getData() + iStart,"220 ",4) == 0)
+				if (strncmp((char *)m_Buffer->getData() + iStart,"220",3) == 0)
 				{
 					sendUser();
 					m_State = FTP_USER;
@@ -212,11 +212,11 @@ ConsumeLevel CTRLDialogue::incomingData(Message *msg)
 				break;
 
 			case FTP_RETR:
-				if (strncmp((char *)m_Buffer->getData() + iStart,"150 ",4) == 0)
+				if (strncmp((char *)m_Buffer->getData() + iStart,"150",3) == 0)
 				{
 					logDebug("RETR accepted\n");
 				}else
-				if (strncmp((char *)m_Buffer->getData() + iStart,"226 ",4) == 0)
+				if (strncmp((char *)m_Buffer->getData() + iStart,"226",3) == 0)
 				{
 					logDebug("Transferr finished\n");
 					sendQuit();
@@ -339,7 +339,7 @@ void CTRLDialogue::sendUser()
 }
 bool CTRLDialogue::parseUser(char *msg)
 {
-	if (strncmp(msg,"331 ",4) == 0)
+	if (strncmp(msg,"331",3) == 0)
 	{
 		logDebug("User accepted .. \n",m_Download->getDownloadUrl()->getPass().c_str());
 		return true;
@@ -364,7 +364,7 @@ void CTRLDialogue::sendPass()
 }
 bool CTRLDialogue::parsePass(char *msg)
 {
-	if (strncmp(msg,"230 ",4) == 0)
+	if (strncmp(msg,"230",3) == 0)
 	{
 		logDebug("Pass accepted, logged in \n");
 		return true;
@@ -387,7 +387,7 @@ void CTRLDialogue::sendType()
 
 bool CTRLDialogue::parseType(char *msg)
 {
-	if (strncmp(msg,"200 ",4) == 0)
+	if (strncmp(msg,"200",3) == 0)
 	{
 		logDebug("Type accepted \n");
 		return true;
@@ -493,7 +493,7 @@ void CTRLDialogue::sendPort()
 
 bool CTRLDialogue::parsePort(char *msg)
 {
-	if (strncmp(msg,"200 ",4) == 0)
+	if (strncmp(msg,"200",3) == 0)
 	{
 		logDebug("Port accepted\n");
 		return true;
@@ -520,7 +520,7 @@ void CTRLDialogue::sendRetr()
 
 bool CTRLDialogue::parseRetr(char *msg)
 {
-	if (strncmp(msg,"150 ",4) == 0)
+	if (strncmp(msg,"150",3) == 0)
 	{
 		logDebug("Retr accepted\n");
 		return true;
@@ -542,7 +542,7 @@ void CTRLDialogue::sendQuit()
 
 bool CTRLDialogue::parseQuit(char *msg)
 {
-	if (strncmp(msg,"221 ",4) == 0)
+	if (strncmp(msg,"221",3) == 0)
 	{
 		logDebug("Quit accepted\n");
 		return true;
@@ -566,7 +566,7 @@ void CTRLDialogue::sendCWD()
 
 bool CTRLDialogue::parseCWD(char *msg)
 {
-	if (strncmp(msg,"250 ",4) == 0)
+	if (strncmp(msg,"250",3) == 0)
 	{
 		logDebug("CWD accepted\n");
 		return true;

@@ -437,7 +437,7 @@ bool VFSCommandFTP::startDownload(string host, string port, string user, string 
 		g_Nepenthes->getDownloadMgr()->downloadUrl(	localhost,
 													(char *)url.c_str(),
 													remotehost,
-													(char *)url.c_str(),
+													"Download Initiated by Shell Command",
 													downloadflags);
 	}else
 	{
@@ -449,7 +449,8 @@ bool VFSCommandFTP::startDownload(string host, string port, string user, string 
 												   (char *)port.c_str(), 
 												   (char *)file.c_str(),
 												   remotehost,
-												   downloadflags); 
+												   downloadflags,
+												"Download Initiated by Shell Command"); 
 	}
 	return true;
 }

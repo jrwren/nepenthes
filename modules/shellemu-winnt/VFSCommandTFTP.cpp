@@ -87,6 +87,6 @@ int32_t VFSCommandTFTP::run(vector<string> *paramlist)
 		remotehost = m_VFS->getDialogue()->getSocket()->getRemoteHost();
 		localhost = m_VFS->getDialogue()->getSocket()->getLocalHost();
 	}
-	g_Nepenthes->getDownloadMgr()->downloadUrl(localhost,(char *)url.c_str(),remotehost,(char *)url.c_str(),0);
+	g_Nepenthes->getDownloadMgr()->downloadUrl(localhost,(char *)url.c_str(),remotehost,"Download Initiated by Shell Command",0);
     return 0;
 }

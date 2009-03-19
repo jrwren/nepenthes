@@ -195,6 +195,7 @@ MS08067Dialogue::MS08067Dialogue(Socket *socket)
 MS08067Dialogue::~MS08067Dialogue()
 {
 	delete m_Buffer;
+	delete assembled_dcerpc_data;
 }
 
 /**
@@ -557,7 +558,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 
 			 Message *Msg = new Message((char *)assembled_dcerpc_data->getData(), assembled_dcerpc_data->getSize(), msg->getLocalPort(), msg->getRemotePort(), msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 			  //g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
-			  sch_result result = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			  sch_result result = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "MS08-067 Server Service");
 			  delete Msg;
 			  if (result == SCH_DONE )
 			  {

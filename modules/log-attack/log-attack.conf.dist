@@ -1,0 +1,45 @@
+/*
+** Configuration File :: log-attack
+**
+** log_attack
+**
+**	The location for attack logs. If the path points to a directory, one
+**	file will be created per attack. If the path points to a files, attack
+**	data will be concatenated to the file. If nothing exists at the
+**	location, a directory (if the path ends with a slash character) or
+**	file will be created.
+**
+**	Optionally, this may contain format characters for strftime(3), in
+**	which case the resultant path will change based on the time the
+**	attack was logged.
+**
+** logdir_connection_data
+**
+**	A directory to place full connection data. Logs a sockets worth of
+**	connection data per file if log_connection_data is enabled.
+**
+** logdir_files
+**
+**	A directory to place downloades files / samples, by MD5.
+**
+** logmode_connection_data
+**
+**	Set the logging policy for raw connection data; can be one of the
+**	following:
+**
+**		all	Log raw connection data for all sockets.
+**		limited	Log raw connection data for only those attacks that
+**			may be important (as determined by log-attack.)
+**			Normally, this will only include attacks that have
+**			failed for some reason or not resulted in a submission.
+**		none	Don't log any raw connection data.
+*/
+
+log-attack
+{
+	log_attack		"var/log/attack-%Y%m%d.log";
+	logdir_connection_data	"var/log/connections/";
+	logdir_files		"var/log/files/";
+	logmode_connection_data	"limited";
+};
+

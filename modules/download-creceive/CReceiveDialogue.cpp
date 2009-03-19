@@ -84,7 +84,7 @@ CReceiveDialogue::CReceiveDialogue(Socket *socket)//, Download *down)
 		logCrit("Memory allocation error\n");
 		exit(EXIT_FAILURE);
 	}
-    m_Download = new Download(socket->getLocalHost(),url,socket->getRemoteHost(),url);
+    m_Download = new Download(socket->getLocalHost(),url,socket->getRemoteHost(),"Connection to CReceive upload listener.");
 	free(url);
 }
 

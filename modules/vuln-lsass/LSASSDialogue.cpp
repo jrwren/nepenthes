@@ -208,7 +208,7 @@ ConsumeLevel LSASSDialogue::incomingData(Message *msg)
 			 Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(), msg->getLocalPort(), msg->getRemotePort(),
 						  msg->getLocalHost(), msg->getRemoteHost(), msg->getResponder(), msg->getSocket());
 //			  g_Nepenthes->getUtilities()->hexdump((byte *)msg->getMsg(),msg->getSize());
-			  sch_result result = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			  sch_result result = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "MS04-011 Windows LSASS", true);
 			  delete Msg;
 			  if (result == SCH_DONE )
 			  {

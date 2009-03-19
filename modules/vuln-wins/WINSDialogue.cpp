@@ -82,7 +82,7 @@ ConsumeLevel WINSDialogue::incomingData(Message *msg)
 		{
 			Message *Msg = new Message((char *)m_Buffer->getData(), m_Buffer->getSize(),m_Socket->getLocalPort(), m_Socket->getRemotePort(),
 					m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
-			sch_result res = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			sch_result res = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "Generic Microsoft Windows WINS");
 			delete Msg;
 
 			if ( res == SCH_DONE )

@@ -126,7 +126,7 @@ sch_result GenericUrl::handleShellcode(Message **msg)
 
 		logInfo("Detected generic prepended unencoded URL Shellcode: \"%s\"\n", pUrl);
 		
-		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)pUrl,(*msg)->getRemoteHost(),"generic url decoder",0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),(char *)pUrl,(*msg)->getRemoteHost(),"URL Detected in Shellcode",0);
 		pcre_free_substring(pUrl);
 		bMatch = true;
 	}

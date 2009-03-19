@@ -135,7 +135,7 @@ ConsumeLevel DWDialogue::incomingData(Message *msg)
 									   m_Socket->getLocalHost(), m_Socket->getRemoteHost(), m_Socket, m_Socket);
 
 			sch_result sch;
-			sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg);
+			sch = g_Nepenthes->getShellcodeMgr()->handleShellcode(&Msg, "Generic DameWare Mini Remote Control Server Attack", true);
 			delete Msg;
 
 			if ( sch == SCH_DONE )

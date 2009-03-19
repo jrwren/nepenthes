@@ -1,0 +1,183 @@
+===============================================================================
+Nepenthes :: log-attack
+===============================================================================
+
+=================
+Attack Log Format
+=================
+
+Each line of the attack log corresponds to an abstract object, that can be one
+of several different types. Each line consists of a number of chunks, separated
+by pipe ``|'' characters (0x7C), with the first chunk indicating the type of
+object, and subsequent chunks detailing object properties and their values.
+
+Chunks Format
+=============
+Property/value chunks will be in the following format:
+
+[name]=[value]
+
+Data Types
+==========
+NULL
+	In some cases, properties may have no value, in which case no
+	characters will be present in the chunk after the ``='' character.
+Time
+	Time values are logged in seconds (whole and fractional) since the
+	Epoch. See gettimeofday(2) for more details.
+
+Common Properties
+=================
+The following properties are common to all objects:
+
+LUID
+	A locally-unique (to the attack) identifier for this object, which can
+	be used by other objects to refer to this one.
+
+The DNSReq Object
+=================
+The DNSReq object details outgoing DNS requests made by the honeypot in
+association with the attack.
+
+The DNSReq object can have the following properties:
+
+Addr
+	The address that the hostname resolved to (if SUCCESS), otherwise
+	blank. If the address resolved to multiple addresses, only the first
+	address is reported.
+Finish
+	The time the DNS request received a response (or timed out).
+Hostname
+	The hostname of the DNS request.
+Result
+	The result of the request, one of the following:
+
+	FAILURE	The DNS request failed, and no response was received.
+	SUCCESS The DNS request received a valid response.
+
+Start
+	The time the DNS request was made.
+
+The Download Object
+===================
+The Download object details a file transfer made in association with the
+attack. They may have been extracted from shellcode, and typically refer to
+a transfer mechanism (with associated parameters) used to propagate malicious
+code between hosts.
+
+The Download object can have the following properties:
+
+Result
+	FAILED		The download failed. For whatever reason, the download
+			module did not submit a file. This could indicate a bug
+			in the associated download module.
+	FILTERED	The file was successfully downloaded, but was filtered
+			by Nepenthes and not forwarded to submission modules.
+			This typically indicates that a non-executable file was
+			downloaded.
+	SUCCEEDED	The file was successfully downloaded and saved.
+Start
+	The time the download was started.
+Finish
+	The time the download was finished.
+ISock	(Initiating Socket) 
+	The LUID of the socket where the download was initiated from
+SSock	(Submitting Socket)
+	The LUID of the socket where the download was submitted from -- this
+	is typically the data channel associated with the fetch.
+MD5
+	The MD5 hash of the downloaded file.
+SHA512
+	The SHA512 hash of the downloaded file.
+Trigger
+	A textual description of the download initiating trigger / the
+	vulnerability that was targeted to initiate the download. Often times,
+	the trigger is a shellcode parsing module.
+URL
+	The URL used to initiate the download, which is specific to the
+	associated protocol (FTP, HTTP, etc.)
+
+The Shellcode Object
+====================
+Finish
+	The time shellcode processing stopped.
+Emulation
+	Whether or not emulation of this shellcode was successful.
+Handler
+	The name of the shellcode handler that performed emulation, if any.
+ISock
+	The LUID of the socket where the injection occurred.
+MD5
+	The MD5 hash of the shellcode.
+Start
+	The time the event resulting in the shellcode occurred, and processing
+	of the shellcode began.
+Trigger
+	A textual description of the shellcode submission trigger / the
+	vulnerability that was targeted with the shellcode.
+Type
+	The type of attack, either KNOWN (this is a known attack vector, and
+	the shellcode should be legitimate) or UNKNOWN (we're guessing that
+	this might be an attack, but it might not be -- the shellcode could
+	just be protocol data.) When the Type is KNOWN, and the Emulation is
+	FAILURE, we have likely failed to emulate a shellcode.
+
+The Socket Object
+=================
+Dumpfile
+	The logged raw connection data (logdir_connection_data) for the socket,
+	or empty if the raw connection data was logged. The name is the same
+	as the hash of received data, so that multiple connections with the
+	same data received by the honeypot will not be logged multiple times.
+	See the ``Dumpfile Format'' section for details.
+
+Finish
+	The time that the socket was closed.
+Local
+	The local address/port pair for the endpoint.
+Proto
+	The protocol for the socket. Currently, only TCP is valid.
+Remote
+	The remote address/port pair for the endpoint.
+RX
+	Contains three values, seperated by a comma ``,'' character. The first
+	value is the number of "chunks" received in the connection (blocks of
+	arbitrary-sized data), the second is the total number of received
+	bytes, and the third is a hash of the data sent in this direction.
+Start
+	The time that the socket was created.
+Status
+	The final status of the socket. This value is not significant for
+	sockets of type INCOMING (as they're always connected). For the other
+	types:
+
+	CONNECTED	The socket accepted at least one connection (LISTENER)
+			The socket finished connecting successfully (OUTGOING)
+	UNCONNECTED	The socket didn't accept any connections (LISTENER)
+			The socket wasn't able to connect (OUTGOING)
+Type
+	The type of socket. Can be one of the following:
+
+	INCOMING	The socket was an incoming connection to the honeypot.
+	LISTENER	The socket was created to accept incoming connections.
+	OUTGOING	The socket was an outgoing connection to a remote host.
+TX
+	As RX, but for data transmitted by the local host to the remote host.
+
+===============
+Dumpfile Format
+===============
+For some connections, a dumpfile will be created, which logs the minimum amount
+of data necessary to re-create a pcap file for one connection. These files can
+be used to view raw connection data in order to diagnose emulation failures, or
+gain insight into a specific attack.
+
+A dumpfile consists of multiple records, each with a 32-bit header, followed by
+an arbitrary amount of socket data. The header is simply the length of the
+following record, with one of the following flags set:
+
+#define DIRECTION_RX 0x10000000
+#define DIRECTION_TX 0x20000000
+
+The header is in network (big endian) byte order.
+
