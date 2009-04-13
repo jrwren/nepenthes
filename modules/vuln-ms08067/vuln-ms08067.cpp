@@ -261,6 +261,8 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
  	 if (checkPacketValidity(msg) && checkSMBCommand(msg, SMB_TREECONNECT_ANDX))
  	 	m_State = MS08067_STAGE4;
 #endif
+
+	 logDebug("Checking MS08-067 for m_State = %u\n", m_State);
 	 
 	 // this one makes it possible to have multiple NTCreateAndX Requests in a session
 	 if ( m_State > MS08067_STAGE5 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_NTCREATE_ANDX) )
@@ -283,6 +285,20 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 	 // read andx -> stage 7
 	 if ( m_State == MS08067_STAGE6 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_READ_ANDX) )
 		m_State = MS08067_STAGE7;
+
+	 if ( m_State == MS08067_STAGE4 && checkPacketValidity(msg) && checkSMBCommand(msg, SMB_SESS_SETUP_ANDX) )
+	 {
+		 memcpy(reply, session_setup_response_andx_tree_connect, sizeof(session_setup_response_andx_tree_connect)-1);
+		 // copy process and multiplex id
+		 memcpy(reply+30, ((char *)m_Buffer->getData())+30, 2);
+		 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
+		 m_Buffer->clear();
+		 msg->getResponder()->doRespond(reply,sizeof(session_setup_response_andx_tree_connect)-1);
+
+		 logDebug("!! Superjmp.\n");
+
+		 return CL_UNSURE;
+	 }
 
 	 switch (m_State)
 	 {
@@ -324,7 +340,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 msg->getResponder()->doRespond(reply,sizeof(negotiate_protocol_response)-1);
 				 return m_ConsumeLevel;
 		 } else
-			return CL_DROP;
+			return CL_UNSURE;
 		 break;
 
 	 case MS08067_STAGE2:
@@ -354,7 +370,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 
 				 return m_ConsumeLevel;
 		 }else
-			 return CL_DROP;
+			 return CL_UNSURE;
 		 break;
 
 	 case MS08067_STAGE4:
@@ -369,9 +385,16 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 memcpy(reply+34, ((char *)m_Buffer->getData())+34, 2);
 				 m_Buffer->clear();
 				 msg->getResponder()->doRespond(reply,sizeof(treeconnect_response)-1);
+
+				 if(m_ConsumeLevel == CL_DROP)
+					logCrit("For some reason we drop this session\n");
+
 				 return m_ConsumeLevel;
 		 }else
-			 return CL_DROP;
+		 {
+			 logDebug("MS08-067 dropping out because we expected STAGE4 [%hu]\n", ((char *)msg->getMsg())[8]);
+			 return CL_UNSURE;
+		 }
 		 break;
 
 	 case MS08067_STAGE5:
@@ -419,7 +442,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 }
 				 return m_ConsumeLevel;
 		 }else 
-			 return CL_DROP;
+			 return CL_UNSURE;
 		 break;
 
 	 case MS08067_STAGE6_TRANS:
@@ -448,7 +471,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 }
 				 return m_ConsumeLevel;
 		 }else 
-			 return CL_DROP;
+			 return CL_UNSURE;
 		 break;
 
 	 case MS08067_STAGE7:
@@ -509,7 +532,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 				 msg->getResponder()->doRespond(reply,64+to_send);
 				 return m_ConsumeLevel;
 		 }else
-			 return CL_DROP;
+			 return CL_UNSURE;
 		 break;
 
 	 case MS08067_STAGE8:
@@ -550,7 +573,7 @@ ConsumeLevel MS08067Dialogue::incomingData(Message *msg)
 
 				 msg->getResponder()->doRespond(reply,sizeof(transaction_call_error_response)-1);
 		 }else
-			 return CL_DROP;
+			 return CL_UNSURE;
 
 	 case MS08067_STAGE9:
 		 {

@@ -204,6 +204,13 @@ xor::hod
 	mapping (none,pre,decoder,size,key,post);
 };
 
+xor::wolfsbuettel
+{
+	pattern
+	"(.*)((\\xE8\\xFF\\xFF\\xFF\\xFF)\\xC2\\x5F\\x8D\\x4F\\x10\\x80\\x31(.)\\x41\\x66\\x81\\x39\\x4D\\x53\\x75\\xF5)(.*)$";
+	mapping (none,pre,decoder,size,key,post);
+};
+
 /* skylined alphanumeric decoder */
 alphanumericxor::skylined
 {
