@@ -149,7 +149,7 @@ sch_result Genericwget::handleShellcode(Message **msg)
 		start = i;
 
 		while (htmldec[i] != '&' &&
-			   htmldec[i] != ';')
+			   htmldec[i] != ';' && i < htmldec.size())
 		{
 			i++;
 		}
