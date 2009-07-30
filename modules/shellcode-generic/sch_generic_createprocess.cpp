@@ -38,7 +38,7 @@
 
 /* $Id$ */
 
-
+#include <stdio.h>
 
 #include "sch_generic_createprocess.hpp"
 

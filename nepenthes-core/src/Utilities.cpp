@@ -27,6 +27,7 @@
 
 /* $Id$ */
 
+
 #ifdef WIN32
 #include <memory.h>
 #else
@@ -37,6 +38,7 @@
 #include <sys/types.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <stdio.h>
 
 #include "Utilities.hpp"
 #include "LogManager.hpp"

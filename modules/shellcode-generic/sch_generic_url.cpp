@@ -38,7 +38,7 @@
  *
  */
 
-
+#include <stdio.h>
  
 #include "sch_generic_url.hpp"
 #include "LogManager.hpp"

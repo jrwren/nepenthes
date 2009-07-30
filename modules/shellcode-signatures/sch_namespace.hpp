@@ -33,6 +33,7 @@
 
 #include <pcre.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "ShellcodeHandler.hpp"
 #include "parser.hpp"
 

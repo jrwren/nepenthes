@@ -27,6 +27,8 @@
 
 /* $Id$ */
  
+#include <stdio.h>
+
 #include "VFSCommandRCP.hpp"
 #include "VFSNode.hpp"
 #include "VFSDir.hpp"

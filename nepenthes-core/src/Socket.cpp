@@ -29,7 +29,7 @@
 
 #include <string>
 #include <sstream>
-
+#include <stdio.h>
 #include <time.h>
 
 #include <sys/types.h>

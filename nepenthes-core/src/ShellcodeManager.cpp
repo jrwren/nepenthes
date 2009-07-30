@@ -27,6 +27,8 @@
 
 /* $Id$ */
 
+#include <stdio.h>
+
 #include "ShellcodeManager.hpp"
 #include "ShellcodeHandler.hpp"
 #include "Nepenthes.hpp"

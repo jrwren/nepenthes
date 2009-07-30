@@ -30,7 +30,7 @@ case "$host" in
   LDFLAGS="$LDFLAGS -L/usr/local/lib -R/usr/local/lib"
   ;;
 *-*-linux*)
-  CPPFLAGS="$CPPFLAGS -D _GNU_SOURCE -I/usr/local/include"
+  CPPFLAGS="$CPPFLAGS -fno-strict-aliasing -D_GNU_SOURCE -I/usr/local/include"
   LDFLAGS="$LDFLAGS -L/usr/local/lib -R/usr/local/lib"
   ;;
 *-*-darwin*)

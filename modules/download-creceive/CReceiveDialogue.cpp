@@ -27,6 +27,8 @@
 
  /* $Id$ */
 
+#include <stdio.h>
+
 #include "CReceiveDialogue.hpp"
 
 #include "SocketManager.hpp"

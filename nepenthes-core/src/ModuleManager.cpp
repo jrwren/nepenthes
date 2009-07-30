@@ -28,6 +28,7 @@
 /* $Id$ */
 
 #include <dlfcn.h>
+#include <stdio.h>
 
 #include "ModuleManager.hpp"
 #include "Module.hpp"

@@ -29,6 +29,7 @@
 
 #include <string>
 #include <sys/param.h>
+#include <stdio.h>
 
 #include "DownloadManager.hpp"
 #include "DownloadHandler.hpp"
