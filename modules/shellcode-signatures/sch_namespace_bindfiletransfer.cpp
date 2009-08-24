@@ -140,7 +140,8 @@ sch_result NamespaceBindFiletransfer::handleShellcode(Message **msg)
 				logCrit("Memory allocation error\n");
 				return SCH_NOTHING;
 			}
-			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
+			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,
+				(*msg)->getRemoteHost(),"Bind/Listen Transfer (blink) Detected in Shellcode",0);
 			free(url);
 			free(base64Key);
 		}else
@@ -153,7 +154,8 @@ sch_result NamespaceBindFiletransfer::handleShellcode(Message **msg)
 				logCrit("Memory allocation error\n");
 				return SCH_NOTHING;
 			}
-			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
+			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,
+				(*msg)->getRemoteHost(),"Bind/Listen Transfer (creceive) Detected in Shellcode",0);
 			free(url);
 
 		}

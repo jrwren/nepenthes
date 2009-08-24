@@ -152,7 +152,8 @@ sch_result NamespaceConnectbackFiletransfer::handleShellcode(Message **msg)
 				logCrit("Memory allocation error\n");
 				return SCH_NOTHING;
 			}
-			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
+			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,
+				(*msg)->getRemoteHost(),"Connect-Back Transfer (linkbot) Detected in Shellcode",0);
 			free(url);
 			free(base64Key);
 		}else
@@ -162,10 +163,11 @@ sch_result NamespaceConnectbackFiletransfer::handleShellcode(Message **msg)
 			char *url;
 			if (asprintf(&url,"csend://%s:%d/%i",inet_ntoa(*(in_addr *)&host), port, 0) == -1) {
 				free(url);
-				logCrit("Memory allocatino error\n");
+				logCrit("Memory allocation error\n");
 				return SCH_NOTHING;
 			}
-			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url, (*msg)->getRemoteHost(), url,0);
+			g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,
+				(*msg)->getRemoteHost(),"Connect-Back Transfer (csend) Detected in Shellcode",0);
 			free(url);
 
 		}

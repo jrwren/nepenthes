@@ -168,7 +168,8 @@ sch_result LinkTrans::handleShellcode(Message **msg)
 			logCrit("Memory allocation error\n");
 			exit(EXIT_FAILURE);
 		}
-		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,(*msg)->getRemoteHost(),url,0);
+		g_Nepenthes->getDownloadMgr()->downloadUrl((*msg)->getLocalHost(),url,
+			(*msg)->getRemoteHost(),"Connect-Back Transfer (linkbot) Detected in Shellcode",0);
 		free(url);
 		free(base64Key);
 
