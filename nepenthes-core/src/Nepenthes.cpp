@@ -103,6 +103,7 @@ Options::Options()
 	m_fileCheckArguments = NULL;
 	m_configPath = SYSCONFDIR "/nepenthes/nepenthes.conf";
 	m_workingDir = PREFIX;
+	m_pidFile = NULL;
 	m_changeUser = NULL;
 	m_changeGroup = NULL;
 	m_changeRoot = NULL;
@@ -216,6 +217,7 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 			{ "log", 			1, 0, 'l' },	
 			{ "logging-help",	0, 0, 'L' },	
 			{ "color",	 		1, 0, 'o' },
+			{ "pidfile",		1, 0, 'p' },
 			{ "chroot",			1, 0, 'r' }, 
 			{ "ringlog",		0, 0, 'R' }, 
 			{ "user",			1, 0, 'u' },	
@@ -225,7 +227,7 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 			{ 0, 0, 0, 0 }
 		};
 
-		int32_t c = getopt_long(argc, argv, "c:Cd:Df:g:hHikl:Lo:r:Ru:vVw:X", long_options, (int *)&option_index);
+		int32_t c = getopt_long(argc, argv, "c:Cd:Df:g:hHikl:Lo:p:r:Ru:vVw:X", long_options, (int *)&option_index);
 		if (c == -1)
 			break;
 
@@ -302,6 +304,10 @@ bool Nepenthes::parseArguments(int32_t argc, char **argv, Options *options)
 						"`never', `always' or `auto'.\n");
 				return false;
 			}
+			break;
+
+		case 'p':
+			options->m_pidFile = optarg;
 			break;
 
 		case 'r':
@@ -533,6 +539,23 @@ int32_t Nepenthes::run(int32_t argc, char **argv)
 		logInfo("daemon process id is %i\n",getpid());
 	}
 
+	char pidstr[32];
+	int pidf;
+
+	// write pid-file
+	if (opt.m_pidFile != NULL) {
+		pidf = open(opt.m_pidFile, O_CREAT | O_TRUNC | O_RDWR, 0644);
+		if (pidf == -1) {
+			logCrit("Could not open pidfile\n");
+			exit(EXIT_FAILURE);
+		}
+		snprintf(pidstr, 31, "%i\n", getpid());
+		if (write(pidf, pidstr, strlen(pidstr)) == -1) {
+			logCrit("Could not write pidfile\n");
+			exit(EXIT_FAILURE);
+		}
+		close(pidf);
+	}
 
 	if (opt.m_runMode == runFileCheck || opt.m_runMode == runNormal )
 	{
@@ -1543,6 +1566,7 @@ void show_help(bool defaults)
 		{"L",	"logging-help",		"display help for -d and -l",			0						},
 		{"o",	"color=WHEN",		"control color usage. WHEN may be `never',\n"
 			"                              `always' or `auto'",					"`auto'"		},
+		{"p",	"pidfile=FILE",		"write pid to file", 					"" },
         {"r",	"chroot=DIR",		"chroot to DIR after startup",				"don't chroot"		},
 		{"R",	"ringlog",			"use ringlogger instead of filelogger",			"filelogger"	},
 		{"u",	"user=USER",				"switch to USER after startup",	"keep current user"},

@@ -208,6 +208,7 @@ namespace nepenthes
 		const char      *m_fileCheckArguments;
 		const char      *m_configPath;
 		const char      *m_workingDir;
+		const char	*m_pidFile;
 		const char      *m_changeUser;
 		const char      *m_changeGroup;
 		const char      *m_changeRoot;
